@@ -258,6 +258,7 @@ export class BattleRoom {
         else denied.push("team");
       }
       if (typeof w.player.ready === "boolean" && np.team) np.ready = w.player.ready;
+      if (typeof w.player.build === "string") np.build = w.player.build.replace(/[^a-z0-9.\-]/gi, "").slice(0, 12);
       if (!np.team) np.ready = false;
     }
     const changed = JSON.stringify({ ...np, seen: 0 }) !== JSON.stringify({ ...me, seen: 0 });
@@ -283,7 +284,7 @@ export class BattleRoom {
         if (w.settings.phase === "battle" && cur.phase !== "battle") {
           if (!validTeam(ns.first)) denied.push("start:first");
           else if (!TEAMS.every(t => leaders[t])) denied.push("start:teams");
-          else { ns.phase = "battle"; ns.startedAt = now; await M.set("turn", { active: ns.first, seq: 1, at: now, endedBy: null }); }
+          else { ns.phase = "battle"; ns.startedAt = now; await M.set("turn", { active: ns.first, seq: 1, at: now, endedBy: null, ends: { federation: 0, spacenoid: 0 } }); }
         } else if (w.settings.phase === "lobby" && cur.phase === "battle") { ns.phase = "lobby"; ns.startedAt = 0; await M.del("turn"); }
         await M.set("settings", ns); push = true;
       }
@@ -312,7 +313,13 @@ export class BattleRoom {
     if (w.endTurn && typeof w.endTurn === "object") {
       const tk = M.get("turn");
       if (!tk || !amLeader || tk.active !== myTeam || w.endTurn.seq !== tk.seq) denied.push("end-turn");
-      else { await M.set("turn", { active: myTeam === "federation" ? "spacenoid" : "federation", seq: tk.seq + 1, at: now, endedBy: myTeam }); push = true; }
+      else { await M.set("turn", { ...tk, active: myTeam === "federation" ? "spacenoid" : "federation", seq: tk.seq + 1, at: now, endedBy: myTeam }); push = true; }
+    }
+    // host override: hand the turn to a team (fixes a stuck turn)
+    if (w.forceTurn && typeof w.forceTurn === "object") {
+      const tk = M.get("turn");
+      if (!isHost || !tk || !validTeam(w.forceTurn.active)) denied.push("force-turn");
+      else if (tk.active !== w.forceTurn.active) { await M.set("turn", { ...tk, active: w.forceTurn.active, seq: tk.seq + 1, at: now, endedBy: "host" }); push = true; }
     }
 
     const locks = {};
@@ -323,7 +330,22 @@ export class BattleRoom {
     if (w.team && typeof w.team === "object") {
       if (!amLeader) denied.push("team-state");
       else if (JSON.stringify(w.team).length > MAX_BYTES) denied.push("team-size");
-      else { await M.set("team/" + myTeam, w.team); push = true; }
+      else {
+        await M.set("team/" + myTeam, w.team); push = true;
+        // every team save carries how many times that team has ended its turn: if the active team's count
+        // went up (and it now shows the enemy turn), pass the turn on — even if the explicit message was missed
+        const tk = M.get("turn"), tt = w.team.turn || {};
+        if (tk && typeof tt.ends === "number") {
+          const known = tk.ends && typeof tk.ends[myTeam] === "number" ? tk.ends[myTeam] : null;
+          if (known === null || tt.ends !== known) {
+            const nt = { ...tk, ends: { ...(tk.ends || {}), [myTeam]: tt.ends } };
+            if (known !== null && tt.ends > known && tk.active === myTeam && tt.phase === "enemy") {
+              nt.active = myTeam === "federation" ? "spacenoid" : "federation"; nt.seq = tk.seq + 1; nt.at = now; nt.endedBy = myTeam;
+            }
+            await M.set("turn", nt);
+          }
+        }
+      }
     }
     // 4. unit states (lock holder, or leader when nobody live holds the lock) — before any release / claim
     if (w.units && typeof w.units === "object") {

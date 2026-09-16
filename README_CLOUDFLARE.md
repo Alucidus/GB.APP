@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf5)
+# Gunpla Battle — Cloudflare version (build cf7)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -37,6 +37,13 @@ public/            the app (index.html, images, service worker)
 
 **Running sessions survive updates.** Connected devices drop for a moment and reconnect by themselves.
 
+## Everyone on the same build
+
+**Why it matters:** after uploading an update, every device must be on the **same build** (shown on the main menu). A device still showing an older build may not send turn changes.
+- **Updating a device:** close the app completely and reopen it, or pull down to refresh in the browser.
+- **Lobby check:** the lobby shows each player's build and warns when they differ.
+- **Stuck turn:** if a turn ever sticks, the **host** can tap **"Host: give the turn to the …"** on the turn box.
+
 ## Checking it works
 
 1. **Open the timing panel:** create a session, then tap the **MP chip 5 times**.
@@ -66,3 +73,5 @@ public/            the app (index.html, images, service worker)
 | cf3 | `public/index.html`, `public/sw.js` | Your team's roster shows **who has each sheet open** (coloured tag + outline per player) |
 | cf4 | `src/index.js`, `public/index.html`, `public/sw.js` | **Official turn order** kept by the room (only the active team can end its turn; the other team waits; out-of-step devices correct themselves); **no flicker** returning from a sheet (redraws only when something changed) |
 | cf5 | `public/index.html`, `public/sw.js`, **new** `public/img/ship-musai.webp`, `ship-salamis.webp`, `ship-rewloola.webp`, `ship-racailum.webp` | **Warships**: Musai, Salamis Kai, Rewloola, Ra Cailum — new ship sheet (Canva layout, code-drawn), tinted wireframes, rings for Hull / Bridge / Thrusters / weapon systems, weapons list, Crew / AP / Movement, abilities (launch, dock, Damage Control, base module, decoys); ship rules applied automatically |
+| cf6 | `src/index.js`, `public/index.html`, `public/sw.js` | **Stuck turn fix**: the room also passes the turn when the active team's save shows it ended (covers devices on older builds); lobby shows every device's build and warns on a mismatch; waiting message names a leader on another build; **host button** to give the turn to a team; safer handling of a refused turn change |
+| cf7 | `public/index.html`, `public/sw.js`, **new** `public/img/portraits/ship-musai.webp`, `ship-salamis.webp`, `ship-rewloola.webp`, `ship-racailum.webp` | **Roster tabs** (Mobile suits · Ships · Ground units); **grand warship picker** cards with the new ship photos; Ground units **under construction** notice; ship photos on roster rows and the ship sheet dial; fix: the unit list stays in columns after adding a unit |

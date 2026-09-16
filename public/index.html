@@ -1536,6 +1536,73 @@ body.spa #s5 .mpcode span{border-color:#ff4d5a}
   font-weight:900;font-size:clamp(5px,1.7cqw,23px);color:#fff;text-shadow:0 0 .8cqw var(--f-glow)}
 #sheet .sx.smove small{font-size:.42em;letter-spacing:.14em;text-transform:uppercase;color:var(--f-mut);margin-top:.15cqw}
 #sheet .sx.smove.warn{color:#fca5a5}
+.lb-build{font:700 9px ui-monospace,monospace;color:#64748b;padding:1px 4px;border:1px solid rgba(100,116,139,.4)}
+.lb-build.bad{color:#fbbf24;border-color:#b45309}
+.mpwait.gate small{display:block;margin-top:3px;font-size:11px;letter-spacing:0;color:#fca5a5;text-transform:none}
+
+/* ================= ROSTER TABS + WARSHIP PICKER (cf7) ================= */
+.rtabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(6px,1.2vw,14px);margin:16px 0 8px}
+.rtab{position:relative;display:flex;align-items:center;justify-content:center;gap:clamp(6px,1vw,14px);min-height:clamp(54px,7vw,76px);padding:8px 14px;cursor:pointer;
+  font:900 clamp(13px,1.9vw,24px) system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#94a3b8;
+  background:linear-gradient(180deg,rgba(20,26,34,.92),rgba(6,10,16,.92));border:1px solid rgba(255,255,255,.14);
+  clip-path:polygon(16px 0,100% 0,calc(100% - 16px) 100%,0 100%);transition:color .15s,background .15s,box-shadow .15s}
+.rtab svg{width:clamp(22px,2.8vw,36px);height:clamp(22px,2.8vw,36px);flex:none;opacity:.7}
+.rtab b{min-width:1.7em;padding:2px 8px;font-size:.62em;letter-spacing:.04em;color:#0b0f14;background:#64748b;clip-path:polygon(5px 0,100% 0,calc(100% - 5px) 100%,0 100%)}
+.rtab em{font-style:normal;font-size:.5em;letter-spacing:.14em;padding:3px 7px;color:#fde68a;border:1px solid #b45309;background:rgba(245,158,11,.12)}
+.rtab:hover{color:#e2e8f0}
+.rtab.on{color:#fff;background:linear-gradient(180deg,var(--acc-btn),rgba(6,10,16,.95));box-shadow:inset 0 -4px 0 var(--acc),0 0 22px var(--acc-soft);border-color:var(--acc)}
+.rtab.on svg{opacity:1;color:var(--acc);filter:drop-shadow(0 0 6px var(--acc-glow))}
+.rtab.on b{background:var(--acc)}
+@media (max-width:640px){.rtab{letter-spacing:.06em;flex-direction:column;gap:3px;padding:6px 4px}.rtab span{font-size:.72em}}
+.tabtot{color:var(--muted);letter-spacing:.08em;font-weight:700}
+.pt.shipp img{object-fit:contain !important;object-position:50% 50% !important;width:100%;height:100%;left:0;top:0;transform:scale(1.25)}
+#frame .fshipport img{transform:scale(1.15)}
+/* grand warship cards */
+.shipgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,470px),1fr));gap:18px;margin:10px 0 6px}
+.shipcard{position:relative;overflow:hidden;cursor:pointer;min-height:300px;display:flex;flex-direction:column;justify-content:space-between;
+  border:1px solid var(--acc-line);background:linear-gradient(140deg,var(--sc-tint),rgba(6,9,14,.95) 58%);
+  clip-path:polygon(22px 0,100% 0,100% calc(100% - 22px),calc(100% - 22px) 100%,0 100%,0 22px);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);transition:transform .18s,box-shadow .18s}
+.shipcard.fed{--sc-tint:rgba(56,189,248,.26);--sc-acc:#38bdf8}
+.shipcard.spa{--sc-tint:rgba(255,77,90,.28);--sc-acc:#ff4d5a}
+.shipcard:hover{transform:translateY(-3px);box-shadow:inset 0 0 0 1px var(--sc-acc),0 12px 30px rgba(0,0,0,.45)}
+.shipcard:active{transform:scale(.99)}
+.shipcard.has{box-shadow:inset 0 0 0 2px var(--sc-acc)}
+.sc-grid{position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px) 0 0/28px 28px,linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px) 0 0/28px 28px;
+  mask-image:linear-gradient(90deg,transparent,#000 45%);-webkit-mask-image:linear-gradient(90deg,transparent,#000 45%)}
+.sc-glow{position:absolute;right:-10%;top:-20%;width:75%;height:110%;pointer-events:none;background:radial-gradient(closest-side,var(--sc-tint),transparent)}
+.sc-art{position:absolute;right:-3%;top:4%;width:70%;height:64%;pointer-events:none;transition:transform .35s}
+.sc-art img{width:100%;height:100%;object-fit:contain;object-position:100% 50%;filter:drop-shadow(0 10px 18px rgba(0,0,0,.6)) drop-shadow(0 0 14px var(--sc-tint))}
+.shipcard:hover .sc-art{transform:translateX(-10px) scale(1.03)}
+.shipcard:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--sc-acc);box-shadow:0 0 14px var(--sc-acc)}
+.sc-info{position:relative;z-index:2;padding:18px 20px 0 22px;max-width:62%}
+.sc-class{font:800 11px system-ui,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--sc-acc)}
+body.spa .shipcard.spa .sc-class{color:#e2b04a}
+.sc-name{margin:2px 0 12px;font:900 clamp(30px,3.6vw,46px)/1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#fff;text-shadow:0 0 18px var(--sc-tint),0 2px 4px rgba(0,0,0,.8)}
+.sc-stats{display:grid;grid-template-columns:repeat(5,auto);gap:6px;justify-content:start}
+.sc-st{padding:5px 9px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.12);display:flex;flex-direction:column;align-items:center;min-width:48px}
+.sc-st small{font:800 9px system-ui,sans-serif;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+.sc-st b{font:900 17px system-ui,sans-serif;color:#fff}
+.sc-weap{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.sc-weap span{font:700 11px system-ui,sans-serif;letter-spacing:.04em;padding:3px 8px;color:#e2e8f0;background:rgba(255,255,255,.07);border-left:2px solid var(--sc-acc)}
+.sc-weap span.ab{border-left-color:#e2b04a;color:#fde68a}
+.sc-foot{position:relative;z-index:2;display:flex;align-items:center;gap:12px;padding:14px 20px 16px 22px;margin-top:14px;
+  background:linear-gradient(90deg,rgba(0,0,0,.7),rgba(0,0,0,.25))}
+.sc-dp{font:900 30px/1 system-ui,sans-serif;color:#fff;letter-spacing:.02em}
+.sc-dp small{margin-left:5px;font-size:12px;letter-spacing:.2em;color:var(--sc-acc)}
+.sc-qty{font:800 11px system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;padding:4px 9px;color:#0b0f14;background:var(--sc-acc)}
+.sc-add{margin-left:auto;font:900 13px system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;padding:10px 18px;color:#fff;
+  background:linear-gradient(110deg,var(--sc-acc),rgba(0,0,0,.4));clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);box-shadow:0 0 18px var(--sc-tint)}
+.shipnote{margin:6px 2px 0;font-size:12px;color:var(--muted)}
+@media (max-width:560px){.sc-info{max-width:100%;padding-top:150px}.sc-art{width:100%;height:150px;right:0}.sc-stats{grid-template-columns:repeat(3,auto)}}
+/* ground units: under construction */
+.uc{margin:14px 0 8px;border:1px solid #b45309;background:rgba(10,8,4,.88);overflow:hidden}
+.uc-stripes{height:18px;background:repeating-linear-gradient(-45deg,#fbbf24 0 16px,#111 16px 32px)}
+.uc-body{padding:34px 20px;text-align:center}
+.uc-icon{font-size:54px;line-height:1;color:#fbbf24;filter:drop-shadow(0 0 14px rgba(251,191,36,.5))}
+.uc h3{margin:10px 0 6px;font:900 clamp(22px,3.4vw,38px) system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#fde68a}
+.uc p{margin:0 auto;max-width:520px;font-size:14px;color:#d6c7a1}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -1732,6 +1799,7 @@ body.spa #s5 .mpcode span{border-color:#ff4d5a}
   </div>
   <div id="mpPrompt"></div>
   <div id="turnBox"></div>
+  <div id="rosterTabs" class="rtabs"></div>
   <div id="rosterBox"></div>
   <div id="oppBox"></div>
   <div class="grouphdr" id="poolHdr">Available units</div>
@@ -6454,6 +6522,7 @@ const SHIP_UNITS = [
     abil: ["launch", "dock", "dc", "decoy", "base"] },
 ];
 SHIP_UNITS.forEach(s => Object.assign(s, {
+  portrait: "ship-" + s.ship,
   tier: "Warship", type: "warship", move: s.moveCm + "cm", dodges: 0, kill: "hull", limb: { hull: s.hull },
   abilities: [], weapons: [], shields: [],
 }));
@@ -6680,7 +6749,7 @@ function buildShipFrame() {
   add("fdial o", { left: pc(cx), top: pc(cy) }); add("fdial i", { left: pc(cx), top: pc(cy) });
   add("fdial arc full", { left: pc(cx), top: pc(cy) });
   const pf = add("fport ph fshipport", { left: pc(cx), top: pc(cy) });
-  const pim = document.createElement("img"); pim.alt = ""; pim.src = shipSrc(u); pf.appendChild(pim);
+  const pim = document.createElement("img"); pim.alt = ""; pim.src = "img/portraits/" + u.portrait + ".webp"; pf.appendChild(pim);
   const mk = markOf(CUR);
   if (mk) { const pp = document.createElement("span"); pp.className = "mpip fp"; pp.style.setProperty("--pc", mk.c); pf.appendChild(pp); }
 }
@@ -7266,7 +7335,7 @@ function promptMarks(id) {
 function portraitHTML(u, r) {
   const tap = r ? ' onclick="event.stopPropagation();openMarkWheel(' + r.uid + ')" title="Tap to set a colour marker"' : '';
   return u.portrait
-    ? '<span class="pt' + (r ? ' tapm' : '') + '"' + tap + '><img src="img/portraits/' + u.portrait + '.webp" alt="" loading="lazy" decoding="async">' + markPipHTML(r) + '</span>'
+    ? '<span class="pt' + (u.type === "warship" ? ' shipp' : '') + (r ? ' tapm' : '') + '"' + tap + '><img src="img/portraits/' + u.portrait + '.webp" alt="" loading="lazy" decoding="async">' + markPipHTML(r) + '</span>'
     : '<span class="pt ph' + (u.type === "warship" ? ' shipph' : '') + (r ? ' tapm' : '') + '"' + (tap || (u.type === "warship" ? '' : ' title="Portrait coming soon"')) + '><img src="' + modelImg(u) + '" alt="" loading="lazy" decoding="async">' + markPipHTML(r) + '</span>';
 }
 // Lists used to rely on CSS multi-column layout. Safari fails to register taps outside the first column
@@ -7528,6 +7597,8 @@ async function mpSync() {
   if (sentClear) body.writes.clearResult = true;
   const sentEnd = mp.wantEndTurn;
   if (sentEnd) body.writes.endTurn = sentEnd;
+  const sentForce = mp.wantForceTurn;
+  if (sentForce) body.writes.forceTurn = sentForce;
   if (sentSettings) body.writes.settings = sentSettings;
   const unitsSent = {};
   let teamSent;
@@ -7563,6 +7634,7 @@ async function mpSync() {
   if (sentReq && mp.wantBudgetReq === sentReq) mp.wantBudgetReq = null;
   if (sentClear) mp.wantClearResult = false;
   if (sentEnd && mp.wantEndTurn === sentEnd) mp.wantEndTurn = null;
+  if (sentForce && mp.wantForceTurn === sentForce) mp.wantForceTurn = null;
   cons.forEach(k => mp.wantConsume.delete(k));
   if (sentSettings && mp.wantSettings === sentSettings) mp.wantSettings = null;
   rel.forEach(k => { mp.wantRelease.delete(k); mp.held.delete(k); });
@@ -7593,8 +7665,7 @@ async function mpSync() {
   mp.leaders = j.leaders || {}; mp.hostPid = j.hostPid || mp.hostPid;
   if (sentEnd && (j.denied || []).includes("end-turn")) {
     delete mp.etags.turn; delete mp.data.turn; mp.again = true;     // fetch the real turn order again
-    if (phaseUndo) undoPhase();
-    mpToast("The turn change wasn't accepted \u2014 the turn order was refreshed.");
+    mp.endDenied = true;                                            // decided once the real order is back
   }
   if (j.now) mp.skew = j.now - Date.now();
   // lock results
@@ -7845,6 +7916,12 @@ function mpApply() {
   if (changed) { mp.lastActivity = Date.now(); mp.teamAt = Date.now(); }   // a teammate's change counts as activity too
   // the official turn order
   const tk = mp.data.turn;
+  if (tk && mp.endDenied) {
+    mp.endDenied = false;
+    if (tk.active === t && turn.phase === "enemy" && phaseUndo) {      // the room still says it's our turn: undo the end
+      undoPhase(); mpToast("Your turn change wasn't accepted \u2014 it's still your turn.");
+    }
+  }
   if (tk && locked) {
     if (tk.active === t && turn.phase === "enemy" && mp.promptSeq !== tk.seq && !tk.pending) { mp.prompt = "start"; mp.promptSeq = tk.seq; }
     if (tk.active !== t && turn.phase === "you" && mpAmLeader() && !tk.pending && !mp.wantEndTurn) {
@@ -7924,7 +8001,7 @@ function mpSheetMode() {
 function mpBegin(j) {
   Object.assign(mp, { code: j.code, pid: j.pid, token: j.token, status: "connecting", msg: "", data: {}, etags: {}, seen: {},
     base: { team: undefined, units: {} }, leaders: {}, hostPid: j.host ? j.pid : null, held: new Set(), wantAcquire: new Set(),
-    wantRelease: new Set(), afterLock: {}, viewing: null, wantPlayer: null, wantSettings: null, entered: false, prompt: null, fails: 0 });
+    wantRelease: new Set(), afterLock: {}, viewing: null, wantPlayer: { build: APP_BUILD }, wantSettings: null, entered: false, prompt: null, fails: 0 });
   mpStore(); mpRender(); mpStart(); mpConnect();
 }
 const mpNameInput = () => { const v = ($("mpName") || {}).value || ""; const n = v.trim().slice(0, 18); try { if (n) localStorage.setItem(MP_NAME_KEY, n); } catch (e) {} return n; };
@@ -7986,12 +8063,18 @@ function mpResume() {
   try {
     const d = JSON.parse(localStorage.getItem(MP_KEY) || "null");
     if (d && d.code && d.pid && d.token) {
-      Object.assign(mp, { code: d.code, pid: d.pid, token: d.token, status: "connecting" });
+      Object.assign(mp, { code: d.code, pid: d.pid, token: d.token, status: "connecting", wantPlayer: { build: APP_BUILD } });
       mpStart(); mpConnect();
     }
   } catch (e) {}
 }
 window.openMP = () => { renderLobby(); show("s5"); };
+window.mpForceTurn = team => {
+  if (!mpIsHost()) return;
+  if (!confirm("Give the turn to the " + teamName(team) + "?\n\nUse this if the turn order is stuck (for example a device that didn't update).")) return;
+  mp.wantForceTurn = { active: team };
+  mpKick();
+};
 window.mpPromptGo = () => { mp.prompt = null; if (mpAmLeader() && locked && turn.phase === "enemy") phaseTap(); mpRender(); };
 window.mpPromptX = () => { mp.prompt = null; mpRender(); };
 
@@ -8175,13 +8258,16 @@ function renderLobby() {
         '<div class="lb-p' + (pid === mp.pid ? ' me' : '') + '">' +
           '<span class="lb-n">' + (mp.leaders[t] === pid ? '<i title="Team leader">\u{1F451}</i>' : '') + p.name + (pid === mp.pid ? ' <em>(you)</em>' : '') + '</span>' +
           (pid === mp.hostPid ? '<span class="lb-tag">HOST</span>' : '') +
+          '<span class="lb-build' + (p.build === APP_BUILD ? '' : ' bad') + '">' + (p.build || "old") + '</span>' +
           (battle ? '' : '<span class="lb-ready' + (p.ready ? ' on' : '') + '">' + (p.ready ? '\u2713 READY' : 'NOT READY') + '</span>') +
         '</div>').join("") : '<div class="lb-empty">No players yet</div>') + '</div>' +
       (!battle && (!me || me.team !== t) ? '<button class="btn lb-join" onclick="mpPickTeam(\'' + t + '\')">Join ' + teamName(t) + '</button>' : '') +
       (battle && me && !me.team ? '<button class="btn lb-join" onclick="mpPickTeam(\'' + t + '\')">Join this team</button>' : '') +
     '</div>';
   };
-  const unassigned = st.unassigned.length ? '<div class="lb-un">Not on a team yet: ' + st.unassigned.map(([, p]) => p.name).join(", ") + '</div>' : '';
+  const builds = [...new Set(st.act.map(([, p]) => p.build || "old"))];
+  const buildWarn = builds.length > 1 ? '<div class="lb-un">\u26A0 Devices are on different builds (' + builds.join(", ") + '). Everyone should close and reopen the app so all show build ' + APP_BUILD + '.</div>' : '';
+  const unassigned = buildWarn + (st.unassigned.length ? '<div class="lb-un">Not on a team yet: ' + st.unassigned.map(([, p]) => p.name).join(", ") + '</div>' : '');
   let controls = "";
   if (!battle) {
     const mine = me && me.team;
@@ -8275,7 +8361,10 @@ function renderOpp() {
   h += '<div class="list oppList ' + cls + '">';
   const counts = {}; (td.roster || []).forEach(x => counts[x.id] = (counts[x.id] || 0) + 1);
   const seen = {};
-  (td.roster || []).forEach(x => {
+  const tdShown = (td.roster || []).filter(x => unitTab(unitById(x.id)) === rosterTab);
+  if (!tdShown.length) { setHTMLIfChanged(box, h + '</div><div class="empty">' + (rosterTab === "ground" ? "No ground units yet." : "No enemy " + (rosterTab === "ships" ? "warships" : "mobile suits") + ".") + '</div>'); return; }
+  (td.roster || []).forEach(x => { if (unitTab(unitById(x.id)) !== rosterTab) seen[x.id] = (seen[x.id] || 0) + 1; });
+  tdShown.forEach(x => {
     const u = unitById(x.id); if (!u) return;
     seen[x.id] = (seen[x.id] || 0) + 1;
     const ud = mp.data["unit/" + ot + "/" + x.uid];
@@ -8325,6 +8414,58 @@ function setHTMLIfChanged(el, html) {
   return true;
 }
 function renderRoster() { renderRosterCore(); renderOpp(); splitColumns(); mpRender(); }
+// ---------- roster tabs: Mobile suits · Ships · Ground units ----------
+const unitTab = u => !u ? "suits" : u.type === "warship" ? "ships" : u.type === "ground" ? "ground" : "suits";
+let rosterTab = (() => { try { const t = localStorage.getItem("msb.tab"); return ["suits", "ships", "ground"].includes(t) ? t : "suits"; } catch (e) { return "suits"; } })();
+window.setRosterTab = t => {
+  if (rosterTab === t) return;
+  rosterTab = t;
+  try { localStorage.setItem("msb.tab", t); } catch (e) {}
+  renderRoster();
+};
+const TAB_ICON = {
+  suits: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M12 3h8l1.5 4H10.5z M9 9h14l2 7-3 2v4h-4l-1 7h-2l-1-7h-4v-4l-3-2z M5 11l3-1-1 9-3 1z M27 11l-3-1 1 9 3 1z" fill="currentColor"/></svg>',
+  ships: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M2 19l7-3h9l3-5h4l1 5 4 1-2 3H9z M11 14h5l1-3h-4z M4 23h22l-2 2H6z" fill="currentColor"/></svg>',
+  ground: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 12h11l2 3h8v2H21l-1 1H6l-2-3z M3 19h24l-2 5H6z M8 21.5a1.2 1.2 0 1 0 0 .1z" fill="currentColor"/></svg>',
+};
+function renderTabs() {
+  const box = $("rosterTabs"); if (!box) return;
+  const count = t => roster.filter(r => unitTab(unitById(r.id)) === t).length;
+  const tab = (t, label, extra) => '<button class="rtab ' + t + (rosterTab === t ? ' on' : '') + '" onclick="setRosterTab(\'' + t + '\')">' +
+    TAB_ICON[t] + '<span>' + label + '</span>' + (extra || '<b>' + count(t) + '</b>') + '</button>';
+  setHTMLIfChanged(box, tab("suits", "Mobile suits") + tab("ships", "Ships") + tab("ground", "Ground units", '<em>SOON</em>'));
+}
+function groundNoticeHTML() {
+  return '<div class="uc"><div class="uc-stripes"></div><div class="uc-body">' +
+    '<div class="uc-icon">\u26A0</div><h3>Under construction</h3>' +
+    '<p>Ground units \u2014 infantry squads, vehicles, tanks and transports \u2014 are coming in a future update.</p>' +
+    '</div><div class="uc-stripes"></div></div>';
+}
+function shipCardsHTML() {
+  const ships = UNITS.filter(u => u.type === "warship" && u.faction === side).sort((a, b) => a.dp - b.dp);
+  if (!ships.length) return '<div class="empty">No warships for this side yet.</div>';
+  const fac = side === "federation" ? "fed" : "spa";
+  return '<div class="shipgrid">' + ships.map(u => {
+    const n = countOf(u.id);
+    const cls = u.name.replace(u.short + "-class ", "").replace(u.short, "").trim();
+    const stat = (k, v) => '<div class="sc-st"><small>' + k + '</small><b>' + v + '</b></div>';
+    return '<div class="shipcard ' + fac + (n ? ' has' : '') + '" onclick="addUnit(\'' + u.id + '\');promptMarks(\'' + u.id + '\')">' +
+      '<div class="sc-grid"></div><div class="sc-glow"></div>' +
+      '<div class="sc-art"><img src="img/portraits/' + u.portrait + '.webp" alt="" loading="lazy" decoding="async"></div>' +
+      '<div class="sc-info">' +
+        '<div class="sc-class">' + cls + ' \u00b7 ' + (u.faction === "federation" ? "Earth Federation" : "Spacenoid forces") + '</div>' +
+        '<div class="sc-name">' + u.short + '</div>' +
+        '<div class="sc-stats">' + stat("Hull", u.hull) + stat("AP", u.ap) + stat("Move", u.moveCm + "cm") + stat("Hangar", u.hangar) + stat("Crew", u.crew) + '</div>' +
+        '<div class="sc-weap">' + u.sw.map(w => '<span>' + (w.label || w.name) + '</span>').join("") + (u.decoy ? '<span class="ab">Decoy Balloons</span>' : '') + (u.base ? '<span class="ab">Base T' + u.base + '</span>' : '') + '</div>' +
+      '</div>' +
+      '<div class="sc-foot">' +
+        '<div class="sc-dp">' + u.dp.toLocaleString() + '<small>DP</small></div>' +
+        (n ? '<div class="sc-qty">\u00d7' + n + ' in force</div>' : '') +
+        '<div class="sc-add">+ Add to force</div>' +
+      '</div></div>';
+  }).join("") + '</div>' +
+  '<p class="shipnote">Warships are bought with DP like mobile suits. Their crew never leave the ship, and a carrier must be loaded to capacity before anything else deploys.</p>';
+}
 function renderRosterCore() {
   document.body.classList.toggle("locked", locked);
   renderTurn();
@@ -8347,16 +8488,26 @@ function renderRosterCore() {
   }
 
   const box = $("rosterBox");
-  if (!roster.length) {
+  renderTabs();
+  const shownRoster = roster.filter(r => unitTab(unitById(r.id)) === rosterTab);
+  const tabNoun = rosterTab === "ships" ? "ship(s)" : rosterTab === "ground" ? "ground unit(s)" : "mobile suit(s)";
+  if (rosterTab === "ground") {
+    setHTMLIfChanged(box, groundNoticeHTML());
+  } else if (roster.length && !shownRoster.length) {
+    setHTMLIfChanged(box, '<div class="grouphdr">' + (locked ? "Deployed force" : "Your roster") + ' \u2014 no ' + tabNoun.replace("(s)", "s") + '</div><div class="empty">' +
+      (locked ? 'No ' + (rosterTab === "ships" ? "warships" : "mobile suits") + ' in this force.'
+              : rosterTab === "ships" ? 'No warships yet \u2014 pick one below.' : 'No mobile suits yet \u2014 pick one below.') + '</div>');
+  } else if (!roster.length) {
     setHTMLIfChanged(box, '<div class="grouphdr">Your roster</div><div class="empty">' + (mpTeamMode() && !mpAmLeader()
       ? 'Your team leader \u{1F451} ' + mpLeaderName(mpMyTeam()) + ' is picking the roster \u2014 it will appear here as they build it.'
       : 'Nothing selected yet \u2014 tap a unit below to add it.') + '</div>');
   } else {
-    let s = '<div class="grouphdr">' + (locked ? "Deployed force" : "Your roster") + ' \u2014 ' + roster.length + ' model(s)' +
+    let s = '<div class="grouphdr">' + (locked ? "Deployed force" : "Your roster") + ' \u2014 ' + shownRoster.length + ' ' + tabNoun +
+      (shownRoster.length !== roster.length ? ' <span class="tabtot">\u00b7 ' + roster.length + ' in total</span>' : '') +
       (locked ? '' : mpT && mp.budgetAsk ? ' <span class="unconf">\u23F3 waiting for the host to answer your ' + mp.budgetAsk.amount.toLocaleString() + ' DP request</span>'
         : mpT && !mpL ? ' <span class="unconf">\u{1F451} ' + mpLeaderName(mpMyTeam()) + ' is building the roster</span>'
                                  : ' <span class="unconf">\u26A0 not confirmed \u2014 tap Confirm team to play</span>') + '</div><div class="list">';
-    roster.forEach(r => {
+    shownRoster.forEach(r => {
       const u = unitById(r.id), n = countOf(r.id), idx = copyIndex(r);
       const kl = u.kill || "chest";
       const tot = u.limb[kl], now = r.st.hp[kl];
@@ -8385,11 +8536,26 @@ function renderRosterCore() {
   const pool = $("pool"), hdr = $("poolHdr"), tools = $("poolTools");
   if (locked || (mpTeamMode() && !mpAmLeader())) { pool.innerHTML = ""; pool.style.display = "none"; hdr.style.display = "none"; if (tools) tools.style.display = "none"; return; }
   pool.style.display = ""; hdr.style.display = ""; if (tools) tools.style.display = "flex";
-  const poolSig = JSON.stringify([side, query, budget, roster.map(r => r.id), typeof mpTeamMode === "function" && mpTeamMode()]);
+  if (rosterTab !== "suits") {                                     // the other tabs have no search box
+    if (tools) tools.style.display = "none";
+    if (rosterTab === "ground") hdr.style.display = "none"; else hdr.textContent = "Available warships";
+  } else hdr.textContent = "Available mobile suits";
+  const poolSig = JSON.stringify([side, query, budget, roster.map(r => r.id), typeof mpTeamMode === "function" && mpTeamMode(), rosterTab]);
   if (pool.__sig === poolSig && pool.firstChild) return;
   pool.__sig = poolSig;
   pool.innerHTML = "";
-  const avail = available();
+  pool.__splitN = null; pool.classList.remove("split");             // a rebuilt list must be laid out into columns again
+  if (rosterTab !== "suits") {
+    pool.classList.remove("list");
+    if (tools) tools.style.display = "none";
+    if (rosterTab === "ground") { hdr.style.display = "none"; return; }
+    hdr.textContent = "Available warships";
+    pool.innerHTML = shipCardsHTML();
+    return;
+  }
+  pool.classList.add("list");
+  hdr.textContent = "Available mobile suits";
+  const avail = available().filter(u => unitTab(u) === "suits");
   const tierCount = avail.reduce((m, x) => { m[x.tier] = (m[x.tier] || 0) + 1; return m; }, {});
   let lastTier = null;
   avail.forEach(u => {
@@ -8411,7 +8577,7 @@ function renderRosterCore() {
     pool.appendChild(d);
   });
   const list = avail;
-  const total = UNITS.filter(u => u.faction === side || u.faction === "neutral").length;
+  const total = UNITS.filter(u => (u.faction === side || u.faction === "neutral") && unitTab(u) === "suits").length;
   $("searchCount").textContent = query.trim() ? (list.length + " of " + total) : (total + " units");
   $("searchClear").style.display = query.trim() ? "" : "none";
   if (!list.length) pool.innerHTML = '<div class="empty">No units match that search.</div>';
@@ -10293,7 +10459,7 @@ function draw() {
   }
 }
 
-const APP_BUILD = "cf5";
+const APP_BUILD = "cf7";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 
 /* ---------- wiring ---------- */
@@ -10560,6 +10726,14 @@ function unitLabel(uid) {
   const u = unitById(r.id), n = countOf(r.id);
   return (u.short || u.name) + (n > 1 ? " #" + copyIndex(r) : "");
 }
+// the other team's leader runs a different build (it may not send turn changes)
+function mpBuildHint(team) {
+  const lp = mp.leaders && mp.leaders[team], p = lp && mp.data["player/" + lp];
+  if (!p) return "";
+  if (!p.build) return '<small> \u2014 ' + p.name + ' is on an older build: ask them to refresh the app</small>';
+  if (p.build !== APP_BUILD) return '<small> \u2014 ' + p.name + ' is on build ' + p.build + ' (you: ' + APP_BUILD + '): ask them to refresh</small>';
+  return "";
+}
 function mpOfficialTurn() { return typeof mpTeamMode === "function" && mpTeamMode() ? (mp.data.turn || null) : null; }
 function endMyTurn() {
   const tk = mpOfficialTurn();
@@ -10792,7 +10966,8 @@ function renderTurn() {
       '<span class="phase ' + (you ? "you" : "enemy") + '">' + label + '</span>' +
       (you ? '<span class="donecount' + (dt.of && dt.n === dt.of ? ' all' : '') + '">' + dt.n + ' / ' + dt.of + ' done</span>' : '') +
       (mpOfficialTurn() && mpOfficialTurn().active !== mpMyTeam()
-        ? '<span class="mpwait gate">\u23F3 Waiting for the ' + teamName(mpOfficialTurn().active) + ' to end their turn</span>'
+        ? '<span class="mpwait gate">\u23F3 Waiting for the ' + teamName(mpOfficialTurn().active) + ' to end their turn' + mpBuildHint(mpOfficialTurn().active) + '</span>' +
+          (mpIsHost() ? '<button class="btn sm" onclick="mpForceTurn(\'' + mpMyTeam() + '\')" title="Fix a stuck turn order">Host: give the turn to the ' + teamName(mpMyTeam()) + ' \u25B8</button>' : '')
         : mpTeamMode() && !mpAmLeader()
         ? '<span class="mpwait">\u{1F451} ' + mpLeaderName(mpMyTeam()) + (you ? ' ends the turn' : ' starts the turn') + '</span>'
         : '<button class="btn big ' + (you ? "pri" : "enemyturn") + (you && dt.of && dt.n === dt.of ? " ready" : "") + '" onclick="phaseTap()">' + btnTxt + '</button>') +
