@@ -1484,6 +1484,7 @@ body.spa #s5 .mpcode span{border-color:#ff4d5a}
 .row.ctl{box-shadow:inset 0 0 0 2px var(--ctl),0 0 10px -3px var(--ctl)}
 .ctltag{display:inline-block;margin-left:6px;padding:1px 7px;font:800 10px system-ui,sans-serif;letter-spacing:.06em;vertical-align:middle;
   color:#0b0f14;background:var(--ctl);clip-path:polygon(4px 0,100% 0,calc(100% - 4px) 100%,0 100%)}
+.mpwait.gate{color:#fbbf24;border-color:#b45309;background:rgba(245,158,11,.08)}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -6809,6 +6810,8 @@ function splitColumns() {
   const W = window.innerWidth || 0;
   const n = W >= 1180 ? 3 : W >= 640 ? 2 : 1;
   document.querySelectorAll(".list").forEach(list => {
+    if (list.__splitN === n) return;          // already laid out for this width: moving rows would restart their animation
+    list.__splitN = n;
     const items = [];
     [...list.children].forEach(ch => { if (ch.classList.contains("lcol")) items.push(...ch.children); else items.push(ch); });
     items.forEach(i => i.remove());
@@ -6899,6 +6902,7 @@ function mpDebugRender() {
 
 // ---------- small helpers ----------
 const teamName = t => t === "federation" ? "Federation" : t === "spacenoid" ? "Spacenoids" : "\u2014";
+const teamPoss = t => t === "spacenoid" ? "Spacenoids'" : teamName(t) + "'s";
 const otherTeam = t => t === "federation" ? "spacenoid" : "federation";
 const mpPlayers = () => { const o = {}; Object.keys(mp.data).forEach(k => { if (k.startsWith("player/") && mp.data[k]) o[k.slice(7)] = mp.data[k]; }); return o; };
 const mpMe = () => mp.pid ? mp.data["player/" + mp.pid] || null : null;
@@ -7057,6 +7061,8 @@ async function mpSync() {
   if (sentReq) body.writes.budgetRequest = sentReq;
   if (sentRes.length) body.writes.resolve = sentRes;
   if (sentClear) body.writes.clearResult = true;
+  const sentEnd = mp.wantEndTurn;
+  if (sentEnd) body.writes.endTurn = sentEnd;
   if (sentSettings) body.writes.settings = sentSettings;
   const unitsSent = {};
   let teamSent;
@@ -7091,6 +7097,7 @@ async function mpSync() {
   if (sentPlayer && mp.wantPlayer === sentPlayer) mp.wantPlayer = null;
   if (sentReq && mp.wantBudgetReq === sentReq) mp.wantBudgetReq = null;
   if (sentClear) mp.wantClearResult = false;
+  if (sentEnd && mp.wantEndTurn === sentEnd) mp.wantEndTurn = null;
   cons.forEach(k => mp.wantConsume.delete(k));
   if (sentSettings && mp.wantSettings === sentSettings) mp.wantSettings = null;
   rel.forEach(k => { mp.wantRelease.delete(k); mp.held.delete(k); });
@@ -7119,6 +7126,11 @@ async function mpSync() {
   mp.etags = j.etags || {};
   Object.keys(mp.data).forEach(k => { if (!(k in mp.etags)) delete mp.data[k]; });
   mp.leaders = j.leaders || {}; mp.hostPid = j.hostPid || mp.hostPid;
+  if (sentEnd && (j.denied || []).includes("end-turn")) {
+    delete mp.etags.turn; delete mp.data.turn; mp.again = true;     // fetch the real turn order again
+    if (phaseUndo) undoPhase();
+    mpToast("The turn change wasn't accepted \u2014 the turn order was refreshed.");
+  }
   if (j.now) mp.skew = j.now - Date.now();
   // lock results
   acq.forEach(k => {
@@ -7366,6 +7378,17 @@ function mpApply() {
   }
   Object.keys(mp.etags).forEach(k => { if (k.startsWith("unit/" + otherTeam(t) + "/") && mp.seen["opp:" + k] !== mp.etags[k]) { mp.seen["opp:" + k] = mp.etags[k]; mp.oppAt = Date.now(); } });
   if (changed) { mp.lastActivity = Date.now(); mp.teamAt = Date.now(); }   // a teammate's change counts as activity too
+  // the official turn order
+  const tk = mp.data.turn;
+  if (tk && locked) {
+    if (tk.active === t && turn.phase === "enemy" && mp.promptSeq !== tk.seq && !tk.pending) { mp.prompt = "start"; mp.promptSeq = tk.seq; }
+    if (tk.active !== t && turn.phase === "you" && mpAmLeader() && !tk.pending && !mp.wantEndTurn) {
+      turn.phase = "enemy"; turn.done = []; phaseUndo = null; save();        // this device fell out of step: match the room
+      mpToast("Turn order corrected \u2014 it's the " + teamPoss(tk.active) + " turn.");
+      if ($("s3").classList.contains("on")) renderRoster();
+    }
+    if (mp.lastTurnSeq !== tk.seq) { mp.lastTurnSeq = tk.seq; if ($("s3").classList.contains("on")) renderTurn(); }
+  }
   // a sheet I'm watching became free: take control
   if (mp.viewing != null) {
     const k = lockKey(t, mp.viewing), l = mpLockOf(t, mp.viewing);
@@ -7381,6 +7404,7 @@ function mpEnterTeam() {
   budget = mpSettings().budget || budget;
 }
 function mpTurnWatch(prev, cur) {
+  if (mp.data.turn) return;                      // the room keeps the official order (cf4+)
   if (!cur || !cur.turn || !cur.locked || !prev || !prev.turn) return;
   if ((cur.turn.ends || 0) > (prev.turn.ends || 0) && cur.turn.phase === "enemy" && locked && turn.phase === "enemy") mp.prompt = "start";
   else if (prev.turn.phase === "enemy" && cur.turn.phase === "you" && locked && turn.phase === "you") mp.prompt = "clash";
@@ -7775,14 +7799,14 @@ const HEALTH_COL = p => p <= 0 ? "#7f1d1d" : p <= .34 ? "#ef4444" : p <= .67 ? "
 function renderOpp() {
   const box = $("oppBox"); if (!box) return;
   const t = mpMyTeam();
-  if (!mpTeamMode()) { box.innerHTML = ""; return; }
+  if (!mpTeamMode()) { if (box.firstChild) { box.innerHTML = ""; box.__html = ""; } return; }
   const ot = otherTeam(t), td = mp.data["team/" + ot];
   const cls = ot === "federation" ? "opp-fed" : "opp-spa";
   const members = Object.values(mpPlayers()).filter(p => p.team === ot).map(p => p.name);
   let h = '<div class="grouphdr opphdr ' + cls + '">Enemy \u2014 ' + teamName(ot) +
     (td ? ' \u00b7 ' + (td.roster || []).length + ' model(s)' + (td.locked ? ' \u00b7 turn ' + (td.turn.round || "\u2014") + ' \u00b7 ' + (td.turn.phase === "you" ? '<span class="opp-act">their turn</span>' : 'waiting') : ' \u00b7 <span class="opp-wait">still building</span>') : '') +
     (members.length ? ' <span class="opp-ago">' + members.join(", ") + '</span>' : '') + '</div>';
-  if (!td) { box.innerHTML = h + '<div class="empty">The other team hasn\'t started building yet.</div>'; return; }
+  if (!td) { setHTMLIfChanged(box, h + '<div class="empty">The other team hasn\'t started building yet.</div>'); return; }
   h += '<div class="list oppList ' + cls + '">';
   const counts = {}; (td.roster || []).forEach(x => counts[x.id] = (counts[x.id] || 0) + 1);
   const seen = {};
@@ -7801,8 +7825,7 @@ function renderOpp() {
       '<span style="min-width:0"><div class="nm">' + label + '</div><div class="tr"><b style="color:' + HEALTH_COL(pct) + '">' + HEALTH_WORD(pct) + '</b> \u00b7 ' + u.tier + '</div></span>' +
       '<span class="dp">' + u.dp.toLocaleString() + '</span></div>';
   });
-  box.innerHTML = h + '</div>';
-  splitColumns();
+  if (setHTMLIfChanged(box, h + '</div>')) splitColumns();
 }
 window.oppDetail = uid => {
   const ot = otherTeam(mpMyTeam()), td = mp.data["team/" + ot]; if (!td) return;
@@ -7819,6 +7842,12 @@ window.oppDetail = uid => {
 };
 setInterval(() => { if (mp.code && $("s5") && $("s5").classList.contains("on")) mpRender(); }, 5000);
 
+// replace an element's contents only when they actually changed (a redraw restarts the row animations)
+function setHTMLIfChanged(el, html) {
+  if (el.__html === html && el.__first === el.firstChild && el.firstChild) return false;
+  el.innerHTML = html; el.__html = html; el.__first = el.firstChild;
+  return true;
+}
 function renderRoster() { renderRosterCore(); renderOpp(); splitColumns(); mpRender(); }
 function renderRosterCore() {
   document.body.classList.toggle("locked", locked);
@@ -7843,9 +7872,9 @@ function renderRosterCore() {
 
   const box = $("rosterBox");
   if (!roster.length) {
-    box.innerHTML = '<div class="grouphdr">Your roster</div><div class="empty">' + (mpTeamMode() && !mpAmLeader()
+    setHTMLIfChanged(box, '<div class="grouphdr">Your roster</div><div class="empty">' + (mpTeamMode() && !mpAmLeader()
       ? 'Your team leader \u{1F451} ' + mpLeaderName(mpMyTeam()) + ' is picking the roster \u2014 it will appear here as they build it.'
-      : 'Nothing selected yet \u2014 tap a unit below to add it.') + '</div>';
+      : 'Nothing selected yet \u2014 tap a unit below to add it.') + '</div>');
   } else {
     let s = '<div class="grouphdr">' + (locked ? "Deployed force" : "Your roster") + ' \u2014 ' + roster.length + ' model(s)' +
       (locked ? '' : mpT && mp.budgetAsk ? ' <span class="unconf">\u23F3 waiting for the host to answer your ' + mp.budgetAsk.amount.toLocaleString() + ' DP request</span>'
@@ -7874,12 +7903,15 @@ function renderRosterCore() {
         (locked || (mpT && !mpL) ? '' : '<button class="btn sm" onclick="event.stopPropagation();removeOne(' + r.uid + ')">Remove</button>') +
         '</div>';
     });
-    box.innerHTML = s + "</div>";
+    setHTMLIfChanged(box, s + "</div>");
   }
 
   const pool = $("pool"), hdr = $("poolHdr"), tools = $("poolTools");
   if (locked || (mpTeamMode() && !mpAmLeader())) { pool.innerHTML = ""; pool.style.display = "none"; hdr.style.display = "none"; if (tools) tools.style.display = "none"; return; }
   pool.style.display = ""; hdr.style.display = ""; if (tools) tools.style.display = "flex";
+  const poolSig = JSON.stringify([side, query, budget, roster.map(r => r.id), typeof mpTeamMode === "function" && mpTeamMode()]);
+  if (pool.__sig === poolSig && pool.firstChild) return;
+  pool.__sig = poolSig;
   pool.innerHTML = "";
   const avail = available();
   const tierCount = avail.reduce((m, x) => { m[x.tier] = (m[x.tier] || 0) + 1; return m; }, {});
@@ -9765,7 +9797,7 @@ function draw() {
   }
 }
 
-const APP_BUILD = "cf3";
+const APP_BUILD = "cf4";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 
 /* ---------- wiring ---------- */
@@ -10031,7 +10063,18 @@ function unitLabel(uid) {
   const u = unitById(r.id), n = countOf(r.id);
   return (u.short || u.name) + (n > 1 ? " #" + copyIndex(r) : "");
 }
+function mpOfficialTurn() { return typeof mpTeamMode === "function" && mpTeamMode() ? (mp.data.turn || null) : null; }
 function endMyTurn() {
+  const tk = mpOfficialTurn();
+  if (tk && tk.active !== mpMyTeam()) { mpToast("It's the " + teamPoss(tk.active) + " turn right now."); renderTurn(); return; }
+  endMyTurnCore();
+  if (tk) {
+    mp.wantEndTurn = { seq: tk.seq };
+    mp.data.turn = Object.assign({}, tk, { active: otherTeam(mpMyTeam()), seq: tk.seq + 1, endedBy: mpMyTeam(), pending: true });
+    mpKick(); renderTurn();
+  }
+}
+function endMyTurnCore() {
   beforePhase();
   const notes = [];
   roster.forEach(r => {
@@ -10051,6 +10094,11 @@ function endMyTurn() {
   afterPhase(notes);
 }
 function startMyTurn() {
+  const tk = mpOfficialTurn();
+  if (tk && tk.active !== mpMyTeam()) { mpToast("Wait for the " + teamName(tk.active) + " to end their turn."); renderTurn(); return; }
+  startMyTurnCore();
+}
+function startMyTurnCore() {
   beforePhase();
   turn.round += 1; turn.phase = "you"; turn.started = true;
   roster.forEach(r => {
@@ -10246,20 +10294,22 @@ function renderTurn() {
       '<div class="tb-round"><small>TURN</small>' + (turn.round || "\u2014") + '</div>' +
       '<span class="phase ' + (you ? "you" : "enemy") + '">' + label + '</span>' +
       (you ? '<span class="donecount' + (dt.of && dt.n === dt.of ? ' all' : '') + '">' + dt.n + ' / ' + dt.of + ' done</span>' : '') +
-      (mpTeamMode() && !mpAmLeader()
+      (mpOfficialTurn() && mpOfficialTurn().active !== mpMyTeam()
+        ? '<span class="mpwait gate">\u23F3 Waiting for the ' + teamName(mpOfficialTurn().active) + ' to end their turn</span>'
+        : mpTeamMode() && !mpAmLeader()
         ? '<span class="mpwait">\u{1F451} ' + mpLeaderName(mpMyTeam()) + (you ? ' ends the turn' : ' starts the turn') + '</span>'
         : '<button class="btn big ' + (you ? "pri" : "enemyturn") + (you && dt.of && dt.n === dt.of ? " ready" : "") + '" onclick="phaseTap()">' + btnTxt + '</button>') +
-      (phaseUndo && (!mpTeamMode() || mpAmLeader()) ? '<button class="btn" onclick="undoPhase()">\u21B6 Undo</button>' : '') +
+      (phaseUndo && (!mpTeamMode() || (mpAmLeader() && you)) ? '<button class="btn" onclick="undoPhase()">\u21B6 Undo</button>' : '') +
       '<span style="margin-left:auto;display:flex;gap:6px;align-items:center">' +
       (!turn.started && !mpTeamMode() ? '<span style="font-size:12px;color:var(--muted)">Who goes first?</span>' +
         '<span class="chip' + (turn.first === "you" ? " on" : "") + '" onclick="setFirst(\'you\')">' + (turn.first === "you" ? "\u2713 " : "") + 'We do</span>' +
         '<span class="chip' + (turn.first === "enemy" ? " on" : "") + '" onclick="setFirst(\'enemy\')">' + (turn.first === "enemy" ? "\u2713 " : "") + 'Enemy</span>' : '') +
-      (!mpTeamMode() || mpAmLeader() ? '<button class="linkbtn" onclick="newGame()">New game</button>' : '') + '</span></div>' +
+      (!mpTeamMode() ? '<button class="linkbtn" onclick="newGame()">New game</button>' : '') + '</span></div>' +
       '<div class="tb-sub">' + (you ? (dt.of && dt.n === dt.of ? "Every unit has moved \u2014 end your turn." : "Your turn: tick units off as you finish them, then end the turn here \u2014 once, for the whole force.") : "Enemy turn: use Dodges and Blocks on the sheets, then start your turn here when they finish.") + '</div>' +
       pipsHTML(null, true) +
       '<div class="tb-sub">' + (sel.p === "you" ? "Your turn " : "Enemy turn ") + (sel.r || "(opening)") + (tlSel ? ' \u00b7 <button class="linkbtn" onclick="tlSel=null;renderTurn()">back to now</button>' : '') + '</div>' +
       eventsHTML(null, true);
-    tb.innerHTML = h;
+    setHTMLIfChanged(tb, h);
   }
 }
 $("phaseChip").onclick = () => closeSheet();

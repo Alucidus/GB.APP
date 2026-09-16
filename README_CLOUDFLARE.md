@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf3)
+# Gunpla Battle — Cloudflare version (build cf4)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -64,3 +64,4 @@ public/            the app (index.html, images, service worker)
 | cf1 | everything | First Cloudflare version: live rooms, instant pushes, reconnection |
 | cf2 | `src/index.js`, `public/index.html`, `public/sw.js` | Over-budget teams ask the **host** to raise the DP limit (Accept / Decline pop-up); a raise applies to **both teams** |
 | cf3 | `public/index.html`, `public/sw.js` | Your team's roster shows **who has each sheet open** (coloured tag + outline per player) |
+| cf4 | `src/index.js`, `public/index.html`, `public/sw.js` | **Official turn order** kept by the room (only the active team can end its turn; the other team waits; out-of-step devices correct themselves); **no flicker** returning from a sheet (redraws only when something changed) |

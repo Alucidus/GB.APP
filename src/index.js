@@ -283,8 +283,8 @@ export class BattleRoom {
         if (w.settings.phase === "battle" && cur.phase !== "battle") {
           if (!validTeam(ns.first)) denied.push("start:first");
           else if (!TEAMS.every(t => leaders[t])) denied.push("start:teams");
-          else { ns.phase = "battle"; ns.startedAt = now; }
-        } else if (w.settings.phase === "lobby" && cur.phase === "battle") { ns.phase = "lobby"; ns.startedAt = 0; }
+          else { ns.phase = "battle"; ns.startedAt = now; await M.set("turn", { active: ns.first, seq: 1, at: now, endedBy: null }); }
+        } else if (w.settings.phase === "lobby" && cur.phase === "battle") { ns.phase = "lobby"; ns.startedAt = 0; await M.del("turn"); }
         await M.set("settings", ns); push = true;
       }
     }
@@ -307,6 +307,13 @@ export class BattleRoom {
       }
     }
     if (w.clearResult) await M.del("res/" + pid);
+
+    // 2c. the one official turn order: only the active team's leader can end the turn, once per turn
+    if (w.endTurn && typeof w.endTurn === "object") {
+      const tk = M.get("turn");
+      if (!tk || !amLeader || tk.active !== myTeam || w.endTurn.seq !== tk.seq) denied.push("end-turn");
+      else { await M.set("turn", { active: myTeam === "federation" ? "spacenoid" : "federation", seq: tk.seq + 1, at: now, endedBy: myTeam }); push = true; }
+    }
 
     const locks = {};
     for (const k of M.keys("lock/")) locks[k.slice(5)] = M.get(k);
