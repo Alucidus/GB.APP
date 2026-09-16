@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf10)
+# Gunpla Battle — Cloudflare version (build cf14)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -78,3 +78,7 @@ public/            the app (index.html, images, service worker)
 | cf8 | `public/index.html`, `public/sw.js` | **Carriers**: Confirm team → **Load your carriers** (capacity rule, auto-load); passengers greyed on the roster (⚓ ABOARD); **Launch** picker (catapult bonus: +10cm/AP, may attack — purple buff on the suit sheet); **Dock** picker (aboard next turn); **Emergency Disembark** when a carrier is destroyed |
 | cf9 | `public/index.html`, `public/sw.js` | Turn notice no longer flickers and is message-only; the **one** Start My Turn button turns **green and pulses** when it's your turn to start; fix: a leader's roster could be wiped if they added units / confirmed before the first sync after the battle started |
 | cf10 | `public/img/portraits/ship-musai.webp`, `ship-rewloola.webp`, `public/index.html`, `public/sw.js` | Cleaner Musai and Rewloola portraits (build bump so devices fetch the new images) |
+| cf11 | `public/index.html`, `public/sw.js` | Ship sheets: **MOVE** button (1 AP per move, undo, halved / straight-ahead / immobilised handled); Crew / AP / Movement labels moved **above** their boxes |
+| cf12 | `public/index.html`, `public/sw.js` | Ship rules: missile launchers / barrage have a **1 turn cooldown**; every gun that can shoot 2 targets is limited to **1 target at half system HP (10 or less)** — shown as an amber 1 TARGET flag |
+| cf13 | `public/index.html`, `public/sw.js` | Carriers: **several launches per turn** (1 AP each, ↶ undoes the latest); a suit launched this turn **can't dock** that turn. **☢ nuke button** on every sheet (Anti-Ship Missile / Atomic Bazooka, pick the distance: suits 15/10/5 to all 6; warships 40 Hull + Bridge & Thrusters disabled / 25 / 10). Fix: no thrusters shows immobilised even with the Bridge down |
+| cf14 | `public/index.html`, `public/sw.js` | Two-target guns at half HP **fire once** (12 ×1 / 5 ×1, no stacking); **Anti-Air Array works without the Bridge**; ☢ button simplified to "caught in a nuclear blast" — one table for every nuke (suits 15/10/5 to all 6, ships 40 + Bridge & Thrusters / 25 / 10 Hull) |

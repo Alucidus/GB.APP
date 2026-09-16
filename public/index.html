@@ -1662,6 +1662,32 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
   animation:startPulse 1.6s ease-in-out infinite}
 @keyframes startPulse{0%,100%{filter:drop-shadow(0 0 0 rgba(69,230,161,0))}50%{filter:drop-shadow(0 0 14px rgba(69,230,161,.85))}}
 @media (prefers-reduced-motion:reduce){.btn.big.startnow{animation:none;filter:drop-shadow(0 0 10px rgba(69,230,161,.7))}}
+
+/* ===== cf11: ship sheet centre column — labels above the boxes, MOVE control ===== */
+#frame .fstatc{font-size:1.25cqw;letter-spacing:.2em;color:#fff;text-shadow:0 0 .6cqw var(--f-glow),0 1px 2px rgba(0,0,0,.9)}
+#sheet .sx.sqa{z-index:9}
+#sheet .sx.sqa .qab{min-width:10.5cqw}
+#sheet .sx.sw-flag.half{background:#92400e;color:#fde68a}
+#sheet .sx.sw-name span em{font-style:normal;color:#fbbf24;font-weight:800}
+
+/* ===== cf13: nuke button + picker ===== */
+#amtBar .a.nuke{margin-left:6px;color:#0b0f14;background:#facc15;border-color:#facc15;font-size:1.15em;line-height:1;box-shadow:0 0 10px rgba(250,204,21,.45)}
+#amtBar .a.nuke:hover{filter:brightness(1.1)}
+#sheet .sx.sw-cd.withbtn{max-width:9.4%}
+.nk-src{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.nk-w{flex:1;min-width:150px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:8px 12px;cursor:pointer;color:#e2e8f0;
+  background:rgba(15,23,42,.9);border:1px solid rgba(255,255,255,.15)}
+.nk-w b{font-size:14px}.nk-w small{font-size:11px;color:#94a3b8}
+.nk-w.on{border-color:#facc15;box-shadow:inset 0 0 0 1px #facc15;background:rgba(113,63,18,.55)}
+.nk-note{font-size:11px;color:#fbbf24;margin:0 0 8px}
+.nk-band{display:flex;align-items:center;gap:14px;width:100%;margin-top:6px;padding:12px 14px;cursor:pointer;text-align:left;color:#fff;
+  border:1px solid rgba(250,204,21,.45);background:linear-gradient(90deg,rgba(161,98,7,.55),rgba(15,23,42,.92))}
+.nk-band.b0{background:linear-gradient(90deg,rgba(185,28,28,.85),rgba(15,23,42,.92));border-color:#ef4444}
+.nk-band.b1{background:linear-gradient(90deg,rgba(194,65,12,.75),rgba(15,23,42,.92));border-color:#f97316}
+.nk-band:hover{filter:brightness(1.15)}
+.nk-dist{min-width:92px;font:900 18px system-ui,sans-serif;letter-spacing:.04em}
+.nk-eff{font-weight:700;font-size:13px}
+#sheet .sx.sw-cell.half{color:#fbbf24}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -6531,10 +6557,10 @@ const SHIP_UNITS = [
     hull: 60, bridge: 40, thr: [20, 20], ap: 4, moveCm: 30, crew: 8, garrison: 1, dc: false, hangar: 2, launches: 1, base: 0, decoy: false,
     aspect: 1.807, box: { h: 58, top: 2, cx: 40 },
     sw: [
-      { key: "main", name: "Twin Mega Particle Gun", label: "Main Guns", tech: "Twin mega particle", ring: "MAIN GUNS", arc: "180° forward", range: "Sniper curve", dmg: "12 ×2", ap: 1, cd: 1,
-        note: "Three twin turrets. Split the two shots across 2 targets or stack both on one for 24. Each barrel rolls separately with its own Dodge/Block. 1 full turn cooldown. The turrets can't fire behind the ship." },
-      { key: "missile", name: "Missile Launchers", ring: "MISSILES", arc: "Forward", range: "60cm", dmg: "3 → all 6", ap: 1, cd: 0,
-        note: "A 30cm wide × 15cm deep band across the ship's heading. Everything inside is a target, friend or foe. Block only — no Dodge. Point Defense has no effect." },
+      { key: "main", name: "Twin Mega Particle Gun", label: "Main Guns", tech: "Twin mega particle", ring: "MAIN GUNS", arc: "180° forward", range: "Sniper curve", dmg: "12 ×2", dmgHalf: "12 ×1", ap: 1, cd: 1, twoTargets: true,
+        note: "Three twin turrets. Split the two shots across 2 targets or stack both on one for 24. Each barrel rolls separately with its own Dodge/Block. 1 full turn cooldown. The turrets can't fire behind the ship. At half system HP (10 or less) it can only fire once — a single shot at one target, no stacking." },
+      { key: "missile", name: "Missile Launchers", ring: "MISSILES", arc: "Forward", range: "60cm", dmg: "3 → all 6", ap: 1, cd: 1,
+        note: "A 30cm wide × 15cm deep band across the ship's heading. Everything inside is a target, friend or foe. Block only — no Dodge. Point Defense has no effect. 1 full turn cooldown." },
     ],
     rings: { bridge: [25, 15, "b"], thr0: [12, 64, "b"], thr1: [21, 44, "b"], hull: [62, 64], main: [46, 38], missile: [88, 82] },
     abil: ["launch", "dock", "dc", "bridgehit", "lockdown"] },
@@ -6542,12 +6568,12 @@ const SHIP_UNITS = [
     hull: 70, bridge: 40, thr: [20, 20], ap: 4, moveCm: 25, crew: 8, garrison: 1, dc: false, hangar: 2, launches: 1, base: 0, decoy: false,
     aspect: 1.790, box: { h: 60, top: 2, cx: 40 },
     sw: [
-      { key: "main", name: "Twin Mega Particle Cannon", label: "Main Cannon", tech: "Twin mega particle", ring: "MAIN CANNON", arc: "360°", range: "Sniper curve", dmg: "12 ×2", ap: 1, cd: 1,
-        note: "Turrets dispersed across the hull — no blind spot. The two shots MUST be split across 2 separate targets; they can't be stacked. Each rolls separately with its own Dodge/Block. 1 full turn cooldown." },
-      { key: "aa", name: "Anti-Air Array", arc: "360°", range: "60cm", dmg: "6d6", ap: 1, cd: 0,
+      { key: "main", name: "Twin Mega Particle Cannon", label: "Main Cannon", tech: "Twin mega particle", ring: "MAIN CANNON", arc: "360°", range: "Sniper curve", dmg: "12 ×2", dmgHalf: "12 ×1", ap: 1, cd: 1, twoTargets: true,
+        note: "Turrets dispersed across the hull — no blind spot. The two shots MUST be split across 2 separate targets; they can't be stacked. Each rolls separately with its own Dodge/Block. 1 full turn cooldown. At half system HP (10 or less) it can only fire once — a single shot at one target, no stacking." },
+      { key: "aa", name: "Anti-Air Array", arc: "360°", range: "60cm", dmg: "6d6", ap: 1, cd: 0, indep: true,
         note: "Four machine gun turrets. Ballistic, not beam: ignores Nano-Laminate, but can't touch Limb Health through an active Phase Shift pool. Roll 4+ at 60cm, 3+ at 30–60cm, 2+ under 30cm; 1 damage per success. One volley, one Dodge/Block." },
-      { key: "missile", name: "Missile Launchers", ring: "MISSILES", arc: "Forward", range: "60cm", dmg: "3 → all 6", ap: 1, cd: 0,
-        note: "Eight internal tubes. A 30cm wide × 15cm deep band across the heading. Friend and foe alike. Block only — no Dodge. Point Defense has no effect." },
+      { key: "missile", name: "Missile Launchers", ring: "MISSILES", arc: "Forward", range: "60cm", dmg: "3 → all 6", ap: 1, cd: 1,
+        note: "Eight internal tubes. A 30cm wide × 15cm deep band across the heading. Friend and foe alike. Block only — no Dodge. Point Defense has no effect. 1 full turn cooldown." },
     ],
     rings: { bridge: [36, 10, "b"], thr0: [6, 32, "b"], thr1: [20, 6, "b"], hull: [40, 55], main: [74, 62], aa: [57, 40], missile: [53, 72, "b"] },
     abil: ["launch", "dock", "dc", "bridgehit", "lockdown"] },
@@ -6555,14 +6581,14 @@ const SHIP_UNITS = [
     hull: 100, bridge: 60, thr: [30, 30], ap: 6, moveCm: 20, crew: 24, garrison: 3, dc: true, hangar: 4, launches: 2, base: 2, decoy: false,
     aspect: 2.513, box: { h: 52, top: 5, cx: 45 },
     sw: [
-      { key: "main", name: "Twin Mega Particle Main Gun", label: "Main Gun", tech: "Twin mega particle", ring: "MAIN GUN", arc: "360°", range: "Sniper curve", dmg: "12 ×2", ap: 1, cd: 1,
-        note: "The main battery. Split the two shots across 2 targets, or stack both on one for 24. Each barrel rolls separately with its own Dodge/Block. 1 full turn cooldown. One 20 HP system — disabling it takes both barrels offline." },
-      { key: "sec", name: "Twin Mega Particle Secondary Gun", label: "Secondary Gun", tech: "Twin mega particle", ring: "SECONDARY GUN", arc: "360°", range: "90cm", dmg: "5 each", ap: 1, cd: 0, twoTargets: true,
-        note: "Hits 2 separate targets at once, each rolled separately. Reduced to 1 target once the system is damaged." },
-      { key: "aa", name: "Anti-Air Array", arc: "360°", range: "60cm", dmg: "6d6", ap: 1, cd: 0,
+      { key: "main", name: "Twin Mega Particle Main Gun", label: "Main Gun", tech: "Twin mega particle", ring: "MAIN GUN", arc: "360°", range: "Sniper curve", dmg: "12 ×2", dmgHalf: "12 ×1", ap: 1, cd: 1, twoTargets: true,
+        note: "The main battery. Split the two shots across 2 targets, or stack both on one for 24. Each barrel rolls separately with its own Dodge/Block. 1 full turn cooldown. One 20 HP system — disabling it takes both barrels offline. At half system HP (10 or less) it can only fire once — a single shot at one target, no stacking." },
+      { key: "sec", name: "Twin Mega Particle Secondary Gun", label: "Secondary Gun", tech: "Twin mega particle", ring: "SECONDARY GUN", arc: "360°", range: "90cm", dmg: "5 each", dmgHalf: "5 ×1", ap: 1, cd: 0, twoTargets: true,
+        note: "Hits 2 separate targets at once, each rolled separately. At half system HP (10 or less) it can only fire once — a single shot at one target, no stacking." },
+      { key: "aa", name: "Anti-Air Array", arc: "360°", range: "60cm", dmg: "6d6", ap: 1, cd: 0, indep: true,
         note: "Twenty triple-barrel emplacements. Ballistic, not beam: ignores Nano-Laminate, but can't touch Limb Health through an active Phase Shift pool. Roll 4+ at 60cm, 3+ at 30–60cm, 2+ under 30cm; 1 damage per success. One volley, one Dodge/Block." },
-      { key: "missile", name: "Missile Barrage", arc: "Forward", range: "90cm", dmg: "4 → all 6", ap: 1, cd: 0,
-        note: "A 60cm wide × 20cm deep band across the heading, anywhere in range. Friend and foe alike. Block only — no Dodge. Point Defense has no effect." },
+      { key: "missile", name: "Missile Barrage", arc: "Forward", range: "90cm", dmg: "4 → all 6", ap: 1, cd: 1,
+        note: "A 60cm wide × 20cm deep band across the heading, anywhere in range. Friend and foe alike. Block only — no Dodge. Point Defense has no effect. 1 full turn cooldown." },
     ],
     rings: { bridge: [33, 17], thr0: [7, 62], thr1: [11, 30], hull: [30, 64], main: [46, 33], sec: [60, 55], aa: [73, 44], missile: [90, 86] },
     abil: ["launch", "dock", "dc", "base", "bridgehit"] },
@@ -6570,9 +6596,9 @@ const SHIP_UNITS = [
     hull: 140, bridge: 60, thr: [30, 30], ap: 6, moveCm: 15, crew: 32, garrison: 4, dc: true, hangar: 6, launches: 2, base: 2, decoy: true,
     aspect: 2.028, box: { h: 58, top: 2, cx: 44 },
     sw: [
-      { key: "main", name: "Twin Mega Particle Main Gun", label: "Main Gun", tech: "Twin mega particle", ring: "MAIN GUN", arc: "360°", range: "Sniper curve", dmg: "12 ×2", ap: 1, cd: 1,
-        note: "Five twin guns, dorsal and ventral. Split the two shots across 2 targets, or stack both on one for 24. Each barrel rolls separately with its own Dodge/Block. 1 full turn cooldown." },
-      { key: "aa", name: "Anti-Air Array", arc: "360°", range: "60cm", dmg: "6d6", ap: 1, cd: 0,
+      { key: "main", name: "Twin Mega Particle Main Gun", label: "Main Gun", tech: "Twin mega particle", ring: "MAIN GUN", arc: "360°", range: "Sniper curve", dmg: "12 ×2", dmgHalf: "12 ×1", ap: 1, cd: 1, twoTargets: true,
+        note: "Five twin guns, dorsal and ventral. Split the two shots across 2 targets, or stack both on one for 24. Each barrel rolls separately with its own Dodge/Block. 1 full turn cooldown. At half system HP (10 or less) it can only fire once — a single shot at one target, no stacking." },
+      { key: "aa", name: "Anti-Air Array", arc: "360°", range: "60cm", dmg: "6d6", ap: 1, cd: 0, indep: true,
         note: "Twenty-two twin-barrel guns. Ballistic, not beam: ignores Nano-Laminate, but can't touch Limb Health through an active Phase Shift pool. Roll 4+ at 60cm, 3+ at 30–60cm, 2+ under 30cm; 1 damage per success. One volley, one Dodge/Block." },
       { key: "asm", name: "Anti-Ship Missile", arc: "Forward", range: "90cm", dmg: "15/10/5", ap: 1, cd: 2, charges: 2,
         note: "Nuclear ordnance. 2 charges per game, 2 full turn cooldown between them. Undodgeable, Block only, hits friend and foe.\n\nBy distance from the blast centre:\n0–30cm — suits 15 to all 6 · warships 40 Hull, Bridge and both Thrusters disabled\n30–60cm — suits 10 to all 6 · warships 25 Hull\n60–90cm — suits 5 to all 6 · warships 10 Hull" },
@@ -6618,10 +6644,11 @@ function shipMigrate(u, st) {
 }
 const shipDCActive = (u, S) => u.dc && S.crew >= 9;
 function shipMove(u, S) {
-  if (S.bridge === 0) return { txt: "DRIFT", sub: "straight ahead only", warn: true };
   const down = S.thr.filter(v => v === 0).length;
-  if (down >= 2) return { txt: "0", sub: "immobilised", warn: true };
-  if (down === 1) return { txt: (u.moveCm / 2) + "cm", sub: "halved", warn: true };
+  if (down >= 2) return { txt: "0", sub: "immobilised", warn: true };            // no thrusters beats no bridge
+  const cm = down === 1 ? u.moveCm / 2 : u.moveCm;
+  if (S.bridge === 0) return { txt: cm + "cm", sub: "drift \u00b7 straight only" + (down ? " \u00b7 halved" : ""), warn: true };
+  if (down === 1) return { txt: cm + "cm", sub: "halved", warn: true };
   return { txt: u.moveCm + "cm", sub: "per AP", warn: false };
 }
 // start of this side's turn
@@ -6691,7 +6718,7 @@ function shipTap(k) {
     logEv(uid, "Bridge hit — 2 crew lost, −3 to the ship's rolls next turn", "bad");
   }
   if (cur > 0 && next === 0) {
-    const what = k === "hull" ? "DESTROYED" : k === "bridge" ? "Bridge destroyed — no weapons, no steering"
+    const what = k === "hull" ? "DESTROYED" : k === "bridge" ? "Bridge destroyed — " + (U.sw.some(w => w.indep) ? "no main weapons (Anti-Air still firing)" : "no weapons") + ", no steering"
       : k.startsWith("thr") ? lab + " destroyed — " + (S.thr.every(v => v === 0) ? "ship immobilised" : "movement halved") : lab + " offline";
     logEv(uid, what, "bad", "ship0:" + k);
     if (k !== "hull" && shipDCActive(U, S)) { S.rep[k] = 2; logEv(uid, lab + ": Damage Control — back in 2 turns", "info"); }
@@ -6707,7 +6734,7 @@ function shipFire(i) {
   if (!CUR || !isShip(U) || !mpSheetCanEdit()) return;
   const st = CUR.st, S = st.ship, w = U.sw[i], uid = CUR.uid;
   if (st.hp.hull === 0) return;
-  if (S.bridge === 0 || S.sys[i] === 0) { mpToast(w.name + " is offline."); return; }
+  if ((S.bridge === 0 && !w.indep) || S.sys[i] === 0) { mpToast(w.name + " is offline" + (S.sys[i] > 0 ? " \u2014 no Bridge." : ".")); return; }
   if (S.cd[i] > 0) { mpToast(w.name + " is cooling down (" + S.cd[i] + " turn" + (S.cd[i] > 1 ? "s" : "") + ")."); return; }
   if (w.charges && !(S.ch[i] > 0)) { mpToast("No " + w.name + " charges left."); return; }
   if (st.ap < w.ap) { mpToast("Not enough AP."); return; }
@@ -6740,6 +6767,8 @@ function shipStat(k, v) {
 
 // ---------- the sheet ----------
 const SHIP_ROWS_W = [69.5, 74.65, 79.75, 84.55, 88.85];
+const SHIP_HEX = [[62.6, "CREW"], [72.9, "AP"], [83.2, "MOVEMENT"]];   // box centre (label sits above), top to bottom
+const SHIP_MOVE_Y = 92.8;
 const SHIP_ROWS_A = [70.2, 75.35, 80.45, 85.2, 89.5];
 function shipRingPos(u, k) {
   const b = u.box, w = u.aspect * b.h * 0.5625;           // model width in % of the sheet width
@@ -6795,8 +6824,9 @@ function buildShipFrame() {
   table(57.0, 94.8, [63.0, 67.5, 72.8, 77.9, 83.0, 87.4, 91.6], [76.0, 81.6],
     [[66.5, "SKILL"], [78.8, "AP"], [88.2, "COOLDOWN"]], SHIP_ROWS_A, 57.9);
   // crew / AP / movement
-  [[64.4, 70.6, "CREW"], [76.1, 82.0, "AP"], [86.9, 93.0, "MOVEMENT"]].forEach(([y, ly, t]) => {
-    add("fhex", { left: "49.8%", top: pc(y) }); add("flbl fstatc", { left: "49.8%", top: pc(ly) }, t);
+  SHIP_HEX.forEach(([y, t]) => {
+    add("flbl fstatc", { left: "49.8%", top: pc(y - 4.4) }, t);
+    add("fhex", { left: "49.8%", top: pc(y) });
   });
   // name panel + dial with the ship silhouette
   add("fname fshipname"); add("flbl fsub", { left: "69.6%", top: "4.9%" }, "SHIP //");
@@ -6852,12 +6882,13 @@ function drawShip() {
   const bridgeDown = S.bridge === 0;
   u.sw.forEach((w, i) => {
     const y = SHIP_ROWS_W[i];
-    const off = bridgeDown || S.sys[i] === 0 || dead;
+    const off = (bridgeDown && !w.indep) || S.sys[i] === 0 || dead;
     const nm = add("div", "sw-name" + (off ? " off" : ""), { left: "7.2%", top: pc(y) },
       '<b>' + (w.label || w.name) + '</b><span>' + (w.tech ? w.tech + " \u00b7 " : "") + w.arc + (w.charges ? " \u00b7 " + S.ch[i] + "/" + w.charges + " charges" : "") +
-      (w.twoTargets && S.sys[i] < SHIP_WEAPON_HP && S.sys[i] > 0 ? " \u00b7 1 target (damaged)" : "") + '</span>');
+      (w.twoTargets && S.sys[i] <= SHIP_WEAPON_HP / 2 && S.sys[i] > 0 ? " \u00b7 <em>fires once only</em>" : "") + '</span>');
     nm.onclick = () => shipInfo(w, i);
-    add("div", "sw-cell", { left: "27.05%", top: pc(y) }, w.dmg);
+    const halfed = w.twoTargets && S.sys[i] > 0 && S.sys[i] <= SHIP_WEAPON_HP / 2;
+    add("div", "sw-cell" + (halfed ? " half" : ""), { left: "27.05%", top: pc(y) }, halfed ? w.dmgHalf : w.dmg);
     add("div", "sw-cell rng", { left: "39.0%", top: pc(y) }, w.range);
     const cd = S.cd[i] || 0, noCh = w.charges && !(S.ch[i] > 0);
     const b = add("div", "sw-ap" + (off ? " off" : cd ? " cd" : noCh ? " off" : ""), { left: "32.35%", top: pc(y) },
@@ -6865,17 +6896,20 @@ function drawShip() {
     b.title = off ? "Offline" : cd ? "Cooling down" : "Tap to fire (" + w.ap + " AP)";
     b.onclick = () => shipFire(i);
     if (off && !dead) add("div", "sw-flag", { left: "20.6%", top: pc(y) }, bridgeDown ? "NO BRIDGE" : "OFFLINE");
+    else if (!dead && w.twoTargets && S.sys[i] <= SHIP_WEAPON_HP / 2) add("div", "sw-flag half", { left: "20.6%", top: pc(y) }, "FIRES ONCE");
   });
   // abilities
   const dcOn = shipDCActive(u, S);
   const reps = Object.keys(S.rep || {}).map(k => shipPartLabel(u, k).replace("Twin Mega Particle ", "") + " " + S.rep[k] + "T");
   const rows = {
-    launch: { name: "Launch suits", sub: u.launches + " per turn \u00b7 free Boost", ap: S.launched.some(d => d.key === turnKeyNow2()) ? "\u21B6" : "1",
-      cd: "ABOARD " + S.carry.length + "/" + u.hangar, act: () => shipAbility("launch"), on: S.launched.some(d => d.key === turnKeyNow2()),
-      info: "Costs the ship 1 AP and covers its full launch capacity (" + u.launches + " suit" + (u.launches > 1 ? "s" : "") + "). Launched suits keep all their AP, get Boost Stance movement for free (+10cm per AP) and may still attack this turn.\n\nTap the AP to choose who launches. Tap it again to undo this turn's launch.\n\nAboard now: " + (S.carry.length ? S.carry.map(unitLabel).join(", ") : "nobody") + "." },
+    launch: { name: "Launch suits", sub: "up to " + u.launches + " per launch \u00b7 free Boost", ap: "1",
+      cd: "ABOARD " + S.carry.length + "/" + u.hangar + (S.launched.some(d => d.key === turnKeyNow2()) ? " \u00b7 " + S.launched.filter(d => d.key === turnKeyNow2()).length + " OUT" : ""),
+      act: () => shipAbility("launch"), on: S.launched.some(d => d.key === turnKeyNow2()),
+      undo: S.launched.some(d => d.key === turnKeyNow2()) ? () => undoLaunch() : null, undoSym: "\u21B6", undoTitle: "Undo the latest launch (AP back)",
+      info: "Each launch costs the ship 1 AP and sends out up to " + u.launches + " suit" + (u.launches > 1 ? "s" : "") + " — the ship may pay again to launch more in the same turn. Launched suits keep all their AP, get Boost Stance movement for free (+10cm per AP) and may still attack this turn. A suit launched this turn can't dock until your next turn.\n\nTap the AP to choose who launches; \u21B6 undoes the latest launch.\n\nAboard now: " + (S.carry.length ? S.carry.map(unitLabel).join(", ") : "nobody") + "." },
     dock: { name: "Dock a suit", sub: "within 5cm \u00b7 aboard after enemy turn", ap: "1",
       cd: S.docking.length ? S.docking.map(d => unitLabel(d.uid)).join(", ").toUpperCase() : "\u2014",
-      act: () => shipAbility("dock"), undo: S.docking.length ? () => shipAbility("dock", "undo") : null,
+      act: () => shipAbility("dock"), undo: S.docking.length ? () => shipAbility("dock", "undo") : null, undoSym: "\u2715", undoTitle: "Cancel the latest dock",
       info: "The suit must be within 5cm of the ship; the ship pays 1 AP. The suit stays on the board until the opposing side's next turn has fully ended, then it is aboard.\n\nWhile docking it may Block and Rolled-Dodge but not use Free Dodges. A Called Shot that lands on its body, or a melee attack, cancels the dock (AP still spent)." },
     dc: { name: "Damage Control", sub: !u.dc ? "cruiser — no spare crew" : dcOn ? "crew 9+ \u00b7 2-turn repairs" : "crew 8 or less — stopped",
       ap: "\u2014", cd: !u.dc ? "NONE" : reps.length ? reps.join(" \u00b7 ") : dcOn ? "READY" : "OFFLINE", warn: u.dc && !dcOn,
@@ -6897,8 +6931,8 @@ function drawShip() {
     nm.onclick = () => showNotice(R.name, R.info);
     const a = add("div", "sw-ap ab" + (R.act ? "" : " na") + (R.on ? " on" : ""), { left: "78.8%", top: pc(y) }, R.ap);
     if (R.act) a.onclick = R.act;
-    const c = add("div", "sw-cd" + (R.warn ? " warn" : ""), { left: "88.2%", top: pc(y) }, R.cd);
-    if (R.undo) { const un = add("div", "sstep", { left: "93.1%", top: pc(y) }, "\u2715"); un.title = "Cancel the latest dock"; un.onclick = R.undo; }
+    const c = add("div", "sw-cd" + (R.warn ? " warn" : "") + (R.undo ? " withbtn" : ""), { left: R.undo ? "86.9%" : "88.2%", top: pc(y) }, R.cd);
+    if (R.undo) { const un = add("div", "sstep", { left: "93.1%", top: pc(y) }, R.undoSym || "\u2715"); un.title = R.undoTitle || ""; un.onclick = R.undo; }
   });
   // crew / AP / movement values
   const stepper = (y, val, max, k) => {
@@ -6909,10 +6943,36 @@ function drawShip() {
     const p = el("div", "step show"); p.textContent = "+"; p.style.borderColor = col; p.style.color = col; p.onclick = () => shipStat(k, val + 1);
     g.append(m, n, p);
   };
-  stepper(64.4, S.crew, u.crew, "crew");
-  stepper(76.1, st.ap, u.ap, "ap");
+  stepper(SHIP_HEX[0][0], S.crew, u.crew, "crew");
+  stepper(SHIP_HEX[1][0], st.ap, u.ap, "ap");
   const mv = shipMove(u, S);
-  add("div", "smove" + (mv.warn ? " warn" : ""), { left: "49.8%", top: "86.9%" }, mv.txt + "<small>" + mv.sub + "</small>");
+  add("div", "smove" + (mv.warn ? " warn" : ""), { left: "49.8%", top: pc(SHIP_HEX[2][0]) }, mv.txt + "<small>" + mv.sub + "</small>");
+  // MOVE: 1 AP per move, like the suit sheets
+  const QT = sideKey() === "red"
+    ? ["rgba(48,5,10,.5)", "rgba(48,5,10,.78)", "#ff4d5a", "#ffe4e6", "rgba(255,77,90,.24)", "#3a0509"]
+    : ["rgba(6,30,78,.46)", "rgba(6,30,78,.72)", "#7dd3fc", "#e0f2fe", "rgba(125,211,252,.28)", "#082f49"];
+  let qa = st.qa;
+  if (!qa || !sameHalf(qa)) qa = st.qa = { r: turn.round, p: turn.phase, m: 0, d: 0 };
+  const cm = S.thr.filter(v => v === 0).length >= 2 ? 0 : S.thr.some(v => v === 0) ? u.moveCm / 2 : u.moveCm;
+  const cantMove = st.ap < 1 || cm === 0 || dead;
+  const box = add("div", "qa sqa", { left: "49.8%", top: pc(SHIP_MOVE_Y) });
+  ["--qa-bg", "--qa-bg-on", "--qa-ac", "--qa-tx", "--qa-glow", "--qa-dk"].forEach((k, j) => box.style.setProperty(k, QT[j]));
+  const logMoves = () => qaLog(CUR.uid, "qa:m", qa.m, "Moved " + qa.m + "\u00d7 (" + (qa.m * cm) + "cm, " + qa.m + " AP)" + (S.bridge === 0 ? " \u2014 straight ahead" : ""));
+  const mvb = el("div", "qab move" + (cantMove || turn.phase !== "you" ? " off" : ""));
+  mvb.innerHTML = "<b>MOVE</b><small>" + (dead ? "destroyed" : cm === 0 ? "immobilised" : cm + "cm \u00b7 1 AP" + (S.bridge === 0 ? " \u00b7 straight" : "")) + "</small>";
+  mvb.title = dead ? "The ship is destroyed" : cm === 0 ? "Both thrusters destroyed \u2014 the ship cannot move"
+    : st.ap < 1 ? "No AP left" : S.bridge === 0 ? "No Bridge: the ship may only continue straight ahead"
+    : turn.phase !== "you" ? "It's the enemy turn" : "Spend 1 AP to move up to " + cm + "cm";
+  mvb.onclick = e => {
+    e.stopPropagation();
+    if (cantMove || !mpSheetCanEdit()) return;
+    qa.m += 1; st.ap -= 1; logMoves(); shipCommit();
+  };
+  const mu = el("div", "qau" + (qa.m ? "" : " hide"));
+  mu.innerHTML = "<span>\u21B6</span>" + (qa.m ? "<small>\u00d7" + qa.m + "</small>" : "");
+  mu.title = "Undo the last move (gives the AP back)";
+  mu.onclick = e => { e.stopPropagation(); if (!qa.m || !mpSheetCanEdit()) return; qa.m -= 1; st.ap = Math.min(u.ap, st.ap + 1); logMoves(); shipCommit(); };
+  box.append(mvb, mu);
   renderTurn();
   if (typeof mpSheetMode === "function") mpSheetMode();
 }
@@ -6922,7 +6982,8 @@ function shipInfo(w, i) {
   $("popK").textContent = "Weapon system \u00b7 " + S.sys[i] + "/" + SHIP_WEAPON_HP + " HP";
   $("popS").innerHTML = "<b>Arc</b> " + w.arc + " &nbsp; <b>Range</b> " + w.range + " &nbsp; <b>AP</b> " + w.ap + " &nbsp; <b>Damage</b> " + w.dmg +
     (w.cd ? " &nbsp; <b>Cooldown</b> " + w.cd + " turn" + (w.cd > 1 ? "s" : "") : "") + (w.charges ? " &nbsp; <b>Charges</b> " + S.ch[i] + "/" + w.charges : "");
-  $("popB").textContent = w.note + "\n\nThe system has 20 HP and can only be hit with a Called Shot (+5). At 0 it is offline" + (U.dc ? " until Damage Control restores it." : " for the rest of the game.");
+  $("popB").textContent = w.note + "\n\nThe system has 20 HP and can only be hit with a Called Shot (+5). At 0 it is offline" + (U.dc ? " until Damage Control restores it." : " for the rest of the game.") +
+    (w.indep ? "\n\nIndependent turrets: keeps firing even with the Bridge destroyed." : "\n\nNeeds the Bridge: offline while the Bridge is at 0.");
   $("pop").classList.add("on");
 }
 
@@ -7053,18 +7114,12 @@ window.loadConfirm = () => {
 // ---------- launching and docking from the ship's sheet ----------
 function openLaunchPicker() {
   const st = CUR.st, S = st.ship, u = U, key = turnKeyNow2();
-  const mine = S.launched.filter(d => d.key === key);
-  if (mine.length) {                                    // tap again: undo this turn's launch
-    S.carry = S.carry.concat(mine.map(d => d.uid)); S.launched = S.launched.filter(d => d.key !== key);
-    st.ap += 1; logEv(CUR.uid, "Launch undone", "info");
-    return shipCommit();
-  }
   if (!S.carry.length) { mpToast("No suits aboard to launch."); return; }
   if (st.ap < 1) { mpToast("Not enough AP."); return; }
   const pickSet = new Set();
   const draw2 = () => {
     $("pickT").textContent = "Launch from the " + u.short;
-    $("pickS").innerHTML = "Choose up to <b>" + u.launches + "</b> suit" + (u.launches > 1 ? "s" : "") + ". Costs the ship <b>1 AP</b> for the whole launch. " +
+    $("pickS").innerHTML = "Choose up to <b>" + u.launches + "</b> suit" + (u.launches > 1 ? "s" : "") + ". Costs the ship <b>1 AP</b> for the whole launch \u2014 pay another AP to launch again this turn. " +
       "Launched suits keep all their AP, get <b>Boost movement for free (+10cm per AP)</b> and may still attack this turn.";
     const lst = $("picklist"); lst.innerHTML = "";
     S.carry.forEach(uid => {
@@ -7075,7 +7130,7 @@ function openLaunchPicker() {
         '<span style="min-width:0;flex:1"><div class="nm">' + unitLabel(uid) + '</div><div class="tr">' + su.tier + '</div></span>';
       d.onclick = () => {
         if (on) pickSet.delete(uid);
-        else { if (pickSet.size >= u.launches) { mpToast("The " + u.short + " launches " + u.launches + " per turn."); return; } pickSet.add(uid); }
+        else { if (pickSet.size >= u.launches) { mpToast("The " + u.short + " launches up to " + u.launches + " at a time \u2014 launch again (1 AP) for more."); return; } pickSet.add(uid); }
         draw2();
       };
       lst.appendChild(d);
@@ -7090,7 +7145,8 @@ function openLaunchPicker() {
       const ids = [...pickSet];
       st.ap -= 1;
       S.carry = S.carry.filter(x => !pickSet.has(x));
-      S.launched = S.launched.filter(d => d.key === key).concat(ids.map(uid => ({ uid, key })));
+      const batch = S.launched.filter(d => d.key === key).reduce((m, d) => Math.max(m, d.b || 1), 0) + 1;
+      S.launched = S.launched.filter(d => d.key === key).concat(ids.map(uid => ({ uid, key, b: batch })));
       logEv(CUR.uid, "Launched " + ids.map(unitLabel).join(", ") + " (free Boost, may attack)", "buff");
       shipCommit();
     };
@@ -7100,16 +7156,27 @@ function openLaunchPicker() {
   };
   draw2();
 }
+function undoLaunch() {
+  const st = CUR.st, S = st.ship, key = turnKeyNow2();
+  const mine = S.launched.filter(d => d.key === key); if (!mine.length) return;
+  const last = mine.reduce((m, d) => Math.max(m, d.b || 1), 0);
+  const back = mine.filter(d => (d.b || 1) === last);
+  S.carry = S.carry.concat(back.map(d => d.uid));
+  S.launched = S.launched.filter(d => !(d.key === key && (d.b || 1) === last));
+  st.ap = Math.min(unitById(CUR.id).ap, st.ap + 1);
+  logEv(CUR.uid, "Launch undone (" + back.map(d => unitLabel(d.uid)).join(", ") + ")", "info");
+  shipCommit();
+}
 function openDockPicker() {
   const st = CUR.st, S = st.ship, u = U, key = turnKeyNow2();
   if (S.carry.length + S.docking.length >= u.hangar) { mpToast("The hangar is full."); return; }
   if (st.ap < 1) { mpToast("Not enough AP."); return; }
-  const cands = suitsInRoster().filter(r => { const c = carrierState(r.uid); return !isDead(r) && (!c || c.state === "launched"); });
+  const cands = suitsInRoster().filter(r => !isDead(r) && !carrierState(r.uid));   // launched this turn: can't dock until next turn
   $("pickT").textContent = "Dock a suit on the " + u.short;
   $("pickS").innerHTML = "The suit must be <b>within 5cm</b> of the ship; the ship pays <b>1 AP</b>. It stays on the board until the enemy's next turn has ended, then it's aboard. " +
     "While docking it may Block and Rolled-Dodge, but not use Free Dodges. A Called Shot on its body or a melee attack cancels the dock.";
   const lst = $("picklist"); lst.innerHTML = "";
-  if (!cands.length) lst.innerHTML = '<div class="empty">No suits on the board can dock.</div>';
+  if (!cands.length) lst.innerHTML = '<div class="empty">No suits on the board can dock. (A suit launched this turn can\'t dock until your next turn.)</div>';
   cands.forEach(r => {
     const su = unitById(r.id), d = el("div", "row");
     d.innerHTML = portraitHTML(su) + '<span style="min-width:0;flex:1"><div class="nm">' + unitLabel(r.uid) + '</div><div class="tr">' + su.tier + '</div></span>';
@@ -9367,6 +9434,61 @@ function renderAmounts() {
     b.onclick = () => { amount = n; renderAmounts(); };
     bar.appendChild(b);
   });
+  const nk = document.createElement("div");
+  nk.className = "a nuke"; nk.textContent = "\u2622"; nk.title = "Caught in a nuclear blast \u2014 apply the damage to this unit";
+  nk.onclick = () => openNuke();
+  bar.appendChild(nk);
+}
+// ---------- nuclear hits ----------
+// this unit was caught in a nuclear blast (any nuke uses the same table); pick how far it was from the centre
+const NUKE = { suit: [15, 10, 5], ship: [{ hull: 40, disable: true }, { hull: 25 }, { hull: 10 }] };
+const NUKE_BANDS = ["0\u201330cm", "30\u201360cm", "60\u201390cm"];
+function openNuke() {
+  if (!CUR || !U) return;
+  if (typeof mpSheetCanEdit === "function" && !mpSheetCanEdit()) return;
+  const ship = isShip(U);
+  $("pickT").textContent = "\u2622 Caught in a nuclear blast \u2014 " + (U.short || U.name);
+  $("pickS").innerHTML = "Apply the blast damage to <b>this " + (ship ? "ship" : "unit") + "</b>. How far was it from the blast centre? " +
+    "Nukes are undodgeable \u2014 <b>Block only</b>" + (ship ? "." : "; if it Blocked, apply the damage to the shield instead.");
+  const lst = $("picklist"); lst.innerHTML = "";
+  NUKE_BANDS.forEach((band, i) => {
+    const d = el("button", "nk-band b" + i);
+    const eff = ship ? NUKE.ship[i].hull + " Hull" + (NUKE.ship[i].disable ? " \u00b7 Bridge + both Thrusters disabled" : "")
+                     : NUKE.suit[i] + " damage to all 6 locations";
+    d.innerHTML = '<span class="nk-dist">' + band + '</span><span class="nk-eff">' + eff + '</span>';
+    d.onclick = () => { closePicker(); applyNuke(i); };
+    lst.appendChild(d);
+  });
+  $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Cancel";
+  $("pick").classList.add("on");
+}
+function applyNuke(i) {
+  const tag = "\u2622 Nuclear blast (" + NUKE_BANDS[i] + ")";
+  if (isShip(U)) {
+    const st = CUR.st, S = st.ship, e = NUKE.ship[i], uid = CUR.uid;
+    const hullWas = st.hp.hull;
+    st.hp.hull = Math.max(0, hullWas - e.hull);
+    aggDmg(uid, "ship:hull", "Hull", hullWas - st.hp.hull, st.hp.hull, U.hull);
+    let txt = tag + " \u2014 " + e.hull + " Hull";
+    if (e.disable) {
+      const knocked = [];
+      if (S.bridge > 0) { S.bridge = 0; knocked.push("bridge"); }
+      S.thr.forEach((v, j) => { if (v > 0) { S.thr[j] = 0; knocked.push("thr" + j); } });
+      if (shipDCActive(U, S)) knocked.forEach(k => { S.rep[k] = 2; });
+      txt += ", Bridge and both Thrusters disabled" + (knocked.length && shipDCActive(U, S) ? " (Damage Control: back in 2 turns)" : "");
+    }
+    logEv(uid, txt, "bad");
+    if (hullWas > 0 && st.hp.hull === 0) {
+      logEv(uid, "DESTROYED", "bad", "ship0:hull");
+      if (S.carry.length) { const shipR = CUR; setTimeout(() => openDisembark(shipR), 60); }
+    }
+    shipCommit();
+    return;
+  }
+  const dmg = NUKE.suit[i];
+  LIMB_ORDER.forEach(k => { hp[k] = Math.max(0, hp[k] - dmg); });
+  logEv(CUR.uid, tag + " \u2014 " + dmg + " damage to all 6 locations", "bad");
+  draw(); save();
 }
 
 // an ability that switches itself on from the unit's own state (EXAM: shield destroyed)
@@ -10807,7 +10929,7 @@ function draw() {
   }
 }
 
-const APP_BUILD = "cf10";
+const APP_BUILD = "cf14";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 
 /* ---------- wiring ---------- */
