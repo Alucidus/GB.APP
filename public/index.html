@@ -1712,6 +1712,75 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 .amtin input{width:160px;font:900 34px system-ui,sans-serif;text-align:center;padding:6px;color:#fff;background:#0b1220;border:2px solid var(--acc,#38bdf8)}
 .amtkeys{display:grid;grid-template-columns:repeat(3,64px);gap:6px}
 .amtkeys .btn{height:46px;font-size:18px;padding:0}
+
+/* ================= LANDING PAGE (cf17) ================= */
+#s0{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
+  font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
+#s0.on{display:flex;flex-direction:column}
+#s0 .m-bg{position:absolute;inset:0;background:#04060a url(img/menu-bg.webp) no-repeat center 30%/cover;z-index:0}
+#s0 .m-bg:after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(4,6,10,.35) 0%,rgba(4,6,10,0) 18%,rgba(4,6,10,0) 42%,rgba(4,6,10,.55) 62%,rgba(4,6,10,.92) 100%),
+             radial-gradient(ellipse at 50% 70%,rgba(4,6,10,.0),rgba(4,6,10,.55) 80%)}
+#s0 .m-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+#s0 > *:not(.m-bg){position:relative;z-index:1}
+#s0.enter .m-head{animation:fadeIn .35s ease-out backwards}
+#s0.enter .mode.online{animation:fadeUp .45s cubic-bezier(.2,.8,.3,1) backwards .05s}
+#s0.enter .mode.offline{animation:fadeUp .45s cubic-bezier(.2,.8,.3,1) backwards .16s}
+#s0.enter .m-bar,#s0.enter .m-foot{animation:fadeIn .4s ease-out backwards .3s}
+#s0.enter .m-top{animation:fadeDown .4s ease-out backwards .1s}
+.modes{display:flex;flex-direction:column;gap:clamp(8px,1.6vh,16px);width:min(100%,900px)}
+.mode{--mc:#8fb4d8;--mg:rgba(143,180,216,.4);position:relative;cursor:pointer;background:var(--mc);-webkit-tap-highlight-color:transparent;
+  clip-path:polygon(0 18%,3% 0,100% 0,100% 78%,97% 100%,0 100%);transition:transform .12s,filter .2s}
+.mode .mo-in{position:absolute;inset:2px;clip-path:polygon(0 18%,3% 0,100% 0,100% 78%,97% 100%,0 100%);display:flex;align-items:center;
+  gap:clamp(12px,2.2vw,30px);padding:0 clamp(14px,3.4vw,46px)}
+.mode .mo-in:after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 30px var(--mg);pointer-events:none}
+.mode:hover{filter:brightness(1.12)}
+.mode:active{transform:scale(.985)}
+.mode.online{--mc:linear-gradient(90deg,#2f86ff,#8a5cf6 50%,#ff2e3f);--mg:rgba(138,92,246,.55);height:clamp(110px,24vh,200px)}
+.mode.online .mo-in{background:linear-gradient(90deg,rgba(4,8,16,.96) 0%,rgba(4,8,16,.82) 40%,rgba(4,8,16,.2) 72%,rgba(10,4,8,.35) 100%),
+  url(img/menu-spa.webp) right center/auto 100% no-repeat,url(img/menu-fed.webp) 62% center/auto 100% no-repeat,#06080d}
+.mode.offline{height:clamp(76px,14vh,120px)}
+.mode.offline .mo-in{background:linear-gradient(90deg,rgba(6,10,16,.97),rgba(10,16,24,.9) 60%,rgba(20,28,40,.8))}
+.mo-embs{display:flex;align-items:center;flex:none}
+.mo-embs .fc-emb{width:clamp(40px,6vw,78px);height:clamp(40px,6vw,78px)}
+.mo-embs .fc-emb + .fc-emb{margin-left:clamp(-12px,-1vw,-6px)}
+.mo-embs .fc-emb:first-child{color:#7db8ff;filter:drop-shadow(0 0 8px rgba(47,134,255,.6))}
+.mo-embs .fc-emb:last-child{color:#ff3345;filter:drop-shadow(0 0 8px rgba(255,46,63,.6))}
+.mo-ic{width:clamp(34px,4.6vw,58px);height:clamp(34px,4.6vw,58px);flex:none;color:#c9d6e4}
+.mo-txt{display:flex;flex-direction:column;gap:5px;min-width:0}
+.mo-txt b{font-size:clamp(18px,3vw,38px);letter-spacing:.24em;font-weight:900;white-space:nowrap}
+.mode.offline .mo-txt b{font-size:clamp(14px,2.1vw,26px)}
+.mo-txt small{font-size:clamp(8px,1vw,12px);letter-spacing:.18em;color:#c9d6e4;white-space:nowrap}
+.mo-txt small i{color:#7a8ca0;margin:0 .3em;font-style:normal}
+.mo-txt em{font-style:normal;font-size:clamp(8px,1vw,12px);letter-spacing:.1em;font-weight:800;color:#c4b5fd;white-space:nowrap}
+.mode.offline .mo-txt em{color:#8fa2b5}
+.mode.online.live .mo-txt em{color:#45e6a1}
+.mo-tag{position:absolute;right:clamp(12px,2.2vw,26px);top:clamp(8px,1.6vh,16px);font-size:clamp(7px,.85vw,11px);letter-spacing:.2em;font-weight:900;
+  padding:3px 9px;color:#fff;background:linear-gradient(90deg,#2f86ff,#8a5cf6,#ff2e3f);clip-path:polygon(5px 0,100% 0,calc(100% - 5px) 100%,0 100%)}
+.mode.online.live .mo-tag{background:#16a34a}
+.mode.online.live .mo-tag:after{content:" \00b7 LIVE"}
+.mo-go{margin-left:auto;font-size:clamp(26px,4vw,52px);color:#fff;opacity:.85;text-shadow:0 0 14px var(--mg)}
+.mode.offline .mo-go{font-size:clamp(20px,3vw,38px);color:#8fb4d8}
+@media (max-height:500px) and (orientation:landscape){
+  .mode.online{height:clamp(84px,26vh,120px)} .mode.offline{height:clamp(60px,17vh,84px)}
+}
+@media (max-aspect-ratio:4/5){
+  #s0 .m-bg{background-size:240vw auto;background-position:center top}
+  .mo-txt small{white-space:normal}
+  .mo-tag{top:6px;right:10px}
+}
+/* lobby: the offline menu's faction cards head each team */
+.fcard.lb-card{flex:none;width:100%;height:clamp(78px,13vh,118px);margin:-2px 0 2px}
+.fcard.lb-card .fc-emb{width:clamp(34px,4.4vw,58px);height:clamp(34px,4.4vw,58px)}
+.fcard.lb-card .fc-txt b{font-size:clamp(14px,1.9vw,24px)}
+.fcard.lb-card .fc-txt small{font-size:clamp(7px,.8vw,10px)}
+.fcard.lb-card .fc-txt em{font-size:clamp(8px,.9vw,11px)}
+.fcard.lb-card.nopick{cursor:default}
+.fcard.lb-card .fc-sel{top:auto;bottom:clamp(8px,1.4vh,12px);right:clamp(10px,1.6vw,18px)}
+.fcard.lb-card.nopick:active{transform:none}
+.lb-tap{position:absolute;right:clamp(10px,1.6vw,18px);bottom:clamp(8px,1.4vh,12px);font-size:clamp(7px,.8vw,10px);letter-spacing:.2em;font-weight:900;color:#fff;
+  padding:3px 8px;border:1px solid rgba(255,255,255,.5);background:rgba(0,0,0,.45)}
+.lb-team{padding-top:10px}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -1825,8 +1894,53 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
   <div style="font-size:16px;color:var(--accent);font-weight:700">Rotate your device</div>
   <div style="font-size:13px;color:var(--muted)">Stat sheets are designed for landscape.</div></div>
 
-<!-- 1. faction -->
-<section id="s1" class="screen on">
+<!-- 0. landing: how to play -->
+<section id="s0" class="screen on">
+  <div class="m-bg"></div>
+  <div class="m-top">
+    <span>BUILD <i>/</i> FIGHT <i>/</i> CONQUER</span>
+    <span>MOBILE SUITS <i>/</i> TABLETOP <i>/</i> THE BATTLEFIELD IS YOURS</span>
+  </div>
+  <h1 class="m-sr">Gunpla Battle</h1>
+  <div class="m-body">
+    <div class="m-head"><i></i><span>CHOOSE HOW TO PLAY</span><i></i></div>
+    <div class="modes">
+      <div class="mode online" id="moOn" onclick="landOnline()">
+        <div class="mo-in">
+          <span class="mo-embs" id="moEmbs" aria-hidden="true"></span>
+          <div class="mo-txt"><b>PLAY ONLINE</b><small>TEAM BATTLES <i>/</i> EVERY PLAYER ON THEIR OWN DEVICE</small><em id="moOnSub">CREATE OR JOIN A SESSION</em></div>
+          <span class="mo-tag">RECOMMENDED</span>
+          <span class="mo-go" aria-hidden="true">&raquo;</span>
+        </div>
+      </div>
+      <div class="mode offline" id="moOff" onclick="landOffline()">
+        <div class="mo-in">
+          <svg class="mo-ic" viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="6" width="24" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="24.5" cy="16" r="1.2" fill="currentColor"/><path d="M8 11 H19 M8 16 H19 M8 21 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <div class="mo-txt"><b>PLAY OFFLINE</b><small>ONE DEVICE <i>/</i> NO CONNECTION NEEDED</small><em id="moOffSub">NO SAVED BATTLE</em></div>
+          <span class="mo-go" aria-hidden="true">&raquo;</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="m-bar">
+    <div class="mb-item" id="lbCont" onclick="menuContinue()">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M9 6 L25 16 L9 26 Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
+      <div><b>CONTINUE OFFLINE</b><small id="lbContSub">NO SAVED BATTLE</small></div>
+    </div>
+    <div class="mb-item" onclick="openTables()">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 7 C9 5 13 5 16 8 C19 5 23 5 28 7 L28 26 C23 24 19 24 16 27 C13 24 9 24 4 26 Z M16 8 L16 27" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
+      <div><b>QUICK REFERENCE</b><small>RULES &amp; TABLES</small></div>
+    </div>
+    <div class="mb-item" onclick="menuInstall()">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="9" y="3" width="14" height="26" rx="2.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M16 9 L16 20 M11.5 15.5 L16 20 L20.5 15.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div><b>INSTALL APP</b><small>ADD TO HOME SCREEN</small></div>
+    </div>
+  </div>
+  <div class="m-foot"><span>IT'S NOT JUST A MODEL…</span><span class="m-build">BUILD <b id="buildTag0"></b></span><span>…IT'S A WAR.</span></div>
+</section>
+
+<!-- 1. faction (offline) -->
+<section id="s1" class="screen">
   <div class="m-bg"></div>
   <div class="m-top">
     <span>BUILD <i>/</i> FIGHT <i>/</i> CONQUER</span>
@@ -1858,9 +1972,9 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
       <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M9 6 L25 16 L9 26 Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
       <div><b>CONTINUE</b><small id="mbContSub">NO SAVED BATTLE</small></div>
     </div>
-    <div class="mb-item" onclick="openMP()">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="9" cy="16" r="5" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="23" cy="16" r="5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M14 13 L18 13 M14 19 L18 19" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
-      <div><b>MULTIPLAYER</b><small id="mbMpSub">TEAM BATTLES</small></div>
+    <div class="mb-item" onclick="hangarGo(() => show('s0'))">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M20 7 L10 16 L20 25" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div><b>MAIN MENU</b><small>ONLINE <i>/</i> OFFLINE</small></div>
     </div>
     <div class="mb-item" onclick="openTables()">
       <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 7 C9 5 13 5 16 8 C19 5 23 5 28 7 L28 26 C23 24 19 24 16 27 C13 24 9 24 4 26 Z M16 8 L16 27" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
@@ -1887,7 +2001,7 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
       <label class="bp-cbox" for="customDp"><span class="bp-cl">CUSTOM</span><input type="number" id="customDp" placeholder="e.g. 12500" min="500" step="100" inputmode="numeric"><span class="bp-cu">DP</span></label>
       <button class="btn pri" onclick="useCustom()">SET &#9656;</button>
     </div>
-    <div class="bp-foot"><button class="btn" onclick="hangarGo(() => show('s1'))">&larr; Main menu</button></div>
+    <div class="bp-foot"><button class="btn" onclick="hangarGo(() => show('s1'))">&larr; Factions</button></div>
   </div>
 </section>
 
@@ -1898,7 +2012,7 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 <section id="s3" class="screen">
   <div class="bar">
     <span class="bar-emb" aria-hidden="true"></span>
-    <button class="btn sm" id="btnMenu" onclick="hangarGo(() => show('s1'))">☰ Menu</button>
+    <button class="btn sm" id="btnMenu" onclick="hangarGo(() => show('s0'))">☰ Menu</button>
     <button class="btn sm" id="btnBudget" onclick="show('s2')">← Budget</button>
     <button class="btn sm" id="btnClear" onclick="clearRoster()">Clear</button>
     <button class="btn sm pri" id="btnConfirm" onclick="tryConfirm()">Confirm team</button>
@@ -7325,6 +7439,7 @@ SHIP_UNITS.forEach(s => UNITS.push(s));
 const unitById = id => UNITS.find(u => u.id === id);
 
 function show(id) {
+  if (id === "s0") { stashTeam(); refreshSideCards(); renderLanding(); }
   if (id === "s1") { stashTeam(); refreshSideCards(); if (!menuSide) menuSide = side || null; renderMenu(); }
   if (id === "s2") renderPresets();
   if (id === "s5") renderLobby();
@@ -7393,6 +7508,28 @@ function renderMenu() {
       + (t.locked ? " \u00b7 TURN " + ((t.turn && t.turn.round) || 1) : "")
     : "NO SAVED BATTLE";
 }
+// ---- landing page ----
+function renderLanding() {
+  layoutMenu();
+  const ems = $("moEmbs");
+  if (ems && !ems.childElementCount)
+    ems.innerHTML = ["#fcFed .fc-emb", "#fcSpa .fc-emb"].map(q => { const e = document.querySelector(q); return e ? e.outerHTML : ""; }).join("");
+  updateLandingOnline();
+  const t = side && teams[side];
+  const has = !!(t && ((t.roster && t.roster.length) || t.budget));
+  const txt = has ? (side === "federation" ? "FEDERATION" : "SPACENOIDS") + " \u00b7 " + ((t.roster || []).length) + " MODEL" + (((t.roster || []).length === 1) ? "" : "S")
+      + (t.locked ? " \u00b7 TURN " + ((t.turn && t.turn.round) || 1) : "") : "NO SAVED BATTLE";
+  $("lbCont").classList.toggle("off", !has);
+  $("lbContSub").textContent = txt;
+  $("moOffSub").textContent = has ? "SAVED: " + txt : "PICK A FACTION AND BUILD YOUR FORCE";
+}
+function updateLandingOnline() {
+  const sub = $("moOnSub"); if (!sub) return;
+  sub.textContent = mp.code ? "SESSION " + mp.code + (mp.status === "live" ? " \u00b7 LIVE" : "") + " \u2014 TAP TO RETURN" : "CREATE OR JOIN A SESSION";
+  $("moOn").classList.toggle("live", !!mp.code);
+}
+window.landOnline = () => hangarGo(() => openMP());
+window.landOffline = () => hangarGo(() => show("s1"));
 window.menuPick = s => { menuSide = menuSide === s ? null : s; renderMenu(); };
 // ---- hangar-door transition for major screen changes ----
 let hangarBusy = false;
@@ -8702,15 +8839,26 @@ function renderLobby() {
         '<div class="mpjoin"><input id="mpCode" maxlength="5" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="CODE">' +
         '<button class="btn" onclick="mpJoin()">Join</button></div>' + msg +
       '</div>' +
-      '<div class="bp-foot"><button class="btn" onclick="hangarGo(() => show(\'s1\'))">&larr; Main menu</button></div>');
+      '<div class="bp-foot"><button class="btn" onclick="hangarGo(() => show(\'s0\'))">&larr; Main menu</button></div>');
     const c = $("mpCode"); if (c) c.addEventListener("input", () => { c.value = c.value.toUpperCase().replace(/[^A-Z]/g, ""); });
     return;
   }
   const s = mpSettings(), st = mpLobbyState(), me = mpMe(), battle = s.phase === "battle";
   const col = t => {
     const list = st.on(t).sort((a, b) => (a[1].teamAt || 0) - (b[1].teamAt || 0));
-    return '<div class="lb-team ' + (t === "federation" ? "fed" : "spa") + (me && me.team === t ? " mine" : "") + '">' +
-      '<div class="lb-th">' + teamName(t).toUpperCase() + '<span>' + list.length + '</span></div>' +
+    const cls = t === "federation" ? "fed" : "spa", mineT = me && me.team === t;
+    const emb = document.querySelector(t === "federation" ? "#fcFed .fc-emb" : "#fcSpa .fc-emb");
+    const canPick = !mineT && (!battle || (me && !me.team));
+    const lead = mp.leaders[t] && mp.data["player/" + mp.leaders[t]];
+    return '<div class="lb-team ' + cls + (mineT ? " mine" : "") + '">' +
+      '<div class="fcard lb-card ' + cls + (mineT ? ' sel' : '') + (canPick ? '' : ' nopick') + '"' + (canPick ? ' onclick="mpPickTeam(\'' + t + '\')"' : '') + '>' +
+        '<div class="fc-in">' + (emb ? emb.outerHTML : '') +
+          '<div class="fc-txt"><b>' + (t === "federation" ? "FEDERATION" : "SPACENOIDS") + '</b>' +
+            '<small>' + (t === "federation" ? "UNITY <i>/</i> PEACE <i>/</i> PROGRESS" : "INDEPENDENCE <i>/</i> POWER <i>/</i> VICTORY") + '</small>' +
+            '<em>' + list.length + ' PLAYER' + (list.length === 1 ? '' : 'S') + (lead ? ' \u00b7 \u{1F451} ' + lead.name.toUpperCase() : '') + '</em></div>' +
+          '<span class="fc-sel">YOUR TEAM</span>' +
+          (canPick ? '<span class="lb-tap">TAP TO JOIN</span>' : '') +
+        '</div></div>' +
       '<div class="lb-list">' + (list.length ? list.map(([pid, p]) =>
         '<div class="lb-p' + (pid === mp.pid ? ' me' : '') + '">' +
           '<span class="lb-n">' + (mp.leaders[t] === pid ? '<i title="Team leader">\u{1F451}</i>' : '') + p.name + (pid === mp.pid ? ' <em>(you)</em>' : '') + '</span>' +
@@ -8759,7 +8907,7 @@ function renderLobby() {
       '<p class="bp-sub">Share this code \u2014 everyone joins with it and picks a team.</p>' + status + msg + '</div>' +
     '<div class="lb-teams">' + col("federation") + col("spacenoid") + '</div>' + unassigned + controls +
     '<div class="bp-foot lb-foot">' +
-      '<button class="btn" onclick="hangarGo(() => show(\'s1\'))">&larr; Main menu</button>' +
+      '<button class="btn" onclick="hangarGo(() => show(\'s0\'))">&larr; Main menu</button>' +
       (mpIsHost() ? '<button class="btn enemyturn" onclick="if (confirm(\'End the session for everyone?\')) mpLeave(true)">End session</button>'
                   : '<button class="btn" onclick="if (confirm(\'Leave this session? Your roster on this device stays as it is.\')) mpLeave(false)">Leave session</button>') +
     '</div>');
@@ -8775,8 +8923,7 @@ function mpRender() {
     chip.innerHTML = !mp.code ? "&#8644; MP" : '<i></i>' + mp.code + (me && me.name ? " \u00b7 " + me.name : "") +
       (mpTeamMode() && mpAmLeader() ? " \u{1F451}" : "") + " \u00b7 " + (st === "live" ? "LIVE" : st === "retrying" ? "RETRYING" : st === "ended" ? "ENDED" : st === "error" ? "ERROR" : "CONNECTING");
   }
-  const sub = $("mbMpSub");
-  if (sub) sub.textContent = mp.code ? "SESSION " + mp.code + (mp.status === "live" ? " \u00b7 LIVE" : "") : "TEAM BATTLES";
+  updateLandingOnline();
   if (mp.prompt === "budgetOk" && (!mpTeamMode() || locked)) mp.prompt = null;
   if (mp.prompt === "start" && !(mpTeamMode() && locked && turn.phase === "enemy")) mp.prompt = null;
   if (mp.prompt === "clash" && !(mpTeamMode() && locked && turn.phase === "you")) mp.prompt = null;
@@ -11025,8 +11172,9 @@ function draw() {
   }
 }
 
-const APP_BUILD = "cf16";
+const APP_BUILD = "cf17";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
+if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
 /* ---------- wiring ---------- */
 $("search").addEventListener("input", e => { query = e.target.value; renderRoster(); });
@@ -11589,7 +11737,7 @@ $("resetU").onclick = () => {
 
 refreshSideCards();
 if (load()) { applyTheme(); renderPresets(); renderRoster(); }
-show("s1");                                   // always start on the main menu (Continue returns to a saved battle)
+show("s0");                                   // always start on the landing page (Continue returns to a saved battle)
 mpResume();                                   // reconnect a multiplayer session saved on this device
 // service workers only register over http(s) -- skip silently on file://
 if (location.protocol.startsWith("http") && "serviceWorker" in navigator) {
