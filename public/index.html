@@ -1474,6 +1474,16 @@ body.spa #s5 .mpcode span{border-color:#ff4d5a}
   font:600 11px/1.5 ui-monospace,Menlo,monospace;color:#cbd5e1;background:rgba(0,0,0,.82);border:1px solid #334155}
 #mpDebug b{display:block;color:#45e6a1;letter-spacing:.1em;margin-bottom:2px}
 #mpDebug i{font-style:normal;color:#fff}
+#mpReq{position:fixed;inset:0;z-index:640;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.66);padding:16px}
+#mpReq.on{display:flex;animation:fadeIn .18s ease-out}
+#mpReq .mprq{width:min(92vw,420px);padding:16px 18px;text-align:center;border:1px solid #e2b04a;background:linear-gradient(145deg,#1f1a10,#0b0a08);box-shadow:0 0 22px rgba(226,176,74,.35)}
+#mpReq .cwstep{font:900 11px system-ui,sans-serif;letter-spacing:.24em;color:#e2b04a}
+#mpReq h3{margin:6px 0;font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:#fff}
+#mpReq p{margin:0 0 12px;font-size:14px;line-height:1.5;color:#e5e7eb}
+#mpReq .cwbtns{display:flex;gap:10px;justify-content:center}
+.row.ctl{box-shadow:inset 0 0 0 2px var(--ctl),0 0 10px -3px var(--ctl)}
+.ctltag{display:inline-block;margin-left:6px;padding:1px 7px;font:800 10px system-ui,sans-serif;letter-spacing:.06em;vertical-align:middle;
+  color:#0b0f14;background:var(--ctl);clip-path:polygon(4px 0,100% 0,calc(100% - 4px) 100%,0 100%)}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -6604,9 +6614,29 @@ function overBudgetDialog(used, after) {
   };
   inp.addEventListener("input", sync);
   document.querySelectorAll(".obchip").forEach(c => c.onclick = () => { inp.value = c.dataset.v; sync(); });
+  const team = typeof mpTeamMode === "function" && mpTeamMode();
+  const host = team && mpIsHost();
+  if (team) {
+    $("pickS").innerHTML += host
+      ? "<br>You're the host: raising it changes the limit for <b>both teams</b>."
+      : "<br>In a team game the <b>host (" + mpNameOf(mp.hostPid) + ")</b> decides \u2014 a raise applies to <b>both teams</b>.";
+    const base = sync;
+    const label = () => { const v = parseInt(inp.value, 10); if (v >= used) go.textContent = host ? "Raise to " + v.toLocaleString() + " DP for both teams & confirm \u25B8" : "Ask the host for " + v.toLocaleString() + " DP \u25B8"; };
+    inp.addEventListener("input", label);
+    document.querySelectorAll(".obchip").forEach(c => c.addEventListener("click", label));
+    setTimeout(label, 0);
+  }
   go.onclick = () => {
     const v = parseInt(inp.value, 10);
     if (!(v >= used)) { sync(); return; }
+    if (team && !host) {                                   // the host decides
+      mp.wantBudgetReq = { amount: v };
+      mp.budgetAsk = { amount: v, at: Date.now() };
+      closePicker(); mpKick(); renderRoster();
+      mpToast("Request sent \u2014 waiting for " + mpNameOf(mp.hostPid) + " to answer.");
+      return;
+    }
+    if (team && host) mpSetSetting("budget", Math.max(v, (mpSettings().budget || 0)));
     budget = v; save(); renderRoster(); renderPresets();
     closePicker();
     hangarGo(() => { confirmTeam(); if (after) after(); });
@@ -7023,6 +7053,10 @@ async function mpSync() {
   const body = { action: "sync", code: mp.code, pid: mp.pid, token: mp.token, known: mp.etags, writes: {} };
   const sentPlayer = mp.wantPlayer, sentSettings = mp.wantSettings;
   if (sentPlayer) body.writes.player = sentPlayer;
+  const sentReq = mp.wantBudgetReq, sentRes = (mp.wantResolve || []).splice(0), sentClear = mp.wantClearResult;
+  if (sentReq) body.writes.budgetRequest = sentReq;
+  if (sentRes.length) body.writes.resolve = sentRes;
+  if (sentClear) body.writes.clearResult = true;
   if (sentSettings) body.writes.settings = sentSettings;
   const unitsSent = {};
   let teamSent;
@@ -7049,12 +7083,14 @@ async function mpSync() {
   const tReq = performance.now();
   const r = await mpCall(body);
   const rtt = Math.round(performance.now() - tReq);
-  if (r.status !== 200) { mp.wantInbox = outbox.concat(mp.wantInbox); mpTrouble(r); return; }
+  if (r.status !== 200) { mp.wantInbox = outbox.concat(mp.wantInbox); mp.wantResolve = sentRes.concat(mp.wantResolve || []); mpTrouble(r); return; }
   const j = r.j;
   mpStat("rtt", rtt);
   if (j.timing) { mpStat("srv", j.timing.total); mp.lastTiming = j.timing; }
   if ((body.writes.team || body.writes.units) && dirtyStart) mpStat("send", Math.round(tReq - dirtyStart));
   if (sentPlayer && mp.wantPlayer === sentPlayer) mp.wantPlayer = null;
+  if (sentReq && mp.wantBudgetReq === sentReq) mp.wantBudgetReq = null;
+  if (sentClear) mp.wantClearResult = false;
   cons.forEach(k => mp.wantConsume.delete(k));
   if (sentSettings && mp.wantSettings === sentSettings) mp.wantSettings = null;
   rel.forEach(k => { mp.wantRelease.delete(k); mp.held.delete(k); });
@@ -7198,9 +7234,58 @@ function mpApplyUnit(r, force) {
   snaps[r.uid] = snapOf(r);
   return true;
 }
+function mpBudgetFlow() {
+  const s = mpSettings();
+  // everyone: the limit changed during the battle
+  if (s.phase === "battle" && mp.lastBudget != null && s.budget !== mp.lastBudget) {
+    mpToast("\u{1F4B0} Deployment points are now " + (s.budget || 0).toLocaleString() + " for both teams.");
+    if (mpTeamMode()) { budget = s.budget; renderOppIfVisible(); if ($("s3").classList.contains("on")) renderRoster(); }
+  }
+  mp.lastBudget = s.budget;
+  // host: requests waiting for an answer
+  if (mpIsHost()) {
+    const reqs = Object.keys(mp.data).filter(k => k.startsWith("req/") && mp.data[k]).sort((a, b) => mp.data[a].at - mp.data[b].at);
+    const box = $("mpReq");
+    const showing = box && box.classList.contains("on") ? box.dataset.pid : null;
+    if (!showing && reqs.length) mpShowRequest(reqs[0].slice(4), mp.data[reqs[0]]);
+    if (showing && !mp.data["req/" + showing]) box.classList.remove("on");
+  }
+  // requester: the host answered
+  const res = mp.data["res/" + mp.pid];
+  if (res && !mp.wantClearResult && mp.resSeen !== res.at) {
+    mp.resSeen = res.at; mp.wantClearResult = true; mp.budgetAsk = null;
+    if (res.accept) { mp.prompt = "budgetOk"; mp.promptAmount = res.amount; }
+    else { mp.prompt = "budgetNo"; mp.promptAmount = res.amount; }
+    mp.again = true;
+  }
+}
+function mpShowRequest(pid, q) {
+  let box = $("mpReq");
+  if (!box) {
+    box = document.createElement("div"); box.id = "mpReq";
+    box.innerHTML = '<div class="mprq"><div class="cwstep">HOST DECISION</div><h3>Raise the deployment points?</h3><p id="mpReqT"></p>' +
+      '<div class="cwbtns"><button class="btn" id="mpReqNo">Decline</button><button class="btn pri ready" id="mpReqYes">Accept</button></div></div>';
+    document.body.appendChild(box);
+  }
+  const cur = mpSettings().budget || 0;
+  box.dataset.pid = pid;
+  $("mpReqT").innerHTML = "<b>" + q.name + "</b> (" + teamName(q.team) + " leader) asks to raise the limit from <b>" + cur.toLocaleString() +
+    "</b> to <b>" + q.amount.toLocaleString() + " DP</b>.<br>If you accept, <b>both teams</b> get " + Math.max(cur, q.amount).toLocaleString() + " DP.";
+  const decide = accept => {
+    box.classList.remove("on");
+    mp.wantResolve = (mp.wantResolve || []).concat([{ pid, accept }]);
+    if (accept) mp.data.settings = Object.assign({}, mpSettings(), { budget: Math.max(cur, q.amount) });
+    delete mp.data["req/" + pid];
+    mpKick(); mpRender();
+  };
+  $("mpReqYes").onclick = () => decide(true);
+  $("mpReqNo").onclick = () => decide(false);
+  box.classList.add("on");
+}
 function mpApply() {
   const s = mpSettings(), me = mpMe();
   if (!me) return;
+  mpBudgetFlow();
   const t = me.team;
   // lobby <-> battle
   if (s.phase === "battle" && t && !mp.entered) {
@@ -7288,6 +7373,8 @@ function mpApply() {
   }
   mpSheetMode();
   renderOppIfVisible();
+  const ls = mpLockSig();
+  if (ls !== mp.lockSig) { mp.lockSig = ls; if ($("s3").classList.contains("on")) renderRoster(); }
 }
 function mpEnterTeam() {
   mp.base = { team: undefined, units: {} }; mp.seen = {}; mp.held = new Set(); mp.oppPrev = null;
@@ -7454,6 +7541,25 @@ function mpForeign(uid, opTarget, undo, what) {
   mp.afterDeny = mp.afterDeny || {};
   mp.afterDeny[k] = () => { undo(); save(); if (CUR && $("s4").classList.contains("on")) { reloadCur(); draw(); } renderRoster(); mpToast("Someone just opened " + unitLabel(uid) + " \u2014 " + what + " cancelled."); };
   mp.wantAcquire.add(k); mpKick();
+}
+// ---- who has which sheet open (roster highlight) ----
+const MP_PLAYER_COLS = ["#38bdf8", "#f59e0b", "#a78bfa", "#34d399", "#f472b6", "#fb7185", "#22d3ee", "#facc15", "#c084fc", "#4ade80", "#fb923c", "#60a5fa"];
+function mpPlayerColour(pid) {
+  let h = 0; for (const ch of String(pid)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return MP_PLAYER_COLS[h % MP_PLAYER_COLS.length];
+}
+function mpControlOf(uid) {
+  if (typeof mpTeamMode !== "function" || !mpTeamMode() || !locked) return null;
+  const t = mpMyTeam(), k = lockKey(t, uid);
+  if (mp.held.has(k) && mp.viewing === uid) return { me: true, name: "You", col: mpPlayerColour(mp.pid) };
+  const l = mpLockOf(t, uid);
+  if (!l || !mpLockAlive(l) || l.pid === mp.pid) return null;
+  return { me: false, name: mpNameOf(l.pid), col: mpPlayerColour(l.pid) };
+}
+function mpLockSig() {
+  const t = mpMyTeam(); if (!t) return "";
+  return Object.keys(mp.data).filter(k => k.startsWith("lock/" + t + "/")).sort()
+    .map(k => k + ":" + (mp.data[k] && mp.data[k].pid) + ":" + (mpLockAlive(mp.data[k]) ? 1 : 0)).join("|") + "|v" + (mp.viewing ?? "");
 }
 // ---- deliveries to a unit someone else has open (shield lends / recalls / returns) ----
 function mpHeldByOther(uid) {
@@ -7639,12 +7745,17 @@ function mpRender() {
   }
   const sub = $("mbMpSub");
   if (sub) sub.textContent = mp.code ? "SESSION " + mp.code + (mp.status === "live" ? " \u00b7 LIVE" : "") : "TEAM BATTLES";
+  if (mp.prompt === "budgetOk" && (!mpTeamMode() || locked)) mp.prompt = null;
   if (mp.prompt === "start" && !(mpTeamMode() && locked && turn.phase === "enemy")) mp.prompt = null;
   if (mp.prompt === "clash" && !(mpTeamMode() && locked && turn.phase === "you")) mp.prompt = null;
   const pr = $("mpPrompt");
   if (pr) {
     const lead = mpAmLeader();
-    pr.innerHTML = !mp.prompt || !mpTeamMode() ? "" : mp.prompt === "start"
+    pr.innerHTML = !mp.prompt || !mpTeamMode() ? ""
+      : mp.prompt === "budgetOk" ? '<div class="mpprompt"><b>\u2713 The host raised the limit to ' + (mp.promptAmount || 0).toLocaleString() + ' DP.</b>' +
+          '<button class="btn sm pri ready" onclick="mp.prompt=null;tryConfirm()">Confirm team \u25B8</button><button class="btn sm" onclick="mpPromptX()">Later</button></div>'
+      : mp.prompt === "budgetNo" ? '<div class="mpprompt warn"><b>\u2715 The host declined ' + (mp.promptAmount || 0).toLocaleString() + ' DP.</b><span>Edit your team to fit ' + (budget || 0).toLocaleString() + ' DP.</span><button class="btn sm" onclick="mpPromptX()">OK</button></div>'
+      : mp.prompt === "start"
       ? '<div class="mpprompt"><b>\u21C4 The other team ended their turn.</b>' +
         (lead ? '<button class="btn sm pri ready" onclick="mpPromptGo()">Start our turn \u25B8</button><button class="btn sm" onclick="mpPromptX()">Not yet</button>'
               : '<span>Waiting for \u{1F451} ' + mpLeaderName(mpMyTeam()) + ' to start your turn.</span><button class="btn sm" onclick="mpPromptX()">OK</button>') + '</div>'
@@ -7737,7 +7848,8 @@ function renderRosterCore() {
       : 'Nothing selected yet \u2014 tap a unit below to add it.') + '</div>';
   } else {
     let s = '<div class="grouphdr">' + (locked ? "Deployed force" : "Your roster") + ' \u2014 ' + roster.length + ' model(s)' +
-      (locked ? '' : mpT && !mpL ? ' <span class="unconf">\u{1F451} ' + mpLeaderName(mpMyTeam()) + ' is building the roster</span>'
+      (locked ? '' : mpT && mp.budgetAsk ? ' <span class="unconf">\u23F3 waiting for the host to answer your ' + mp.budgetAsk.amount.toLocaleString() + ' DP request</span>'
+        : mpT && !mpL ? ' <span class="unconf">\u{1F451} ' + mpLeaderName(mpMyTeam()) + ' is building the roster</span>'
                                  : ' <span class="unconf">\u26A0 not confirmed \u2014 tap Confirm team to play</span>') + '</div><div class="list">';
     roster.forEach(r => {
       const u = unitById(r.id), n = countOf(r.id), idx = copyIndex(r);
@@ -7747,11 +7859,13 @@ function renderRosterCore() {
       const col = dead ? "#7f1d1d" : pct <= .34 ? "#ef4444" : pct <= .67 ? "#f59e0b" : "#22c55e";
       const showTick = locked && turn.phase === "you" && !dead;
       const dn = showTick && isDone(r.uid);
-      s += '<div class="row' + (dn ? ' done' : '') + '" data-uid="' + r.uid + '" onclick="rowTap(' + r.uid + ')">' +
+      const ctl = mpControlOf(r.uid);
+      s += '<div class="row' + (dn ? ' done' : '') + (ctl ? ' ctl' : '') + '" data-uid="' + r.uid + '" onclick="rowTap(' + r.uid + ')"' + (ctl ? ' style="--ctl:' + ctl.col + '"' : '') + '>' +
         (showTick ? '<span class="tick' + (dn ? ' on' : '') + '" title="' + (dn ? 'Done this turn \u2014 tap to un-tick' : 'Tap when this unit has finished') + '" onclick="event.stopPropagation();toggleDone(' + r.uid + ')">\u2713</span>' : '') +
         '<span style="width:6px;height:' + (locked ? 40 : 30) + 'px;border-radius:3px;flex:none;background:' + col + '"></span>' +
         portraitHTML(u, r) +
-        '<span style="min-width:0"><div class="nm">' + (u.short || u.name) + (n > 1 ? ' <span style="color:var(--muted)">#' + idx + '</span>' : '') + '</div>' +
+        '<span style="min-width:0"><div class="nm">' + (u.short || u.name) + (n > 1 ? ' <span style="color:var(--muted)">#' + idx + '</span>' : '') +
+          (ctl ? ' <span class="ctltag" title="' + (ctl.me ? 'You have this sheet open' : ctl.name + ' has this sheet open') + '">' + (ctl.me ? '\u270E You' : '\u{1F512} ' + ctl.name) + '</span>' : '') + '</div>' +
         '<div class="tr">' + (dead ? "DESTROYED" : (kl === "head" ? "Head " : "Chest ") + now + "/" + tot) + ' \u00b7 ' + u.tier +
         (!dead && u.abilities.some(x => x.kind === "auto" && autoOn(x, u, r.st))
           ? ' <b style="color:#fff;background:#b91c1c;border-radius:3px;padding:0 5px;margin-left:4px">' + u.abilities.find(x => x.kind === "auto").name.split(" ")[0].toUpperCase() + '</b>' : '') +
@@ -9651,7 +9765,7 @@ function draw() {
   }
 }
 
-const APP_BUILD = "cf1";
+const APP_BUILD = "cf3";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 
 /* ---------- wiring ---------- */

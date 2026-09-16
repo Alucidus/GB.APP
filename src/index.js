@@ -289,6 +289,25 @@ export class BattleRoom {
       }
     }
 
+    // 2b. DP limit requests: a team leader asks, the host accepts (limit changes for both teams) or declines
+    if (w.budgetRequest && typeof w.budgetRequest === "object") {
+      const amt = Math.round(Number(w.budgetRequest.amount));
+      if (!amLeader || !(amt >= BUDGET_MIN && amt <= BUDGET_MAX)) denied.push("budget-request");
+      else { await M.set("req/" + pid, { amount: amt, name: players[pid].name, team: myTeam, at: now }); await M.del("res/" + pid); push = true; }
+    }
+    if (Array.isArray(w.resolve)) {
+      if (!isHost) denied.push("resolve");
+      else for (const r of w.resolve.slice(0, 10)) {
+        if (!r || !validPid(r.pid)) continue;
+        const q = M.get("req/" + r.pid); if (!q) continue;
+        if (r.accept) { const cur = M.get("settings") || {}; await M.set("settings", { ...cur, budget: Math.max(cur.budget || 0, q.amount) }); }
+        await M.del("req/" + r.pid);
+        await M.set("res/" + r.pid, { accept: !!r.accept, amount: q.amount, at: now });
+        push = true;
+      }
+    }
+    if (w.clearResult) await M.del("res/" + pid);
+
     const locks = {};
     for (const k of M.keys("lock/")) locks[k.slice(5)] = M.get(k);
     const alive = p => players[p] && now - (players[p].seen || 0) < LOCK_STALE_MS;

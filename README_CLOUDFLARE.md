@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf1)
+# Gunpla Battle — Cloudflare version (build cf3)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -56,3 +56,11 @@ public/            the app (index.html, images, service worker)
 - **Logs:** open the Worker → **Observability / Logs** to see errors.
 - **Rolling back:** in **Deployments**, you can roll back to an earlier version.
 - **Can't create a session:** check that the deploy succeeded, and that `wrangler.toml` was uploaded to the top level of the repository.
+
+## Build history
+
+| Build | Changed files | What changed |
+|---|---|---|
+| cf1 | everything | First Cloudflare version: live rooms, instant pushes, reconnection |
+| cf2 | `src/index.js`, `public/index.html`, `public/sw.js` | Over-budget teams ask the **host** to raise the DP limit (Accept / Decline pop-up); a raise applies to **both teams** |
+| cf3 | `public/index.html`, `public/sw.js` | Your team's roster shows **who has each sheet open** (coloured tag + outline per player) |

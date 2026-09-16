@@ -1,4 +1,4 @@
-const C="gbcf-cf1";
+const C="gbcf-cf3";
 const FILES=["./","index.html","manifest.json",
  "img/mech-gundam.webp","img/mech-sazabi.webp","img/mech-zaku.webp","img/mech-gm.webp",
  "img/menu-bg.webp","img/menu-fed.webp","img/menu-spa.webp","img/bg-fed.webp","img/bg-spa.webp",
