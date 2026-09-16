@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf14)
+# Gunpla Battle — Cloudflare version (build cf15)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -82,3 +82,4 @@ public/            the app (index.html, images, service worker)
 | cf12 | `public/index.html`, `public/sw.js` | Ship rules: missile launchers / barrage have a **1 turn cooldown**; every gun that can shoot 2 targets is limited to **1 target at half system HP (10 or less)** — shown as an amber 1 TARGET flag |
 | cf13 | `public/index.html`, `public/sw.js` | Carriers: **several launches per turn** (1 AP each, ↶ undoes the latest); a suit launched this turn **can't dock** that turn. **☢ nuke button** on every sheet (Anti-Ship Missile / Atomic Bazooka, pick the distance: suits 15/10/5 to all 6; warships 40 Hull + Bridge & Thrusters disabled / 25 / 10). Fix: no thrusters shows immobilised even with the Bridge down |
 | cf14 | `public/index.html`, `public/sw.js` | Two-target guns at half HP **fire once** (12 ×1 / 5 ×1, no stacking); **Anti-Air Array works without the Bridge**; ☢ button simplified to "caught in a nuclear blast" — one table for every nuke (suits 15/10/5 to all 6, ships 40 + Bridge & Thrusters / 25 / 10 Hull) |
+| cf15 | `public/index.html`, `public/sw.js` | Fix: a mobile suit sheet's circles / MOVE / DODGE / stats no longer stay on screen when switching to a ship sheet; ship MOVE button centred under the Movement box (undo sits beside it) |

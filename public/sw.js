@@ -1,4 +1,4 @@
-const C="gbcf-cf14";
+const C="gbcf-cf15";
 const FILES=["./","index.html","manifest.json",
  "img/mech-gundam.webp","img/ship-musai.webp","img/portraits/ship-musai.webp","img/portraits/ship-salamis.webp","img/portraits/ship-rewloola.webp","img/portraits/ship-racailum.webp","img/ship-salamis.webp","img/ship-rewloola.webp","img/ship-racailum.webp","img/mech-sazabi.webp","img/mech-zaku.webp","img/mech-gm.webp",
  "img/menu-bg.webp","img/menu-fed.webp","img/menu-spa.webp","img/bg-fed.webp","img/bg-spa.webp",

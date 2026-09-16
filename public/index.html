@@ -1667,6 +1667,8 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 #frame .fstatc{font-size:1.25cqw;letter-spacing:.2em;color:#fff;text-shadow:0 0 .6cqw var(--f-glow),0 1px 2px rgba(0,0,0,.9)}
 #sheet .sx.sqa{z-index:9}
 #sheet .sx.sqa .qab{min-width:10.5cqw}
+#sheet .sx.sqa{gap:0}
+#sheet .sx.sqa .qau{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:.7cqw}
 #sheet .sx.sw-flag.half{background:#92400e;color:#fde68a}
 #sheet .sx.sw-name span em{font-style:normal;color:#fbbf24;font-weight:800}
 
@@ -6843,7 +6845,8 @@ function drawShip() {
   hp = st.hp; ap = st.ap; dodges = 0;
   const sheet = $("sheet");
   sheet.classList.add("shipsheet");
-  [...sheet.querySelectorAll(".sx")].forEach(n => n.remove());
+  // clear this sheet's own pieces AND anything a mobile suit sheet left behind (circles, MOVE/DODGE, stats, buff strip)
+  [...sheet.querySelectorAll(".sx,.hp,.grp,.tog,.step,.wrow,.txt,.num,.wpip,.sendbtn,.lenttag,.podstate,.arcring,.arcrot,.qa,.aphit,.swapz,.hudwarn,.porthit")].forEach(n => n.remove());
   renderAmounts();
   $("uname").textContent = u.short;
   $("umeta").textContent = "Warship · " + u.dp.toLocaleString() + " DP";
@@ -10929,7 +10932,7 @@ function draw() {
   }
 }
 
-const APP_BUILD = "cf14";
+const APP_BUILD = "cf15";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 
 /* ---------- wiring ---------- */
