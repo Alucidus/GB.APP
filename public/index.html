@@ -1740,9 +1740,9 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 .mode:hover{filter:brightness(1.12)}
 .mode:active{transform:scale(.985)}
 .mode.online{--mc:linear-gradient(90deg,#2f86ff 0%,#2f86ff 48%,#ff2e3f 52%,#ff2e3f 100%);--mg:rgba(255,46,63,.5);height:clamp(110px,24vh,200px)}
-.mode.online .mo-in:after{box-shadow:none;background:linear-gradient(90deg,rgba(47,134,255,.34),rgba(47,134,255,0) 30%,rgba(255,46,63,0) 70%,rgba(255,46,63,.34))}
-.mode.online .mo-in{background:linear-gradient(90deg,rgba(4,8,16,.96) 0%,rgba(4,8,16,.82) 40%,rgba(4,8,16,.2) 72%,rgba(10,4,8,.35) 100%),
-  url(img/menu-spa.webp) right center/auto 100% no-repeat,url(img/menu-fed.webp) 62% center/auto 100% no-repeat,#06080d}
+.mode.online .mo-in:after{box-shadow:inset 26px 0 30px -18px rgba(47,134,255,.75),inset -26px 0 30px -18px rgba(255,46,63,.75),inset 0 0 14px rgba(0,0,0,.4)}
+.mode.online .mo-in{background:linear-gradient(90deg,rgba(4,8,16,.95) 0%,rgba(4,8,16,.84) 36%,rgba(4,8,16,.35) 62%,rgba(4,8,16,.2) 100%),
+  url(img/lobby-bg.webp) 50% 30%/cover no-repeat,#06080d}
 .mode.offline{height:clamp(76px,14vh,120px)}
 .mode.offline .mo-in{background:linear-gradient(90deg,rgba(6,10,16,.97),rgba(10,16,24,.9) 60%,rgba(20,28,40,.8))}
 .mo-embs{display:flex;align-items:center;flex:none}
@@ -1787,7 +1787,9 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 .lb-team{padding-top:10px}
 
 /* ================= LOBBY ON THE TWO-HANGAR ART (cf18) ================= */
-#mpLobby.lb2wrap{width:100%;max-width:none;min-height:calc(100vh - 28px);min-height:calc(100dvh - 28px);padding:clamp(10px,2vh,20px) clamp(10px,2vw,28px) clamp(10px,2vh,18px);gap:0;justify-content:space-between}
+#mpLobby.lb2wrap{width:100%;max-width:none;min-height:100vh;min-height:100dvh;padding:clamp(10px,2vh,20px) clamp(10px,2vw,28px) 0;gap:0;justify-content:space-between}
+#s5.screen.lb2on{padding:0}
+.lb2wrap .lb2-dock{padding-bottom:max(14px,env(safe-area-inset-bottom))}
 .lb2-top{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 18px 10px;
   background:radial-gradient(ellipse at center,rgba(2,4,8,.78),rgba(2,4,8,.35) 60%,transparent 75%)}
 .lb2-top .cwstep{font-size:11px;font-weight:900;letter-spacing:.3em;color:#e2e8f0}
@@ -8971,7 +8973,7 @@ function renderLobby() {
   const nameVal = (() => { try { return localStorage.getItem(MP_NAME_KEY) || ""; } catch (e) { return ""; } })();
   const msg = mp.msg ? '<p class="mpmsg">' + mp.msg + '</p>' : '';
   if (!mp.code) {
-    box.classList.remove("lb2wrap");
+    box.classList.remove("lb2wrap"); $("s5").classList.remove("lb2on");
     setLobbyHTML(box,
       '<div class="lb-head"><div class="cwstep">MULTIPLAYER</div><h1>Battle Session</h1>' +
       '<p class="bp-sub">Everyone uses their own device. Create a session, share the code, and pick teams together.</p></div>' +
@@ -9044,7 +9046,7 @@ function renderLobby() {
       (me && me.team ? '<button class="btn pri mpbig" onclick="mpBackToBattle()">Go to my team \u25B8</button>' : '<p class="cws">Pick a team above to join the battle.</p>') + '</div>';
   }
   const status = mp.status === "live" ? "" : '<p class="mpstatus ' + mp.status + '">' + (mp.status === "retrying" ? "Connection trouble \u2014 retrying" : mp.status === "ended" ? "Session ended" : mp.status === "error" ? "Session error" : "Connecting\u2026") + '</p>';
-  box.classList.add("lb2wrap");
+  box.classList.add("lb2wrap"); $("s5").classList.add("lb2on");
   setLobbyHTML(box,
     '<div class="lb2-top"><div class="cwstep">SESSION</div>' +
       '<div class="mpcode">' + mp.code.split("").map(c => '<span>' + c + '</span>').join("") + '</div>' +
@@ -11334,7 +11336,7 @@ function draw() {
   }
 }
 
-const APP_BUILD = "cf20";
+const APP_BUILD = "cf22";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

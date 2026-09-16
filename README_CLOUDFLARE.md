@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf20)
+# Gunpla Battle — Cloudflare version (build cf22)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -88,3 +88,5 @@ public/            the app (index.html, images, service worker)
 | cf18 | `public/index.html`, `public/sw.js`, **new** `public/img/lobby-bg.webp` | **Lobby on the two-hangar art**: Federation panel on the blue half, Spacenoid on the red half (tap to join), your side lit / the other dimmed, session code on the centre pillar, controls in a bottom dock; sign-in on a glass panel; phone layouts |
 | cf19 | `public/index.html`, `public/sw.js`, `public/img/lobby-bg.webp` (updated art) | Lobby pass 2: everything centred (Ready, host settings, Start, buttons), VS pillar with player counts, **team-pick animation** (side light sweep, name banner, panel lock-on brackets), idle scan lines, fits the screen without scrolling |
 | cf20 | `public/index.html`, `public/sw.js` | PLAY ONLINE card: blue / red split instead of purple (outline, glow, RECOMMENDED tag) |
+| cf21 | `public/index.html`, `public/sw.js` | Fix: PLAY ONLINE card background restored (cf20's colour wash removed) — thin blue left / red right edge glow only |
+| cf22 | `public/index.html`, `public/sw.js` | PLAY ONLINE card uses the two-hangar art as one seamless background (no misaligned image seam); lobby's dark bottom band now reaches both screen edges and the bottom (no bright gaps) |
