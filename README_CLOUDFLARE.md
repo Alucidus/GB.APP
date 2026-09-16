@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf17)
+# Gunpla Battle — Cloudflare version (build cf18)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -85,3 +85,4 @@ public/            the app (index.html, images, service worker)
 | cf15 | `public/index.html`, `public/sw.js` | Fix: a mobile suit sheet's circles / MOVE / DODGE / stats no longer stay on screen when switching to a ship sheet; ship MOVE button centred under the Movement box (undo sits beside it) |
 | cf16 | `public/index.html`, `public/sw.js` | **Bridge HIT button** beside the Bridge ring (one tap per attack: −2 crew, −3 next turn; ↶ undo; pulses amber when the Bridge lost HP but no hit is recorded) — the ring now only changes HP. **# chip** on the damage bar to type any amount (e.g. 14), on every sheet |
 | cf17 | `public/index.html`, `public/sw.js` | **New landing page**: PLAY ONLINE (top, recommended, shows a live session) / PLAY OFFLINE (→ faction menu); hangar doors on every menu route; lobby teams headed by the faction cards (tap to join); offline menu's Multiplayer shortcut → Main menu |
+| cf18 | `public/index.html`, `public/sw.js`, **new** `public/img/lobby-bg.webp` | **Lobby on the two-hangar art**: Federation panel on the blue half, Spacenoid on the red half (tap to join), your side lit / the other dimmed, session code on the centre pillar, controls in a bottom dock; sign-in on a glass panel; phone layouts |
