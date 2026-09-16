@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf7)
+# Gunpla Battle — Cloudflare version (build cf10)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -75,3 +75,6 @@ public/            the app (index.html, images, service worker)
 | cf5 | `public/index.html`, `public/sw.js`, **new** `public/img/ship-musai.webp`, `ship-salamis.webp`, `ship-rewloola.webp`, `ship-racailum.webp` | **Warships**: Musai, Salamis Kai, Rewloola, Ra Cailum — new ship sheet (Canva layout, code-drawn), tinted wireframes, rings for Hull / Bridge / Thrusters / weapon systems, weapons list, Crew / AP / Movement, abilities (launch, dock, Damage Control, base module, decoys); ship rules applied automatically |
 | cf6 | `src/index.js`, `public/index.html`, `public/sw.js` | **Stuck turn fix**: the room also passes the turn when the active team's save shows it ended (covers devices on older builds); lobby shows every device's build and warns on a mismatch; waiting message names a leader on another build; **host button** to give the turn to a team; safer handling of a refused turn change |
 | cf7 | `public/index.html`, `public/sw.js`, **new** `public/img/portraits/ship-musai.webp`, `ship-salamis.webp`, `ship-rewloola.webp`, `ship-racailum.webp` | **Roster tabs** (Mobile suits · Ships · Ground units); **grand warship picker** cards with the new ship photos; Ground units **under construction** notice; ship photos on roster rows and the ship sheet dial; fix: the unit list stays in columns after adding a unit |
+| cf8 | `public/index.html`, `public/sw.js` | **Carriers**: Confirm team → **Load your carriers** (capacity rule, auto-load); passengers greyed on the roster (⚓ ABOARD); **Launch** picker (catapult bonus: +10cm/AP, may attack — purple buff on the suit sheet); **Dock** picker (aboard next turn); **Emergency Disembark** when a carrier is destroyed |
+| cf9 | `public/index.html`, `public/sw.js` | Turn notice no longer flickers and is message-only; the **one** Start My Turn button turns **green and pulses** when it's your turn to start; fix: a leader's roster could be wiped if they added units / confirmed before the first sync after the battle started |
+| cf10 | `public/img/portraits/ship-musai.webp`, `ship-rewloola.webp`, `public/index.html`, `public/sw.js` | Cleaner Musai and Rewloola portraits (build bump so devices fetch the new images) |
