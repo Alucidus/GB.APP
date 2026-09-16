@@ -1739,7 +1739,8 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 .mode .mo-in:after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 30px var(--mg);pointer-events:none}
 .mode:hover{filter:brightness(1.12)}
 .mode:active{transform:scale(.985)}
-.mode.online{--mc:linear-gradient(90deg,#2f86ff,#8a5cf6 50%,#ff2e3f);--mg:rgba(138,92,246,.55);height:clamp(110px,24vh,200px)}
+.mode.online{--mc:linear-gradient(90deg,#2f86ff 0%,#2f86ff 48%,#ff2e3f 52%,#ff2e3f 100%);--mg:rgba(255,46,63,.5);height:clamp(110px,24vh,200px)}
+.mode.online .mo-in:after{box-shadow:none;background:linear-gradient(90deg,rgba(47,134,255,.34),rgba(47,134,255,0) 30%,rgba(255,46,63,0) 70%,rgba(255,46,63,.34))}
 .mode.online .mo-in{background:linear-gradient(90deg,rgba(4,8,16,.96) 0%,rgba(4,8,16,.82) 40%,rgba(4,8,16,.2) 72%,rgba(10,4,8,.35) 100%),
   url(img/menu-spa.webp) right center/auto 100% no-repeat,url(img/menu-fed.webp) 62% center/auto 100% no-repeat,#06080d}
 .mode.offline{height:clamp(76px,14vh,120px)}
@@ -1755,11 +1756,11 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 .mode.offline .mo-txt b{font-size:clamp(14px,2.1vw,26px)}
 .mo-txt small{font-size:clamp(8px,1vw,12px);letter-spacing:.18em;color:#c9d6e4;white-space:nowrap}
 .mo-txt small i{color:#7a8ca0;margin:0 .3em;font-style:normal}
-.mo-txt em{font-style:normal;font-size:clamp(8px,1vw,12px);letter-spacing:.1em;font-weight:800;color:#c4b5fd;white-space:nowrap}
+.mo-txt em{font-style:normal;font-size:clamp(8px,1vw,12px);letter-spacing:.1em;font-weight:800;color:#e2e8f0;white-space:nowrap}
 .mode.offline .mo-txt em{color:#8fa2b5}
 .mode.online.live .mo-txt em{color:#45e6a1}
 .mo-tag{position:absolute;right:clamp(12px,2.2vw,26px);top:clamp(8px,1.6vh,16px);font-size:clamp(7px,.85vw,11px);letter-spacing:.2em;font-weight:900;
-  padding:3px 9px;color:#fff;background:linear-gradient(90deg,#2f86ff,#8a5cf6,#ff2e3f);clip-path:polygon(5px 0,100% 0,calc(100% - 5px) 100%,0 100%)}
+  padding:3px 9px;color:#fff;background:linear-gradient(90deg,#2f86ff 0%,#2f86ff 50%,#ff2e3f 50%,#ff2e3f 100%);clip-path:polygon(5px 0,100% 0,calc(100% - 5px) 100%,0 100%)}
 .mode.online.live .mo-tag{background:#16a34a}
 .mode.online.live .mo-tag:after{content:" \00b7 LIVE"}
 .mo-go{margin-left:auto;font-size:clamp(26px,4vw,52px);color:#fff;opacity:.85;text-shadow:0 0 14px var(--mg)}
@@ -11333,7 +11334,7 @@ function draw() {
   }
 }
 
-const APP_BUILD = "cf19";
+const APP_BUILD = "cf20";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
