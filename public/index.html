@@ -1786,7 +1786,7 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 .lb-team{padding-top:10px}
 
 /* ================= LOBBY ON THE TWO-HANGAR ART (cf18) ================= */
-#mpLobby.lb2wrap{width:100%;max-width:none;min-height:100vh;min-height:100dvh;padding:clamp(10px,2vh,20px) clamp(10px,2vw,28px) clamp(10px,2vh,18px);gap:0;justify-content:space-between}
+#mpLobby.lb2wrap{width:100%;max-width:none;min-height:calc(100vh - 28px);min-height:calc(100dvh - 28px);padding:clamp(10px,2vh,20px) clamp(10px,2vw,28px) clamp(10px,2vh,18px);gap:0;justify-content:space-between}
 .lb2-top{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 18px 10px;
   background:radial-gradient(ellipse at center,rgba(2,4,8,.78),rgba(2,4,8,.35) 60%,transparent 75%)}
 .lb2-top .cwstep{font-size:11px;font-weight:900;letter-spacing:.3em;color:#e2e8f0}
@@ -1838,6 +1838,89 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 @media (max-height:520px) and (orientation:landscape){
   .lb2-sides{padding-top:8px;min-height:0}
   .lb2-sides .fcard.lb-card{height:64px}
+}
+
+/* ================= LOBBY PASS 2 (cf19): centred dock, VS pillar, team-pick animation ================= */
+.lb2-sides{padding-top:clamp(6px,3vh,40px)}
+.lb2-top{padding-top:2px;padding-bottom:4px}
+.lb2-dock{padding-top:6px}
+.lb2-ctl{gap:8px}
+.lb2-ctl .lb-chips .chip{padding-left:12px;padding-right:12px}
+.lb2-mid{display:flex;align-items:flex-end;justify-content:center;padding-bottom:clamp(20px,6vh,70px)}
+.lb2-vs{display:flex;align-items:center;gap:clamp(6px,.9vw,12px);padding:8px 14px;background:rgba(2,4,8,.72);border:1px solid rgba(255,255,255,.18);
+  clip-path:polygon(10px 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,10px 100%,0 50%);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.lb2-vs b{font:900 clamp(18px,2.6vw,34px)/1 system-ui,sans-serif;letter-spacing:.06em;
+  background:linear-gradient(90deg,#7dd3fc,#fff 50%,#ff6b76);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 8px rgba(255,255,255,.35));animation:vsPulse 2.4s ease-in-out infinite}
+.lb2-vs span{font:900 clamp(13px,1.5vw,20px)/1 system-ui,sans-serif;min-width:1.2em;text-align:center}
+.lb2-vs .vs-f{color:#7dd3fc;text-shadow:0 0 10px rgba(56,189,248,.8)}
+.lb2-vs .vs-s{color:#ff6b76;text-shadow:0 0 10px rgba(255,77,90,.8)}
+@keyframes vsPulse{0%,100%{filter:drop-shadow(0 0 6px rgba(255,255,255,.25))}50%{filter:drop-shadow(0 0 16px rgba(255,255,255,.6))}}
+/* panels: idle scan line, hover lift, lock-on when picked */
+.lb2-sides .lb-team:before{content:"";position:absolute;left:0;right:0;top:-30%;height:30%;pointer-events:none;z-index:3;
+  background:linear-gradient(180deg,transparent,rgba(255,255,255,.06),transparent);animation:lbScan 5.5s linear infinite}
+.lb2-sides .lb-team.spa:before{animation-delay:-2.7s}
+@keyframes lbScan{from{top:-30%}to{top:130%}}
+.lb2-sides .lb-team:has(.lb-card:not(.nopick)):hover{transform:translateY(-3px)}
+.lb2-sides .lb-team:after{content:"";position:absolute;inset:6px;pointer-events:none;z-index:4;opacity:0;
+  background:
+    linear-gradient(var(--lk),var(--lk)) left top/22px 2px no-repeat,linear-gradient(var(--lk),var(--lk)) left top/2px 22px no-repeat,
+    linear-gradient(var(--lk),var(--lk)) right top/22px 2px no-repeat,linear-gradient(var(--lk),var(--lk)) right top/2px 22px no-repeat,
+    linear-gradient(var(--lk),var(--lk)) left bottom/22px 2px no-repeat,linear-gradient(var(--lk),var(--lk)) left bottom/2px 22px no-repeat,
+    linear-gradient(var(--lk),var(--lk)) right bottom/22px 2px no-repeat,linear-gradient(var(--lk),var(--lk)) right bottom/2px 22px no-repeat}
+.lb2-sides .lb-team.fed{--lk:#7dd3fc}.lb2-sides .lb-team.spa{--lk:#ff6b76}
+.lb2-sides .lb-team.mine:after{opacity:.9}
+.lb2-sides .lb-team.lockon{animation:lockPop .7s cubic-bezier(.2,.9,.3,1.2)}
+.lb2-sides .lb-team.lockon:after{animation:lockIn .6s cubic-bezier(.2,.8,.3,1) both}
+.lb2-sides .lb-team.lockon:before{animation:lbScanFast .7s ease-out 1;background:linear-gradient(180deg,transparent,var(--lk),transparent);opacity:.45}
+@keyframes lockPop{0%{transform:scale(.96)}45%{transform:scale(1.035)}100%{transform:scale(1)}}
+@keyframes lockIn{0%{inset:-18px;opacity:0}60%{opacity:1}100%{inset:6px;opacity:.9}}
+@keyframes lbScanFast{from{top:-30%}to{top:130%}}
+/* the full-screen moment */
+#teamFx{position:fixed;inset:0;z-index:380;pointer-events:none;display:none;overflow:hidden}
+#teamFx.on{display:block}
+#teamFx .tf-sweep{position:absolute;top:0;bottom:0;width:60%;left:-60%;opacity:0}
+#teamFx.fed .tf-sweep{background:linear-gradient(90deg,transparent,rgba(56,189,248,.55),rgba(186,230,253,.9) 55%,transparent);animation:tfSweepR .9s cubic-bezier(.4,0,.2,1) forwards}
+#teamFx.spa .tf-sweep{left:auto;right:-60%;background:linear-gradient(270deg,transparent,rgba(255,77,90,.55),rgba(254,205,211,.9) 55%,transparent);animation:tfSweepL .9s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes tfSweepR{0%{left:-60%;opacity:0}15%{opacity:1}100%{left:110%;opacity:0}}
+@keyframes tfSweepL{0%{right:-60%;opacity:0}15%{opacity:1}100%{right:110%;opacity:0}}
+#teamFx .tf-band{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:clamp(14px,3vh,26px) 10px;opacity:0;animation:tfBand 1.8s cubic-bezier(.2,.8,.3,1) .12s forwards}
+#teamFx.fed .tf-band{background:linear-gradient(90deg,transparent,rgba(3,20,40,.88) 20%,rgba(3,20,40,.88) 80%,transparent);border-top:1px solid rgba(56,189,248,.6);border-bottom:1px solid rgba(56,189,248,.6)}
+#teamFx.spa .tf-band{background:linear-gradient(90deg,transparent,rgba(40,3,8,.88) 20%,rgba(40,3,8,.88) 80%,transparent);border-top:1px solid rgba(255,77,90,.6);border-bottom:1px solid rgba(255,77,90,.6)}
+#teamFx .tf-band b{font:900 clamp(34px,7vw,90px)/1 system-ui,sans-serif;letter-spacing:.22em;color:#fff}
+#teamFx.fed .tf-band b{text-shadow:0 0 24px rgba(56,189,248,.9),0 0 60px rgba(56,189,248,.5)}
+#teamFx.spa .tf-band b{text-shadow:0 0 24px rgba(255,77,90,.9),0 0 60px rgba(255,77,90,.5)}
+#teamFx .tf-band span{font:800 clamp(10px,1.3vw,15px) system-ui,sans-serif;letter-spacing:.36em;color:#e2e8f0}
+@keyframes tfBand{0%{opacity:0;transform:translateY(-50%) scaleY(.1) scaleX(1.3);letter-spacing:.6em}
+  18%{opacity:1;transform:translateY(-50%) scaleY(1) scaleX(1)}
+  70%{opacity:1;transform:translateY(-50%) scale(1)}
+  100%{opacity:0;transform:translateY(-50%) scale(1.04)}}
+@media (prefers-reduced-motion:reduce){
+  #teamFx .tf-sweep{display:none}
+  #teamFx .tf-band{animation:tfFade 1.6s ease forwards}
+  @keyframes tfFade{0%,100%{opacity:0}15%,70%{opacity:1}}
+  .lb2-sides .lb-team:before,.lb2-vs b{animation:none}
+  .lb2-sides .lb-team.lockon,.lb2-sides .lb-team.lockon:after{animation:none}
+}
+/* the dock: one centred column */
+.lb2-dock{align-items:center;text-align:center}
+.lb2-ctl{flex-direction:column;align-items:center;flex-wrap:nowrap;gap:10px;width:min(100%,780px);margin:0 auto}
+.lb2-ctl .lb-me{flex:none;width:min(100%,440px);min-width:0;margin:0 auto}
+.lb2-ctl .lb-me .cws{margin:0;padding:10px 14px;background:rgba(2,4,8,.6);border:1px dashed rgba(203,213,225,.35);color:#e2e8f0}
+.lb2-ctl .lb-host{flex:none;width:100%;display:grid;grid-template-columns:3fr 2fr;gap:8px 18px;align-items:start;justify-items:center;padding:10px 16px 12px;
+  border:1px solid var(--acc-line);box-shadow:inset 0 0 0 1px rgba(255,255,255,.04),0 10px 30px rgba(0,0,0,.45)}
+.lb2-ctl .lb-host > .lb-hh,.lb2-ctl .lb-host > .btn,.lb2-ctl .lb-host > .mpmsg,.lb2-ctl .lb-host > p{grid-column:1/-1;margin:0}
+.lb2-ctl .lb-host > .btn{width:min(100%,460px)}
+.lb2-ctl .lb-row{flex-direction:column;justify-content:flex-start;align-items:center;gap:6px;width:100%}
+.lb2-ctl .lb-row > span{font:800 10px system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.lb2-ctl .lb-chips{justify-content:center}
+.lb2-dock .lb-un{text-align:center}
+@media (max-width:760px){
+  .lb2-ctl .lb-host{grid-template-columns:1fr}
+  .lb2-mid{display:flex;padding:0}
+  .lb2-sides{grid-template-columns:1fr}
+  .lb2-sides > .lb2-mid{order:0}
 }
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
@@ -8909,7 +8992,7 @@ function renderLobby() {
     const emb = document.querySelector(t === "federation" ? "#fcFed .fc-emb" : "#fcSpa .fc-emb");
     const canPick = !mineT && (!battle || (me && !me.team));
     const lead = mp.leaders[t] && mp.data["player/" + mp.leaders[t]];
-    return '<div class="lb-team ' + cls + (mineT ? " mine" : "") + '">' +
+    return '<div class="lb-team ' + cls + (mineT ? " mine" : "") + (mineT && mp.lockUntil > Date.now() ? " lockon" : "") + '">' +
       '<div class="fcard lb-card ' + cls + (mineT ? ' sel' : '') + (canPick ? '' : ' nopick') + '"' + (canPick ? ' onclick="mpPickTeam(\'' + t + '\')"' : '') + '>' +
         '<div class="fc-in">' + (emb ? emb.outerHTML : '') +
           '<div class="fc-txt"><b>' + (t === "federation" ? "FEDERATION" : "SPACENOIDS") + '</b>' +
@@ -8965,13 +9048,30 @@ function renderLobby() {
     '<div class="lb2-top"><div class="cwstep">SESSION</div>' +
       '<div class="mpcode">' + mp.code.split("").map(c => '<span>' + c + '</span>').join("") + '</div>' +
       '<p class="bp-sub">Share this code \u2014 everyone joins with it and picks a side.</p>' + status + msg + '</div>' +
-    '<div class="lb2-sides' + (me && me.team ? ' picked' : '') + '">' + col("federation") + '<div class="lb2-mid" aria-hidden="true"></div>' + col("spacenoid") + '</div>' +
+    '<div class="lb2-sides' + (me && me.team ? ' picked' : '') + '">' + col("federation") + '<div class="lb2-mid" aria-hidden="true"><div class="lb2-vs"><span class="vs-f">' + st.on("federation").length + '</span><b>VS</b><span class="vs-s">' + st.on("spacenoid").length + '</span></div></div>' + col("spacenoid") + '</div>' +
     '<div class="lb2-dock">' + unassigned + '<div class="lb2-ctl">' + controls + '</div>' +
     '<div class="bp-foot lb-foot">' +
       '<button class="btn" onclick="hangarGo(() => show(\'s0\'))">&larr; Main menu</button>' +
       (mpIsHost() ? '<button class="btn enemyturn" onclick="if (confirm(\'End the session for everyone?\')) mpLeave(true)">End session</button>'
                   : '<button class="btn" onclick="if (confirm(\'Leave this session? Your roster on this device stays as it is.\')) mpLeave(false)">Leave session</button>') +
     '</div></div>');
+  const myT = (me && me.team) || null;
+  if (mp.fxTeam !== undefined && myT && myT !== mp.fxTeam && !battle) lobbyTeamFx(myT);
+  mp.fxTeam = myT;
+}
+// the "you joined this side" moment: light sweep from that side, name slam, panel lock-on
+function lobbyTeamFx(t) {
+  const cls = t === "federation" ? "fed" : "spa";
+  mp.lockUntil = Date.now() + 800;                  // kept through the redraws that follow a pick
+  const panel = document.querySelector("#mpLobby .lb-team." + cls);
+  if (panel) { panel.classList.remove("lockon"); void panel.offsetWidth; panel.classList.add("lockon"); }
+  let fx = $("teamFx");
+  if (!fx) { fx = document.createElement("div"); fx.id = "teamFx"; fx.setAttribute("aria-hidden", "true"); document.body.appendChild(fx); }
+  fx.className = "";
+  fx.innerHTML = '<div class="tf-sweep"></div><div class="tf-band"><b>' + (t === "federation" ? "FEDERATION" : "SPACENOIDS") + '</b><span>SIDE JOINED \u2014 WELCOME, PILOT</span></div>';
+  void fx.offsetWidth;
+  fx.className = "on " + cls;
+  clearTimeout(fx._t); fx._t = setTimeout(() => { fx.className = ""; }, 1900);
 }
 
 // ---------- rendering on the roster / sheet ----------
@@ -11233,7 +11333,7 @@ function draw() {
   }
 }
 
-const APP_BUILD = "cf18";
+const APP_BUILD = "cf19";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
