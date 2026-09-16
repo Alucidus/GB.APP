@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf22)
+# Gunpla Battle — Cloudflare version (build cf25)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -90,3 +90,6 @@ public/            the app (index.html, images, service worker)
 | cf20 | `public/index.html`, `public/sw.js` | PLAY ONLINE card: blue / red split instead of purple (outline, glow, RECOMMENDED tag) |
 | cf21 | `public/index.html`, `public/sw.js` | Fix: PLAY ONLINE card background restored (cf20's colour wash removed) — thin blue left / red right edge glow only |
 | cf22 | `public/index.html`, `public/sw.js` | PLAY ONLINE card uses the two-hangar art as one seamless background (no misaligned image seam); lobby's dark bottom band now reaches both screen edges and the bottom (no bright gaps) |
+| cf23 | `public/index.html`, `public/sw.js` | Lobby: picking Federation no longer lays a blue wash over the (already bright) left half — it stays crisp, only the Spacenoid half dims; the Spacenoid red glow is unchanged |
+| cf24 | `public/index.html`, `public/sw.js` | Fix: Start My Turn now turns fully green on the Spacenoid side too (a more specific Spacenoid red rule was overriding the fill) |
+| cf25 | `public/index.html`, `public/sw.js` | **Turns start automatically**: when the other team ends its turn, the leader's device starts yours (full start-of-turn upkeep) and everyone gets a green "your turn has started" notice; if a teammate still has a sheet open it waits and names them. Fix: undoing a turn start no longer counts as ending the turn (it used to hand the turn to the other team) |
