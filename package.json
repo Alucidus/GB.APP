@@ -1,0 +1,12 @@
+{
+  "name": "gunpla-battle-cf",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.132.0"
+  }
+}

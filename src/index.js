@@ -1,0 +1,372 @@
+// Gunpla Battle — Cloudflare Worker + Durable Objects (cf1)
+//
+// The Worker serves the app (static assets, from ./public) and routes multiplayer calls:
+//   POST /api/sync                 create · join · sync · leave   (plain HTTP — used for create/join and as a fallback)
+//   GET  /api/ws?code&pid&token    live WebSocket to the session's room (sync requests + "changed" pushes)
+//
+// Each session code maps to one BattleRoom Durable Object. A room handles one message at a time, keeps the
+// whole session in memory (backed by its own SQLite storage), and pushes a tiny {type:"changed"} to every
+// connected device whenever something meaningful changes, so devices fetch updates at once instead of polling.
+//
+// Keys inside a room (same data model as the Netlify version):
+//   meta · settings · pseat/<pid> · player/<pid> · team/<team> · unit/<team>/<uid> · lock/<team>/<uid>
+//   inbox/<team>/<uid>/<id>
+// Write rules are unchanged: player (that player) · settings (host) · team (leader) · unit (lock holder, or the
+// leader while nobody else holds it) · lock (claim if free or stale) · inbox (any teammate, once; cleared by holder).
+
+const TTL_MS = 24 * 60 * 60 * 1000;
+const CODE_LEN = 5;
+const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+const TEAMS = ["federation", "spacenoid"];
+const SEEN_EVERY_MS = 10000;
+const LOCK_STALE_MS = 30000;
+const LEAVE_MS = 90000;
+const MAX_BYTES = 256 * 1024;
+const MAX_MSG_BYTES = 4096;
+const MAX_PLAYERS = 12;
+const BUDGET_MIN = 500, BUDGET_MAX = 200000;
+
+const json = (status, body) => new Response(JSON.stringify(body), {
+  status, headers: { "content-type": "application/json", "cache-control": "no-store" },
+});
+const rnd = n => crypto.getRandomValues(new Uint8Array(n));
+const randomCode = () => [...rnd(CODE_LEN)].map(x => CODE_CHARS[x % CODE_CHARS.length]).join("");
+const randomHex = n => [...rnd(n)].map(x => x.toString(16).padStart(2, "0")).join("");
+const cleanCode = c => (typeof c === "string" ? c.trim().toUpperCase() : "");
+const validCode = c => c.length === CODE_LEN && [...c].every(ch => CODE_CHARS.includes(ch));
+const validPid = p => typeof p === "string" && /^[a-f0-9]{12}$/.test(p);
+const cleanName = n => (typeof n === "string" ? n.replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, 18) : "");
+const validTeam = t => TEAMS.includes(t);
+const validUid = u => Number.isInteger(u) && u > 0 && u < 1e6;
+const lockOk = k => { const m = /^(federation|spacenoid)\/(\d+)$/.exec(k || ""); return m && validUid(+m[2]) ? m : null; };
+
+// ---------------- Worker ----------------
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    if (url.pathname === "/api/ws") {
+      const code = cleanCode(url.searchParams.get("code"));
+      if (!validCode(code) || request.headers.get("Upgrade") !== "websocket") return new Response("Bad request", { status: 400 });
+      return roomFor(env, code).fetch(new Request("https://room/ws" + url.search, request));
+    }
+    if (url.pathname === "/api/sync") {
+      if (request.method !== "POST") return json(405, { ok: false, error: "Use POST." });
+      let body;
+      try { body = await request.json(); } catch (e) { return json(400, { ok: false, error: "Bad request." }); }
+      if (body && body.action === "create") {
+        const name = cleanName(body.name);
+        if (!name) return json(400, { ok: false, error: "Enter a player name first." });
+        for (let i = 0; i < 12; i++) {
+          const code = randomCode();
+          const r = await roomFor(env, code).fetch("https://room/rpc", { method: "POST", body: JSON.stringify({ ...body, action: "init", code, name }) });
+          if (r.status === 409) continue;                        // code already in use: try another
+          return r;
+        }
+        return json(503, { ok: false, error: "Couldn't find a free session code — try again." });
+      }
+      const code = cleanCode(body && body.code);
+      if (!validCode(code)) return json(400, { ok: false, error: "Session codes are 5 letters." });
+      return roomFor(env, code).fetch("https://room/rpc", { method: "POST", body: JSON.stringify({ ...body, code }) });
+    }
+    return new Response("Not found", { status: 404 });          // everything else is served from ./public
+  },
+};
+const roomFor = (env, code) => env.ROOMS.get(env.ROOMS.idFromName(code));
+
+// ---------------- in-memory mirror of a room's storage ----------------
+class Mem {
+  constructor(storage) { this.st = storage; this.map = new Map(); this.ver = new Map(); this.seq = 0; this.loaded = false; }
+  async load() {
+    if (this.loaded) return;
+    const all = await this.st.list();
+    for (const [k, v] of all) {
+      if (!v || typeof v !== "object" || !("ver" in v)) continue;
+      this.map.set(k, v.data); this.ver.set(k, v.ver);
+      if (v.ver > this.seq) this.seq = v.ver;
+    }
+    this.loaded = true;
+  }
+  has(k) { return this.map.has(k); }
+  get(k) { return this.map.has(k) ? this.map.get(k) : null; }
+  etag(k) { return String(this.ver.get(k)); }
+  keys(prefix) { return [...this.map.keys()].filter(k => !prefix || k.startsWith(prefix)); }
+  async set(k, data) {
+    const ver = ++this.seq;
+    this.map.set(k, data); this.ver.set(k, ver);
+    await this.st.put(k, { data, ver });
+  }
+  async setIfNew(k, data) { if (this.map.has(k)) return false; await this.set(k, data); return true; }
+  async del(k) { if (!this.map.has(k)) return; this.map.delete(k); this.ver.delete(k); await this.st.delete(k); }
+  async clear() { this.map.clear(); this.ver.clear(); await this.st.deleteAll(); }
+}
+
+// ---------------- the room ----------------
+export class BattleRoom {
+  constructor(ctx, env) {
+    this.ctx = ctx; this.env = env;
+    this.mem = new Mem(ctx.storage);
+    // answer keep-alive pings without waking the room
+    try { ctx.setWebSocketAutoResponse(new WebSocketRequestResponsePair("ping", "pong")); } catch (e) {}
+  }
+
+  async fetch(request) {
+    await this.mem.load();
+    const url = new URL(request.url);
+    if (url.pathname === "/ws") {
+      const pid = url.searchParams.get("pid"), token = url.searchParams.get("token");
+      if (!this.live() ) return new Response("Session ended", { status: 410 });
+      if (!this.tokenOk(pid, token)) return new Response("Not in this session", { status: 403 });
+      const pair = new WebSocketPair();
+      this.ctx.acceptWebSocket(pair[1], [pid]);
+      return new Response(null, { status: 101, webSocket: pair[0] });
+    }
+    if (url.pathname === "/rpc") {
+      let body;
+      try { body = await request.json(); } catch (e) { return json(400, { ok: false, error: "Bad request." }); }
+      const res = await this.handle(body, null);
+      if (res.push) this.broadcast(null);
+      if (res.closeAll) this.closeAll(4000, "Session ended");
+      return json(res.status, res.body);
+    }
+    return new Response("Not found", { status: 404 });
+  }
+
+  async webSocketMessage(ws, message) {
+    await this.mem.load();
+    let msg;
+    try { msg = JSON.parse(typeof message === "string" ? message : new TextDecoder().decode(message)); } catch (e) { return; }
+    if (!msg || typeof msg !== "object") return;
+    const tags = this.ctx.getTags(ws);
+    const body = msg.body || {};
+    // a socket may only act as the player it was opened for
+    if (body.pid && tags[0] !== body.pid) { ws.send(JSON.stringify({ id: msg.id, status: 403, j: { ok: false, error: "Wrong player for this connection." } })); return; }
+    const res = await this.handle(body, ws);
+    try { ws.send(JSON.stringify({ id: msg.id, status: res.status, j: res.body })); } catch (e) {}
+    if (res.push) this.broadcast(ws);
+    if (res.closeAll) this.closeAll(4000, "Session ended");
+  }
+  async webSocketClose(ws, code, reason) {
+    // answer the close with a code that may be sent (1005 / 1006 / 1015 are reserved)
+    const ok = code >= 1000 && code < 5000 && ![1004, 1005, 1006, 1015].includes(code);
+    try { ws.close(ok ? code : 1000, "closing"); } catch (e) {}
+  }
+  async webSocketError(ws) { try { ws.close(1011, "error"); } catch (e) {} }
+
+  async alarm() {
+    await this.mem.load();
+    const meta = this.mem.get("meta");
+    if (!meta || meta.expires <= Date.now()) { this.closeAll(4000, "Session expired"); await this.mem.clear(); }
+    else await this.ctx.storage.setAlarm(meta.expires);
+  }
+
+  broadcast(except) {
+    const msg = JSON.stringify({ type: "changed" });
+    for (const s of this.ctx.getWebSockets()) { if (s !== except) { try { s.send(msg); } catch (e) {} } }
+  }
+  closeAll(code, reason) { for (const s of this.ctx.getWebSockets()) { try { s.close(code, reason); } catch (e) {} } }
+  live() { const m = this.mem.get("meta"); return !!(m && m.hostPid && m.expires > Date.now()); }
+  tokenOk(pid, token) { if (!validPid(pid) || typeof token !== "string" || !token) return false; const r = this.mem.get("pseat/" + pid); return !!(r && r.token === token); }
+  players() { const o = {}; for (const k of this.mem.keys("player/")) o[k.slice(7)] = this.mem.get(k); return o; }
+  leaders(players, now) {
+    const out = {};
+    TEAMS.forEach(t => {
+      const m = Object.entries(players).filter(([, p]) => p && p.team === t && now - (p.seen || 0) < LEAVE_MS)
+        .sort((a, b) => (a[1].teamAt || 0) - (b[1].teamAt || 0) || (a[0] < b[0] ? -1 : 1));
+      out[t] = m.length ? m[0][0] : null;
+    });
+    return out;
+  }
+  async newPlayer(name) {
+    for (let i = 0; i < 5; i++) {
+      const pid = randomHex(6), token = randomHex(18);
+      if (!(await this.mem.setIfNew("pseat/" + pid, { token }))) continue;
+      await this.mem.set("player/" + pid, { name, team: null, ready: false, teamAt: 0, seen: Date.now() });
+      return { pid, token };
+    }
+    throw new Error("could not allocate a player id");
+  }
+
+  async handle(body, ws) {
+    const R = (status, b, extra) => ({ status, body: b, ...(extra || {}) });
+    try {
+      switch (body && body.action) {
+        case "init": return await this.init(body, R);
+        case "join": return await this.join(body, R);
+        case "sync": return await this.sync(body, R);
+        case "leave": return await this.leave(body, R);
+        default: return R(400, { ok: false, error: "Unknown action." });
+      }
+    } catch (e) {
+      console.error("room error", e && e.stack || e);
+      return R(500, { ok: false, error: "Sync service error." });
+    }
+  }
+
+  async init(body, R) {
+    if (this.mem.has("meta")) {
+      const m = this.mem.get("meta");
+      if (m && m.expires > Date.now()) return R(409, { ok: false, error: "code taken" });
+      await this.mem.clear();                                         // an old, expired session: start clean
+    }
+    const now = Date.now();
+    const me = await this.newPlayer(cleanName(body.name));
+    const meta = { v: 3, code: body.code, created: now, expires: now + TTL_MS, hostPid: me.pid };
+    await this.mem.set("meta", meta);
+    await this.mem.set("settings", { phase: "lobby", budget: 10000, first: null, startedAt: 0 });
+    await this.ctx.storage.setAlarm(meta.expires);
+    return R(200, { ok: true, code: body.code, pid: me.pid, token: me.token, host: true, expires: meta.expires });
+  }
+
+  async join(body, R) {
+    if (!this.live()) return R(404, { ok: false, error: "No session with that code (it may have expired)." });
+    const meta = this.mem.get("meta");
+    if (body.pid && this.tokenOk(body.pid, body.token) && this.mem.has("player/" + body.pid))
+      return R(200, { ok: true, code: meta.code, pid: body.pid, token: body.token, host: meta.hostPid === body.pid, expires: meta.expires, rejoined: true });
+    const name = cleanName(body.name);
+    if (!name) return R(400, { ok: false, error: "Enter a player name first." });
+    const now = Date.now();
+    const active = Object.values(this.players()).filter(p => p && now - (p.seen || 0) < LEAVE_MS);
+    if (active.length >= MAX_PLAYERS) return R(409, { ok: false, error: "That session is full." });
+    if (active.some(p => p.name.toLowerCase() === name.toLowerCase())) return R(409, { ok: false, error: "Someone in that session is already called " + name + " — pick another name." });
+    const me = await this.newPlayer(name);
+    return R(200, { ok: true, code: meta.code, pid: me.pid, token: me.token, host: false, expires: meta.expires }, { push: true });
+  }
+
+  async sync(body, R) {
+    const T0 = Date.now();
+    if (!this.live()) return R(410, { ok: false, error: "This session has ended or expired.", ended: true });
+    if (!this.tokenOk(body.pid, body.token)) return R(403, { ok: false, error: "This device's seat is no longer valid." });
+    const M = this.mem, meta = M.get("meta");
+    const pid = body.pid, now = Date.now();
+    const isHost = meta.hostPid === pid;
+    const w = body.writes && typeof body.writes === "object" ? body.writes : {};
+    const denied = [];
+    let push = false;                      // something others should know about right away
+    const players = this.players();
+    const settings = M.get("settings");
+    const me = players[pid];
+    if (!me) return R(403, { ok: false, error: "You're no longer in this session." });
+    const inLobby = !settings || settings.phase === "lobby";
+
+    // 1. my player entry
+    const np = { ...me };
+    if (w.player && typeof w.player === "object") {
+      const nm = cleanName(w.player.name);
+      if (nm) np.name = nm;
+      if ((w.player.team === null || validTeam(w.player.team)) && w.player.team !== me.team) {
+        if (inLobby || !me.team) { np.team = w.player.team; np.teamAt = now; np.ready = false; }
+        else denied.push("team");
+      }
+      if (typeof w.player.ready === "boolean" && np.team) np.ready = w.player.ready;
+      if (!np.team) np.ready = false;
+    }
+    const changed = JSON.stringify({ ...np, seen: 0 }) !== JSON.stringify({ ...me, seen: 0 });
+    if (changed || now - (me.seen || 0) > SEEN_EVERY_MS) {
+      np.seen = now;
+      await M.set("player/" + pid, np);
+      players[pid] = np;
+      if (changed) push = true;
+    }
+    const leaders = this.leaders(players, now);
+    const myTeam = players[pid].team;
+    const amLeader = !!myTeam && leaders[myTeam] === pid;
+
+    // 2. settings (host)
+    if (w.settings && typeof w.settings === "object") {
+      if (!isHost) denied.push("settings");
+      else {
+        const cur = settings || { phase: "lobby", budget: 10000, first: null, startedAt: 0 };
+        const ns = { ...cur };
+        const b = Number(w.settings.budget);
+        if (Number.isFinite(b) && b >= BUDGET_MIN && b <= BUDGET_MAX) ns.budget = Math.round(b);
+        if (w.settings.first === null || validTeam(w.settings.first)) ns.first = w.settings.first;
+        if (w.settings.phase === "battle" && cur.phase !== "battle") {
+          if (!validTeam(ns.first)) denied.push("start:first");
+          else if (!TEAMS.every(t => leaders[t])) denied.push("start:teams");
+          else { ns.phase = "battle"; ns.startedAt = now; }
+        } else if (w.settings.phase === "lobby" && cur.phase === "battle") { ns.phase = "lobby"; ns.startedAt = 0; }
+        await M.set("settings", ns); push = true;
+      }
+    }
+
+    const locks = {};
+    for (const k of M.keys("lock/")) locks[k.slice(5)] = M.get(k);
+    const alive = p => players[p] && now - (players[p].seen || 0) < LOCK_STALE_MS;
+
+    // 3. team state (leader)
+    if (w.team && typeof w.team === "object") {
+      if (!amLeader) denied.push("team-state");
+      else if (JSON.stringify(w.team).length > MAX_BYTES) denied.push("team-size");
+      else { await M.set("team/" + myTeam, w.team); push = true; }
+    }
+    // 4. unit states (lock holder, or leader when nobody live holds the lock) — before any release / claim
+    if (w.units && typeof w.units === "object") {
+      for (const [k, data] of Object.entries(w.units).slice(0, 60)) {
+        const m = lockOk(k);
+        if (!m || m[1] !== myTeam || !data || typeof data !== "object") { denied.push("unit:" + k); continue; }
+        const holder = locks[k] && locks[k].pid;
+        if (!(holder === pid || (amLeader && (!holder || !alive(holder))))) { denied.push("unit:" + k); continue; }
+        if (JSON.stringify(data).length > MAX_BYTES) { denied.push("unit-size:" + k); continue; }
+        await M.set("unit/" + k, data); push = true;
+      }
+    }
+    // 5. deliveries this device applied are cleared while it still holds the lock
+    for (const rel of (Array.isArray(body.consume) ? body.consume.slice(0, 20) : [])) {
+      const mm = /^inbox\/((federation|spacenoid)\/(\d+))\/[a-z0-9]{6,20}$/.exec(rel || "");
+      if (!mm || mm[2] !== myTeam || !locks[mm[1]] || locks[mm[1]].pid !== pid) { denied.push("consume:" + rel); continue; }
+      await M.del(rel); push = true;
+    }
+    // 6. releases, then claims
+    for (const k of (Array.isArray(body.release) ? body.release.slice(0, 50) : [])) {
+      if (lockOk(k) && locks[k] && locks[k].pid === pid) { await M.del("lock/" + k); delete locks[k]; push = true; }
+    }
+    for (const k of (Array.isArray(body.acquire) ? body.acquire.slice(0, 50) : [])) {
+      const m = lockOk(k);
+      if (!m || m[1] !== myTeam) { denied.push("lock:" + k); continue; }
+      const cur = locks[k];
+      if (cur && cur.pid === pid) continue;
+      if (cur && alive(cur.pid)) { denied.push("lock:" + k); continue; }
+      locks[k] = { pid, at: now };
+      await M.set("lock/" + k, locks[k]); push = true;
+    }
+    // 7. new deliveries
+    for (const m of (Array.isArray(body.inbox) ? body.inbox.slice(0, 10) : [])) {
+      const k = m && m.to, mm = lockOk(k);
+      if (!mm || mm[1] !== myTeam || !m.msg || typeof m.msg !== "object") { denied.push("inbox:" + k); continue; }
+      const id = typeof m.id === "string" && /^[a-z0-9]{6,20}$/.test(m.id) ? m.id : randomHex(6);
+      const msg = { ...m.msg, byPid: pid, at: now };
+      if (JSON.stringify(msg).length > MAX_MSG_BYTES || !(await M.setIfNew("inbox/" + k + "/" + id, msg))) { denied.push("inbox:" + k); continue; }
+      push = true;
+    }
+
+    // 8. reply with everything that changed since the caller's last view (never seat tokens)
+    const known = body.known && typeof body.known === "object" ? body.known : {};
+    const changes = {}, etags = {};
+    for (const k of M.keys()) {
+      if (k.startsWith("pseat/")) continue;
+      const e = M.etag(k);
+      etags[k] = e;
+      if (known[k] !== e) changes[k] = M.get(k);
+    }
+    const removed = Object.keys(known).filter(k => !(k in etags));
+    return R(200, {
+      ok: true, now: Date.now(), you: pid, hostPid: meta.hostPid, expires: meta.expires,
+      leaders: this.leaders(this.players(), now), changes, etags, removed, denied,
+      timing: { total: Date.now() - T0, list: 0, read: 0, write: 0, wrote: push, store: "cloudflare room" },
+    }, { push });
+  }
+
+  async leave(body, R) {
+    if (!this.tokenOk(body.pid, body.token)) return R(200, { ok: true });
+    const meta = this.mem.get("meta");
+    if (meta && meta.hostPid === body.pid && body.endForAll) {
+      await this.mem.clear();
+      return R(200, { ok: true, ended: true }, { closeAll: true, push: false, endAll: true });
+    }
+    for (const k of this.mem.keys("lock/")) { const l = this.mem.get(k); if (l && l.pid === body.pid) await this.mem.del(k); }
+    await this.mem.del("player/" + body.pid);
+    await this.mem.del("pseat/" + body.pid);
+    for (const s of this.ctx.getWebSockets(body.pid)) { try { s.close(4001, "Left session"); } catch (e) {} }
+    return R(200, { ok: true }, { push: true });
+  }
+}
