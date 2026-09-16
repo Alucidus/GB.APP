@@ -1690,6 +1690,28 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 .nk-dist{min-width:92px;font:900 18px system-ui,sans-serif;letter-spacing:.04em}
 .nk-eff{font-weight:700;font-size:13px}
 #sheet .sx.sw-cell.half{color:#fbbf24}
+
+/* ===== cf16: Bridge HIT button + typed amount ===== */
+#sheet .sx.bhit{position:absolute;transform:translate(-50%,-50%);z-index:7;cursor:pointer;display:flex;flex-direction:column;align-items:center;line-height:1;
+  padding:.35cqw .7cqw;min-width:4.2cqw;color:#fff;background:linear-gradient(180deg,#7f1d1d,#3b0a0a);border:1px solid #f87171;
+  clip-path:polygon(.45cqw 0,100% 0,calc(100% - .45cqw) 100%,0 100%);box-shadow:0 0 .6cqw rgba(248,113,113,.35);transition:transform .1s}
+#sheet .sx.bhit b{font:900 clamp(6px,1.05cqw,15px) system-ui,sans-serif;letter-spacing:.16em}
+#sheet .sx.bhit small{font:800 clamp(5px,.72cqw,10px) system-ui,sans-serif;letter-spacing:.06em;color:#fecaca;margin-top:.1cqw}
+#sheet .sx.bhit:active{transform:translate(-50%,-50%) scale(.92)}
+#sheet .sx.bhit.on{background:linear-gradient(180deg,#b91c1c,#450a0a);border-color:#fecaca}
+#sheet .sx.bhit.owed{background:linear-gradient(180deg,#b45309,#451a03);border-color:#fbbf24;animation:bhitPulse 1.2s ease-in-out infinite}
+#sheet .sx.bhit.owed small{color:#fde68a}
+#sheet .sx.bhit.off{opacity:.35;pointer-events:none}
+@keyframes bhitPulse{0%,100%{filter:drop-shadow(0 0 0 rgba(251,191,36,0))}50%{filter:drop-shadow(0 0 .9cqw rgba(251,191,36,.95))}}
+@media (prefers-reduced-motion:reduce){#sheet .sx.bhit.owed{animation:none;filter:drop-shadow(0 0 .6cqw rgba(251,191,36,.8))}}
+#sheet .sx.bhitu{position:absolute;transform:translate(-50%,-50%);z-index:7;cursor:pointer;width:2.2cqw;height:2.2cqw;display:flex;align-items:center;justify-content:center;
+  font:900 clamp(6px,1.1cqw,15px) system-ui,sans-serif;color:#fecaca;background:rgba(0,0,0,.7);border:1px solid #f87171}
+#amtBar .a.cust{min-width:1.9em;font-weight:900}
+#amtBar .a.cust:not(.on){color:#94a3b8}
+.amtin{display:flex;flex-direction:column;align-items:center;gap:10px}
+.amtin input{width:160px;font:900 34px system-ui,sans-serif;text-align:center;padding:6px;color:#fff;background:#0b1220;border:2px solid var(--acc,#38bdf8)}
+.amtkeys{display:grid;grid-template-columns:repeat(3,64px);gap:6px}
+.amtkeys .btn{height:46px;font-size:18px;padding:0}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -6581,7 +6603,7 @@ const SHIP_UNITS = [
     abil: ["launch", "dock", "dc", "bridgehit", "lockdown"] },
   { id: "rewloola-class-battleship", name: "Rewloola-class Battleship", short: "Rewloola", ship: "rewloola", faction: "spacenoid", dp: 5000,
     hull: 100, bridge: 60, thr: [30, 30], ap: 6, moveCm: 20, crew: 24, garrison: 3, dc: true, hangar: 4, launches: 2, base: 2, decoy: false,
-    aspect: 2.513, box: { h: 52, top: 5, cx: 45 },
+    aspect: 2.513, box: { h: 52, top: 5, cx: 45 }, hitDx: 0.01, hitDy: 5.8,
     sw: [
       { key: "main", name: "Twin Mega Particle Main Gun", label: "Main Gun", tech: "Twin mega particle", ring: "MAIN GUN", arc: "360°", range: "Sniper curve", dmg: "12 ×2", dmgHalf: "12 ×1", ap: 1, cd: 1, twoTargets: true,
         note: "The main battery. Split the two shots across 2 targets, or stack both on one for 24. Each barrel rolls separately with its own Dodge/Block. 1 full turn cooldown. One 20 HP system — disabling it takes both barrels offline. At half system HP (10 or less) it can only fire once — a single shot at one target, no stacking." },
@@ -6715,10 +6737,6 @@ function shipTap(k) {
   shipPartSet(U, st, k, next);
   const lab = shipPartLabel(U, k);
   aggDmg(uid, "ship:" + k, lab, cur - next, next, max);
-  if (k === "bridge" && next < cur) {
-    S.crew = Math.max(0, S.crew - 2); S.bridgeHit = 2;
-    logEv(uid, "Bridge hit — 2 crew lost, −3 to the ship's rolls next turn", "bad");
-  }
   if (cur > 0 && next === 0) {
     const what = k === "hull" ? "DESTROYED" : k === "bridge" ? "Bridge destroyed — " + (U.sw.some(w => w.indep) ? "no main weapons (Anti-Air still firing)" : "no weapons") + ", no steering"
       : k.startsWith("thr") ? lab + " destroyed — " + (S.thr.every(v => v === 0) ? "ship immobilised" : "movement halved") : lab + " offline";
@@ -6729,6 +6747,29 @@ function shipTap(k) {
     if (S.rep) delete S.rep[k];
     logEv(uid, lab + " repaired", "good");
   }
+  shipCommit();
+}
+// one tap per attack that hit the Bridge, however its damage was entered
+const bridgeHitsNow = S => (S.bhit && S.bhit.k === turnKeyNow2()) ? S.bhit.n : 0;
+function bridgeDamagedNow(uid) {
+  return turn.log.some(e => e.u === uid && e.key === "ship:bridge" && e.r === turn.round && e.p === turn.phase && e.n > 0);
+}
+function shipBridgeHit(dir) {
+  if (!CUR || !isShip(U) || !mpSheetCanEdit()) return;
+  const st = CUR.st, S = st.ship, uid = CUR.uid, key = turnKeyNow2();
+  if (!S.bhit || S.bhit.k !== key) S.bhit = { k: key, n: 0, prev: S.bridgeHit || 0, crew: [] };
+  if (dir === "undo") {
+    if (!S.bhit.n) return;
+    S.bhit.n -= 1;
+    S.crew = Math.min(U.crew, S.crew + (S.bhit.crew.pop() || 0));
+    if (!S.bhit.n) S.bridgeHit = S.bhit.prev;
+    if (!unlog(uid, "bhit:" + key + ":" + (S.bhit.n + 1))) logEv(uid, "Bridge hit undone", "info");
+    return shipCommit();
+  }
+  if (st.hp.hull === 0) return;
+  const lost = Math.min(2, S.crew);
+  S.crew -= lost; S.bhit.crew.push(lost); S.bhit.n += 1; S.bridgeHit = 2;
+  logEv(uid, "Bridge hit" + (S.bhit.n > 1 ? " #" + S.bhit.n : "") + " \u2014 " + lost + " crew lost, \u22123 to the ship's rolls next turn", "bad", "bhit:" + key + ":" + S.bhit.n);
   shipCommit();
 }
 function shipCommit() { ap = CUR.st.ap; save(); draw(); }
@@ -6876,9 +6917,17 @@ function drawShip() {
     if (v === 0 && k !== "hull") add("div", "stag " + (rep ? "rep" : "off"), { left: pc(x), top: pc(y + (k === "hull" ? 6 : 5.2)) },
       rep ? "\u21BB " + rep + "T" : "OFFLINE");
   });
-  if (S.bridgeHit > 0) {
+  {
+    // HIT button beside the Bridge ring: one tap per attack that hit the Bridge
     const [x, y] = shipRingPos(u, "bridge");
-    add("div", "hudwarn swarn", { left: pc(x), top: pc(y + 5.4) }, S.bridgeHit === 2 ? "−3 ROLLS NEXT TURN" : "−3 TO ROLLS");
+    const n = bridgeHitsNow(S), owed = !n && bridgeDamagedNow(CUR.uid) && !dead;
+    const hx = x + (u.hitDx || 5.0), hy = y + (u.hitDy || 0);
+    const hb = add("div", "bhit" + (n ? " on" : "") + (owed ? " owed" : "") + (dead ? " off" : ""), { left: pc(hx), top: pc(hy) },
+      "<b>HIT</b>" + (n ? "<small>\u00d7" + n + "</small>" : "<small>\u22122 crew</small>"));
+    hb.title = owed ? "The Bridge lost HP this turn \u2014 tap once for each attack that hit it" : "Tap once per attack that hit the Bridge: \u22122 crew and \u22123 to the ship's rolls next turn";
+    hb.onclick = e => { e.stopPropagation(); shipBridgeHit(); };
+    if (n) { const ub = add("div", "bhitu", { left: pc(hx + 3.4), top: pc(hy) }, "\u21B6"); ub.title = "Undo the last Bridge hit"; ub.onclick = e => { e.stopPropagation(); shipBridgeHit("undo"); }; }
+    if (S.bridgeHit > 0) add("div", "hudwarn swarn", { left: pc(hx + (n ? 1.7 : 0)), top: pc(hy + 3.6) }, S.bridgeHit === 2 ? "\u22123 ROLLS NEXT TURN" : "\u22123 TO ROLLS");
   }
   if (S.decoy && S.decoy.left > 0) add("div", "hudwarn swarn good", { left: "30%", top: "55.2%" }, "\u25C8 DECOYS ACTIVE \u00b7 " + S.decoy.left + "T");
   // weapons list
@@ -6924,7 +6973,7 @@ function drawShip() {
       info: "1 AP, 1 charge per game. Write down a number from 1 to 3 — that's the real ship.\n\nAttackers more than 30cm away must name a number first; a wrong guess hits a balloon (attack wasted, AP spent). Within 30cm no guess is needed. Area attacks ignore the decoys. The balloons deflate after 3 full turns, or as soon as the real ship is identified within 30cm." },
     bridgehit: { name: "Bridge hit", sub: "2 crew lost \u00b7 −3 to own rolls", ap: "\u2014",
       cd: S.bridgeHit === 2 ? "NEXT TURN" : S.bridgeHit === 1 ? "THIS TURN" : "\u2014", warn: S.bridgeHit > 0,
-      info: "Any hit on the Bridge (called or random) kills 2 crew straight away and gives −3 to all of the ship's own rolls for its following turn. Applied automatically when you damage the Bridge ring." },
+      info: "Any hit on the Bridge (called or random) kills 2 crew straight away and gives −3 to all of the ship's own rolls for its following turn.\n\nEnter the damage on the Bridge ring as usual, then tap HIT beside the ring ONCE for that attack \u2014 however many taps the damage took. It glows amber if the Bridge lost HP this turn and no hit has been recorded yet. \u21B6 undoes a hit." },
     lockdown: { name: "Last Stand Lockdown", sub: "crew 8 or less + boarded", ap: "\u2014", cd: S.crew <= 8 ? "AT RISK" : "SAFE", warn: S.crew <= 8,
       info: "If the ship is down to 8 Crew HP or fewer and an enemy squad successfully boards, the ship goes fully inert — no movement, no weapons, skips its turns — while the boarding Firefight Clash lasts." },
   };
@@ -9437,10 +9486,54 @@ function renderAmounts() {
     b.onclick = () => { amount = n; renderAmounts(); };
     bar.appendChild(b);
   });
+  const custom = AMOUNTS.indexOf(amount) < 0;
+  const cu = document.createElement("div");
+  cu.className = "a cust" + (custom ? " on" : "");
+  cu.textContent = custom ? amount : "#";
+  cu.title = "Type any amount (e.g. 14)";
+  cu.onclick = () => openAmountInput();
+  bar.appendChild(cu);
   const nk = document.createElement("div");
   nk.className = "a nuke"; nk.textContent = "\u2622"; nk.title = "Caught in a nuclear blast \u2014 apply the damage to this unit";
   nk.onclick = () => openNuke();
   bar.appendChild(nk);
+}
+// ---------- a typed damage amount ----------
+function openAmountInput() {
+  $("pickT").textContent = (mode === "repair" ? "Repair" : "Damage") + " amount";
+  $("pickS").innerHTML = "Type the exact amount \u2014 each tap on a ring or limb then applies it once.";
+  const lst = $("picklist"); lst.innerHTML = "";
+  const wrap = el("div", "amtin");
+  const inp = document.createElement("input");
+  inp.type = "number"; inp.min = "1"; inp.max = "999"; inp.step = "1"; inp.inputMode = "numeric"; inp.id = "amtInput";
+  inp.value = AMOUNTS.indexOf(amount) < 0 ? amount : "";
+  inp.placeholder = "e.g. 14";
+  const keys = el("div", "amtkeys");
+  ["1","2","3","4","5","6","7","8","9","\u232B","0","\u2713"].forEach(k => {
+    const b = el("button", "btn" + (k === "\u2713" ? " pri ready" : ""));
+    b.textContent = k;
+    b.onclick = () => {
+      if (k === "\u232B") inp.value = inp.value.slice(0, -1);
+      else if (k === "\u2713") go();
+      else if (inp.value.length < 3) inp.value += k;
+    };
+    keys.appendChild(b);
+  });
+  const go = () => {
+    const n = parseInt(inp.value, 10);
+    if (!(n >= 1)) { mpToast("Type an amount of 1 or more."); return; }
+    amount = Math.min(999, n);
+    closePicker(); renderAmounts();
+  };
+  inp.onkeydown = e => { if (e.key === "Enter") go(); };
+  wrap.append(inp, keys);
+  lst.appendChild(wrap);
+  $("pickExtra").innerHTML = "";
+  const ok = el("button", "btn pri ready"); ok.textContent = "Use this amount \u25B8"; ok.onclick = go;
+  $("pickExtra").appendChild(ok);
+  $("pickCancel").textContent = "Cancel";
+  $("pick").classList.add("on");
+  setTimeout(() => { try { inp.focus({ preventScroll: true }); } catch (e) {} }, 60);
 }
 // ---------- nuclear hits ----------
 // this unit was caught in a nuclear blast (any nuke uses the same table); pick how far it was from the centre
@@ -10932,7 +11025,7 @@ function draw() {
   }
 }
 
-const APP_BUILD = "cf15";
+const APP_BUILD = "cf16";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 
 /* ---------- wiring ---------- */
