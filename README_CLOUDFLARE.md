@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf4)
+# Gunpla Battle — Cloudflare version (build cf5)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -65,3 +65,4 @@ public/            the app (index.html, images, service worker)
 | cf2 | `src/index.js`, `public/index.html`, `public/sw.js` | Over-budget teams ask the **host** to raise the DP limit (Accept / Decline pop-up); a raise applies to **both teams** |
 | cf3 | `public/index.html`, `public/sw.js` | Your team's roster shows **who has each sheet open** (coloured tag + outline per player) |
 | cf4 | `src/index.js`, `public/index.html`, `public/sw.js` | **Official turn order** kept by the room (only the active team can end its turn; the other team waits; out-of-step devices correct themselves); **no flicker** returning from a sheet (redraws only when something changed) |
+| cf5 | `public/index.html`, `public/sw.js`, **new** `public/img/ship-musai.webp`, `ship-salamis.webp`, `ship-rewloola.webp`, `ship-racailum.webp` | **Warships**: Musai, Salamis Kai, Rewloola, Ra Cailum — new ship sheet (Canva layout, code-drawn), tinted wireframes, rings for Hull / Bridge / Thrusters / weapon systems, weapons list, Crew / AP / Movement, abilities (launch, dock, Damage Control, base module, decoys); ship rules applied automatically |

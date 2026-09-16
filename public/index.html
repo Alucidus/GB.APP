@@ -1485,6 +1485,57 @@ body.spa #s5 .mpcode span{border-color:#ff4d5a}
 .ctltag{display:inline-block;margin-left:6px;padding:1px 7px;font:800 10px system-ui,sans-serif;letter-spacing:.06em;vertical-align:middle;
   color:#0b0f14;background:var(--ctl);clip-path:polygon(4px 0,100% 0,calc(100% - 4px) 100%,0 100%)}
 .mpwait.gate{color:#fbbf24;border-color:#b45309;background:rgba(245,158,11,.08)}
+
+/* ================= WARSHIP SHEET (cf5) ================= */
+.pt.ph.shipph img{object-fit:contain;object-position:50% 50%;width:100%;height:100%;left:0;top:0;opacity:.75;filter:drop-shadow(0 0 2px rgba(125,211,252,.6))}
+#frame .fship{transform:translateX(-50%);opacity:.6}
+#frame .fret.big{width:9cqw;height:9cqw}
+#frame .fshiplbl{font-size:.95cqw}
+#frame .fshipname{left:67.6%;top:1.6%;width:26.4%;height:17.2%}
+#frame .fstatc{font-size:1.06cqw;color:#f2f7ff;font-weight:800;letter-spacing:.14em;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+#frame .fshipport{width:6.4cqw;height:6.4cqw;border-radius:50%}
+#frame .fshipport img{object-fit:contain !important;object-position:50% 50% !important;width:92% !important;height:92% !important;left:4% !important;top:4% !important;opacity:.85}
+#sheet .shp{width:4.3%;font-size:clamp(5px,1.75cqw,24px);flex-direction:row;align-items:baseline;justify-content:center;gap:0;z-index:5}
+#sheet .shp small{font-size:.5em;opacity:.55;font-weight:700}
+#sheet .shp.big{width:5.6%;font-size:clamp(6px,2.1cqw,28px)}
+#sheet .shp.big.w3{width:6%;font-size:clamp(5px,1.6cqw,22px)}
+#sheet .sx.stag{position:absolute;transform:translate(-50%,-50%);font:800 clamp(4px,.8cqw,11px) system-ui,sans-serif;letter-spacing:.08em;
+  padding:.1cqw .5cqw;background:#475569;color:#fff;z-index:6;white-space:nowrap}
+#sheet .sx.stag.rep{background:#0e7490}
+#sheet .sx.swarn{position:absolute;transform:translate(-50%,-50%);z-index:6;white-space:nowrap}
+#sheet .sx.swarn.good{border-color:#45e6a1;color:#d1fae5}
+#sheet .sx.sname{position:absolute;transform:translate(0,-50%);font-weight:900;font-size:clamp(8px,2.5cqw,34px);letter-spacing:.1em;color:#fff;
+  text-shadow:0 0 1cqw var(--f-glow);white-space:nowrap}
+#sheet .sx.sclass{position:absolute;transform:translate(0,-50%);font-weight:700;font-size:clamp(4px,.8cqw,11px);letter-spacing:.1em;color:var(--f-mut);white-space:nowrap;text-transform:uppercase}
+#sheet .sx.sw-name{position:absolute;transform:translate(0,-50%);display:flex;flex-direction:column;line-height:1.12;cursor:pointer;max-width:17%;z-index:4}
+#sheet .sx.sw-name.ab{max-width:16.8%}
+#sheet .sx.sw-name b{font-size:clamp(4px,.98cqw,14px);color:#e8f1fb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sheet .sx.sw-name span{font-size:clamp(3px,.7cqw,10px);color:var(--f-mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.03em}
+#sheet .sx.sw-name.off b{color:#94a3b8;text-decoration:line-through}
+#sheet .sx.sw-name.warn span{color:#fca5a5}
+#sheet .sx.sw-cell{position:absolute;transform:translate(-50%,-50%);font-weight:800;font-size:clamp(4px,.95cqw,13px);color:#e8f1fb;white-space:nowrap;z-index:4}
+#sheet .sx.sw-cell.rng{font-size:clamp(4px,.85cqw,12px)}
+#sheet .sx.sw-ap{position:absolute;transform:translate(-50%,-50%);min-width:2.4cqw;padding:.15cqw .4cqw;text-align:center;cursor:pointer;z-index:4;
+  font-weight:900;font-size:clamp(4px,1cqw,14px);color:#0f172a;background:var(--f-acc);box-shadow:0 0 .6cqw var(--f-glow);
+  clip-path:polygon(.35cqw 0,100% 0,calc(100% - .35cqw) 100%,0 100%);transition:transform .1s}
+#sheet .sx.sw-ap:active{transform:translate(-50%,-50%) scale(.9)}
+#sheet .sx.sw-ap.cd{background:#f59e0b;box-shadow:none}
+#sheet .sx.sw-ap.off,#sheet .sx.sw-ap.na{background:#475569;color:#cbd5e1;box-shadow:none}
+#sheet .sx.sw-ap.na{cursor:default}
+#sheet .sx.sw-ap.on{background:#45e6a1}
+#sheet .sx.sw-flag{position:absolute;transform:translate(-50%,-50%);font:900 clamp(3px,.62cqw,9px) system-ui,sans-serif;letter-spacing:.1em;
+  padding:.05cqw .35cqw;background:#7f1d1d;color:#fee2e2;z-index:5}
+#sheet .sx.sw-cd{position:absolute;transform:translate(-50%,-50%);font-weight:800;font-size:clamp(3px,.78cqw,11px);letter-spacing:.06em;color:#e8f1fb;
+  white-space:nowrap;max-width:12.4%;overflow:hidden;text-overflow:ellipsis;z-index:4;text-align:center}
+#sheet .sx.sw-cd.warn{color:#fca5a5}
+#sheet .sx.sstep{position:absolute;transform:translate(-50%,-50%);width:1.6cqw;height:1.6cqw;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;z-index:5;font-weight:900;font-size:clamp(4px,1cqw,14px);color:var(--f-acc);border:1px solid var(--f-acc);background:rgba(0,0,0,.55)}
+#sheet .sx.sgrp{z-index:5}
+#sheet .sx.sgrp .num{font-size:clamp(5px,1.6cqw,22px)}
+#sheet .sx.smove{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;line-height:1;z-index:5;
+  font-weight:900;font-size:clamp(5px,1.7cqw,23px);color:#fff;text-shadow:0 0 .8cqw var(--f-glow)}
+#sheet .sx.smove small{font-size:.42em;letter-spacing:.14em;text-transform:uppercase;color:var(--f-mut);margin-top:.15cqw}
+#sheet .sx.smove.warn{color:#fca5a5}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -6342,6 +6393,419 @@ const PRESETS = [5000, 10000, 15000, 20000];
 const SAVE = "msb.state.v4";
 
 const $ = id => document.getElementById(id);
+// ================= WARSHIPS (cf5) =================
+// Four named classes (Rulebook Section 13.5). A warship is a roster unit like any suit, but it has its own
+// sheet: a tinted wireframe with rings for Hull, Bridge, both Thrusters and every weapon system, a weapons
+// list, Crew / AP / Movement readouts and an abilities table (launch, dock, Damage Control, …).
+// State lives in r.st.ship (plus r.st.hp.hull and r.st.ap so roster rows, sync and turn code work unchanged).
+const SHIP_WEAPON_HP = 20;
+const SHIP_UNITS = [
+  { id: "musai-class-light-cruiser", name: "Musai-class Light Cruiser", short: "Musai", ship: "musai", faction: "spacenoid", dp: 2200,
+    hull: 60, bridge: 40, thr: [20, 20], ap: 4, moveCm: 30, crew: 8, garrison: 1, dc: false, hangar: 2, launches: 1, base: 0, decoy: false,
+    aspect: 1.807, box: { h: 58, top: 2, cx: 40 },
+    sw: [
+      { key: "main", name: "Twin Mega Particle Gun", label: "Main Guns", tech: "Twin mega particle", ring: "MAIN GUNS", arc: "180° forward", range: "Sniper curve", dmg: "12 ×2", ap: 1, cd: 1,
+        note: "Three twin turrets. Split the two shots across 2 targets or stack both on one for 24. Each barrel rolls separately with its own Dodge/Block. 1 full turn cooldown. The turrets can't fire behind the ship." },
+      { key: "missile", name: "Missile Launchers", ring: "MISSILES", arc: "Forward", range: "60cm", dmg: "3 → all 6", ap: 1, cd: 0,
+        note: "A 30cm wide × 15cm deep band across the ship's heading. Everything inside is a target, friend or foe. Block only — no Dodge. Point Defense has no effect." },
+    ],
+    rings: { bridge: [25, 15, "b"], thr0: [12, 64, "b"], thr1: [21, 44, "b"], hull: [62, 64], main: [46, 38], missile: [88, 82] },
+    abil: ["launch", "dock", "dc", "bridgehit", "lockdown"] },
+  { id: "salamis-kai-class-cruiser", name: "Salamis Kai-class Cruiser", short: "Salamis Kai", ship: "salamis", faction: "federation", dp: 2500,
+    hull: 70, bridge: 40, thr: [20, 20], ap: 4, moveCm: 25, crew: 8, garrison: 1, dc: false, hangar: 2, launches: 1, base: 0, decoy: false,
+    aspect: 1.790, box: { h: 60, top: 2, cx: 40 },
+    sw: [
+      { key: "main", name: "Twin Mega Particle Cannon", label: "Main Cannon", tech: "Twin mega particle", ring: "MAIN CANNON", arc: "360°", range: "Sniper curve", dmg: "12 ×2", ap: 1, cd: 1,
+        note: "Turrets dispersed across the hull — no blind spot. The two shots MUST be split across 2 separate targets; they can't be stacked. Each rolls separately with its own Dodge/Block. 1 full turn cooldown." },
+      { key: "aa", name: "Anti-Air Array", arc: "360°", range: "60cm", dmg: "6d6", ap: 1, cd: 0,
+        note: "Four machine gun turrets. Ballistic, not beam: ignores Nano-Laminate, but can't touch Limb Health through an active Phase Shift pool. Roll 4+ at 60cm, 3+ at 30–60cm, 2+ under 30cm; 1 damage per success. One volley, one Dodge/Block." },
+      { key: "missile", name: "Missile Launchers", ring: "MISSILES", arc: "Forward", range: "60cm", dmg: "3 → all 6", ap: 1, cd: 0,
+        note: "Eight internal tubes. A 30cm wide × 15cm deep band across the heading. Friend and foe alike. Block only — no Dodge. Point Defense has no effect." },
+    ],
+    rings: { bridge: [36, 10, "b"], thr0: [6, 32, "b"], thr1: [20, 6, "b"], hull: [40, 55], main: [74, 62], aa: [57, 40], missile: [53, 72, "b"] },
+    abil: ["launch", "dock", "dc", "bridgehit", "lockdown"] },
+  { id: "rewloola-class-battleship", name: "Rewloola-class Battleship", short: "Rewloola", ship: "rewloola", faction: "spacenoid", dp: 5000,
+    hull: 100, bridge: 60, thr: [30, 30], ap: 6, moveCm: 20, crew: 24, garrison: 3, dc: true, hangar: 4, launches: 2, base: 2, decoy: false,
+    aspect: 2.513, box: { h: 52, top: 5, cx: 45 },
+    sw: [
+      { key: "main", name: "Twin Mega Particle Main Gun", label: "Main Gun", tech: "Twin mega particle", ring: "MAIN GUN", arc: "360°", range: "Sniper curve", dmg: "12 ×2", ap: 1, cd: 1,
+        note: "The main battery. Split the two shots across 2 targets, or stack both on one for 24. Each barrel rolls separately with its own Dodge/Block. 1 full turn cooldown. One 20 HP system — disabling it takes both barrels offline." },
+      { key: "sec", name: "Twin Mega Particle Secondary Gun", label: "Secondary Gun", tech: "Twin mega particle", ring: "SECONDARY GUN", arc: "360°", range: "90cm", dmg: "5 each", ap: 1, cd: 0, twoTargets: true,
+        note: "Hits 2 separate targets at once, each rolled separately. Reduced to 1 target once the system is damaged." },
+      { key: "aa", name: "Anti-Air Array", arc: "360°", range: "60cm", dmg: "6d6", ap: 1, cd: 0,
+        note: "Twenty triple-barrel emplacements. Ballistic, not beam: ignores Nano-Laminate, but can't touch Limb Health through an active Phase Shift pool. Roll 4+ at 60cm, 3+ at 30–60cm, 2+ under 30cm; 1 damage per success. One volley, one Dodge/Block." },
+      { key: "missile", name: "Missile Barrage", arc: "Forward", range: "90cm", dmg: "4 → all 6", ap: 1, cd: 0,
+        note: "A 60cm wide × 20cm deep band across the heading, anywhere in range. Friend and foe alike. Block only — no Dodge. Point Defense has no effect." },
+    ],
+    rings: { bridge: [33, 17], thr0: [7, 62], thr1: [11, 30], hull: [30, 64], main: [46, 33], sec: [60, 55], aa: [73, 44], missile: [90, 86] },
+    abil: ["launch", "dock", "dc", "base", "bridgehit"] },
+  { id: "ra-cailum-class-battleship", name: "Ra Cailum-class Battleship", short: "Ra Cailum", ship: "racailum", faction: "federation", dp: 6000,
+    hull: 140, bridge: 60, thr: [30, 30], ap: 6, moveCm: 15, crew: 32, garrison: 4, dc: true, hangar: 6, launches: 2, base: 2, decoy: true,
+    aspect: 2.028, box: { h: 58, top: 2, cx: 44 },
+    sw: [
+      { key: "main", name: "Twin Mega Particle Main Gun", label: "Main Gun", tech: "Twin mega particle", ring: "MAIN GUN", arc: "360°", range: "Sniper curve", dmg: "12 ×2", ap: 1, cd: 1,
+        note: "Five twin guns, dorsal and ventral. Split the two shots across 2 targets, or stack both on one for 24. Each barrel rolls separately with its own Dodge/Block. 1 full turn cooldown." },
+      { key: "aa", name: "Anti-Air Array", arc: "360°", range: "60cm", dmg: "6d6", ap: 1, cd: 0,
+        note: "Twenty-two twin-barrel guns. Ballistic, not beam: ignores Nano-Laminate, but can't touch Limb Health through an active Phase Shift pool. Roll 4+ at 60cm, 3+ at 30–60cm, 2+ under 30cm; 1 damage per success. One volley, one Dodge/Block." },
+      { key: "asm", name: "Anti-Ship Missile", arc: "Forward", range: "90cm", dmg: "15/10/5", ap: 1, cd: 2, charges: 2,
+        note: "Nuclear ordnance. 2 charges per game, 2 full turn cooldown between them. Undodgeable, Block only, hits friend and foe.\n\nBy distance from the blast centre:\n0–30cm — suits 15 to all 6 · warships 40 Hull, Bridge and both Thrusters disabled\n30–60cm — suits 10 to all 6 · warships 25 Hull\n60–90cm — suits 5 to all 6 · warships 10 Hull" },
+    ],
+    rings: { bridge: [29, 11], thr0: [9, 50], thr1: [16, 27], hull: [40, 41], main: [60, 44], aa: [52, 66], asm: [88, 73] },
+    abil: ["launch", "dock", "dc", "decoy", "base"] },
+];
+SHIP_UNITS.forEach(s => Object.assign(s, {
+  tier: "Warship", type: "warship", move: s.moveCm + "cm", dodges: 0, kill: "hull", limb: { hull: s.hull },
+  abilities: [], weapons: [], shields: [],
+}));
+const isShip = u => !!(u && u.type === "warship");
+const shipSrc = u => "img/ship-" + u.ship + ".webp";
+
+function shipFresh(u) {
+  return { hp: { hull: u.hull }, dodges: 0, ap: u.ap, track: [], wpn: [], sh: [], shMax: [], shDown: [], pods: null, out: null, lent: [], risk: {},
+    ship: { bridge: u.bridge, thr: u.thr.slice(), sys: u.sw.map(() => SHIP_WEAPON_HP), crew: u.crew,
+      cd: u.sw.map(() => 0), cdFresh: u.sw.map(() => false), ch: u.sw.map(w => w.charges || null), rep: {},
+      aboard: u.hangar, launched: 0, docking: 0, bridgeHit: 0, decoy: { ch: u.decoy ? 1 : 0, left: 0 } } };
+}
+function shipMigrate(u, st) {
+  const f = shipFresh(u);
+  if (!st.hp || typeof st.hp.hull !== "number") st.hp = f.hp;
+  if (!st.ship || typeof st.ship !== "object") st.ship = f.ship;
+  const S = st.ship;
+  Object.keys(f.ship).forEach(k => { if (S[k] === undefined) S[k] = f.ship[k]; });
+  if (!Array.isArray(S.sys) || S.sys.length !== u.sw.length) S.sys = f.ship.sys;
+  if (!Array.isArray(S.cd) || S.cd.length !== u.sw.length) S.cd = f.ship.cd;
+  if (!Array.isArray(S.cdFresh) || S.cdFresh.length !== u.sw.length) S.cdFresh = f.ship.cdFresh;
+  if (!Array.isArray(S.ch) || S.ch.length !== u.sw.length) S.ch = f.ship.ch;
+  ["track", "wpn", "sh", "shMax", "shDown", "lent"].forEach(k => { if (!Array.isArray(st[k])) st[k] = []; });
+  if (typeof st.ap !== "number") st.ap = u.ap;
+  st.dodges = 0;
+  return st;
+}
+const shipDCActive = (u, S) => u.dc && S.crew >= 9;
+function shipMove(u, S) {
+  if (S.bridge === 0) return { txt: "DRIFT", sub: "straight ahead only", warn: true };
+  const down = S.thr.filter(v => v === 0).length;
+  if (down >= 2) return { txt: "0", sub: "immobilised", warn: true };
+  if (down === 1) return { txt: (u.moveCm / 2) + "cm", sub: "halved", warn: true };
+  return { txt: u.moveCm + "cm", sub: "per AP", warn: false };
+}
+// start of this side's turn
+function shipAdvance(u, st) {
+  shipMigrate(u, st);
+  const S = st.ship, uid = (roster.find(r => r.st === st) || {}).uid;
+  st.ap = u.ap;
+  // a weapon fired last turn sits out this whole turn; the countdown starts after that
+  S.cd = S.cd.map((v, i) => { if (S.cdFresh[i]) { S.cdFresh[i] = false; return v; } return Math.max(0, (v || 0) - 1); });
+  S.launched = 0;
+  if (S.docking > 0) { S.aboard = Math.min(u.hangar, S.aboard + S.docking); if (uid != null) logEv(uid, S.docking + " suit(s) docked and aboard", "good"); S.docking = 0; }
+  if (S.bridgeHit > 0) S.bridgeHit -= 1;
+  if (S.decoy && S.decoy.left > 0) { S.decoy.left -= 1; if (!S.decoy.left && uid != null) logEv(uid, "Decoy balloons deflated", "info"); }
+  // Damage Control: knocked-out subsystems return after 2 full turns while the crew can spare the hands
+  Object.keys(S.rep || {}).forEach(k => {
+    if (!shipDCActive(u, S)) { delete S.rep[k]; return; }
+    S.rep[k] -= 1;
+    if (S.rep[k] > 0) return;
+    delete S.rep[k];
+    const lab = shipPartLabel(u, k);
+    if (k === "bridge") S.bridge = u.bridge;
+    else if (k === "thr0" || k === "thr1") S.thr[+k[3]] = u.thr[+k[3]];
+    else { const i = u.sw.findIndex(w => w.key === k); if (i >= 0) S.sys[i] = SHIP_WEAPON_HP; }
+    if (uid != null) logEv(uid, lab + " back online (Damage Control)", "good");
+  });
+}
+function shipPartLabel(u, k) {
+  if (k === "hull") return "Hull";
+  if (k === "bridge") return "Bridge";
+  if (k === "thr0") return "Thruster 1";
+  if (k === "thr1") return "Thruster 2";
+  const w = u.sw.find(x => x.key === k);
+  return w ? w.name : k;
+}
+function shipPartGet(u, st, k) {
+  const S = st.ship;
+  if (k === "hull") return [st.hp.hull, u.hull];
+  if (k === "bridge") return [S.bridge, u.bridge];
+  if (k === "thr0" || k === "thr1") return [S.thr[+k[3]], u.thr[+k[3]]];
+  const i = u.sw.findIndex(w => w.key === k);
+  return [S.sys[i], SHIP_WEAPON_HP];
+}
+function shipPartSet(u, st, k, v) {
+  const S = st.ship;
+  if (k === "hull") st.hp.hull = v;
+  else if (k === "bridge") S.bridge = v;
+  else if (k === "thr0" || k === "thr1") S.thr[+k[3]] = v;
+  else { const i = u.sw.findIndex(w => w.key === k); S.sys[i] = v; }
+}
+// a tap on a ring: damage or repair by the current amount
+function shipTap(k) {
+  if (!CUR || !isShip(U) || !mpSheetCanEdit()) return;
+  const st = CUR.st, S = st.ship, uid = CUR.uid;
+  const [cur, max] = shipPartGet(U, st, k);
+  const next = mode === "repair" ? Math.min(max, cur + amount) : Math.max(0, cur - amount);
+  if (next === cur) return;
+  shipPartSet(U, st, k, next);
+  const lab = shipPartLabel(U, k);
+  aggDmg(uid, "ship:" + k, lab, cur - next, next, max);
+  if (k === "bridge" && next < cur) {
+    S.crew = Math.max(0, S.crew - 2); S.bridgeHit = 2;
+    logEv(uid, "Bridge hit — 2 crew lost, −3 to the ship's rolls next turn", "bad");
+  }
+  if (cur > 0 && next === 0) {
+    const what = k === "hull" ? "DESTROYED" : k === "bridge" ? "Bridge destroyed — no weapons, no steering"
+      : k.startsWith("thr") ? lab + " destroyed — " + (S.thr.every(v => v === 0) ? "ship immobilised" : "movement halved") : lab + " offline";
+    logEv(uid, what, "bad", "ship0:" + k);
+    if (k !== "hull" && shipDCActive(U, S)) { S.rep[k] = 2; logEv(uid, lab + ": Damage Control — back in 2 turns", "info"); }
+  } else if (cur === 0 && next > 0) {
+    if (S.rep) delete S.rep[k];
+    logEv(uid, lab + " repaired", "good");
+  }
+  shipCommit();
+}
+function shipCommit() { ap = CUR.st.ap; save(); draw(); }
+function shipFire(i) {
+  if (!CUR || !isShip(U) || !mpSheetCanEdit()) return;
+  const st = CUR.st, S = st.ship, w = U.sw[i], uid = CUR.uid;
+  if (st.hp.hull === 0) return;
+  if (S.bridge === 0 || S.sys[i] === 0) { mpToast(w.name + " is offline."); return; }
+  if (S.cd[i] > 0) { mpToast(w.name + " is cooling down (" + S.cd[i] + " turn" + (S.cd[i] > 1 ? "s" : "") + ")."); return; }
+  if (w.charges && !(S.ch[i] > 0)) { mpToast("No " + w.name + " charges left."); return; }
+  if (st.ap < w.ap) { mpToast("Not enough AP."); return; }
+  st.ap -= w.ap;
+  if (w.cd) { S.cd[i] = w.cd; S.cdFresh[i] = true; }   // sits out the next turn(s); counts down from the one after
+  if (w.charges) S.ch[i] -= 1;
+  logEv(uid, w.name + " fired (" + w.ap + " AP)" + (w.charges ? " — " + S.ch[i] + " charge" + (S.ch[i] === 1 ? "" : "s") + " left" : ""), "info");
+  shipCommit();
+}
+function shipAbility(kind, dir) {
+  if (!CUR || !isShip(U) || !mpSheetCanEdit()) return;
+  const st = CUR.st, S = st.ship, uid = CUR.uid;
+  if (kind === "launch") {
+    if (dir === "aboard-") { S.aboard = Math.max(0, S.aboard - 1); return shipCommit(); }
+    if (dir === "aboard+") { S.aboard = Math.min(U.hangar, S.aboard + 1); return shipCommit(); }
+    if (S.launched) { st.ap += 1; S.aboard = Math.min(U.hangar, S.aboard + S.launched); logEv(uid, "Launch undone", "info"); S.launched = 0; return shipCommit(); }
+    if (!S.aboard) { mpToast("No suits aboard to launch."); return; }
+    if (st.ap < 1) { mpToast("Not enough AP."); return; }
+    const n = Math.min(U.launches, S.aboard);
+    st.ap -= 1; S.aboard -= n; S.launched = n;
+    logEv(uid, "Launched " + n + " suit" + (n > 1 ? "s" : "") + " (free Boost, may still attack)", "info");
+    return shipCommit();
+  }
+  if (kind === "dock") {
+    if (dir === "undo") { if (S.docking > 0) { S.docking -= 1; st.ap += 1; logEv(uid, "Docking undone", "info"); } return shipCommit(); }
+    if (S.aboard + S.docking >= U.hangar) { mpToast("The hangar is full."); return; }
+    if (st.ap < 1) { mpToast("Not enough AP."); return; }
+    st.ap -= 1; S.docking += 1;
+    logEv(uid, "Docking started — the suit is aboard after the enemy's next turn", "info");
+    return shipCommit();
+  }
+  if (kind === "decoy") {
+    if (!(S.decoy && S.decoy.ch > 0)) { mpToast("Decoy balloons already used."); return; }
+    if (st.ap < 1) { mpToast("Not enough AP."); return; }
+    st.ap -= 1; S.decoy.ch = 0; S.decoy.left = 3;
+    logEv(uid, "Decoy balloons released — write down the real ship (1–3)", "buff");
+    return shipCommit();
+  }
+}
+function shipStat(k, v) {
+  if (!CUR || !isShip(U) || !mpSheetCanEdit()) return;
+  const st = CUR.st, S = st.ship;
+  if (k === "crew") { const was = S.crew; S.crew = Math.max(0, Math.min(U.crew, v)); if (was !== S.crew) aggDmg(CUR.uid, "ship:crew", "Crew", was - S.crew, S.crew, U.crew, "lost"); }
+  if (k === "ap") st.ap = Math.max(0, Math.min(U.ap + 4, v));
+  shipCommit();
+}
+
+// ---------- the sheet ----------
+const SHIP_ROWS_W = [69.5, 74.65, 79.75, 84.55, 88.85];
+const SHIP_ROWS_A = [70.2, 75.35, 80.45, 85.2, 89.5];
+function shipRingPos(u, k) {
+  const b = u.box, w = u.aspect * b.h * 0.5625;           // model width in % of the sheet width
+  const left = b.cx - w / 2;
+  const [ix, iy] = u.rings[k];
+  return [left + ix * w / 100, b.top + iy * b.h / 100];
+}
+function buildShipFrame() {
+  const u = U, key = ["ship", u.id, sideKey(), (CUR && CUR.mark) || ""].join("|");
+  const F = $("frame");
+  $("sheet").dataset.side = sideKey();
+  $("sheet").classList.add("shipsheet");
+  if (key === frameKey && F.childElementCount) return;
+  frameKey = key;
+  F.innerHTML = "";
+  const add = (cls, st, html) => { const d = document.createElement("div"); d.className = cls; if (st) Object.assign(d.style, st); if (html !== undefined) d.innerHTML = html; F.appendChild(d); return d; };
+  const pc = v => v + "%";
+  add("fbreath"); add("fbreath b2"); add("fgrid");
+  add("fb tl"); add("fb tr"); add("fb bl"); add("fb br");
+  add("fstripe", { left: "36%", top: "1cqw" }); add("fstripe", { left: "4%", bottom: "1.2cqw" });
+  add("fdock l"); add("fdock r");
+  // the ship wireframe
+  const b = u.box, mwid = u.aspect * b.h * 0.5625;
+  const mw = add("fmech fship", { left: pc(b.cx), top: pc(b.top), height: pc(b.h), width: mwid + "cqw" });
+  const mi = document.createElement("canvas"); mi.className = "fmech-in"; mw.appendChild(mi);
+  paintMech(mi, "ship-" + u.ship, sideKey());
+  // rings, labels and HP captions
+  const parts = ["hull", "bridge", "thr0", "thr1"].concat(u.sw.map(w => w.key));
+  parts.forEach(k => {
+    const [x, y] = shipRingPos(u, k);
+    add("fret" + (k === "hull" ? " big" : ""), { left: pc(x), top: pc(y) });
+    const wdef = u.sw.find(w => w.key === k);
+    const lab = k === "hull" ? "HULL" : k === "bridge" ? "BRIDGE" : k === "thr0" ? "THRUSTER 1" : k === "thr1" ? "THRUSTER 2"
+      : (wdef.ring || wdef.name.toUpperCase());
+    const up = u.rings[k][2] === "b" ? false : y > 12;
+    add("flbl flimb fshiplbl", { left: pc(x), top: pc(up ? y - (k === "hull" ? 7.6 : 6.4) : y + 6.6) }, lab);
+    add("flbl fhp", { left: pc(x < 50 ? x - (k === "hull" ? 4.9 : 4.2) : x + (k === "hull" ? 4.9 : 4.2)), top: pc(y) }, "HP");
+  });
+  // section titles and panels
+  add("fsec", { left: "23.2%", top: "57.4%" }, "<i></i>WEAPONS LIST<i></i>");
+  add("fsec", { left: "74.2%", top: "57.9%" }, "<i></i>ABILITIES<i></i>");
+  const table = (x0, x1, rows, cols, heads, nums, numX) => {
+    const y0 = rows[0], yh = rows[1], H = rows[rows.length - 1] - y0;
+    const t = add("ftbl", { left: pc(x0), top: pc(y0), width: pc(x1 - x0), height: pc(H) });
+    const hd = document.createElement("div"); hd.className = "fhead"; hd.style.height = pc((yh - y0) / H * 100); t.appendChild(hd);
+    rows.slice(2, -1).forEach(r => { const d = document.createElement("div"); d.className = "frow"; d.style.top = pc((r - y0) / H * 100); t.appendChild(d); });
+    cols.forEach(c => { const d = document.createElement("div"); d.className = "fcol"; d.style.left = pc((c - x0) / (x1 - x0) * 100); t.appendChild(d); });
+    heads.forEach(([hx, txt]) => add("flbl fth", { left: pc(hx), top: pc((y0 + yh) / 2) }, txt));
+    nums.forEach((y, i) => add("flbl fnum", { left: pc(numX), top: pc(y) }, String(i + 1)));
+  };
+  table(5.3, 43.2, [62.3, 66.9, 72.1, 77.2, 82.3, 86.8, 90.9], [24.2, 29.9, 34.8],
+    [[14.7, "WEAPON NAME"], [27.05, "DMG"], [32.35, "AP"], [39.0, "RANGE"]], SHIP_ROWS_W, 6.2);
+  table(57.0, 94.8, [63.0, 67.5, 72.8, 77.9, 83.0, 87.4, 91.6], [76.0, 81.6],
+    [[66.5, "SKILL"], [78.8, "AP"], [88.2, "COOLDOWN"]], SHIP_ROWS_A, 57.9);
+  // crew / AP / movement
+  [[64.4, 70.6, "CREW"], [76.1, 82.0, "AP"], [86.9, 93.0, "MOVEMENT"]].forEach(([y, ly, t]) => {
+    add("fhex", { left: "49.8%", top: pc(y) }); add("flbl fstatc", { left: "49.8%", top: pc(ly) }, t);
+  });
+  // name panel + dial with the ship silhouette
+  add("fname fshipname"); add("flbl fsub", { left: "69.6%", top: "4.9%" }, "SHIP //");
+  const cx = 94.3, cy = 10.6;
+  add("fdial o", { left: pc(cx), top: pc(cy) }); add("fdial i", { left: pc(cx), top: pc(cy) });
+  add("fdial arc full", { left: pc(cx), top: pc(cy) });
+  const pf = add("fport ph fshipport", { left: pc(cx), top: pc(cy) });
+  const pim = document.createElement("img"); pim.alt = ""; pim.src = shipSrc(u); pf.appendChild(pim);
+  const mk = markOf(CUR);
+  if (mk) { const pp = document.createElement("span"); pp.className = "mpip fp"; pp.style.setProperty("--pc", mk.c); pf.appendChild(pp); }
+}
+function drawShip() {
+  const u = U, st = shipMigrate(u, CUR.st), S = st.ship;
+  hp = st.hp; ap = st.ap; dodges = 0;
+  const sheet = $("sheet");
+  sheet.classList.add("shipsheet");
+  [...sheet.querySelectorAll(".sx")].forEach(n => n.remove());
+  renderAmounts();
+  $("uname").textContent = u.short;
+  $("umeta").textContent = "Warship · " + u.dp.toLocaleString() + " DP";
+  $("total").textContent = "HULL " + st.hp.hull + "/" + u.hull;
+  const dead = st.hp.hull === 0;
+  $("dead").style.display = dead ? "flex" : "none";
+  $("dead").firstElementChild.textContent = "DESTROYED";
+  const pc = v => v + "%";
+  const add = (tag, cls, style, html) => { const e = el(tag, "sx " + cls, style); if (html !== undefined) e.innerHTML = html; sheet.appendChild(e); return e; };
+  const colOf = (v, m) => v === 0 ? "#64748b" : v / m <= .34 ? "#ef4444" : v / m <= .67 ? "#f59e0b" : "#22c55e";
+  // name panel text
+  add("div", "sname", { left: "69.6%", top: "8.2%" }, u.short.toUpperCase());
+  add("div", "sclass", { left: "69.6%", top: "13.4%" }, u.name.replace(u.short + "-class ", "").replace(u.short, "") + " · " + u.dp.toLocaleString() + " DP · " + (u.faction === "federation" ? "Federation" : "Spacenoid"));
+  add("div", "sclass", { left: "69.6%", top: "16.6%" }, "HANGAR " + u.hangar + " · LAUNCH " + u.launches + "/TURN" + (u.base ? " · BASE T" + u.base : ""));
+  // rings
+  const parts = ["hull", "bridge", "thr0", "thr1"].concat(u.sw.map(w => w.key));
+  parts.forEach(k => {
+    const [x, y] = shipRingPos(u, k);
+    const [v, m] = shipPartGet(u, st, k);
+    const col = colOf(v, m);
+    const r = add("div", "hp shp" + (k === "hull" ? " big" : "") + (m >= 100 ? " w3" : ""), { left: pc(x), top: pc(y), borderColor: col,
+      background: v === 0 ? "rgba(100,116,139,.92)" : "rgba(255,255,255,.96)", color: v === 0 ? "#e2e8f0" : "#0f172a" });
+    r.innerHTML = v + "<small>/" + m + "</small>";
+    r.title = shipPartLabel(u, k) + " — tap to " + (mode === "repair" ? "repair" : "damage") + " " + amount;
+    r.onclick = () => shipTap(k);
+    const rep = S.rep && S.rep[k];
+    if (v === 0 && k !== "hull") add("div", "stag " + (rep ? "rep" : "off"), { left: pc(x), top: pc(y + (k === "hull" ? 6 : 5.2)) },
+      rep ? "\u21BB " + rep + "T" : "OFFLINE");
+  });
+  if (S.bridgeHit > 0) {
+    const [x, y] = shipRingPos(u, "bridge");
+    add("div", "hudwarn swarn", { left: pc(x), top: pc(y + 5.4) }, S.bridgeHit === 2 ? "−3 ROLLS NEXT TURN" : "−3 TO ROLLS");
+  }
+  if (S.decoy && S.decoy.left > 0) add("div", "hudwarn swarn good", { left: "30%", top: "55.2%" }, "\u25C8 DECOYS ACTIVE \u00b7 " + S.decoy.left + "T");
+  // weapons list
+  const bridgeDown = S.bridge === 0;
+  u.sw.forEach((w, i) => {
+    const y = SHIP_ROWS_W[i];
+    const off = bridgeDown || S.sys[i] === 0 || dead;
+    const nm = add("div", "sw-name" + (off ? " off" : ""), { left: "7.2%", top: pc(y) },
+      '<b>' + (w.label || w.name) + '</b><span>' + (w.tech ? w.tech + " \u00b7 " : "") + w.arc + (w.charges ? " \u00b7 " + S.ch[i] + "/" + w.charges + " charges" : "") +
+      (w.twoTargets && S.sys[i] < SHIP_WEAPON_HP && S.sys[i] > 0 ? " \u00b7 1 target (damaged)" : "") + '</span>');
+    nm.onclick = () => shipInfo(w, i);
+    add("div", "sw-cell", { left: "27.05%", top: pc(y) }, w.dmg);
+    add("div", "sw-cell rng", { left: "39.0%", top: pc(y) }, w.range);
+    const cd = S.cd[i] || 0, noCh = w.charges && !(S.ch[i] > 0);
+    const b = add("div", "sw-ap" + (off ? " off" : cd ? " cd" : noCh ? " off" : ""), { left: "32.35%", top: pc(y) },
+      off ? "\u2715" : cd ? "CD " + cd : noCh ? "0" : String(w.ap));
+    b.title = off ? "Offline" : cd ? "Cooling down" : "Tap to fire (" + w.ap + " AP)";
+    b.onclick = () => shipFire(i);
+    if (off && !dead) add("div", "sw-flag", { left: "20.6%", top: pc(y) }, bridgeDown ? "NO BRIDGE" : "OFFLINE");
+  });
+  // abilities
+  const dcOn = shipDCActive(u, S);
+  const reps = Object.keys(S.rep || {}).map(k => shipPartLabel(u, k).replace("Twin Mega Particle ", "") + " " + S.rep[k] + "T");
+  const rows = {
+    launch: { name: "Launch suits", sub: u.launches + " per turn \u00b7 free Boost", ap: S.launched ? "\u21B6" : "1",
+      cd: "ABOARD " + S.aboard + "/" + u.hangar, step: true, act: () => shipAbility("launch"), on: !!S.launched,
+      info: "Costs the ship 1 AP and covers its full launch capacity (" + u.launches + " suit" + (u.launches > 1 ? "s" : "") + "). Launched suits keep all their AP, get Boost Stance movement for free and may still attack.\n\nUse −/+ to set how many suits are aboard. Tap the AP again to undo a launch." },
+    dock: { name: "Dock a suit", sub: "within 5cm \u00b7 aboard after enemy turn", ap: "1", cd: S.docking ? S.docking + " DOCKING" : "\u2014",
+      act: () => shipAbility("dock"), undo: S.docking ? () => shipAbility("dock", "undo") : null,
+      info: "The suit must be within 5cm of the ship; the ship pays 1 AP. The suit stays on the board until the opposing side's next turn has fully ended, then it is aboard.\n\nWhile docking it may Block and Rolled-Dodge but not use Free Dodges. A Called Shot that lands on its body, or a melee attack, cancels the dock (AP still spent)." },
+    dc: { name: "Damage Control", sub: !u.dc ? "cruiser — no spare crew" : dcOn ? "crew 9+ \u00b7 2-turn repairs" : "crew 8 or less — stopped",
+      ap: "\u2014", cd: !u.dc ? "NONE" : reps.length ? reps.join(" \u00b7 ") : dcOn ? "READY" : "OFFLINE", warn: u.dc && !dcOn,
+      info: "While Crew HP is 9 or more, a Thruster, the Bridge or a weapon system knocked out comes back at full HP after 2 full turns. At 8 Crew HP or less, repairs stop and anything knocked out stays down. Hull damage never repairs.\n\nCruisers (1 squad, 8 Crew HP) can never run Damage Control." },
+    base: { name: "Base of Operations", sub: "tier " + u.base + " module aboard", ap: "\u2014", cd: "TIER " + u.base,
+      info: "This capital ship carries a tier-" + u.base + " Base of Operations module (campaign rules)." },
+    decoy: { name: "Decoy Balloons", sub: "secretly pick the real ship (1–3)", ap: S.decoy && S.decoy.ch ? "1" : "\u2014",
+      cd: S.decoy && S.decoy.left ? "ACTIVE " + S.decoy.left + "T" : S.decoy && S.decoy.ch ? "1 CHARGE" : "USED", act: () => shipAbility("decoy"), on: S.decoy && S.decoy.left > 0,
+      info: "1 AP, 1 charge per game. Write down a number from 1 to 3 — that's the real ship.\n\nAttackers more than 30cm away must name a number first; a wrong guess hits a balloon (attack wasted, AP spent). Within 30cm no guess is needed. Area attacks ignore the decoys. The balloons deflate after 3 full turns, or as soon as the real ship is identified within 30cm." },
+    bridgehit: { name: "Bridge hit", sub: "2 crew lost \u00b7 −3 to own rolls", ap: "\u2014",
+      cd: S.bridgeHit === 2 ? "NEXT TURN" : S.bridgeHit === 1 ? "THIS TURN" : "\u2014", warn: S.bridgeHit > 0,
+      info: "Any hit on the Bridge (called or random) kills 2 crew straight away and gives −3 to all of the ship's own rolls for its following turn. Applied automatically when you damage the Bridge ring." },
+    lockdown: { name: "Last Stand Lockdown", sub: "crew 8 or less + boarded", ap: "\u2014", cd: S.crew <= 8 ? "AT RISK" : "SAFE", warn: S.crew <= 8,
+      info: "If the ship is down to 8 Crew HP or fewer and an enemy squad successfully boards, the ship goes fully inert — no movement, no weapons, skips its turns — while the boarding Firefight Clash lasts." },
+  };
+  u.abil.forEach((k, i) => {
+    const R = rows[k], y = SHIP_ROWS_A[i];
+    const nm = add("div", "sw-name ab" + (R.warn ? " warn" : ""), { left: "59.0%", top: pc(y) }, '<b>' + R.name + '</b><span>' + R.sub + '</span>');
+    nm.onclick = () => showNotice(R.name, R.info);
+    const a = add("div", "sw-ap ab" + (R.act ? "" : " na") + (R.on ? " on" : ""), { left: "78.8%", top: pc(y) }, R.ap);
+    if (R.act) a.onclick = R.act;
+    const c = add("div", "sw-cd" + (R.warn ? " warn" : ""), { left: "88.2%", top: pc(y) }, R.cd);
+    if (R.step) {
+      const m = add("div", "sstep", { left: "83.3%", top: pc(y) }, "\u2212"); m.onclick = () => shipAbility("launch", "aboard-");
+      const p = add("div", "sstep", { left: "93.1%", top: pc(y) }, "+"); p.onclick = () => shipAbility("launch", "aboard+");
+    }
+    if (R.undo) { const un = add("div", "sstep", { left: "93.1%", top: pc(y) }, "\u21B6"); un.onclick = R.undo; }
+  });
+  // crew / AP / movement values
+  const stepper = (y, val, max, k) => {
+    const g = add("div", "grp sgrp", { left: "49.8%", top: pc(y) });
+    const col = k === "crew" ? (val <= 8 && u.dc ? "#ef4444" : val < max ? "#f59e0b" : "#22c55e") : val === 0 ? "#64748b" : "#38bdf8";
+    const m = el("div", "step show"); m.textContent = "\u2212"; m.style.borderColor = col; m.style.color = col; m.onclick = () => shipStat(k, val - 1);
+    const n = el("div", "num"); n.style.borderColor = col; n.innerHTML = val + "<small>/" + max + "</small>";
+    const p = el("div", "step show"); p.textContent = "+"; p.style.borderColor = col; p.style.color = col; p.onclick = () => shipStat(k, val + 1);
+    g.append(m, n, p);
+  };
+  stepper(64.4, S.crew, u.crew, "crew");
+  stepper(76.1, st.ap, u.ap, "ap");
+  const mv = shipMove(u, S);
+  add("div", "smove" + (mv.warn ? " warn" : ""), { left: "49.8%", top: "86.9%" }, mv.txt + "<small>" + mv.sub + "</small>");
+  renderTurn();
+  if (typeof mpSheetMode === "function") mpSheetMode();
+}
+function shipInfo(w, i) {
+  const S = CUR.st.ship;
+  $("popT").textContent = w.name;
+  $("popK").textContent = "Weapon system \u00b7 " + S.sys[i] + "/" + SHIP_WEAPON_HP + " HP";
+  $("popS").innerHTML = "<b>Arc</b> " + w.arc + " &nbsp; <b>Range</b> " + w.range + " &nbsp; <b>AP</b> " + w.ap + " &nbsp; <b>Damage</b> " + w.dmg +
+    (w.cd ? " &nbsp; <b>Cooldown</b> " + w.cd + " turn" + (w.cd > 1 ? "s" : "") : "") + (w.charges ? " &nbsp; <b>Charges</b> " + S.ch[i] + "/" + w.charges : "");
+  $("popB").textContent = w.note + "\n\nThe system has 20 HP and can only be hit with a Called Shot (+5). At 0 it is offline" + (U.dc ? " until Damage Control restores it." : " for the rest of the game.");
+  $("pop").classList.add("on");
+}
+
+SHIP_UNITS.forEach(s => UNITS.push(s));
 const unitById = id => UNITS.find(u => u.id === id);
 
 function show(id) {
@@ -6540,6 +7004,7 @@ function available() {
 }
 window.clearSearch = () => { query = ""; const f = $("search"); if (f) f.value = ""; renderRoster(); };
 function freshState(u) {
+  if (u && u.type === "warship") return shipFresh(u);
   const hp = {}; LIMB_ORDER.forEach(k => hp[k] = u.limb[k]);
   return {
     hp, dodges: u.dodges, ap: u.ap,
@@ -6710,7 +7175,7 @@ function drawMarkWheel() {
   svg.appendChild(defs);
   const bg = document.createElementNS(NS, "circle"); bg.setAttribute("r", "46"); bg.setAttribute("class", "cwcore"); svg.appendChild(bg);
   const im = document.createElementNS(NS, "image");
-  im.setAttribute("href", u.portrait ? "img/portraits/" + u.portrait + ".webp" : "img/mech-" + mechModel(u) + ".webp");
+  im.setAttribute("href", u.portrait ? "img/portraits/" + u.portrait + ".webp" : modelImg(u));
   im.setAttribute("x", "-44"); im.setAttribute("y", "-44"); im.setAttribute("width", "88"); im.setAttribute("height", "88");
   im.setAttribute("preserveAspectRatio", "xMidYMin slice"); im.setAttribute("clip-path", "url(#cwClip)");
   if (!u.portrait) im.setAttribute("opacity", ".35");
@@ -6802,7 +7267,7 @@ function portraitHTML(u, r) {
   const tap = r ? ' onclick="event.stopPropagation();openMarkWheel(' + r.uid + ')" title="Tap to set a colour marker"' : '';
   return u.portrait
     ? '<span class="pt' + (r ? ' tapm' : '') + '"' + tap + '><img src="img/portraits/' + u.portrait + '.webp" alt="" loading="lazy" decoding="async">' + markPipHTML(r) + '</span>'
-    : '<span class="pt ph' + (r ? ' tapm' : '') + '"' + (tap || ' title="Portrait coming soon"') + '><img src="img/mech-' + mechModel(u) + '.webp" alt="" loading="lazy" decoding="async">' + markPipHTML(r) + '</span>';
+    : '<span class="pt ph' + (u.type === "warship" ? ' shipph' : '') + (r ? ' tapm' : '') + '"' + (tap || (u.type === "warship" ? '' : ' title="Portrait coming soon"')) + '><img src="' + modelImg(u) + '" alt="" loading="lazy" decoding="async">' + markPipHTML(r) + '</span>';
 }
 // Lists used to rely on CSS multi-column layout. Safari fails to register taps outside the first column
 // once rows have clipping / animations, so the app now builds real columns itself (same top-to-bottom order).
@@ -7832,6 +8297,17 @@ window.oppDetail = uid => {
   const x = (td.roster || []).find(y => y.uid === uid); if (!x) return;
   const u = unitById(x.id), ud = mp.data["unit/" + ot + "/" + uid], st = (ud && ud.st) || {};
   const hpNow = st.hp || u.limb;
+  if (isShip(u)) {
+    const S = st.ship || shipFresh(u).ship, sst = { hp: { hull: (st.hp || {}).hull ?? u.hull }, ship: S };
+    const parts = ["hull", "bridge", "thr0", "thr1"].concat(u.sw.map(w => w.key));
+    let rows2 = parts.map(k => { const [v, m] = shipPartGet(u, sst, k), p = v / m;
+      return '<div class="od-row"><span class="od-dot" style="background:' + HEALTH_COL(p) + '"></span><span>' + shipPartLabel(u, k) + '</span><b style="color:' + HEALTH_COL(p) + '">' + (p <= 0 && k !== "hull" ? "Offline" : HEALTH_WORD(p)) + '</b></div>'; }).join("");
+    if (td.locked && td.turn && td.turn.phase === "you") rows2 += '<div class="od-row"><span></span><span>This turn</span><b>' + (ud && ud.done === td.turn.round + ":you" ? "\u2713 Done" : "Not done yet") + '</b></div>';
+    $("popT").textContent = "Enemy \u2014 " + u.short; $("popK").textContent = teamName(ot) + " \u00b7 warship";
+    $("popS").innerHTML = ""; $("popB").innerHTML = '<div class="oppdetail">' + rows2 + '</div><p class="cws" style="margin-top:8px">Exact numbers are hidden for enemy units.</p>';
+    $("pop").classList.add("on");
+    return;
+  }
   let rows = LIMB_ORDER.map(k => { const p = hpNow[k] / u.limb[k];
     return '<div class="od-row"><span class="od-dot" style="background:' + HEALTH_COL(p) + '"></span><span>' + LIMB_LABEL[k] + (k === (u.kill || "chest") ? ' <em>(kill location)</em>' : '') + '</span><b style="color:' + HEALTH_COL(p) + '">' + HEALTH_WORD(p) + '</b></div>'; }).join("");
   if (st.sh && st.sh.length) rows += '<div class="od-row"><span class="od-dot" style="background:' + (st.sh.some(v => v > 0) ? "#38bdf8" : "#64748b") + '"></span><span>Shields</span><b>' + (st.sh.every(v => v > 0) ? "Up" : st.sh.some(v => v > 0) ? "Partly down" : "Down") + '</b></div>';
@@ -7895,7 +8371,7 @@ function renderRosterCore() {
         portraitHTML(u, r) +
         '<span style="min-width:0"><div class="nm">' + (u.short || u.name) + (n > 1 ? ' <span style="color:var(--muted)">#' + idx + '</span>' : '') +
           (ctl ? ' <span class="ctltag" title="' + (ctl.me ? 'You have this sheet open' : ctl.name + ' has this sheet open') + '">' + (ctl.me ? '\u270E You' : '\u{1F512} ' + ctl.name) + '</span>' : '') + '</div>' +
-        '<div class="tr">' + (dead ? "DESTROYED" : (kl === "head" ? "Head " : "Chest ") + now + "/" + tot) + ' \u00b7 ' + u.tier +
+        '<div class="tr">' + (dead ? "DESTROYED" : (LIMB_LABEL[kl] || "Chest") + " " + now + "/" + tot) + ' \u00b7 ' + u.tier +
         (!dead && u.abilities.some(x => x.kind === "auto" && autoOn(x, u, r.st))
           ? ' <b style="color:#fff;background:#b91c1c;border-radius:3px;padding:0 5px;margin-left:4px">' + u.abilities.find(x => x.kind === "auto").name.split(" ")[0].toUpperCase() + '</b>' : '') +
         '</div></span>' +
@@ -7956,7 +8432,7 @@ const LIMB_POS_RED = {
 };
 const limbPos = bg => (bg === "red" || bg === "red360") ? LIMB_POS_RED : LIMB_POS_DEFAULT;
 const LIMB_ORDER = ["head", "chest", "rightArm", "leftArm", "rightLeg", "leftLeg"];
-const LIMB_LABEL = { head: "Head", chest: "Chest", rightArm: "Right Arm", leftArm: "Left Arm", rightLeg: "Right Leg", leftLeg: "Left Leg" };
+const LIMB_LABEL = { head: "Head", chest: "Chest", rightArm: "Right Arm", leftArm: "Left Arm", rightLeg: "Right Leg", leftLeg: "Left Leg", hull: "Hull" };
 const SKILL_Y = [24.6, 29.7, 34.7, 39.7, 44.1];
 const COL = { skillName: 7.3, skillAP: 25.8, skillCD: 35.5, wName: 7.3, wDmg: 25.8, wAP: 31.1, wRange: 37.7,
               nameX: 67.2, nameY: 11.7, dpX: 67.2, dpY: 17.2, moveX: 80.5, moveY: 38.5 };
@@ -7976,6 +8452,7 @@ const sideKey = () => side === "spacenoid" ? "red" : "blue";
 const GUNDAM_SPACENOID = ["rx-78gp02a-gundam-physalis", "xi-gundam-gundam"];   // Spacenoid-side Gundam designs
 const isGruntTier = u => /Grunt/.test(u.tier);
 const mechModel = u => {
+  if (u && u.type === "warship") return "ship-" + u.ship;
   if (isGruntTier(u)) return u.faction === "spacenoid" ? "zaku" : u.faction === "federation" ? "gm" : (side === "spacenoid" ? "zaku" : "gm");
   if (u.faction === "spacenoid") return GUNDAM_SPACENOID.some(k => u.id.indexOf(k) === 0) ? "gundam" : "sazabi";
   return "gundam";
@@ -7995,6 +8472,7 @@ function apFeedback(x, y, w, n) {
 }
 let apShown = { uid: null, ap: null };
 // wireframe models: stored once as white cut-outs, coloured here for the side (light blue / gold) with a soft glow
+const modelImg = u => (u && u.type === "warship") ? "img/ship-" + u.ship + ".webp" : "img/mech-" + mechModel(u) + ".webp";
 const MECH_TINT = { blue: ["#a5e4ff", "rgba(56,189,248,.95)"], red: ["#ff6b76", "rgba(255,45,65,.95)"] };
 const mechSrc = {}, mechTinted = {};
 function tintMech(img, colour) {
@@ -8021,7 +8499,7 @@ function paintMech(canvas, model, colour) {
     if (canvas.dataset.want === key) show(mechTinted[key]);
   };
   let img = mechSrc[model];
-  if (!img) { img = mechSrc[model] = new Image(); img.src = "img/mech-" + model + ".webp"; }
+  if (!img) { img = mechSrc[model] = new Image(); img.src = (model.indexOf("ship-") === 0 ? "img/" : "img/mech-") + model + ".webp"; }
   if (img.complete && img.naturalWidth) ready(img);
   else img.addEventListener("load", () => ready(img), { once: true });
 }
@@ -8035,6 +8513,8 @@ function applyHud() {
 // on the same layout the sheet engine uses (measured from the original sheets)
 function buildFrame() {
   if (!U) return;
+  if (isShip(U)) { buildShipFrame(); return; }
+  $("sheet").classList.remove("shipsheet");
   const cov = ["blue360", "red360", "phenex"].indexOf(U.bg) >= 0 ? "360" : "180";
   const ring = !!U.ring, model = mechModel(U), rolled = isGruntTier(U);
   const key = [sideKey(), cov, ring, model, rolled, U.portrait || "", (CUR && CUR.mark) || ""].join("|");
@@ -8125,6 +8605,19 @@ function openSheet(uid) {
   CUR = roster.find(r => r.uid === uid);
   if (!CUR) return;
   U = unitById(CUR.id);
+  if (isShip(U)) {                                   // warships have their own sheet
+    const s = shipMigrate(U, CUR.st);
+    hp = s.hp; dodges = 0; ap = s.ap; track = s.track; wpn = s.wpn; sh = s.sh; shDown = s.shDown; shMax = s.shMax;
+    out = null; lent = s.lent; pods = null; risk = s.risk; swapMode = false; swapFrom = null; active = null;
+    applyHud();
+    const acc = accentOf(sideKey());
+    ["rosterBtn", "tablesBtn"].forEach(b => { $(b).style.borderColor = acc; $(b).style.color = acc; });
+    $("rosterBtn").style.display = "";
+    snaps[CUR.uid] = snapOf(CUR); tlSel = null;
+    show("s4"); draw();
+    if (mpTeamMode()) mpWantSheet(uid);
+    return;
+  }
   // the interface takes the side's colours while a sheet is open
   const s = CUR.st;
   // the weapon list changed since this game was saved: start its counters fresh
@@ -8222,7 +8715,7 @@ window.openPicker = (mode, slot) => {
        + (canAfford ? " Lasts until recalled." : " <span style='color:#fca5a5'>Not enough AP.</span>"))
     : "Tap a model to open its sheet.";
   roster.forEach(r => {
-    if (lendMode && r.uid === CUR.uid) return;
+    if (lendMode && (r.uid === CUR.uid || isShip(unitById(r.id)))) return;
     const un = unitById(r.id), n = countOf(r.id), idx = copyIndex(r);
     const kl = un.kill || "chest", tot = un.limb[kl], now = r.st.hp[kl];
     const dead = now === 0;
@@ -8230,7 +8723,7 @@ window.openPicker = (mode, slot) => {
     const d = el("div", "row");
     d.innerHTML = '<span style="width:6px;height:28px;border-radius:3px;flex:none;background:' + col + '"></span>' +
       '<span style="min-width:0"><div class="nm">' + markPipHTML(r, 'inl') + (un.short || un.name) + (n > 1 ? ' #' + idx : '') + '</div>' +
-      '<div class="tr">' + (dead ? "DESTROYED" : (kl === "head" ? "Head " : "Chest ") + now + "/" + tot) + '</div></span>';
+      '<div class="tr">' + (dead ? "DESTROYED" : (LIMB_LABEL[kl] || "Chest") + " " + now + "/" + tot) + '</div></span>';
     d.onclick = () => {
       if (lendMode) { lendTo(slot, r); } else { closePicker(); openSheet(r.uid); }
     };
@@ -8460,6 +8953,9 @@ function abilityLocked(a, abilities, trackArr) {
 }
 
 function draw() {
+  if (U && isShip(U)) { drawShip(); return; }
+  $("sheet").classList.remove("shipsheet");
+  [...$("sheet").querySelectorAll(".sx")].forEach(n => n.remove());
   persist();
   trackChanges();
   const LIVE = { sh: sh, shDown: shDown };   // this unit's shields, safe from the local names below
@@ -9797,7 +10293,7 @@ function draw() {
   }
 }
 
-const APP_BUILD = "cf4";
+const APP_BUILD = "cf5";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 
 /* ---------- wiring ---------- */
@@ -9805,6 +10301,7 @@ $("search").addEventListener("input", e => { query = e.target.value; renderRoste
 $("mDmg").onclick = () => { mode = "damage"; document.body.classList.remove("repair"); $("mDmg").className = "on-dmg"; $("mRep").className = ""; };
 $("mRep").onclick = () => { mode = "repair"; document.body.classList.add("repair"); $("mRep").className = "on-rep"; $("mDmg").className = ""; };
 function advance(u, st) {
+  if (isShip(u)) { shipAdvance(u, st); return; }
   // modes tick first, so a buff that runs out does not leak into the new turn
   u.abilities.forEach((a, i) => {
     const t = st.track[i];
