@@ -8881,7 +8881,7 @@ const SQ_ITEM = {
 const FIREPOWER = hp => hp >= 7 ? 8 : hp >= 5 ? 7 : hp >= 3 ? 6 : hp >= 1 ? 5 : 0;
 const MARGIN_TABLE = [[0, "No effect"], [1, "1 soldier suppressed"], ["2\u20133", "1 casualty"], [4, "1 casualty + 1 suppressed"], [5, "1 casualty + 2 suppressed"], ["6+", "2 casualties + 2 suppressed"]];
 const MARGIN_FX = m => m <= 0 ? [0, 0] : m === 1 ? [0, 1] : m <= 3 ? [1, 0] : m === 4 ? [1, 1] : m === 5 ? [1, 2] : [2, 2];
-const VOLLEY = n => n >= 7 ? 8 : n + 1;          // all-6s on 2+ dice: enemies destroyed
+const VOLLEY = n => n >= 2 && n <= 5 ? n + 1 : 0;   // Perfect Volley: a squad rolling 2–5 dice, every die a 6 (incl. suppressed squads down to 2 dice)
 const QR_ITEMS = { fb: { name: "Flashbang", icon: "\u2726", max: 2 }, sm: { name: "Smoke Grenade", icon: "\u25CC", max: 1 }, gr: { name: "Grenade", icon: "\u2739", max: 1 } };
 const STRIKE_TARGETS = [["Infantry Squad", "1 casualty (a sniper picking one off)"], ["Ground vehicle", "5 dmg (rockets)"], ["Mobile suit", "1 dmg to all 6 locations"], ["Aircraft", "3 dmg"]];
 
@@ -9256,7 +9256,7 @@ function drawSquad() {
         '<p class="qrsmall">4 rounds per segment, then the Objective Clash. A squad with 2+ soldiers always rolls at least 2 dice. Items refill for each new engagement.</p></div>' +
       '<div class="qr2c"><h4>MARGIN TABLE <small>applied to the losing squad</small></h4>' +
         '<table class="sqtbl qrt">' + MARGIN_TABLE.map(([m, o]) => '<tr><td>' + m + '</td><td>' + o + '</td></tr>').join("") + '</table>' +
-        '<p class="qrsmall"><b>Firepower:</b> 8\u20137 soldiers \u2192 8 dice \u00b7 6\u20135 \u2192 7 \u00b7 4\u20133 \u2192 6 \u00b7 2\u20131 \u2192 5. <b>Perfect Volley:</b> every die a 6 (2+ dice) destroys 2d=3 \u00b7 3d=4 \u00b7 4d=5 \u00b7 5d=6 \u00b7 6d=7 \u00b7 7+d=8. <b>Last Man Standing:</b> a lone die rolling a 6 escapes.</p></div>' +
+        '<p class="qrsmall"><b>Firepower:</b> 8\u20137 soldiers \u2192 8 dice \u00b7 6\u20135 \u2192 7 \u00b7 4\u20133 \u2192 6 \u00b7 2\u20131 \u2192 5. <b>Perfect Volley:</b> a squad rolling 2\u20135 dice that rolls all 6s skips the table and destroys 2d=3 \u00b7 3d=4 \u00b7 4d=5 \u00b7 5d=6 \u2014 this includes a suppressed squad down to 2 dice. Six or more dice cannot volley. <b>Last Man Standing:</b> a lone die rolling a 6 escapes.</p></div>' +
     '</div>';
   }
   box.innerHTML = h;
@@ -9745,13 +9745,33 @@ const FF_MARGINS = [
   { k: "m4", lab: "Lost by 4", fx: "1 casualty + 1 set aside", cas: 1, sup: 1 },
   { k: "m5", lab: "Lost by 5", fx: "1 casualty + 2 set aside", cas: 1, sup: 2 },
   { k: "m6", lab: "Lost by 6 or more", fx: "2 casualties + 2 set aside", cas: 2, sup: 2 },
-  { k: "pv2", lab: "Their Perfect Volley — 2 dice", fx: "3 soldiers destroyed", cas: 3, sup: 0 },
-  { k: "pv3", lab: "Their Perfect Volley — 3 dice", fx: "4 destroyed", cas: 4, sup: 0 },
-  { k: "pv4", lab: "Their Perfect Volley — 4 dice", fx: "5 destroyed", cas: 5, sup: 0 },
-  { k: "pv5", lab: "Their Perfect Volley — 5 dice", fx: "6 destroyed", cas: 6, sup: 0 },
-  { k: "pv6", lab: "Their Perfect Volley — 6 dice", fx: "7 destroyed", cas: 7, sup: 0 },
-  { k: "pv7", lab: "Their Perfect Volley — 7+ dice", fx: "all 8 destroyed", cas: 8, sup: 0 },
+  { k: "pv", lab: "Lost to a Perfect Volley", fx: "they rolled 2\u20135 dice and every one was a 6 \u2014 you'll say how many", cas: 0, sup: 0, pv: true },
 ];
+// Perfect Volley: how many sixes did they roll? (only 2 or 3 dice count)
+function ffVolleyPick(f, key) {
+  const q = CUR.st.sq.qr;
+  $("pickT").textContent = "\u2620 Lost to a Perfect Volley";
+  $("pickS").innerHTML = "A Perfect Volley happens when a squad rolls <b>2 to 5 dice</b> and <b>every die is a 6</b> \u2014 it skips the margin table. " +
+    "It still counts for a squad that has been suppressed or flashed down to just 2 dice: two sixes is a Perfect Volley. Six or more dice can never be one. How many sixes did they roll?";
+  const lst = $("picklist"); lst.innerHTML = "";
+  [[2, "2 sixes (2 dice)", "3 of your soldiers destroyed"], [3, "3 sixes (3 dice)", "4 destroyed"], [4, "4 sixes (4 dice)", "5 destroyed"], [5, "5 sixes (5 dice)", "6 destroyed"]].forEach(([n, lab, fx]) => {
+    const d = el("div", "row fmrow pv big"); d.innerHTML = '<span style="font-size:26px;min-width:44px;text-align:center">' + "\u2685".repeat(n) + '</span><span style="min-width:0;flex:1"><div class="nm">' + lab + '</div><div class="tr">' + fx + '</div></span>';
+    d.onclick = () => {
+      const cas = VOLLEY(n), again = q.marginKey === key;
+      q.nextMargin = 0; ffSumNext(q);
+      q.marginKey = key; q.marginPick = "pv" + n; q.marginLab = "Perfect Volley (" + n + " sixes): " + cas + " destroyed";
+      logEv(CUR.uid, "Firefight round " + f.round + ": lost to a Perfect Volley (" + n + " sixes) \u2014 " + cas + " destroyed", "bad");
+      save(); closePicker(); ffLastSig = ""; renderFF();
+      if (!again) setTimeout(() => sqCasualtyPicker(Math.min(cas, sqAlive(CUR.st)), "Perfect Volley: " + cas + " soldiers destroyed."), 150);
+      else mpToast("Updated. Record any extra casualties with \u2620 if needed.");
+    };
+    lst.appendChild(d);
+  });
+  const back = el("button", "btn"); back.textContent = "\u2190 Back to the margin table"; back.onclick = () => ffMarginPick();
+  $("pickExtra").innerHTML = ""; $("pickExtra").appendChild(back);
+  $("pickCancel").textContent = "Close";
+  $("pick").classList.add("on");
+}
 window.ffMarginPick = () => {
   const f = ffMine(); if (!f || !CUR) return;
   const q = CUR.st.sq.qr, key = f.id + ":" + f.seg + ":" + f.round;
@@ -9763,7 +9783,8 @@ window.ffMarginPick = () => {
   row("We won or tied", "nothing happens to your squad", q.marginKey === key && q.marginPick === "none", () => {
     q.nextMargin = 0; ffSumNext(q); q.marginKey = key; q.marginPick = "none"; q.marginLab = "won / tied"; save(); closePicker(); ffLastSig = ""; renderFF();
   }, "win");
-  FF_MARGINS.forEach(M => row(M.lab, M.fx, q.marginKey === key && q.marginPick === M.k, () => {
+  FF_MARGINS.forEach(M => row(M.lab, M.fx, q.marginKey === key && q.marginPick && q.marginPick.indexOf(M.k) === 0, () => {
+    if (M.pv) { ffVolleyPick(f, key); return; }
     const again = q.marginKey === key;
     q.nextMargin = M.sup; ffSumNext(q);
     q.marginKey = key; q.marginPick = M.k; q.marginLab = M.lab.replace("Lost by ", "margin ") + ": " + M.fx;
@@ -9834,7 +9855,7 @@ function ffApply(f) {
   if (f.mode === "rolled" && f.roll) {
     const mine = f.roll[s] || [], theirs = f.roll[o] || [];
     const score = a => a.reduce((m, v) => m + (v === 6 ? 2 : v >= 3 ? 1 : 0), 0);
-    const volley = a => a.length >= 2 && a.every(v => v === 6);
+    const volley = a => a.length >= 2 && a.length <= 5 && a.every(v => v === 6);
     const ms = score(mine), ts = score(theirs);
     if (volley(theirs)) { cas += VOLLEY(theirs.length); lines.push("THEIR PERFECT VOLLEY \u2014 you lose " + VOLLEY(theirs.length) + "."); }
     else if (volley(mine)) lines.push("PERFECT VOLLEY \u2014 you destroy " + VOLLEY(mine.length) + " of theirs.");
@@ -14175,7 +14196,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf59";
+const APP_BUILD = "cf60";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

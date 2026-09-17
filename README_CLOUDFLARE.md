@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf59)
+# Gunpla Battle — Cloudflare version (build cf60)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -127,3 +127,4 @@ public/            the app (index.html, images, service worker)
 | cf57 | `src/index.js`, `public/index.html`, `public/sw.js` | Flashbang now removes 3 dice from the enemy's roll THIS round (server rolls accordingly; Smoke still cancels it). Physical dice: '📋 LOST THIS ROUND? PICK THE MARGIN' opens the margin table (incl. enemy Perfect Volley) and applies casualties + set-aside dice; the next-round box counts your 1s + margin. Rolled dice: highlighted margin table with both totals. Reveal cards flip only once |
 | cf58 | `public/index.html`, `public/sw.js` | Firefight screen: flash / smoke / explosion effects play on their own layer (adjusting your 1s can't cut them short or replay them); a redraw during the 3-2-1 countdown keeps the current number |
 | cf59 | `public/index.html`, `public/sw.js`, **new** `public/img/m4-far-fed.webp`, `m4-far-zeon.webp`, `m4-near-fed.webp`, `m4-near-zeon.webp`, **replaced** `public/img/menu2-bg.webp`; **delete** `public/img/m3-ships-l.webp` and `m3-ships-r.webp` | Menu scene uses the designer's new ships: 9 ships cut out and arranged as far and near layers per fleet (Federation left, Zeon right, facing each other around the emblem), each with its own parallax depth and drift; the clash fly-through and the end background use them too |
+| cf60 | `public/index.html`, `public/sw.js` | Perfect Volley rule change: only a squad rolling 2–5 dice with every die a 6 (includes suppressed squads down to 2 dice); destroys 3 / 4 / 5 / 6. Margin table has one 'Lost to a Perfect Volley' row that asks how many sixes (2–5) and applies the casualties; rolled dice use the same rule; reference text updated |
