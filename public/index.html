@@ -2292,6 +2292,18 @@ details.gr p{margin:6px 0;font-size:13px;line-height:1.45;color:#cbd5e1}
 #sheet.sqcompact .sq3b{min-height:4.8cqw}
 #sheet.sqcompact .sq3pg{padding:.5cqw 1cqw}
 #sheet.sqcompact .qrbig b{font-size:3em}
+
+/* ===== cf42: ? help button (bottom-right group) ===== */
+#helpBtn{position:absolute;top:auto;bottom:1.3%;right:calc(3.8% + 20.4cqw);z-index:62;width:3.6cqw;height:3.6cqw;min-width:28px;min-height:28px;box-sizing:border-box;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;font:900 clamp(12px,1.7cqw,24px) system-ui,sans-serif;color:var(--acc,#7dd3fc);isolation:isolate;
+  text-shadow:0 0 .5cqw var(--acc-glow,rgba(125,211,252,.5))}
+#helpBtn:before{content:"";position:absolute;inset:0;z-index:-2;background:var(--acc,#7dd3fc);clip-path:polygon(0 .7cqw,.7cqw 0,100% 0,100% 100%,.7cqw 100%,0 calc(100% - .7cqw))}
+#helpBtn:after{content:"";position:absolute;inset:.12cqw;z-index:-1;background:linear-gradient(110deg,var(--acc-btn,#10304a),rgba(6,10,16,.97) 62%);
+  clip-path:polygon(0 .64cqw,.64cqw 0,100% 0,100% 100%,.64cqw 100%,0 calc(100% - .64cqw))}
+#helpBtn:active{transform:translateY(1px);filter:brightness(.88)}
+#frame .fdock.r{left:71.9%;width:25.1%}
+ul.hl{margin:4px 0;padding-left:18px}
+ul.hl li{margin:4px 0;font-size:13px;line-height:1.45;color:#cbd5e1}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -2560,10 +2572,9 @@ details.gr p{margin:6px 0;font-size:13px;line-height:1.45;color:#cbd5e1}
   </div>
   <div id="sheet"><div id="frame" aria-hidden="true"></div><div id="hudfx" aria-hidden="true"><i class="hs"></i></div><div id="dead"><div>DESTROYED</div></div>
     <div id="rosterBtn" onclick="openPicker()">ROSTER</div>
-    <div id="doneBtn" style="display:none"></div>
+    <div id="doneBtn" style="display:none"></div><div id="helpBtn" onclick="openSheetHelp()" title="How this sheet works">?</div>
     <div id="tablesBtn" onclick="openTables()">TABLES</div><div id="stanceBtn" onclick="openStances()">STANCE</div></div>
   <div id="tl"></div>
-  <div id="hint">Turns are ended once, for the whole force, from the <b>roster</b> (tap the turn chip). Tap a limb to apply the current mode · tap a counter to wake its −/+ · tap a skill or weapon <b>name</b> to read what it does. Sazabi dies to <b>Head</b>, not Chest.</div>
 </section>
 
 <div id="err"></div>
@@ -11855,13 +11866,6 @@ function draw() {
       padding: "0.15em 0.55em", borderRadius: "0.3em", border: "1px solid #fecaca", zIndex: 7, letterSpacing: ".05em" });
     eb.title = "Optical sensors glowing red \u2014 " + autoLive.name + " is running";
   }
-  if (U.kill === "head") {
-    // head-mounted cockpit: the Head is the kill location, not the Chest
-    const hk = T(LIMB_POS_DEFAULT.head.x, 9.6, "HEAD = KILL", [4, 1.2, 15], "");
-    Object.assign(hk.style, { color: "#fff", fontWeight: "800", background: "rgba(185,28,28,.95)",
-      padding: "0.15em 0.55em", borderRadius: "0.3em", border: "1px solid #fecaca", zIndex: 7, letterSpacing: ".05em" });
-    hk.title = "Head-mounted cockpit \u2014 destroying the Head kills this unit";
-  }
   if (buffNotes.length) {
     const bs = T(24, 14.4, buffNotes.join("   \u00b7   "), [4, 1.25, 16], "");
     bs.style.color = "#ede9fe";
@@ -13050,7 +13054,63 @@ function draw() {
   }
 }
 
-const APP_BUILD = "cf41";
+
+// ---------- ? : how this sheet works (cf42) ----------
+window.openSheetHelp = () => {
+  if (!U) return;
+  const sec = (t, body, open) => '<details class="gr"' + (open ? ' open' : '') + '><summary>' + t + '</summary><div>' + body + '</div></details>';
+  const li = a => '<ul class="hl">' + a.map(x => '<li>' + x + '</li>').join("") + '</ul>';
+  const kind = isShip(U) ? "ship" : isSquad(U) ? "squad" : isGround(U) ? "vehicle" : "suit";
+  const kill = kind === "suit" ? (LIMB_LABEL[U.kill || "chest"] || "Chest") : null;
+  let unit = "";
+  if (kind === "suit") unit = sec("This mobile suit", li([
+    "<b>Kill location: " + kill + "</b> \u2014 destroying the " + kill + " destroys the unit" + (U.kill === "head" ? " (head-mounted cockpit, not the Chest)." : "."),
+    "<b>Limb circles</b> \u2014 tap to apply the DMG amount (Repair mode adds it back). Colours: green \u2192 amber \u2192 red \u2192 grey (destroyed).",
+    "<b>AP / Dodges / Shield HP</b> \u2014 tap the number to show its <b>\u2212 / +</b> buttons, then adjust.",
+    "<b>MOVE</b> spends 1 AP per move; <b>DODGE</b> spends one of your dodges. The small \u21B6 undoes the last one.",
+    "<b>Abilities & weapons</b> \u2014 tap a <b>name</b> to read what it does; tap its AP / cooldown / ammo pips to use or track it.",
+    "<b>Shield coverage dial</b> \u2014 shows which arc your shield blocks; tap it to turn the shield.",
+  ]), true);
+  if (kind === "ship") unit = sec("This warship", li([
+    "<b>Hull / Bridge / Thrusters / Systems rings</b> \u2014 tap to apply the DMG amount (Repair adds). Hull 0 destroys the ship.",
+    "<b>HIT</b> beside the Bridge \u2014 tap once per hit on the Bridge (\u22122 crew, \u22123 to rolls next turn). It pulses if the Bridge lost HP with no hit recorded.",
+    "<b>Weapons</b> \u2014 tap the AP cell to fire (cooldowns and half-HP limits are applied). Tap a name for its rules.",
+    "<b>CREW / AP \u2212 +</b> steppers; <b>MOVE</b> spends 1 AP (halved with one thruster down, none with both).",
+    "<b>Launch / Dock</b> rows carry mobile suits; a destroyed ship asks for Emergency Disembark rolls.",
+  ]), true);
+  if (kind === "vehicle") unit = sec("This vehicle", li([
+    "<b>HP ring</b> (and <b>Armor</b> for Tank / Car in a ground battle) \u2014 tap to apply the DMG amount.",
+    "<b>Weapons</b> \u2014 tap the AP cell to use it; OVERMAP / GROUND tags say where it works; charges and cooldowns are tracked.",
+    "<b>Target effects</b> (right) \u2014 what the attack does to squads, vehicles, suits and aircraft.",
+    "<b>Squads aboard</b> \u2014 + embarks a squad, \u21E9 disembarks one. If the vehicle is destroyed, Emergency Disembark opens.",
+    "<b>AP \u2212 +</b>, <b>MOVE</b> (1 AP), and <b>Respawn</b> once destroyed.",
+  ]), true);
+  if (kind === "squad") unit = sec("This infantry squad", li([
+    "<b>OVERMAP</b> \u2014 tap a soldier portrait to record a casualty (you pick who falls); FIRE / MOVE for the squad; Hide from the STANCE button.",
+    "<b>8 SOLDIERS</b> \u2014 two pages. Each soldier: AP / HP / Kevlar (+ Armor / Shield) bubbles (tap = DMG amount), MOVE and FIRE, \u21C4 weapon list (switch 1 AP, throw items 1 AP), stance corner. \u24D8 GROUND RULES has every table.",
+    "<b>QUICK RESOLVE</b> \u2014 rounds, suppression, items, blind item call + REVEAL, margin table, optional simulated dice, Objective Clash.",
+  ]), true);
+  $("pickT").textContent = "? How this sheet works";
+  $("pickS").innerHTML = (U.short || U.name);
+  $("picklist").innerHTML = unit +
+    sec("Top bar", li([
+      "<b>DAMAGE / REPAIR</b> \u2014 what a tap on a ring or bubble does.",
+      "<b>DMG 1\u201315</b> \u2014 how much each tap applies. <b>#</b> types any amount. <b>\u2622</b> applies a nuclear blast by distance.",
+      "The turn chip shows whose turn it is \u2014 tap it to go to the roster.",
+    ])) +
+    sec("Bottom buttons", li([
+      "<b>TABLES</b> \u2014 hit, range and damage tables.",
+      "<b>STANCE</b> \u2014 declare a stance (one at a time).",
+      "<b>DONE \u2713</b> \u2014 your turn: this unit has finished. Enemy turn: <b>DAMAGE COUNTED</b> (yellow tally) \u2014 this unit's damage is entered so far; a new hit clears it.",
+      "<b>ROSTER</b> \u2014 back to the force list. Turns are ended once, for the whole force, from the roster.",
+    ])) +
+    sec("Timeline", li([
+      "The strip under the sheet lists what happened to this unit each turn. Tap a turn to read it; \u21B6 buttons on the sheet undo the latest action.",
+    ]));
+  $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Close";
+  $("pick").classList.add("on");
+};
+const APP_BUILD = "cf42";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
