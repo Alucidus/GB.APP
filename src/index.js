@@ -320,10 +320,14 @@ export class BattleRoom {
     // 2c. the one official turn order: only the active team's leader can end the turn, once per turn
     // (never while a firefight is mid-segment: its 4 rounds must be played out first)
     const fightOn = () => M.keys("ff/").some(k => { const g = M.get(k); return !!g && ["mode", "ready", "pick", "reveal"].includes(g.state); });
+    // an engagement between bouts: both sides must name their next fighter (or leave) before the turn passes
+    const engWait = () => M.keys("ff/").some(k => { const g = M.get(k); const c = g && g.eng && g.eng.conf;
+      return !!g && g.state === "end" && !!g.eng && !(c && c.a && c.b); });
     if (w.endTurn && typeof w.endTurn === "object") {
       const tk = M.get("turn");
       if (!tk || !amLeader || tk.active !== myTeam || w.endTurn.seq !== tk.seq) denied.push("end-turn");
       else if (fightOn()) denied.push("end-turn:firefight");
+      else if (engWait()) denied.push("end-turn:engagement");
       else { await M.set("turn", { ...tk, active: myTeam === "federation" ? "spacenoid" : "federation", seq: tk.seq + 1, at: now, endedBy: myTeam, req: null }); push = true; }
     }
     // end-turn REQUEST: the active leader asks to end while the other side is still counting damage
@@ -332,6 +336,7 @@ export class BattleRoom {
       if (!tk || !amLeader || tk.active !== myTeam) denied.push("end-request");
       else if (w.endRequest.cancel) { if (tk.req) { await M.set("turn", { ...tk, req: null }); push = true; } }
       else if (fightOn()) denied.push("end-request:firefight");
+      else if (engWait()) denied.push("end-request:engagement");
       else if (w.endRequest.seq === tk.seq && !(tk.req && tk.req.seq === tk.seq)) { await M.set("turn", { ...tk, req: { team: myTeam, seq: tk.seq, at: now, ok: false } }); push = true; }
     }
     // the other side's leader lets the turn go early ("Accept now")
@@ -417,15 +422,32 @@ export class BattleRoom {
       const ops = Array.isArray(w.ff) ? w.ff.slice(0, 6) : [w.ff];
       for (const op of ops) { if (op && typeof op === "object" && await this.firefight(op, pid, myTeam, players, now, denied)) push = true; }
     }
-    // 7c. queued Forced Re-Engagements start when their turn begins
+    // 7c. queued Forced Re-Engagements, and bouts both sides confirmed, start when their turn begins
     {
       const tk = M.get("turn");
       if (tk) for (const k of M.keys("ff/")) {
         const g = M.get(k);
-        if (!g || g.state !== "queued" || !(tk.seq >= (g.startSeq || 0))) continue;
-        await M.set(k, { ...g, state: g.mode ? "ready" : "mode", round: 1, ready: { a: null, b: null }, lock: { a: false, b: false },
-          reveal: null, roll: null, obj: null, fromQueue: true, startedAt: now, at: now });
-        push = true;
+        if (!g) continue;
+        if (g.state === "queued" && tk.seq >= (g.startSeq || 0)) {
+          await M.set(k, { ...g, state: g.mode ? "ready" : "mode", round: 1, ready: { a: null, b: null }, lock: { a: false, b: false },
+            reveal: null, roll: null, obj: null, fromQueue: true, startedAt: now, at: now });
+          push = true;
+          continue;
+        }
+        const c = g.state === "end" && g.eng && !g.ext ? g.eng.conf : null;
+        if (c && c.a && c.b && tk.seq >= (g.eng.startSeq || 0)) {
+          const lab = (list, uid) => (list.find(x => x.uid === uid) || {}).label || "Squad";
+          const nb = (g.eng.bout || 1) + 1;
+          const pairs = (g.eng.pairs || []).slice();
+          pairs[nb - 1] = [c.a, c.b];
+          await M.set(k, { ...g, state: g.mode ? "ready" : "mode", round: 1, seg: (g.seg || 1) + 1, forced: null,
+            eng: { ...g.eng, bout: nb, pairs, conf: { a: null, b: null }, startSeq: null },
+            a: { ...g.a, uid: c.a, label: lab(g.eng.aList, c.a) },
+            b: { ...g.b, uid: c.b, label: lab(g.eng.bList, c.b) },
+            ready: { a: null, b: null }, lock: { a: false, b: false }, reveal: null, roll: null, rolled: null,
+            claim: null, done: null, obj: null, ext: null, fromQueue: true, startedAt: now, at: now });
+          push = true;
+        }
       }
     }
 
@@ -480,7 +502,7 @@ export class BattleRoom {
         if (tk0 && tk0.active !== myTeam) { denied.push("ff:not-your-turn"); return false; }   // challenges only on your own turn
         if (aList.some(x => busy(x.uid)) || bList.some(x => busy(x.uid)) || M.has(key)) { denied.push("ff:invite"); return false; }
         await M.set(key, { id, state: "invite", at: now, mode: null, rollAsk: null, round: 1, seg: 1, forced: null, startSeq: null,
-          eng: { aList, bList, obj: String(op.obj || "").slice(0, 24), pairs: null, bout: 1, log: [] },
+          eng: { aList, bList, obj: String(op.obj || "").slice(0, 24), pairs: null, bout: 1, log: [], conf: { a: null, b: null }, startSeq: null },
           a: { team: myTeam, uid: aList[0].uid, pid, label: aList[0].label },
           b: { team: other, uid: bList[0].uid, pid: null, label: bList[0].label },
           lock: { a: false, b: false }, ready: { a: null, b: null }, hp: { a: null, b: null }, reveal: null, roll: null, obj: null });
@@ -661,6 +683,18 @@ export class BattleRoom {
         g.eng.pairs[nb - 1] = pr;
         return save();
       }
+      case "confirm": {                             // the engagement board: this side names who takes the next bout
+        if (g.state !== "end" || !mine || !g.eng || g.ext) break;
+        const list = side === "a" ? g.eng.aList : g.eng.bList;
+        if (!list.some(x => x.uid === op.uid)) break;
+        g.eng.conf = Object.assign({ a: null, b: null }, g.eng.conf || {});
+        g.eng.conf[side] = op.uid;
+        if (g.eng.conf.a && g.eng.conf.b) { const tk = M.get("turn"); g.eng.startSeq = tk ? tk.seq + 1 : 0; }
+        return save();
+      }
+      case "unconfirm":                             // taken back while the turn is still running
+        if (g.state !== "end" || !mine || !g.eng || !g.eng.conf) break;
+        g.eng.conf[side] = null; g.eng.startSeq = null; return save();
       case "extract":                               // the clash winner walks off with the objective
         if (g.state !== "end" || !mine || !g.obj || g.obj.win !== side || g.ext) break;
         g.ext = { side, deny: null, smoke: false }; return save();
@@ -693,6 +727,10 @@ export class BattleRoom {
           list.push({ uid: op.uid, label: String(op.label || "Squad").slice(0, 30) });
         } else break;
         const aOk = g.eng.aList.map(x => x.uid), bOk = g.eng.bList.map(x => x.uid);
+        if (g.eng.conf) {
+          if (g.eng.conf.a && !aOk.includes(g.eng.conf.a)) { g.eng.conf.a = null; g.eng.startSeq = null; }
+          if (g.eng.conf.b && !bOk.includes(g.eng.conf.b)) { g.eng.conf.b = null; g.eng.startSeq = null; }
+        }
         g.eng.pairs = (g.eng.pairs || []).map((pr, i) => i < (g.eng.bout || 1) ? pr
           : [aOk.includes(pr[0]) ? pr[0] : aOk[0], bOk.includes(pr[1]) ? pr[1] : bOk[0]]);
         return save();
