@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf32)
+# Gunpla Battle — Cloudflare version (build cf33)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -100,3 +100,4 @@ public/            the app (index.html, images, service worker)
 | cf30 | `public/index.html`, `public/sw.js` | STANCE button restyled to match TABLES exactly (same outline/fill layers, size, row); TABLES + STANCE now share one dock plate mirroring DONE + ROSTER (equal gap and margins); active stance keeps the same shape in purple; decorative stripes moved clear |
 | cf31 | `public/index.html`, `public/sw.js` | **DONE in the enemy turn = yellow tally** ("damage counted so far"): roster marks, sheet DONE button, turn-box counter and hint; a counted unit that loses health again clears its mark and shows ↻ RE-CHECK until DONE is tapped again; repairs don't clear it; marks reset every turn and sync live |
 | cf32 | `public/index.html`, `public/sw.js` | Enemy-turn sheet button now reads **DAMAGE COUNTED** (two lines, with the tally); hint and messages use the same wording |
+| cf33 | `src/index.js`, `public/index.html`, `public/sw.js` | **End-turn requests**: if the other team hasn't marked every unit that can take damage as DAMAGE COUNTED, End My Turn becomes a request (waiting count + Cancel); it passes automatically once all are counted, or when the defending leader taps **Accept now**. **Pass leadership** (turn box, or 'make leader' in the lobby) |

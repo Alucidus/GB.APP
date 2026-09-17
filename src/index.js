@@ -172,7 +172,8 @@ export class BattleRoom {
     TEAMS.forEach(t => {
       const m = Object.entries(players).filter(([, p]) => p && p.team === t && now - (p.seen || 0) < LEAVE_MS)
         .sort((a, b) => (a[1].teamAt || 0) - (b[1].teamAt || 0) || (a[0] < b[0] ? -1 : 1));
-      out[t] = m.length ? m[0][0] : null;
+      const pick = this.mem.get("lead/" + t);                     // a leader who was handed the role keeps it while active
+      out[t] = pick && m.some(([pid]) => pid === pick) ? pick : (m.length ? m[0][0] : null);
     });
     return out;
   }
@@ -313,13 +314,26 @@ export class BattleRoom {
     if (w.endTurn && typeof w.endTurn === "object") {
       const tk = M.get("turn");
       if (!tk || !amLeader || tk.active !== myTeam || w.endTurn.seq !== tk.seq) denied.push("end-turn");
-      else { await M.set("turn", { ...tk, active: myTeam === "federation" ? "spacenoid" : "federation", seq: tk.seq + 1, at: now, endedBy: myTeam }); push = true; }
+      else { await M.set("turn", { ...tk, active: myTeam === "federation" ? "spacenoid" : "federation", seq: tk.seq + 1, at: now, endedBy: myTeam, req: null }); push = true; }
+    }
+    // end-turn REQUEST: the active leader asks to end while the other side is still counting damage
+    if (w.endRequest && typeof w.endRequest === "object") {
+      const tk = M.get("turn");
+      if (!tk || !amLeader || tk.active !== myTeam) denied.push("end-request");
+      else if (w.endRequest.cancel) { if (tk.req) { await M.set("turn", { ...tk, req: null }); push = true; } }
+      else if (w.endRequest.seq === tk.seq && !(tk.req && tk.req.seq === tk.seq)) { await M.set("turn", { ...tk, req: { team: myTeam, seq: tk.seq, at: now, ok: false } }); push = true; }
+    }
+    // the other side's leader lets the turn go early ("Accept now")
+    if (w.acceptEnd && typeof w.acceptEnd === "object") {
+      const tk = M.get("turn");
+      if (!tk || !amLeader || !tk.req || tk.req.team === myTeam || tk.req.seq !== w.acceptEnd.seq) denied.push("accept-end");
+      else if (!tk.req.ok) { await M.set("turn", { ...tk, req: { ...tk.req, ok: true, by: pid } }); push = true; }
     }
     // host override: hand the turn to a team (fixes a stuck turn)
     if (w.forceTurn && typeof w.forceTurn === "object") {
       const tk = M.get("turn");
       if (!isHost || !tk || !validTeam(w.forceTurn.active)) denied.push("force-turn");
-      else if (tk.active !== w.forceTurn.active) { await M.set("turn", { ...tk, active: w.forceTurn.active, seq: tk.seq + 1, at: now, endedBy: "host" }); push = true; }
+      else if (tk.active !== w.forceTurn.active) { await M.set("turn", { ...tk, active: w.forceTurn.active, seq: tk.seq + 1, at: now, endedBy: "host", req: null }); push = true; }
     }
 
     const locks = {};
@@ -340,7 +354,7 @@ export class BattleRoom {
           if (known === null || tt.ends !== known) {
             const nt = { ...tk, ends: { ...(tk.ends || {}), [myTeam]: tt.ends } };
             if (known !== null && tt.ends > known && tk.active === myTeam && tt.phase === "enemy") {
-              nt.active = myTeam === "federation" ? "spacenoid" : "federation"; nt.seq = tk.seq + 1; nt.at = now; nt.endedBy = myTeam;
+              nt.active = myTeam === "federation" ? "spacenoid" : "federation"; nt.seq = tk.seq + 1; nt.at = now; nt.endedBy = myTeam; nt.req = null;
             }
             await M.set("turn", nt);
           }
@@ -395,6 +409,12 @@ export class BattleRoom {
       const e = M.etag(k);
       etags[k] = e;
       if (known[k] !== e) changes[k] = M.get(k);
+    }
+    if (w.passLead && typeof w.passLead === "object" && myTeam) {
+      const to = w.passLead.to, tp = players[to];
+      const lead = this.leaders(players, now)[myTeam];
+      if (lead !== pid || !tp || tp.team !== myTeam || now - (tp.seen || 0) >= LEAVE_MS || to === pid) denied.push("pass-lead");
+      else { await M.set("lead/" + myTeam, to); push = true; }
     }
     const removed = Object.keys(known).filter(k => !(k in etags));
     return R(200, {
