@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf50)
+# Gunpla Battle — Cloudflare version (build cf51)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -118,3 +118,4 @@ public/            the app (index.html, images, service worker)
 | cf48 | `public/index.html`, `public/sw.js`, **new** `public/img/menu2-bg.webp`, `menu2-gundam.webp`, `menu2-zaku.webp`, `menu2-clash.webp`, `menu2-logo.webp` | **New landing art** in layers (background + separate logo). **PLAY ONLINE clash animation**: the Gundam and Zaku charge in from the sides, blue-red clash with flash, shockwave and shake, white-out into the lobby (~2s); SKIP (or tap) from the second time; synthesized whoosh + clash sound with a 🔊 / 🔇 toggle; reduced-motion devices and returning to a live session use the quick transition |
 | cf49 | `public/index.html`, `public/sw.js` | Clash animation v2: the logo leaves at the start; after the impact the view zooms into the clash (≈4.4×, brightening) and fades to white leaving only the logo, then the lobby fades in (~3.5s; SKIP from the second time) |
 | cf50 | `public/index.html`, `public/sw.js` | Clash animation v3: harder zoom (×9 in 0.75s, accelerating, blur + blow-out); the white clears to the empty background with the logo as the hero, then the lobby fades in (~3.8s) |
+| cf51 | `public/index.html`, `public/sw.js`, `public/img/menu2-clash.webp` (replaced — sharper 2600px from the designer's upscale) | Clash animation: blue / red light layer under the burst (no hard edge to the light); the end logo's lighting now animates smoothly (no glitch) |
