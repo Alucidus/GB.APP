@@ -2231,18 +2231,19 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 .sq3-stance small{font:900 clamp(5px,.55cqw,8px) system-ui,sans-serif;letter-spacing:.12em;margin-top:.1cqw}
 .sq3-stance.on{color:#fff;border-color:#c4b5fd;background:linear-gradient(160deg,rgba(124,58,237,.9),rgba(30,12,60,.95))}
 .sq3-stance.on.st-stealth{border-color:#94a3b8;background:rgba(51,65,85,.95)}
-.sq3-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:.35cqw}
-.sq3b{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:3.3cqw;padding:.3cqw .2cqw;cursor:pointer;
+.sq3-btns{display:grid;grid-template-columns:repeat(2,1fr);gap:.5cqw}
+.sq3b{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:4.3cqw;padding:.35cqw .3cqw;cursor:pointer;
   color:#fff;background:linear-gradient(180deg,var(--f-panel),rgba(0,0,0,.7));border:1px solid var(--f-acc);
   clip-path:polygon(.45cqw 0,100% 0,100% calc(100% - .45cqw),calc(100% - .45cqw) 100%,0 100%,0 .45cqw);-webkit-tap-highlight-color:transparent}
 .sq3b:active{filter:brightness(1.35)}
-.sq3b b{font:900 clamp(9px,1.05cqw,15px) system-ui,sans-serif;letter-spacing:.12em}
-.sq3b small{font-size:clamp(6px,.6cqw,9px);color:var(--f-mut);white-space:nowrap}
-.sq3b em{position:absolute;right:.2cqw;top:.1cqw;font:900 clamp(7px,.7cqw,11px) system-ui,sans-serif;font-style:normal;color:#facc15}
+.sq3b b{font:900 clamp(12px,1.55cqw,22px) system-ui,sans-serif;letter-spacing:.14em}
+.sq3b small{font-size:clamp(7px,.72cqw,11px);color:var(--f-mut);white-space:nowrap}
+.sq3b em{position:absolute;right:.35cqw;top:.2cqw;font:900 clamp(8px,.85cqw,13px) system-ui,sans-serif;font-style:normal;color:#facc15}
 .sq3b.fire{border-color:#f59e0b;background:linear-gradient(180deg,rgba(245,158,11,.35),rgba(0,0,0,.7))}
 .sq3b.dodge{border-color:#22c55e;background:linear-gradient(180deg,rgba(34,197,94,.25),rgba(0,0,0,.7))}
 .sq3b.off{opacity:.4}
-.sq3-undo{display:flex;justify-content:center;gap:.4cqw;min-height:1.3cqw}
+.sq3-undo{display:flex;justify-content:center;align-items:center;gap:.6cqw;min-height:1.5cqw}
+.sq3-dodge{font:900 clamp(8px,.82cqw,12px) system-ui,sans-serif;letter-spacing:.16em;color:#86efac;white-space:nowrap}
 .sq3-undo button{cursor:pointer;font:800 clamp(7px,.65cqw,10px) system-ui,sans-serif;padding:0 .5cqw;color:var(--f-mut);background:transparent;border:1px dashed var(--f-line)}
 .sq3-swap{display:flex;flex-direction:column;align-items:center;gap:.05cqw;padding:.25cqw .4cqw;cursor:pointer;color:#e2e8f0;
   background:rgba(0,0,0,.55);border:1px solid var(--f-line);-webkit-tap-highlight-color:transparent}
@@ -2275,7 +2276,7 @@ details.gr p{margin:6px 0;font-size:13px;line-height:1.45;color:#cbd5e1}
 .grt{width:100%;border-collapse:collapse;margin:6px 0;font-size:12.5px}
 .grt th{text-align:left;padding:4px 6px;color:var(--muted);font-size:10px;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.2)}
 .grt td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.08);color:#e2e8f0}
-@media (max-width:1000px){.sq2-bubs.three .sbub{width:4cqw;height:4cqw;min-width:36px;min-height:36px}.sq3b small,.sq3-swap small{display:none}.sq3-undo{min-height:0}}
+@media (max-width:1000px){.sq2-bubs.three .sbub{width:4cqw;height:4cqw;min-width:36px;min-height:36px}.sq3b small,.sq3-swap small{display:none}}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -8763,12 +8764,11 @@ function drawSquad() {
         '<div class="sq2-bubs' + (R.shield ? ' five' : ' three') + '">' + bubs + '</div>' +
         '<div class="sq3-btns">' +
           '<button class="sq3b move' + (s.ap < 1 ? ' off' : '') + '" onclick="sqAct(' + i + ',\'move\')"><b>MOVE</b><small>10cm \u00b7 1 AP</small>' + (mv ? '<em>\u00d7' + mv + '</em>' : '') + '</button>' +
-          '<button class="sq3b dodge" onclick="sqAct(' + i + ',\'dodge\')"><b>DODGE</b><small>blast 4+ \u00b7 free</small>' + (dg ? '<em>\u00d7' + dg + '</em>' : '') + '</button>' +
           '<button class="sq3b fire' + (noFire ? ' off' : '') + '" onclick="sqAct(' + i + ',\'fire\')"><b>FIRE</b><small>' + (W.none ? 'shield up' : W.react ? 'takedown' : W.ap + ' AP') + '</small>' + (fr ? '<em>\u00d7' + fr + '</em>' : '') + '</button>' +
         '</div>' +
-        '<div class="sq3-undo">' +
+        '<div class="sq3-undo"><span class="sq3-dodge" title="Blast dodge: roll 1d6, 4+ avoids an area attack. Rockets and Bombing Runs can\'t be dodged; bullets can\'t be dodged at all (Cover only).">BLAST DODGE 4+</span>' +
           (mv ? '<button onclick="sqAct(' + i + ',\'unmove\')">\u21B6 move</button>' : '') +
-          (dg ? '<button onclick="sqAct(' + i + ',\'undodge\')">\u21B6 dodge</button>' : '') + '</div>' +
+          '</div>' +
         '<button class="sq3-swap" onclick="sqWeapons(' + i + ')"><b>\u21C4 ' + W.name + '</b><small>' + (W.none ? 'no attack' : [W.dice, W.range, W.hit].filter(v => v && v !== "\u2014").join(' \u00b7 ')) + (extras ? ' \u00b7 ' + extras : '') + '</small></button>' +
       '</div>';
     }).join("") + '</div>' +
@@ -13036,7 +13036,7 @@ function draw() {
   }
 }
 
-const APP_BUILD = "cf37";
+const APP_BUILD = "cf39";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
