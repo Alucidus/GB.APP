@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf80)
+# Gunpla Battle — Cloudflare version (build cf81)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -148,3 +148,4 @@ public/            the app (index.html, images, service worker)
 | cf78 | `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | Removed the eye glow effect from the budget / roster screens (both sides) — code and styles deleted; the lobby eyes are unchanged |
 | cf79 | `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | Menu space explosions: a shockwave ring never appears on its own — every hit is a starburst, with a ring added around it on big hits (always) and some medium hits; beam impacts follow the same rule |
 | cf80 | `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | **Firefight clash screen for phones:** after the reveal the screen is two columns (left: item vs item, result chips, ⓘ Details; right: roll box, a big 0–8 "how many rolled a 1?" number row, margin button, next-round line, READY) and fits landscape phones without scrolling; results are short chips coloured for YOU (green good / red bad / grey neutral) with the full text behind ⓘ Details; picking your 1s updates in place (no more jump to the top) and redraws keep the scroll position |
+| cf81 | `public/app.js`, `public/index.html`, `public/sw.js` | Firefight (physical dice): the ROLL N DICE NOW box disappears as soon as you pick how many of your dice rolled a 1 (so it isn't mistaken for next round's roll); it returns with the new count next round. "1 die" wording fix |

@@ -2151,7 +2151,10 @@ function ffSumNext(q) { q.nextExtra = Math.min(8, (q.nextOnes || 0) + (q.nextMar
 window.ffOnes = n => {
   if (!CUR) return;
   const q = CUR.st.sq.qr, alive = sqAlive(CUR.st);
-  q.nextOnes = Math.max(0, Math.min(8, n)); ffSumNext(q); save();
+  q.nextOnes = Math.max(0, Math.min(8, n)); ffSumNext(q);
+  const f = ffMine(); if (f) q.onesKey = f.id + ":" + f.seg + ":" + f.round;   // the dice have been rolled this round
+  save();
+  const rb = document.querySelector("#ffx .ffcolR .ffroll:not(.small)"); if (rb) rb.remove();   // so it can't be mistaken for next round's roll
   document.querySelectorAll("#ffx .ffo").forEach(b => b.classList.toggle("on", +b.dataset.n === q.nextOnes));
   const nd = document.querySelector("#ffx .ffnd");
   if (nd) nd.innerHTML = ffNextText(q, alive);
@@ -2334,7 +2337,7 @@ function renderFF() {
   const enemyUnit = (mp.data["unit/" + f[o].team + "/" + f[o].uid] || {}).st || {};
   const enemyAlive = enemyUnit.hp ? enemyUnit.hp.hp : "?";
   const otherHere = ffSidePidAlive(f, o) || f.state === "invite";
-  const sig = JSON.stringify([f, alive, q.supp, q.flashNow, q.nextOnes, q.nextMargin, q.marginKey, q.marginPick, q.items, q.res, otherHere, enemyAlive]);
+  const sig = JSON.stringify([f, alive, q.supp, q.flashNow, q.nextOnes, q.nextMargin, q.onesKey, q.marginKey, q.marginPick, q.items, q.res, otherHere, enemyAlive]);
   if (!box) { box = document.createElement("div"); box.id = "ffx"; document.body.appendChild(box); }
   if (sig === ffLastSig) return;
   ffLastSig = sig;
@@ -2395,9 +2398,10 @@ function renderFF() {
         '<p class="key">Dice: 1 = set aside next round \u00b7 2 = miss \u00b7 3\u20135 = 1 success \u00b7 6 = 2 successes</p>' +
         (rolled ? '<div class="fm-rows">' + MARGIN_TABLE.map(([mm, oo]) => '<span><b>' + mm + '</b>' + oo + '</span>').join("") + '</div>' : '') + '</details>';
       // right: what to do
+      const onesDone = q.onesKey === f.id + ":" + f.seg + ":" + f.round;
       const rollBox = !rolled
-        ? '<div class="ffroll"><b>\u{1F3B2} ROLL ' + nowDice + ' DICE NOW</b><span>' + parts + '</span>' +
-          (off ? '<em>' + (fl ? 'Flashed \u2014 ' : '') + 'move ' + Math.min(off, fp) + ' dice away before rolling</em>' : '') + '</div>'
+        ? (onesDone ? '' : '<div class="ffroll"><b>\u{1F3B2} ROLL ' + nowDice + ' DICE NOW</b><span>' + parts + '</span>' +
+          (off ? '<em>' + (fl ? 'Flashed \u2014 ' : '') + 'move ' + Math.min(off, fp) + (Math.min(off, fp) === 1 ? ' die' : ' dice') + ' away before rolling</em>' : '') + '</div>')
         : '<div class="ffroll small"><span>The app rolled ' + (f.roll[s] || []).length + ' dice for you' + (off ? ' (' + parts + ')' : '') + '</span></div>';
       const ones = q.nextOnes || 0, maxOnes = Math.max(1, rolled ? (f.roll[s] || []).length : nowDice);
       const onesRow = f.round < 4 ? '<div class="ffones"><span>How many of your dice rolled a 1?</span><div class="ffonesrow">' +
@@ -6833,7 +6837,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf80";
+const APP_BUILD = "cf81";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
