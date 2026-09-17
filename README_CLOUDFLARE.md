@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf60)
+# Gunpla Battle — Cloudflare version (build cf62)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -128,3 +128,5 @@ public/            the app (index.html, images, service worker)
 | cf58 | `public/index.html`, `public/sw.js` | Firefight screen: flash / smoke / explosion effects play on their own layer (adjusting your 1s can't cut them short or replay them); a redraw during the 3-2-1 countdown keeps the current number |
 | cf59 | `public/index.html`, `public/sw.js`, **new** `public/img/m4-far-fed.webp`, `m4-far-zeon.webp`, `m4-near-fed.webp`, `m4-near-zeon.webp`, **replaced** `public/img/menu2-bg.webp`; **delete** `public/img/m3-ships-l.webp` and `m3-ships-r.webp` | Menu scene uses the designer's new ships: 9 ships cut out and arranged as far and near layers per fleet (Federation left, Zeon right, facing each other around the emblem), each with its own parallax depth and drift; the clash fly-through and the end background use them too |
 | cf60 | `public/index.html`, `public/sw.js` | Perfect Volley rule change: only a squad rolling 2–5 dice with every die a 6 (includes suppressed squads down to 2 dice); destroys 3 / 4 / 5 / 6. Margin table has one 'Lost to a Perfect Volley' row that asks how many sixes (2–5) and applies the casualties; rolled dice use the same rule; reference text updated |
+| cf61 | `public/index.html`, `public/sw.js`, **new folder** `public/img/fx/` (15 sprites) | Designer's effect art: menu scene now has sprite explosions on the ships and beam shots between the fleets (pink from the Federation, yellow from Zeon) ending in impact bursts; firefight flash / grenade / smoke use the sprites; unit sheets show a hit spark when damage is tapped and a fireball when a part or unit is destroyed (not on repair; off with reduced motion) |
+| cf62 | `public/index.html`, `public/sw.js` | Menu battle effects: long beams stretched from ship to target (flash on, thin out, big impact + ring), bolts of random length / thickness (sometimes in bursts of 3), blasts in small / medium / big sizes (big ones with a shockwave ring), chains of small blasts across a ship; bigger fireball + ring when a part is destroyed on a sheet |
