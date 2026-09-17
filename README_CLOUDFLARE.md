@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf66)
+# Gunpla Battle — Cloudflare version (build cf67)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -134,3 +134,4 @@ public/            the app (index.html, images, service worker)
 | cf64 | `public/index.html`, `public/sw.js` | Menu battle: more beam fire — events every 0.7–1.9s, long beams 22% and bolts 50% of events, sometimes answered by return fire; up to 12 effects at once (Federation beams pink, Zeon beams yellow) |
 | cf65 | `public/index.html`, `public/sw.js` | Menu space explosions use only starbursts and rings: star-y + orange ring on Federation ships (Zeon's yellow fire), star-p + pink ring on Zeon ships (Federation's pink fire) |
 | cf66 | `public/index.html`, `public/sw.js` | **Hangar effects.** Team lobby: Gundam eye glow, Zaku mono-eye sweep, light strips chasing upwards, searchlights, floor sheen, fog and dust, welding sparks, distant battle in the space windows (stars / rings), your hangar powers up when you pick a side, alarm beacons + LAUNCH SEQUENCE when everyone is ready, sparks and steam on the hangar doors. Budget / roster screens: the side's hangar gets eye glow (Nu Gundam visor / Zaku mono-eye sweep), flickering ceiling lights, drifting mist, dust, floor sheen, a searchlight and welding sparks, faded out behind the list. Lite mode keeps only the glows; reduced motion turns them off |
+| cf67 | `public/index.html`, `public/sw.js`; **delete** `public/img/fx/boom-o1.webp`, `boom-o2.webp`, `boom-o3.webp`, `boom-p1.webp`, `boom-p2.webp` | No fireball sprites anywhere: a destroyed part on a sheet shows a star burst + ring, the firefight Grenade shows a star burst over the ground blast; the fireball files are removed from the app and its offline cache |
