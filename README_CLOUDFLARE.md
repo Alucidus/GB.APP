@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf99)
+# Gunpla Battle — Cloudflare version (build cf100)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -14,6 +14,21 @@ src/index.js       the Worker + BattleRoom (sessions, leaders, locks, deliveries
 public/            the app (index.html, images, service worker)
 .gitignore
 ```
+
+## cf100 — Engagement board update
+
+The end of a bout now shows one decision at a time: Objective Clash, then the engagement board, then a separate disengagement response or final result.
+
+- Federation blue / Spacenoid red squad cards show health and the objective holder. Only your team's cards show remaining item icons.
+- Each side selects and confirms its next fighter. Either side can un-confirm until the turn changes. The server blocks ending the turn until both confirm, including the older roster-save turn path. The selected bout starts with the existing next-turn banner system.
+- Disengage works per squad. The holder leaving is an extraction; another squad leaving removes only that squad. Any engaged squad can supply the denying Flashbang or answering Smoke. Staying after a denied escape clears both confirmations.
+- Edit roster supports adding, withdrawing through the response flow, and merging into the healthiest squad, capped at eight. Objective ownership follows the merge survivor. Items do not refill.
+- End firefight and Forced Re-Engagement are under More. Forced Re-Engagement appears after the scheduled bouts are complete, or for a plain 1v1.
+- Back to roster lets players use their other units while keeping their confirmation. Engagement squads remain pinned until released.
+
+**Deployment:** upload the full cf100 project, including **`src/index.js`**, `public/app.js`, `public/app.css`, `public/index.html`, and `public/sw.js`. Both the server and client changed. Refresh every device and check **cf100** before starting a new game. No Cloudflare deployment was performed in this task.
+
+**Validation:** 140 automated assertions passed using two player seats, the production room logic, and client rendering/bookkeeping checks. See `tests/README.md`. The two-device Playwright scenario is included but **browser visual testing is still pending**: Chromium was absent and its download timed out. Test desktop/phone layout and a full two-device game before release.
 
 ## One-time setup
 
@@ -167,4 +182,5 @@ public/            the app (index.html, images, service worker)
 | cf97 | **`src/index.js`** (server), `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | 🚩 objective marker now shows in the vehicle load / embark / disembark lists. **Multi-squad stage 3 — playing the queue:** after a bout the end screen offers "Bout N of M — your X vs their Y" with ⇄ Change my squad (shows each squad's health, items and objective marker) and "Line up bout N", which queues it to start automatically when the next turn begins (banner on both sides); squads waiting their bout are pinned (no moving or Coordinated Strike, with a note on the sheet) but can still spend items in the breaks |
 | cf98 | **`src/index.js`** (server), `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | **Multi-squad stage 4 — the breaks:** after each bout the holder can pull out with the objective; the other side can deny with a Flashbang from ANY squad in the engagement (including one that never fought) or let them go; the leaver can answer with a Smoke Grenade and secure it, or stay and fight on. ⇄ Edit squads between bouts: withdraw, bring a squad in, or merge survivors (health pooled up to 8 into the healthiest, which keeps its name). An engagement ends on a successful extraction (both sides see "Objective secured") or when a side has no squads left |
 | cf99 | `public/app.js`, `public/index.html`, `public/sw.js` | **Objectives can be named:** the roster / enemy-list marker now reads 🚩 SERVER ROOM (the engagement's name is applied automatically when a squad wins the clash), the squad's Overmap banner shows the name with Rename and Clear, marking one by hand asks for the name, and a Tank carrying an objective names it too (shown on its sheet and roster row) |
-| cf100 | **`src/index.js`** (server), `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | **The engagement board — one decision per screen.** After a bout the end screen no longer stacks six panels. First the **Objective Clash on its own** (“Bout 1 of 2 complete — who secures 🚩 Car?”), then the **engagement board**: every squad on both sides as a card (Federation blue, Spacenoid red) with the 🚩 on whoever holds the objective, health on every card, **your** items drawn with the new grenade artwork and the enemy’s hidden, **Disengage** on each of your squads (the holder disengaging is the extraction) and **⇄ Edit roster** between bouts. Each side taps **⚔ Fights next** on one squad; the board waits for the other side, **Un-confirm** works until the turn ends, **the turn can’t end until both sides have named a squad**, and the bout starts by itself when the next turn begins. Denying an extraction (Flashbang → Smoke) now has the screen to itself, and **⋯ More** holds End firefight and Forced Re-Engagement |
+
+| cf100 | **`src/index.js`**, `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js`; new `bump.py` and tests | One-decision end-of-bout flow; roster board with own item icons; two-sided reversible fighter confirmation; next-turn bout start; per-squad disengagement and any-squad counters; More menu. 140 automated assertions pass; browser visual check pending. |

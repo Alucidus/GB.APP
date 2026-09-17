@@ -4,7 +4,9 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "test": "node tests/engagement-server.mjs",
+    "test:browser": "node tests/engagement-board.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.132.0"

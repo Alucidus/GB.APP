@@ -1427,7 +1427,7 @@ window.sqStrike = () => {
 function ffPinned(uid) {
   if (!mpTeamMode()) return null;
   const f = ffForUid(uid, mpMyTeam());
-  return f && f.eng && ffActive(f) && f.state !== "queued" && !ffFightingNow(f, uid, mpMyTeam()) ? f : null;
+  return f && f.eng && ffActive(f) && f.state !== "closed" && (!ffFightingNow(f, uid, mpMyTeam()) || f.state === "end" || f.state === "queued") ? f : null;
 }
 window.sqMoveSquad = d => {
   if (!CUR || !isSquad(U) || !mpSheetCanEdit()) return;
@@ -1462,17 +1462,17 @@ window.qrSet = (k, v) => {
   else if (k === "sim") { q.sim = !q.sim; q.roll = null; logEv(uid, q.sim ? "Firefight: simulated dice ON (both teams agreed)" : "Firefight: back to physical dice", "info"); }
   else if (k === "item") { const it = q.items; it[v] = mode === "repair" ? Math.min(QR_ITEMS[v].max, it[v] + 1) : Math.max(0, it[v] - 1); }
   else if (k === "nextRound") {
-    if (q.round >= 4) { mpToast("That was round 4 \u2014 roll the Objective Clash or start a new segment."); return; }
+    if (q.round >= 4) { mpToast("That was round 4 \u2014 roll the Objective Clash or start a new bout."); return; }
     q.round += 1; q.supp = q.next; q.next = 0; q.my = "none"; q.foe = "none"; q.res = null; q.roll = null;
     logEv(uid, "Firefight round " + q.round + (q.supp ? " \u2014 " + q.supp + " of ours suppressed" : ""), "info");
   } else if (k === "newSeg") {
     q.round = 1; q.supp = 0; q.next = 0; q.my = "none"; q.foe = "none"; q.res = null; q.roll = null; q.obj = null;
     if (v === "engagement") { q.items = { fb: 2, sm: 1, gr: 1 }; logEv(uid, "New firefight engagement \u2014 items refilled", "info"); }
-    else logEv(uid, "New 4-round firefight segment", "info");
+    else logEv(uid, "New 4-round firefight bout", "info");
   } else if (k === "forced") {
     if (q.items.fb < 1) { mpToast("No Flashbang left to force a re-engagement."); return; }
     q.items.fb -= 1; q.round = 1; q.supp = 0; q.next = 0; q.my = "none"; q.foe = "none"; q.res = null; q.roll = null; q.obj = null;
-    logEv(uid, "Forced Re-Engagement \u2014 Flashbang spent, another 4-round segment", "buff");
+    logEv(uid, "Forced Re-Engagement \u2014 Flashbang spent, another 4-round bout", "buff");
   }
   sqCommit();
 };
@@ -1683,7 +1683,7 @@ function drawSquad() {
         '<li><b>Reveal together.</b> Grenade = 1 casualty now. Smoke = clears your set-aside dice <em>for this roll</em>. Flashbang = the enemy rolls <em>3 fewer dice this round</em>.</li>' +
         '<li><b>Roll your dice</b> (the app tells you how many): 1 = that die is set aside next round \u00b7 2 = miss \u00b7 3\u20135 = 1 success \u00b7 6 = 2 successes.</li>' +
         '<li><b>Compare successes</b> \u2014 the loser takes the margin result. Record casualties, then ready up for the next round.</li></ol>' +
-        '<p class="qrsmall">4 rounds per segment, then the Objective Clash. A squad with 2+ soldiers always rolls at least 2 dice. Items refill for each new engagement.</p></div>' +
+        '<p class="qrsmall">4 rounds per bout, then the Objective Clash. A squad with 2+ soldiers always rolls at least 2 dice. Items resupply only after a full turn aboard a carrier.</p></div>' +
       '<div class="qr2c"><h4>MARGIN TABLE <small>applied to the losing squad</small></h4>' +
         '<table class="sqtbl qrt">' + MARGIN_TABLE.map(([m, o]) => '<tr><td>' + m + '</td><td>' + o + '</td></tr>').join("") + '</table>' +
         '<p class="qrsmall"><b>Firepower:</b> 8\u20137 soldiers \u2192 8 dice \u00b7 6\u20135 \u2192 7 \u00b7 4\u20133 \u2192 6 \u00b7 2\u20131 \u2192 5. <b>Perfect Volley:</b> a squad rolling 2\u20135 dice that rolls all 6s skips the table and destroys 2d=3 \u00b7 3d=4 \u00b7 4d=5 \u00b7 5d=6 \u2014 this includes a suppressed squad down to 2 dice. Six or more dice cannot volley. <b>Last Man Standing:</b> a lone die rolling a 6 escapes.</p></div>' +
@@ -2125,7 +2125,7 @@ window.sqRules = () => {
 // ================= ONLINE FIREFIGHT (cf53) =================
 // A clash between two squads, run by one player on each side. Picks stay on the room server until both are locked.
 const FF_ITEMS = { none: { n: "No item", i: "\u2014" }, fb: { n: "Flashbang", i: "\u2726" }, sm: { n: "Smoke Grenade", i: "\u25CC" }, gr: { n: "Grenade", i: "\u2739" } };
-let ffHidden = false, ffShown = {}, ffLastSig = "", ffChrome = true;
+let ffHidden = false, ffShown = {}, ffLastSig = "";
 const ffAll = () => Object.keys(mp.data || {}).filter(k => k.startsWith("ff/")).map(k => mp.data[k]).filter(Boolean);
 // a closed engagement stays "live" just long enough to show how it ended
 const ffActive = f => !!f && f.state !== "declined" && (f.state !== "closed" || (!!f.secured && !!f.eng && !ffShown["sec:" + f.id]));
@@ -2133,8 +2133,9 @@ const ffSideOf = f => f.a.team === mpMyTeam() ? "a" : f.b.team === mpMyTeam() ? 
 const ffOther = s => s === "a" ? "b" : "a";
 // the fight this squad belongs to — the pair fighting now, or any squad in the engagement
 function ffForUid(uid, team) {
-  return ffAll().find(f => ffActive(f) && ((f.a.uid === uid && f.a.team === team) || (f.b.uid === uid && f.b.team === team) ||
-    (f.eng && ((f.a.team === team && (f.eng.aList || []).some(x => x.uid === uid)) || (f.b.team === team && (f.eng.bList || []).some(x => x.uid === uid)))))) || null;
+  return ffAll().find(f => ffActive(f) && (f.eng && f.state !== "closed"
+    ? ["a", "b"].some(sd => f[sd].team === team && (f.eng[sd + "List"] || []).some(x => x.uid === uid))
+    : ((f.a.uid === uid && f.a.team === team) || (f.b.uid === uid && f.b.team === team)))) || null;
 }
 const ffFightingNow = (f, uid, team) => !!f && ((f.a.uid === uid && f.a.team === team) || (f.b.uid === uid && f.b.team === team));
 function ffOp(op) { mp.ffOps = mp.ffOps || []; mp.ffOps.push(op); mpKick(); }
@@ -2146,7 +2147,10 @@ function ffSidePidAlive(f, side) {
 // the clash this device is running (my squad sheet is open and I'm my side's player)
 function ffMine() {
   if (!mpTeamMode() || !CUR || !U || !isSquad(U) || !$("s4").classList.contains("on")) return null;
-  const f = ffForUid(CUR.uid, mpMyTeam()); if (!f) return null;
+  const f = ffForUid(CUR.uid, mpMyTeam()) || ffAll().find(g => {
+    const sd = ffSideOf(g);
+    return sd && ffActive(g) && ["end", "closed"].includes(g.state) && g[sd].pid === mp.pid && g[sd].uid === CUR.uid;
+  }); if (!f) return null;
   if (!ffFightingNow(f, CUR.uid, mpMyTeam())) return null;        // a squad waiting for its bout doesn't open the clash screen
   const s = ffSideOf(f);
   return f[s].pid === mp.pid ? f : null;
@@ -2477,7 +2481,7 @@ function ffWizard(f, s, o, q, alive, v) {
     const iReady = !!f.ready[s], ok = agree && dn[s] && dn[o];
     if (!ok) return '<div class="ffwait">\u23F3 ' + (!theirs ? "Waiting for the enemy to report their result\u2026" : "Waiting for the enemy to apply their losses\u2026") + '</div>';
     return '<button class="btn big ffready ' + (iReady ? "ready" : "pri") + '" onclick="' + (iReady ? "ffUnready()" : "ffReady()") + '">' +
-      (iReady ? "\u2713 READY \u2014 tap to wait" : f.round >= 4 ? "READY \u2014 finish the segment" : "READY FOR ROUND " + (f.round + 1)) + '</button>' +
+      (iReady ? "\u2713 READY \u2014 tap to wait" : f.round >= 4 ? "READY \u2014 finish the bout" : "READY FOR ROUND " + (f.round + 1)) + '</button>' +
       '<span class="ffwho">' + (f.ready[o] ? "\u2713 The enemy is ready" : "Waiting for the enemy to press ready\u2026") + '</span>';
   };
   const summary = () => {
@@ -2652,14 +2656,18 @@ window.ffObjective = win => {
   ffOp({ op: "objective", id: f.id, hpMine: sqAlive(CUR.st), hpFoe: enemyHp, win });
 };
 window.ffSegment = forced => {
-  const f = ffMine(); if (!f) return;
-  const q = CUR.st.sq.qr;
-  if (forced) {
+  const f = ffMine(); if (!f || f.state !== "end" || !f.obj || f.ext || ffMoreBouts(f)) return;
+  const queue = x => {
+    ffOp({ op: "segment", id: f.id, forced: !!forced, uid: x?.uid });
+    mpToast("Forced Re-Engagement booked — it starts next turn.");
+  };
+  if (forced && f.eng) {
+    ffSpendPick(f, "fb", "Force a re-engagement", "Choose a squad's Flashbang for the next bout.", queue);
+  } else if (forced) {
+    const q = CUR.st.sq.qr;
     if (!(q.items.fb > 0)) { mpToast("No Flashbang left to force a re-engagement."); return; }
-    q.items.fb -= 1; logEv(CUR.uid, "Forced Re-Engagement \u2014 Flashbang spent", "buff"); save();
-    mpToast("\u2726 Forced Re-Engagement booked \u2014 it starts when the next turn begins. Carry on with your other units.");
-  }
-  ffOp({ op: "segment", id: f.id, forced: !!forced });
+    q.items.fb--; logEv(CUR.uid, "Forced Re-Engagement — Flashbang spent", "buff"); save(); queue();
+  } else queue();
 };
 // squads of mine in this engagement, with what they have left
 function ffMySquads(f) {
@@ -2672,6 +2680,12 @@ function ffSpendPick(f, kind, title, sub, go) {
   const opts = ffMySquads(f).filter(x => x.alive > 0 && (x.items[kind] || 0) > 0);
   if (!opts.length) { mpToast("No " + FF_ITEMS[kind].n + " left in this engagement."); return; }
   const run = x => {
+    const current = ffMine();
+    if (!current || current.id !== f.id || current.state !== "end" ||
+        JSON.stringify(current.ext) !== JSON.stringify(f.ext) ||
+        !(current.eng[ffSideOf(current) + "List"] || []).some(y => y.uid === x.uid) ||
+        (mp.ffOps || []).some(op => op.id === f.id && ["deny", "smokeout", "segment"].includes(op.op)) ||
+        sqAlive(x.r.st) <= 0 || !(x.r.st.sq.qr.items[kind] > 0)) return;
     const st = x.r.st; st.sq.qr.items[kind] = Math.max(0, (st.sq.qr.items[kind] || 0) - 1);
     logEv(x.uid, FF_ITEMS[kind].i + " " + FF_ITEMS[kind].n + " spent \u2014 " + title.toLowerCase(), "buff");
     save(); if (typeof sqCommit === "function" && CUR && CUR.uid === x.uid) sqCommit();
@@ -2691,23 +2705,23 @@ function ffSpendPick(f, kind, title, sub, go) {
   $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Cancel";
   $("pick").classList.add("on");
 }
-window.ffExtract = () => { const f = ffMine(); if (f) ffOp({ op: "extract", id: f.id }); };
+window.ffExtract = uid => { const f = ffMine(); if (f) ffOp({ op: "extract", id: f.id, uid: uid || f[ffSideOf(f)].uid }); };
 window.ffDeny = () => {
   const f = ffMine(); if (!f) return;
   ffSpendPick(f, "fb", "\u2726 Deny the extraction", "Any squad in this engagement can throw it \u2014 pick whose Flashbang stops them leaving.",
     x => { ffOp({ op: "deny", id: f.id, uid: x.uid }); mpToast("\u2726 Flashbang \u2014 they can't slip away."); });
 };
-window.ffLetGo = () => { const f = ffMine(); if (f && confirm("Let them walk off with the objective? The engagement ends.")) ffOp({ op: "letgo", id: f.id }); };
+window.ffLetGo = () => { const f = ffMine(); if (f && confirm(f.ext?.holder ? "Let them leave with the objective? The engagement ends." : "Let this squad leave the engagement?")) ffOp({ op: "letgo", id: f.id }); };
 window.ffSmokeOut = () => {
   const f = ffMine(); if (!f) return;
-  ffSpendPick(f, "sm", "\u25CC Smoke out", "Pick whose Smoke Grenade covers the escape \u2014 your squad gets away with the objective.",
-    x => { ffOp({ op: "smokeout", id: f.id }); mpToast("\u25CC Smoke \u2014 your squad slips away with the objective."); });
+  ffSpendPick(f, "sm", "\u25CC Smoke out", "Pick whose Smoke Grenade covers the escape.",
+    x => { ffOp({ op: "smokeout", id: f.id, uid: x.uid }); mpToast("\u25CC Smoke — your squad gets away."); });
 };
 window.ffFightOn = () => { const f = ffMine(); if (f) ffOp({ op: "fighton", id: f.id }); };
 window.ffConcede = () => { const f = ffMine(); if (f && confirm("Your squads are out of the fight. The enemy secures the objective?")) ffOp({ op: "concede", id: f.id }); };
 // withdraw / add / merge between bouts
 window.ffEditSquads = () => {
-  const f = ffMine(); if (!f || !f.eng) return;
+  const f = ffMine(); if (!f || !f.eng || f.state !== "end" || !f.obj || f.ext) return;
   const s = ffSideOf(f), mineList = ffMySquads(f);
   $("pickT").textContent = "\u21C4 Edit your squads";
   $("pickS").innerHTML = "Between bouts you can pull a squad out, bring one in, or merge survivors. Leaving can be stopped by an enemy Flashbang.";
@@ -2715,7 +2729,7 @@ window.ffEditSquads = () => {
   const row = (title, sub, fn, cls) => { const d = el("div", "row" + (cls ? " " + cls : "")); d.innerHTML = '<span style="min-width:0;flex:1"><div class="nm">' + title + '</div><div class="tr">' + sub + '</div></span>'; d.onclick = fn; lst.appendChild(d); };
   row("\u2190 Withdraw a squad", "pull it out of the engagement", () => ffPickSquadList(f, mineList.filter(x => x.alive > 0), "Withdraw which squad?", x => {
     if (!confirm("Pull " + x.label + " out of the engagement?")) return;
-    ffOp({ op: "engedit", id: f.id, kind: "withdraw", uids: [x.uid] }); mpToast(x.label + " pulls out of the engagement.");
+    closePicker(); ffExtract(x.uid);
   }));
   const free = squadsInRoster().filter(r => !isDead(r) && sqAlive(r.st) > 0 && !ffForUid(r.uid, mpMyTeam()) && !(carrierState(r.uid) || {}).state)
     .map(r => ({ uid: r.uid, label: unitLabel(r.uid), r, alive: sqAlive(r.st), items: (r.st.sq.qr && r.st.sq.qr.items) || {} }));
@@ -2769,6 +2783,8 @@ function ffMergePick(f) {
 }
 function ffMergeGo(f, chosen) {
   const keep = chosen.slice().sort((a, b) => b.alive - a.alive)[0];
+  const latest = ffMine();
+  if (!latest || latest.id !== f.id || latest.state !== "end" || latest.ext) return;
   const pool = Math.min(8, chosen.reduce((m, x) => m + x.alive, 0));
   const gone = chosen.filter(x => x.uid !== keep.uid);
   const st = keep.r.st;
@@ -2777,7 +2793,7 @@ function ffMergeGo(f, chosen) {
   logEv(keep.uid, "\u29C9 Merged with " + gone.map(x => x.label).join(", ") + " \u2014 " + pool + " / 8 soldiers", "buff");
   gone.forEach(x => { x.r.st.sq.soldiers.forEach(sol => { sol.hp = 0; }); sqSyncHP(x.r.st); logEv(x.uid, "\u29C9 Merged into " + keep.label, "info"); });
   save(); if (typeof sqCommit === "function" && CUR && chosen.some(c => c.uid === CUR.uid)) sqCommit();
-  ffOp({ op: "engedit", id: f.id, kind: "merge", uids: gone.map(x => x.uid) });
+  ffOp({ op: "engedit", id: f.id, kind: "merge", keepUid: keep.uid, uids: gone.map(x => x.uid) });
   mpToast("\u29C9 Merged into " + keep.label + " \u2014 " + pool + " / 8 soldiers.");
 }
 window.ffNextBout = () => { const f = ffMine(); if (!f) return; ffOp({ op: "nextbout", id: f.id }); mpToast("\u2694 Next bout lined up \u2014 it starts when the next turn begins."); };
@@ -2826,13 +2842,21 @@ function ffSync(f) {
     logEv(CUR.uid, "Firefight vs " + f[ffOther(s)].label, "info"); save();
   }
   // items are never refilled by a fight: a squad keeps what is left until it resupplies aboard a vehicle
-  const ok = f.id + ":" + f.seg;
-  if (f.obj && f.obj.seg === f.seg && q.objKey !== ok) {
-    q.objKey = ok;
-    const won = f.obj.win === s, foe = f[ffOther(s)].label;
-    CUR.st.sq.holdsObj = won ? { vs: foe, turn: turn.round || 0, name: (f.eng && f.eng.obj) || "" } : null;
-    logEv(CUR.uid, won ? "\u{1F6A9} Secured the objective vs " + foe : "Lost the objective to " + foe, won ? "buff" : "bad");
-    save(); if (typeof sqCommit === "function") sqCommit();
+  if (f.obj && f.obj.seg === f.seg) {
+    const holder = f.holder || { side: f.obj.win, uid: f[f.obj.win].uid };
+    const ok = f.id + ":" + f.seg + ":" + holder.side + ":" + holder.uid;
+    if (q.objKey !== ok) {
+      q.objKey = ok;
+      const ids = f.eng ? f.eng[ s + "List" ].map(x => x.uid) : [f[s].uid];
+      // Include a removed holder when merges changed the roster.
+      roster.filter(r => ids.includes(r.uid) || r.st?.sq?.holdsObj?.engId === f.id).forEach(r => {
+        if (!r.st.sq) return;
+        r.st.sq.holdsObj = holder.side === s && holder.uid === r.uid ?
+          { vs: f[ffOther(s)].label, turn: turn.round || 0, name: f.eng?.obj || "", engId: f.id } : null;
+      });
+      logEv(CUR.uid, holder.side === s ? "🚩 Your side holds the objective" : "The enemy holds the objective", holder.side === s ? "buff" : "bad");
+      save(); if (typeof sqCommit === "function") sqCommit();
+    }
   }
   const rk = f.seg + ":" + f.round;
   if (q.ffRound !== rk && (f.state === "pick" || f.state === "ready")) {   // a new round began: next round's suppression becomes current
@@ -2926,114 +2950,60 @@ function ffPlay(fx) {
   }, n * 250));
 }
 let ffCardSig = "";
-// ---------- the engagement board, between bouts ----------
-// the enemy's squads in this engagement, with the health their device last reported
-function ffFoeSquads(f) {
-  const s = ffSideOf(f), o = ffOther(s), list = (o === "a" ? f.eng.aList : f.eng.bList) || [], team = f[o].team;
-  return list.map(x => {
-    const st = (mp.data["unit/" + team + "/" + x.uid] || {}).st || {};
-    return { uid: x.uid, label: x.label, alive: st.hp && Number.isInteger(st.hp.hp) ? st.hp.hp : null };
-  });
+// End-of-bout flow: clash -> engagement board -> one disengagement decision.
+function ffText(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
-const ffItemImg = (team, k) => "img/items/" + (team === "federation" ? "fed" : "spa") + "-" + k + ".webp";
-function ffItemsHTML(team, items) {
-  return '<span class="engit">' + ["fb", "sm", "gr"].map(k => {
-    const n = (items && items[k]) || 0;
-    return '<i class="' + (n ? "" : "gone") + '" title="' + FF_ITEMS[k].n + '"><img src="' + ffItemImg(team, k) + '" alt="' + FF_ITEMS[k].n + '"><em>\u00d7' + n + '</em></i>';
-  }).join("") + '</span>';
+function ffMoreBouts(f) { return !!(f.eng && f.eng.pairs && f.eng.bout < f.eng.pairs.length); }
+function ffBreakPending(f) {
+  return f.state === "end" && (!f.obj || !!f.ext || (ffMoreBouts(f) && !(f.confirmed?.a && f.confirmed?.b)));
 }
-const ffHpHTML = n => '<span class="enghp">' + (n === null ? '' : Array.from({ length: 8 }, (_, i) => '<i class="' + (i < n ? "on" : "") + '"></i>').join("")) +
-  '<b>' + (n === null ? "?" : n) + ' / 8</b></span>';
-// the whole board: both sides' squads, the flag, my items, disengage and the confirmed fighter
-function ffBoardHTML(f, s, o, ob) {
-  const eng = f.eng, myT = f[s].team, foeT = f[o].team;
-  const conf = eng.conf || { a: null, b: null }, mineConf = conf[s], foeConf = conf[o];
-  const holderUid = ob ? f[ob.win].uid : null, iHold = !!(ob && ob.win === s);
-  const objN = eng.obj || "the objective";
-  const mine = ffMySquads(f), foes = ffFoeSquads(f);
-  const labOf = (list, uid) => (list.find(x => x.uid === uid) || {}).label || "Squad";
-  const card = (x, isMine) => {
-    const team = isMine ? myT : foeT, dead = x.alive !== null && x.alive <= 0, held = x.uid === holderUid;
-    const isConf = (isMine ? mineConf : foeConf) === x.uid;
-    return '<div class="engsq ' + ffSideClass(team) + (isConf ? " conf" : "") + (dead ? " out" : "") + '">' +
-      '<div class="engnm">' + (held ? '<b class="engflag">\u{1F6A9} ' + objN + '</b>' : '') + '<span>' + x.label + '</span></div>' +
-      ffHpHTML(x.alive) +
-      (isMine ? ffItemsHTML(team, x.items) : '<span class="engit hid">items hidden</span>') +
-      (isConf ? '<div class="engtag">\u2694 FIGHTS THE NEXT BOUT</div>' : '') +
-      (dead ? '<div class="engacts"><span class="ffhint">wiped out</span></div>'
-        : isMine ? '<div class="engacts">' +
-          (isConf ? '<button class="btn sm" onclick="ffUnconfirm()">Un-confirm</button>'
-            : '<button class="btn sm pri" onclick="ffConfirmFighter(\'' + x.uid + '\')">\u2694 Fights next</button>' +
-              '<button class="btn sm" onclick="ffDisengage(\'' + x.uid + '\')">' + (held ? '\u{1F6A9} Disengage with it' : '\u2190 Disengage') + '</button>') +
-          '</div>' : '') + '</div>';
-  };
-  const both = !!(mineConf && foeConf);
-  const clashLine = ob ? (ob.manual ? '' : '<b>' + ob[s] + '\u2013' + ob[o] + '</b> ') +
-    (iHold ? 'your ' + f[s].label + ' took \u{1F6A9} ' + objN : 'their ' + f[o].label + ' took \u{1F6A9} ' + objN) : '';
-  const foot = both
-    ? '<div class="engfoot ok"><b>\u2694 Bout ' + ((eng.bout || 1) + 1) + ' is set \u2014 your ' + labOf(mine, mineConf) + ' vs their ' + labOf(foes, foeConf) + '</b>' +
-      '<span>It starts by itself when the next turn begins \u2014 finish this turn with your other units. You can un-confirm until the turn ends.</span>' +
-      '<div class="ffrow"><button class="btn big pri" onclick="closeSheet()">\u25B8 Carry on with my turn</button></div></div>'
-    : '<div class="engfoot"><b>' + (mineConf ? '\u23F3 Waiting for the ' + teamName(foeT) : 'Who fights the next bout?') + '</b>' +
-      '<span>' + (mineConf ? 'They still have to name their squad. You can un-confirm until the turn ends.'
-        : 'Tap \u2694 Fights next on one of your squads \u2014 or disengage. The turn can\u2019t end until both sides have named a squad.') + '</span></div>';
-  return '<div class="engb">' +
-    '<div class="engbh"><b>\u2694 ENGAGEMENT BOARD</b><span>' + mine.length + ' vs ' + foes.length + ' \u00b7 bout ' + (eng.bout || 1) + ' fought' +
-      (clashLine ? ' \u00b7 ' + clashLine : '') + '</span></div>' +
-    '<div class="engcols">' +
-      '<div class="engcol"><small>YOUR SQUADS</small>' + mine.map(x => card(x, true)).join("") + '</div>' +
-      '<div class="engcol"><small>THE ' + teamName(foeT).toUpperCase() + '</small>' + foes.map(x => card(x, false)).join("") + '</div>' +
-    '</div>' + foot +
-    '<div class="ffrow"><button class="btn" onclick="ffEditSquads()">\u21C4 Edit roster</button><button class="btn" onclick="ffMore()">\u22EF More</button></div></div>';
+window.ffBoardBack = () => { ffHidden = true; renderFF(); closeSheet(); };
+window.ffConfirmFighter = () => {
+  const f = ffMine(); if (!f) return;
+  ffOp({ op: f.confirmed?.[ffSideOf(f)] ? "unconfirm" : "nextbout", id: f.id });
+};
+window.ffChooseFighter = uid => {
+  const f = ffMine(); if (f) ffOp({ op: "setnext", id: f.id, uid });
+};
+function ffBoard(f, s) {
+  const o = ffOther(s), name = ffText(f.eng?.obj || "the objective");
+  const more = ffMoreBouts(f), mine = f.confirmed?.[s], theirs = f.confirmed?.[o];
+  const holder = f.holder || (f.obj && { side: f.obj.win, uid: f[f.obj.win].uid });
+  const lists = f.eng || { aList: [f.a], bList: [f.b] };
+  const pr = more ? f.eng.pairs[f.eng.bout] : null;
+  const cards = sd => lists[sd + "List"].map(x => {
+    const own = sd === s, r = own && roster.find(y => y.uid === x.uid);
+    const st = r ? r.st : (mp.data["unit/" + f[sd].team + "/" + x.uid] || {}).st;
+    const hp = st?.sq ? sqAlive(st) : st?.hp?.hp ?? "?";
+    const items = st?.sq?.qr?.items || {};
+    const chosen = pr && pr[sd === "a" ? 0 : 1] === x.uid;
+    const holds = holder?.side === sd && holder.uid === x.uid;
+    return '<article class="ffboard-card' + (chosen ? ' selected' : '') + '">' +
+      '<div class="ffboard-name"><b>' + ffText(x.label) + '</b>' + (holds ? '<span class="ffboard-flag">🚩 ' + name + '</span>' : '') + '</div>' +
+      '<div class="ffboard-hp"><b>' + hp + ' / 8</b><span>' + (chosen ? 'Next fighter' : hp === 0 ? 'Out of action' : 'In the engagement') + '</span></div>' +
+      (own ? '<div class="ffboard-items">' + ["fb", "sm", "gr"].map(k => '<span><img src="img/items/' + (f[sd].team === "federation" ? "fed" : "spa") + '-' + k + '.webp" alt="' + FF_ITEMS[k].n + '"><b>×' + (items[k] || 0) + '</b></span>').join('') + '</div>' : '<div class="ffboard-hidden">Items hidden</div>') +
+      (own && hp > 0 ? '<div class="ffboard-actions">' + (more ? '<button class="btn' + (chosen ? ' pri' : '') + '" onclick="ffChooseFighter(' + x.uid + ')"' + (mine || chosen ? ' disabled' : '') + '>' + (chosen ? '✓ Selected' : 'Select fighter') + '</button>' : '') +
+        '<button class="btn" onclick="ffExtract(' + x.uid + ')">Disengage' + (holds ? ' with 🚩' : '') + '</button></div>' : '') + '</article>';
+  }).join('');
+  const noAlive = f.eng && !ffMySquads(f).some(x => x.alive > 0);
+  const status = mine && theirs ? 'Both teams confirmed — bout ' + (f.eng.bout + 1) + ' starts next turn.' : mine ? 'Waiting for the ' + teamName(f[o].team) + ' to confirm.' : 'Choose your next fighter, then confirm.';
+  return '<section class="ffboard"><div class="ffboard-title"><div><small>BETWEEN BOUTS</small><h2>Engagement board</h2><p>🚩 ' + name + ' · ' + (holder?.side === s ? 'Your squad holds it' : 'The enemy holds it') + '</p></div>' +
+    (f.eng ? '<button class="btn" onclick="ffEditSquads()">⇄ Edit roster</button>' : '') + '</div>' +
+    '<div class="ffboard-teams">' + [s, o].map(sd => '<section class="ffboard-team ' + f[sd].team + '"><h3>' + teamName(f[sd].team) + '<small>' + (sd === s ? 'YOUR SQUADS' : 'ENEMY SQUADS') + '</small></h3>' + cards(sd) + '</section>').join('') + '</div>' +
+    (noAlive ? '<div class="ffboard-confirm"><b>Your squads are out of the fight.</b><button class="btn pri" onclick="ffConcede()">End the engagement</button></div>' : more ? '<div class="ffboard-confirm" role="status"><div><b>Bout ' + (f.eng.bout + 1) + ' of ' + f.eng.pairs.length + '</b><p>' + status + '</p><small>' + (mine && theirs ? 'You can un-confirm until this turn ends.' : 'Both teams must confirm before the turn can end.') + '</small></div><button class="btn big ' + (mine ? '' : 'pri') + '" onclick="ffConfirmFighter()">' + (mine ? 'Un-confirm' : 'Confirm fighter') + '</button></div>' : '<p class="ffboard-finished">All bouts complete. Disengage to leave, or open More for the remaining options.</p>') +
+    '<details class="ffboard-more"><summary>⋯ More</summary><div class="ffrow wrap">' + (!more ? '<button class="btn" onclick="ffSegment(true)">✦ Forced Re-Engagement · 1 Flashbang</button>' : '') + '<button class="btn" onclick="ffEnd()">End firefight</button></div></details></section>';
 }
-// name the squad that takes the next bout; the fight starts once both sides have named one
-window.ffConfirmFighter = uid => {
-  const f = ffMine(); if (!f || !f.eng) return;
-  const x = ffMySquads(f).find(y => y.uid === uid);
-  if (!x) return;
-  if (x.alive <= 0) { mpToast("That squad is wiped out."); return; }
-  ffOp({ op: "confirm", id: f.id, uid });
-  mpToast("\u2694 " + x.label + " takes the next bout.");
-};
-window.ffUnconfirm = () => { const f = ffMine(); if (f) ffOp({ op: "unconfirm", id: f.id }); };
-// leave the engagement: the squad holding the objective is making the extraction
-window.ffDisengage = uid => {
-  const f = ffMine(); if (!f || !f.eng) return;
-  const s = ffSideOf(f), ob = f.obj && f.obj.seg === f.seg ? f.obj : null;
-  const x = ffMySquads(f).find(y => y.uid === uid); if (!x) return;
-  const objN = f.eng.obj || "the objective";
-  if (ob && ob.win === s && f[s].uid === uid) {
-    if (!confirm("Walk off with " + objN + "? The " + teamName(f[ffOther(s)].team) + " can spend a Flashbang to pin you.")) return;
-    ffOp({ op: "extract", id: f.id });
-    return;
-  }
-  if (!confirm("Pull " + x.label + " out of the engagement?")) return;
-  ffOp({ op: "engedit", id: f.id, kind: "withdraw", uids: [uid] });
-  mpToast(x.label + " pulls out of the engagement.");
-};
-// the quiet options: ending the fight, and forcing another bout when the pairings are done
-window.ffMore = () => {
-  const f = ffMine(); if (!f || !CUR) return;
-  const q = CUR.st.sq.qr, eng = f.eng;
-  const noBouts = !eng || !eng.pairs || (eng.bout || 1) >= eng.pairs.length;
-  $("pickT").textContent = "\u22EF More";
-  $("pickS").innerHTML = "";
-  const lst = $("picklist"); lst.innerHTML = "";
-  const row = (title, sub, fn) => {
-    const d = el("div", "row" + (fn ? "" : " car-aboard"));
-    d.innerHTML = '<span style="min-width:0;flex:1"><div class="nm">' + title + '</div><div class="tr">' + sub + '</div></span>';
-    if (fn) d.onclick = fn;
-    lst.appendChild(d);
-  };
-  if (noBouts) {
-    if (q.items.fb > 0) row("\u2726 Forced Re-Engagement", "spend 1 Flashbang (" + q.items.fb + " left) \u2014 another 4 rounds, starting next turn",
-      () => { closePicker(); ffSegment(true); });
-    else row("\u2726 Forced Re-Engagement", "no Flashbang left \u2014 you can\u2019t force another bout");
-  }
-  row("\u2716 End firefight", "closes it for both sides", () => { closePicker(); ffEnd(); });
-  $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Close";
-  $("pick").classList.add("on");
-};
+function ffDisengageScreen(f, s) {
+  const ex = f.ext, own = ex.side === s;
+  const who = (f.eng[ex.side + "List"].find(x => x.uid === ex.uid) || f[ex.side]).label;
+  const obj = ex.holder ? ' with 🚩 ' + ffText(f.eng.obj || 'the objective') : '';
+  const has = k => ffMySquads(f).some(x => x.alive > 0 && x.items[k] > 0);
+  return '<div class="ffmsg ffdeparture"><b>' + (own ? 'Disengaging: ' : 'They are disengaging: ') + ffText(who) + obj + '</b>' +
+    (own ? ex.deny ? '<span>The enemy used a Flashbang. Use Smoke to get away, or stay and choose fighters again.</span><div class="ffrow wrap"><button class="btn big pri" onclick="ffSmokeOut()"' + (!has('sm') ? ' disabled' : '') + '>Smoke out · 1 Smoke</button><button class="btn" onclick="ffFightOn()">Stay and fight on</button></div>' + (!has('sm') ? '<small>No Smoke left in your engagement.</small>' : '') : '<span>Waiting for the enemy to let you go or deny with a Flashbang.</span>' :
+      ex.deny ? '<span>Flashbang thrown — waiting for their Smoke response.</span>' : '<span>Any of your squads in this engagement can spend a Flashbang.</span><div class="ffrow wrap"><button class="btn big pri" onclick="ffDeny()"' + (!has('fb') ? ' disabled' : '') + '>Deny · 1 Flashbang</button><button class="btn" onclick="ffLetGo()">Let them go</button></div>') + '</div>';
+}
+
 function renderFF() {
   let box = $("ffx");
   renderFFInvites();
@@ -3044,7 +3014,7 @@ function renderFF() {
     const cs = (cf ? [cf.id, cf.state, cf.round, cf.seg, cf.a.pid, cf.b.pid].join("|") : "-") + "|" + [qi.fb, qi.sm, qi.gr].join(",");
     if (cs !== ffCardSig) { ffCardSig = cs; setTimeout(() => { if (CUR && U && isSquad(U)) draw(); }, 0); }
   }
-  const fightKey = (ffActiveFight() || {}).id + ":" + ((ffActiveFight() || {}).round || "");
+  const fightKey = JSON.stringify(ffActiveFight());
   if (fightKey !== ffTurnKey) { ffTurnKey = fightKey; setTimeout(() => { if (typeof renderTurn === "function" && turn) renderTurn(); }, 0); }
   const f = ffMine();
   if (!f || ffHidden) { if (box) box.remove(); ffLastSig = ""; renderFFInvites(); return; }
@@ -3054,16 +3024,13 @@ function renderFF() {
   const enemyUnit = (mp.data["unit/" + f[o].team + "/" + f[o].uid] || {}).st || {};
   const enemyAlive = enemyUnit.hp ? enemyUnit.hp.hp : "?";
   const otherHere = ffSidePidAlive(f, o) || f.state === "invite";
-  const engSig = f.eng ? ffMySquads(f).map(x => x.uid + ":" + x.alive + ":" + [x.items.fb, x.items.sm, x.items.gr].join("")).join("|") +
-    "/" + ffFoeSquads(f).map(x => x.uid + ":" + x.alive).join("|") : "";
-  const sig = JSON.stringify([f, alive, q.supp, q.flashNow, q.nextOnes, q.nextMargin, q.onesKey, q.fs, q.marginKey, q.marginPick, q.items, q.res, otherHere, enemyAlive, engSig]);
+  const sig = JSON.stringify([f, alive, q.supp, q.flashNow, q.nextOnes, q.nextMargin, q.onesKey, q.fs, q.marginKey, q.marginPick, q.items, q.res, otherHere, enemyAlive, f.state === "end" && f.eng ? [ffMySquads(f).map(x => [x.uid, x.alive, x.items]), f.eng[o + "List"].map(x => mp.data["unit/" + f[o].team + "/" + x.uid]?.st?.hp)] : null]);
   if (!box) { box = document.createElement("div"); box.id = "ffx"; document.body.appendChild(box); }
   if (sig === ffLastSig) return;
   ffLastSig = sig;
   const myLabel = unitLabel(CUR.uid), foeLabel = f[o].label || "Enemy squad";
   const pips = [1, 2, 3, 4].map(r => '<i class="' + (r < f.round ? "past" : r === f.round && f.state !== "end" ? "on" : "") + '"></i>').join("");
   let body = "";
-  ffChrome = true;
   const itemBtns = () => Object.keys(FF_ITEMS).map(k => {
     const n = k === "none" ? null : q.items[k];
     return '<button class="ffitem it-' + k + (k !== "none" && !n ? " empty" : "") + '" onclick="ffPick(\'' + k + '\')"><b>' + FF_ITEMS[k].i + '</b><span>' + FF_ITEMS[k].n + '</span>' +
@@ -3078,7 +3045,7 @@ function renderFF() {
       '<div class="ffrow"><button class="btn big pri" onclick="ffModeAnswer(true)">Accept rolled dice</button><button class="btn big" onclick="ffModeAnswer(false)">Use physical dice</button></div></div>';
   } else if (f.state === "ready") {
     const iReady = !!f.ready[s];
-    body = '<div class="ffmsg"><b>' + (f.seg > 1 ? "Segment " + f.seg + " \u2014 " : "") + "Round " + f.round + ' \u2014 get ready</b><span>' +
+    body = '<div class="ffmsg"><b>' + (f.seg > 1 ? "Bout " + f.seg + " \u2014 " : "") + "Round " + f.round + ' \u2014 get ready</b><span>' +
       "You'll pick an item first, then roll after the reveal." + (q.supp ? ' <b class="warnt">' + q.supp + ' of your dice start this round set aside.</b>' : '') + '</span>' +
       '<div class="ffrow"><button class="btn big ' + (iReady ? "ready" : "pri") + '" onclick="' + (iReady ? "ffUnready()" : "ffReady()") + '">' + (iReady ? "\u2713 READY \u2014 tap to wait" : "READY") + '</button></div>' +
       '<span class="ffwho">' + (f.ready[o] ? "\u2713 The enemy is ready" : "The enemy is getting ready\u2026") + '</span></div>';
@@ -3133,87 +3100,43 @@ function renderFF() {
         : '';
       const next = f.round < 4 ? '<div class="ffnd">' + ffNextText(q, alive) + '</div>' : '';
       const ready = '<button class="btn big ffready ' + (iReady ? "ready" : "pri") + '" onclick="' + (iReady ? "ffUnready()" : "ffReady()") + '">' +
-        (iReady ? "\u2713 READY \u2014 tap to wait" : f.round >= 4 ? "READY \u2014 finish the segment" : "READY FOR ROUND " + (f.round + 1)) + '</button>' +
+        (iReady ? "\u2713 READY \u2014 tap to wait" : f.round >= 4 ? "READY \u2014 finish the bout" : "READY FOR ROUND " + (f.round + 1)) + '</button>' +
         '<span class="ffwho">' + (f.ready[o] ? "\u2713 The enemy is ready" : "The enemy is adjusting\u2026") + '</span>';
       body = f.mode === "physical" || f.mode === "rolled"
         ? ffWizard(f, s, o, q, alive, { vs, chips, det, nowDice, parts, off, fl, fp })
         : '<div class="ffrv2"><div class="ffcolL">' + vs + dice + chips + det + '</div><div class="ffcolR">' + rollBox + onesRow + margin + next + ready + '</div></div>';
     } else body = '<div class="ffcount"><b class="keep">' + (ffShown[rkey + ":n"] || 1) + '</b></div>';   // a redraw mid-countdown keeps the number
   } else if (f.state === "closed" && f.secured && f.eng) {
-    body = '<div class="ffmsg"><b>' + (f.secured === s ? "\u2713 Objective secured" : "\u26A0 The enemy secured the objective") + '</b>' +
-      '<span>' + (f.secured === s ? "Your squad got away with \u{1F6A9} " + (f.eng.obj || "the objective") + "." : "Their squad got away with \u{1F6A9} " + (f.eng.obj || "the objective") + ".") + '</span>' +
+    body = '<div class="ffmsg"><b>' + (!f.ext?.holder ? (f.secured === s ? "Your side secured 🚩 " : "They secured 🚩 ") + ffText(f.eng.obj || "the objective") : f.secured === s ? "You extracted with 🚩 " + ffText(f.eng.obj || "the objective") : "They extracted with 🚩 " + ffText(f.eng.obj || "the objective")) + '</b>' +
+      '<span>' + (!f.ext?.holder ? "The engagement is over." : f.secured === s ? "Your squad got away with \u{1F6A9} " + ffText(f.eng.obj || "the objective") + "." : "Their squad got away with \u{1F6A9} " + ffText(f.eng.obj || "the objective") + ".") + '</span>' +
       '<div class="ffrow"><button class="btn big pri" onclick="ffShown[\'sec:' + f.id + '\']=1;ffLastSig=\'\';renderFF();renderRoster&&renderRoster()">Close</button></div></div>';
   } else if (f.state === "end") {
-    ffChrome = false;                                  // one decision per screen: the panel is given over to it
     const ob = f.obj && f.obj.seg === f.seg ? f.obj : null, mineHp = alive, foeHp = enemyAlive;
-    const objN = (f.eng && f.eng.obj) || "the objective";
-    const boutN = f.eng ? (f.eng.bout || 1) : 0;
-    const boutOf = f.eng && f.eng.pairs && boutN <= f.eng.pairs.length ? " of " + f.eng.pairs.length : "";
-    const mySquads = f.eng ? ffMySquads(f) : [];
-    if (!ob) {
-      // 1. the Objective Clash, on its own
-      const adv = typeof foeHp === "number" ? mineHp - foeHp : null;
-      const bonus = adv === null ? 'Check the enemy squad\u2019s HP \u2014 the side with more HP adds +1 per HP of advantage'
-        : adv > 0 ? '<b class="ok">YOU add +' + adv + '</b> to your roll \u00b7 the enemy rolls flat'
-        : adv < 0 ? '<b class="bad">The ENEMY adds +' + (-adv) + '</b> to their roll \u00b7 you roll flat'
-        : 'Equal HP \u2014 <b>no bonus</b> for either side';
-      const hp = '<span class="ocHp">Your ' + f[s].label + ' <b>' + mineHp + ' HP</b> \u00b7 their ' + f[o].label + ' <b>' + foeHp + ' HP</b></span>';
-      const clash = f.mode === "physical"
-        ? '<div class="ffoc"><b>\u{1F3B2} OBJECTIVE CLASH \u2014 each squad rolls 2d6</b>' + hp +
-            '<span class="ocBn">' + bonus + '</span><small>Higher total takes it \u00b7 re-roll ties</small>' +
-            '<div class="ffrow wrap"><button class="btn big pri" onclick="ffObjective(\'mine\')">\u2713 We secured it</button>' +
-            '<button class="btn big" onclick="ffObjective(\'theirs\')">They secured it</button></div></div>'
-        : '<div class="ffoc"><b>OBJECTIVE CLASH \u2014 2d6 + HP advantage</b>' + hp +
-            '<span class="ocBn">' + bonus + '</span>' +
-            '<div class="ffrow"><button class="btn big pri" onclick="ffObjective()">Roll the Objective Clash</button></div></div>';
-      body = '<div class="ffmsg"><b>' + (f.eng ? "Bout " + boutN + boutOf + " complete" : "Segment " + f.seg + " complete") + '</b>' +
-        '<span>Who secures \u{1F6A9} ' + objN + '?</span>' + clash + '</div>';
-    } else if (f.eng && f.ext) {
-      // 3. someone is walking away: deny with a Flashbang, answer with a Smoke
-      const ex = f.ext, leaver = f[ex.side].label;
-      body = ex.side === s
-        ? '<div class="ffmsg"><b>\u{1F6A9} Walking off with ' + objN + '</b>' +
-            (ex.deny
-              ? '<span class="bad">\u2726 Flashed \u2014 the ' + teamName(f[o].team) + ' are pinning your ' + leaver + ' in place.</span>' +
-                '<span>A Smoke Grenade still gets you away with it. Otherwise you stay and fight another bout.</span>' +
-                '<div class="ffrow"><button class="btn big pri" onclick="ffSmokeOut()">\u25CC Smoke out \u2014 get away</button>' +
-                '<button class="btn big" onclick="ffFightOn()">Stay and fight on</button></div>'
-              : '<span>Your ' + leaver + ' is pulling out. The ' + teamName(f[o].team) + ' may throw a Flashbang to stop it \u2014 waiting\u2026</span>') + '</div>'
-        : '<div class="ffmsg"><b>\u26A0 Their ' + leaver + ' is leaving with \u{1F6A9} ' + objN + '</b>' +
-            (ex.deny
-              ? '<span>\u2726 You pinned them \u2014 waiting to see if they answer with a Smoke Grenade.</span>'
-              : '<span>Any squad of yours in this engagement can throw a Flashbang to stop them. Let them go and the objective is theirs.</span>' +
-                '<div class="ffrow"><button class="btn big pri" onclick="ffDeny()">\u2726 Deny with a Flashbang</button>' +
-                '<button class="btn big" onclick="ffLetGo()">Let them go</button></div>') + '</div>';
-    } else if (f.eng && !mySquads.some(x => x.alive > 0)) {
-      body = '<div class="ffmsg"><b>\u26A0 Your squads are out of the fight</b>' +
-        '<span>The ' + teamName(f[o].team) + ' secure \u{1F6A9} ' + objN + '.</span>' +
-        '<div class="ffrow"><button class="btn big pri" onclick="ffConcede()">End the engagement</button></div></div>';
-    } else if (f.eng) {
-      // 2. the engagement board
-      body = ffBoardHTML(f, s, o, ob);
-    } else {
-      // a plain one-on-one firefight: the result, and the quiet options behind More
-      const won = ob.win === s;
-      body = '<div class="ffmsg"><b>' + (won ? '\u2713 Your squad secures the objective' : '\u26A0 The enemy secures the objective') + '</b>' +
-        (ob.manual ? '' : '<span>' + ob[s] + ' vs ' + ob[o] + '</span>') +
-        '<span>Segment ' + f.seg + ' complete.</span>' +
-        '<div class="ffrow"><button class="btn big pri" onclick="ffEnd()">End firefight</button>' +
-        '<button class="btn big" onclick="ffMore()">\u22EF More</button></div></div>';
-    }
+    const adv = typeof foeHp === "number" ? mineHp - foeHp : null;
+    const bonus = adv === null ? 'Check the enemy squad\u2019s HP \u2014 the side with more HP adds +1 per HP of advantage'
+      : adv > 0 ? '<b class="ok">YOU add +' + adv + '</b> to your roll \u00b7 the enemy rolls flat'
+      : adv < 0 ? '<b class="bad">The ENEMY adds +' + (-adv) + '</b> to their roll \u00b7 you roll flat'
+      : 'Equal HP \u2014 <b>no bonus</b> for either side';
+    const name = ffText(f.eng?.obj || "the objective");
+    const title = "Bout " + (f.eng?.bout || f.seg) + (f.eng ? " of " + f.eng.pairs.length : "") + " complete — who secures 🚩 " + name + "?";
+    const clash = '<div class="ffmsg"><b>' + title + '</b><div class="ffoc"><b>OBJECTIVE CLASH · 2d6 + HP advantage</b>' +
+      '<span class="ocHp">Your squad <b>' + mineHp + ' HP</b> · Enemy <b>' + foeHp + ' HP</b></span><span class="ocBn">' + bonus + '</span>' +
+      '<small>Re-roll ties. The winner holds the objective until a squad gets away with it.</small><div class="ffrow wrap">' +
+      (f.mode === "physical" ? '<button class="btn big pri" onclick="ffObjective(\'mine\')">We secured it</button><button class="btn big" onclick="ffObjective(\'theirs\')">They secured it</button>' : '<button class="btn big pri" onclick="ffObjective()">Roll the Objective Clash</button>') + '</div></div></div>';
+    body = !ob ? clash : f.ext ? ffDisengageScreen(f, s) : ffBoard(f, s);
   }
   const keepScroll = box.querySelector(".ffpanel") ? box.querySelector(".ffpanel").scrollTop : 0;
   box.innerHTML = '<div class="ffpanel">' +
-    '<div class="ffhead"><b>\u2694 FIREFIGHT</b><span class="ffpips">' + pips + '</span><span class="ffmode">' + (f.mode === "rolled" ? "ROLLED DICE" : f.mode === "physical" ? "PHYSICAL DICE" : "") + (f.seg > 1 ? " \u00b7 SEGMENT " + f.seg : "") + '</span>' +
-      '<button class="btn sm" onclick="ffPause()">\u23F8 Pause</button></div>' +
-    (ffChrome ? '<div class="ffsides"><div class="ffside me"><small>YOU</small><b>' + myLabel + '</b><em>' + alive + ' / 8 \u00b7 FP ' + FIREPOWER(alive) + (q.supp ? ' \u00b7 ' + q.supp + ' dice set aside' : '') + '</em>' +
+    '<div class="ffhead"><b>\u2694 FIREFIGHT</b><span class="ffpips">' + pips + '</span><span class="ffmode">' + (f.mode === "rolled" ? "ROLLED DICE" : f.mode === "physical" ? "PHYSICAL DICE" : "") + (f.seg > 1 ? " \u00b7 BOUT " + f.seg : "") + '</span>' +
+      (f.state === "end" && f.obj && !f.ext ? '<button class="btn sm" onclick="ffBoardBack()">Back to roster</button>' : '<button class="btn sm" onclick="ffPause()">\u23F8 Pause</button>') + '</div>' +
+    ((f.state === "end" || f.state === "closed") ? '' : '<div class="ffsides"><div class="ffside me"><small>YOU</small><b>' + myLabel + '</b><em>' + alive + ' / 8 \u00b7 FP ' + FIREPOWER(alive) + (q.supp ? ' \u00b7 ' + q.supp + ' dice set aside' : '') + '</em>' +
       '<span class="ffinv">' + ["fb", "sm", "gr"].map(k => FF_ITEMS[k].i + "\u00d7" + q.items[k]).join("  ") + '</span></div>' +
-      '<div class="ffside foe"><small>ENEMY</small><b>' + foeLabel + '</b><em>' + enemyAlive + ' / 8</em><span class="ffinv">items hidden</span></div></div>' : '') +
-    (ffChrome && f.eng && f.eng.pairs ? '<div class="ffengbar"><b>\u2694 ENGAGEMENT ' + f.eng.aList.length + ' vs ' + f.eng.bList.length + '</b>' +
+      '<div class="ffside foe"><small>ENEMY</small><b>' + foeLabel + '</b><em>' + enemyAlive + ' / 8</em><span class="ffinv">items hidden</span></div></div>') +
+    (f.state !== "end" && f.state !== "closed" && f.eng && f.eng.pairs ? '<div class="ffengbar"><b>\u2694 ENGAGEMENT ' + f.eng.aList.length + ' vs ' + f.eng.bList.length + '</b>' +
       '<span>Bout ' + f.eng.bout + ' of ' + f.eng.pairs.length + (f.eng.obj ? ' \u00b7 \u{1F6A9} ' + f.eng.obj : '') + '</span>' +
       '<span class="pl">' + f.eng.pairs.map((pr, i) => { const la = (f.eng.aList.find(x => x.uid === pr[0]) || {}).label, lb = (f.eng.bList.find(x => x.uid === pr[1]) || {}).label;
         const meFirst = s === "a"; return '<i class="' + (i + 1 === f.eng.bout ? "now" : "") + '">' + (meFirst ? la + ' vs ' + lb : lb + ' vs ' + la) + '</i>'; }).join("") + '</span></div>' : '') +
-    (!otherHere ? '<div class="ffpause">\u23F8 The enemy player has stepped away \u2014 a teammate of theirs can resume the firefight.</div>' : '') +
+    (!otherHere && f.state !== "end" && f.state !== "closed" ? '<div class="ffpause">\u23F8 The enemy player has stepped away \u2014 a teammate of theirs can resume the firefight.</div>' : '') +
     '<div class="ffbody">' + body + '</div></div>';
   if (keepScroll) box.querySelector(".ffpanel").scrollTop = keepScroll;
 }
@@ -3279,7 +3202,7 @@ function ffCardHTML() {
   }
   const s = ffSideOf(f), o = ffOther(s), mineNow = f[s].pid === mp.pid, someone = ffSidePidAlive(f, s);
   return '<div class="ffcta live"><b>\u2694 ' + (f.eng ? 'In a ' + f.eng.aList.length + ' vs ' + f.eng.bList.length + ' engagement' + (f.eng.obj ? ' for \u{1F6A9} ' + f.eng.obj : '') + ' \u2014 ' : 'In a firefight with the enemy ') + (f.eng ? 'now: your ' + f[s].label + ' vs their ' + f[o].label : f[o].label) + '</b><span>' +
-    (f.state === "invite" ? (s === "a" ? "Waiting for them to accept." : "Accept it from the banner at the top.") : f.state === "end" ? "Segment " + f.seg + " complete" : f.state === "mode" ? "Choosing dice" : "Round " + Math.min(4, f.round) + " of 4 \u00b7 segment " + f.seg) +
+    (f.state === "invite" ? (s === "a" ? "Waiting for them to accept." : "Accept it from the banner at the top.") : f.state === "end" ? "Bout " + f.seg + " complete" : f.state === "mode" ? "Choosing dice" : "Round " + Math.min(4, f.round) + " of 4 \u00b7 bout " + f.seg) +
     (someone && !mineNow ? " \u00b7 " + mpNameOf(f[s].pid) + " is running it" : "") + '</span>' +
     (f.state !== "invite" || s === "a" ? '<button class="btn big pri" onclick="ffResume(\'' + f.id + '\')">' + (mineNow ? "Open the firefight" : someone ? "Take over" : "Resume") + '</button>' : '') + '</div>';
 }
@@ -8029,24 +7952,15 @@ window.mpPassLead = () => {
 };
 function mpOfficialTurn() { return typeof mpTeamMode === "function" && mpTeamMode() ? (mp.data.turn || null) : null; }
 // a firefight between the teams that is mid-segment (its 4 rounds aren't finished)
-function ffEngWaiting() {
-  if (typeof mpTeamMode !== "function" || !mpTeamMode()) return null;
-  return Object.values(mp.data).find(v => v && v.id && v.a && v.b && v.state === "end" && v.eng &&
-    !((v.eng.conf || {}).a && (v.eng.conf || {}).b)) || null;
-}
 function ffActiveFight() {
   if (typeof mpTeamMode !== "function" || !mpTeamMode()) return null;
-  return Object.values(mp.data).find(v => v && v.id && v.a && v.b && ["mode", "ready", "pick", "reveal"].includes(v.state)) || null;
+  return Object.values(mp.data).find(v => v && v.id && v.a && v.b && (["mode", "ready", "pick", "reveal"].includes(v.state) || ffBreakPending(v))) || null;
 }
 function endMyTurn() {
   const tk = mpOfficialTurn();
   const fight = ffActiveFight();
   if (tk && fight) {
-    mpToast("\u2694 A firefight is still going (round " + fight.round + " of 4) \u2014 finish its 4 rounds before ending the turn.");
-    renderTurn(); return;
-  }
-  if (tk && ffEngWaiting()) {
-    mpToast("\u2694 An engagement is between bouts \u2014 both sides have to name the squad that fights next, or disengage, before the turn ends.");
+    mpToast(fight.state === "end" ? "Finish the objective clash or disengagement, then both teams confirm their next fighters." : "Finish the firefight’s four rounds before ending the turn.");
     renderTurn(); return;
   }
   if (tk && tk.active !== mpMyTeam()) { mpToast("It's the " + teamPoss(tk.active) + " turn right now."); renderTurn(); return; }
@@ -8180,7 +8094,7 @@ function doneTally() {
 function phaseTap() {
   if (!mpGuardLeader(turn.phase === "you" ? "end the turn" : "start the turn")) return;
   const fight = turn.phase === "you" && ffActiveFight();
-  if (fight) { mpToast("\u2694 A firefight is still going (round " + fight.round + " of 4) \u2014 finish its 4 rounds before ending the turn."); return; }
+  if (fight) { mpToast(fight.state === "end" ? "Finish the objective clash or disengagement, then both teams confirm their next fighters." : "Finish the firefight’s four rounds before ending the turn."); return; }
   const busy = mpOthersEditing();
   if (busy.length) { mpToast("Wait until these sheets are closed: " + busy.join(", ")); return; }
   if (turn.phase !== "you") { startMyTurn(); return; }
@@ -8286,11 +8200,8 @@ function renderTurn() {
   const label = you ? "YOUR TURN" : "ENEMY TURN";
   const nUnits = roster.filter(r => !isDead(r) && !outOfPlay(r.uid)).length;   // destroyed units and passengers are out of the fight
   const scope = " \u2014 all " + nUnits + (nUnits === 1 ? " unit" : " units");
-  const fightLive = you && typeof ffActiveFight === "function" && ffActiveFight();
-  const engWait = !fightLive && you && typeof ffEngWaiting === "function" && ffEngWaiting();
-  const fightNow = fightLive || engWait;
-  const btnTxt = fightLive ? "\u2694 Firefight in progress \u2014 round " + fightLive.round + " of 4"
-    : engWait ? "\u2694 Engagement \u2014 name who fights the next bout"
+  const fightNow = you && typeof ffActiveFight === "function" && ffActiveFight();
+  const btnTxt = fightNow ? "\u2694 Firefight in progress \u2014 round " + fightNow.round + " of 4"
     : (you ? "End My Turn" : "Start My Turn") + scope + " \u25B8";
   const sel = tlSel || { r: turn.round, p: turn.phase };
   // sheet: top bar + bottom strip

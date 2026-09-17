@@ -45,6 +45,34 @@ const ffPairKey = (t1, u1, t2, u2) => t1 === "federation" ? "ffhist/federation-"
 // physical-dice results agree when one side won and the other lost, or both tied
 const claimsAgree = c => !!c && ((c.a === "won" && c.b === "lost") || (c.a === "lost" && c.b === "won") || (c.a === "tied" && c.b === "tied"));
 
+// A break remains on screen until the turn changes, so either team can un-confirm.
+const moreBouts = g => !!(g.eng && g.eng.pairs && g.eng.bout < g.eng.pairs.length);
+const breakPending = g => g.state === "end" && (!g.obj || !!g.ext ||
+  (moreBouts(g) && !(g.confirmed && g.confirmed.a && g.confirmed.b)));
+function startNextBout(g) {
+  const pr = g.eng.pairs[g.eng.bout];
+  g.eng.bout++; g.seg++; g.round = 1;
+  for (const [sd, n] of [["a", 0], ["b", 1]]) {
+    const list = g.eng[sd + "List"];
+    g[sd] = { ...g[sd], uid: pr[n], label: (list.find(x => x.uid === pr[n]) || {}).label || "Squad" };
+  }
+  g.obj = null; g.ext = null; g.confirmed = { a: false, b: false };
+  g.ready = { a: null, b: null }; g.lock = { a: false, b: false };
+  g.reveal = null; g.roll = null; g.rolled = null; g.claim = null; g.done = null; g.forced = null;
+}
+function removeEngSquads(g, side, uids) {
+  g.eng[side + "List"] = g.eng[side + "List"].filter(x => !uids.includes(x.uid));
+  if (!g.eng[side + "List"].length) { g.state = "closed"; g.secured = side === "a" ? "b" : "a"; return; }
+  g.eng.pairs = g.eng.pairs.map((pr, i) => i < g.eng.bout ? pr :
+    [g.eng.aList.some(x => x.uid === pr[0]) ? pr[0] : g.eng.aList[0].uid,
+     g.eng.bList.some(x => x.uid === pr[1]) ? pr[1] : g.eng.bList[0].uid]);
+}
+function finishDisengage(g) {
+  if (g.ext.holder) { g.state = "closed"; g.secured = g.ext.side; }
+  else { removeEngSquads(g, g.ext.side, [g.ext.uid]); g.ext = null; }
+  g.confirmed = { a: false, b: false };
+}
+
 // ---------------- Worker ----------------
 export default {
   async fetch(request, env) {
@@ -319,15 +347,11 @@ export class BattleRoom {
 
     // 2c. the one official turn order: only the active team's leader can end the turn, once per turn
     // (never while a firefight is mid-segment: its 4 rounds must be played out first)
-    const fightOn = () => M.keys("ff/").some(k => { const g = M.get(k); return !!g && ["mode", "ready", "pick", "reveal"].includes(g.state); });
-    // an engagement between bouts: both sides must name their next fighter (or leave) before the turn passes
-    const engWait = () => M.keys("ff/").some(k => { const g = M.get(k); const c = g && g.eng && g.eng.conf;
-      return !!g && g.state === "end" && !!g.eng && !(c && c.a && c.b); });
+    const fightOn = () => (Array.isArray(w.ff) ? w.ff : [w.ff]).some(op => op && ["unconfirm", "extract", "engedit", "setnext"].includes(op.op)) || M.keys("ff/").some(k => { const g = M.get(k); return !!g && (["mode", "ready", "pick", "reveal"].includes(g.state) || breakPending(g)); });
     if (w.endTurn && typeof w.endTurn === "object") {
       const tk = M.get("turn");
       if (!tk || !amLeader || tk.active !== myTeam || w.endTurn.seq !== tk.seq) denied.push("end-turn");
       else if (fightOn()) denied.push("end-turn:firefight");
-      else if (engWait()) denied.push("end-turn:engagement");
       else { await M.set("turn", { ...tk, active: myTeam === "federation" ? "spacenoid" : "federation", seq: tk.seq + 1, at: now, endedBy: myTeam, req: null }); push = true; }
     }
     // end-turn REQUEST: the active leader asks to end while the other side is still counting damage
@@ -336,7 +360,6 @@ export class BattleRoom {
       if (!tk || !amLeader || tk.active !== myTeam) denied.push("end-request");
       else if (w.endRequest.cancel) { if (tk.req) { await M.set("turn", { ...tk, req: null }); push = true; } }
       else if (fightOn()) denied.push("end-request:firefight");
-      else if (engWait()) denied.push("end-request:engagement");
       else if (w.endRequest.seq === tk.seq && !(tk.req && tk.req.seq === tk.seq)) { await M.set("turn", { ...tk, req: { team: myTeam, seq: tk.seq, at: now, ok: false } }); push = true; }
     }
     // the other side's leader lets the turn go early ("Accept now")
@@ -369,7 +392,7 @@ export class BattleRoom {
           const known = tk.ends && typeof tk.ends[myTeam] === "number" ? tk.ends[myTeam] : null;
           if (known === null || tt.ends !== known) {
             const nt = { ...tk, ends: { ...(tk.ends || {}), [myTeam]: tt.ends } };
-            if (known !== null && tt.ends > known && tk.active === myTeam && tt.phase === "enemy") {
+            if (known !== null && tt.ends > known && tk.active === myTeam && tt.phase === "enemy" && !fightOn()) {
               nt.active = myTeam === "federation" ? "spacenoid" : "federation"; nt.seq = tk.seq + 1; nt.at = now; nt.endedBy = myTeam; nt.req = null;
             }
             await M.set("turn", nt);
@@ -422,32 +445,18 @@ export class BattleRoom {
       const ops = Array.isArray(w.ff) ? w.ff.slice(0, 6) : [w.ff];
       for (const op of ops) { if (op && typeof op === "object" && await this.firefight(op, pid, myTeam, players, now, denied)) push = true; }
     }
-    // 7c. queued Forced Re-Engagements, and bouts both sides confirmed, start when their turn begins
+    // 7c. queued Forced Re-Engagements start when their turn begins
     {
       const tk = M.get("turn");
       if (tk) for (const k of M.keys("ff/")) {
-        const g = M.get(k);
-        if (!g) continue;
-        if (g.state === "queued" && tk.seq >= (g.startSeq || 0)) {
-          await M.set(k, { ...g, state: g.mode ? "ready" : "mode", round: 1, ready: { a: null, b: null }, lock: { a: false, b: false },
-            reveal: null, roll: null, obj: null, fromQueue: true, startedAt: now, at: now });
-          push = true;
-          continue;
+        let g = M.get(k);
+        if (g && g.state === "end" && moreBouts(g) && g.confirmed?.a && g.confirmed?.b && !g.ext && tk.seq >= g.startSeq) {
+          g = JSON.parse(JSON.stringify(g)); startNextBout(g); g.state = "queued";
         }
-        const c = g.state === "end" && g.eng && !g.ext ? g.eng.conf : null;
-        if (c && c.a && c.b && tk.seq >= (g.eng.startSeq || 0)) {
-          const lab = (list, uid) => (list.find(x => x.uid === uid) || {}).label || "Squad";
-          const nb = (g.eng.bout || 1) + 1;
-          const pairs = (g.eng.pairs || []).slice();
-          pairs[nb - 1] = [c.a, c.b];
-          await M.set(k, { ...g, state: g.mode ? "ready" : "mode", round: 1, seg: (g.seg || 1) + 1, forced: null,
-            eng: { ...g.eng, bout: nb, pairs, conf: { a: null, b: null }, startSeq: null },
-            a: { ...g.a, uid: c.a, label: lab(g.eng.aList, c.a) },
-            b: { ...g.b, uid: c.b, label: lab(g.eng.bList, c.b) },
-            ready: { a: null, b: null }, lock: { a: false, b: false }, reveal: null, roll: null, rolled: null,
-            claim: null, done: null, obj: null, ext: null, fromQueue: true, startedAt: now, at: now });
-          push = true;
-        }
+        if (!g || g.state !== "queued" || !(tk.seq >= (g.startSeq || 0))) continue;
+        await M.set(k, { ...g, state: g.mode ? "ready" : "mode", round: 1, ready: { a: null, b: null }, lock: { a: false, b: false },
+          reveal: null, roll: null, obj: null, fromQueue: true, startedAt: now, at: now });
+        push = true;
       }
     }
 
@@ -485,7 +494,7 @@ export class BattleRoom {
     const roll = n => [...crypto.getRandomValues(new Uint8Array(Math.max(0, Math.min(8, n | 0))))].map(x => 1 + (x % 6));
     const d6 = () => 1 + (crypto.getRandomValues(new Uint8Array(1))[0] % 6);
     const inEng = (f, uid) => (f.eng ? (f.eng.aList || []).concat(f.eng.bList || []).some(x => x.uid === uid) : false);
-    const busy = uid => M.keys("ff/").some(k => { const f = M.get(k); return ACTIVE(f) && (f.a.uid === uid || f.b.uid === uid || inEng(f, uid)); });
+    const busy = uid => M.keys("ff/").some(k => { const f = M.get(k); return ACTIVE(f) && (f.eng ? inEng(f, uid) : f.a.uid === uid || f.b.uid === uid); });
     const cleanList = (uids, labels) => (Array.isArray(uids) ? uids : []).slice(0, 6)
       .filter((u, i, all) => validUid(u) && all.indexOf(u) === i)
       .map((u, i) => ({ uid: u, label: String((Array.isArray(labels) ? labels[i] : "") || "Squad").slice(0, 30) }));
@@ -502,7 +511,7 @@ export class BattleRoom {
         if (tk0 && tk0.active !== myTeam) { denied.push("ff:not-your-turn"); return false; }   // challenges only on your own turn
         if (aList.some(x => busy(x.uid)) || bList.some(x => busy(x.uid)) || M.has(key)) { denied.push("ff:invite"); return false; }
         await M.set(key, { id, state: "invite", at: now, mode: null, rollAsk: null, round: 1, seg: 1, forced: null, startSeq: null,
-          eng: { aList, bList, obj: String(op.obj || "").slice(0, 24), pairs: null, bout: 1, log: [], conf: { a: null, b: null }, startSeq: null },
+          eng: { aList, bList, obj: String(op.obj || "").slice(0, 24), pairs: null, bout: 1, log: [] },
           a: { team: myTeam, uid: aList[0].uid, pid, label: aList[0].label },
           b: { team: other, uid: bList[0].uid, pid: null, label: bList[0].label },
           lock: { a: false, b: false }, ready: { a: null, b: null }, hp: { a: null, b: null }, reveal: null, roll: null, obj: null });
@@ -526,6 +535,9 @@ export class BattleRoom {
     if (!side) { denied.push("ff:side"); return false; }
     const other = side === "a" ? "b" : "a";
     const g = JSON.parse(JSON.stringify(f));
+    // Older plain 1v1 records join the same break flow on their first end-of-bout action.
+    if (g.state === "end" && !g.eng) g.eng = { aList: [{ uid: g.a.uid, label: g.a.label }],
+      bList: [{ uid: g.b.uid, label: g.b.label }], pairs: [[g.a.uid, g.b.uid]], bout: 1, obj: "" };
     const mine = g[side].pid === pid;
     const save = async () => { g.at = now; await M.set(key, g); return true; };
     switch (op.op) {
@@ -633,7 +645,7 @@ export class BattleRoom {
         if (g.state !== "pick" || !mine || !g.lock[side]) break;
         await M.del("ffsec/" + id + "/" + side); g.lock[side] = false; return save();
       case "objective": {
-        if (g.state !== "end" || !mine) break;
+        if (g.state !== "end" || !mine || g.obj) break;
         const other = side === "a" ? "b" : "a";
         // current squad health, as the caller's device sees it (falls back to the last ready report)
         const hpOk = v => Number.isInteger(v) && v >= 0 && v <= 8;
@@ -641,14 +653,15 @@ export class BattleRoom {
         const hb = hpOk(op[side === "b" ? "hpMine" : "hpFoe"]) ? op[side === "b" ? "hpMine" : "hpFoe"] : (g.hp.b || 0);
         if (g.mode === "physical") {                  // real dice: the players roll and report who won
           if (op.win !== "mine" && op.win !== "theirs") break;
-          g.obj = { manual: true, win: op.win === "mine" ? side : other, ha, hb, seg: g.seg }; return save();
+          g.obj = { manual: true, win: op.win === "mine" ? side : other, ha, hb, seg: g.seg }; g.holder = { side: g.obj.win, uid: g[g.obj.win].uid }; return save();
         }
         let ra, rb, t = 0;
         do { ra = d6() + d6() + Math.max(0, ha - hb); rb = d6() + d6() + Math.max(0, hb - ha); t++; } while (ra === rb && t < 20);
-        g.obj = { a: ra, b: rb, win: ra > rb ? "a" : "b", ha, hb, seg: g.seg }; return save();
+        g.obj = { a: ra, b: rb, win: ra > rb ? "a" : "b", ha, hb, seg: g.seg }; g.holder = { side: g.obj.win, uid: g[g.obj.win].uid }; return save();
       }
       case "segment":                               // another 4-round segment (re-engage / Forced Re-Engagement)
-        if (g.state !== "end" || !mine) break;
+        if (g.state !== "end" || !mine || !g.obj || g.ext || (g.eng && moreBouts(g))) break;
+        g.confirmed = { a: false, b: false };
         g.seg += 1; g.round = 1; g.obj = null; g.ready = { a: null, b: null }; g.lock = { a: false, b: false };
         g.forced = op.forced ? side : null;
         if (op.forced && M.get("turn")) { g.state = "queued"; g.startSeq = M.get("turn").seq + 1; }   // waits for the next turn
@@ -657,68 +670,66 @@ export class BattleRoom {
       case "counter":                               // the squad being forced back spends a Smoke Grenade: the re-engagement is cancelled
         if (g.state !== "queued" || !g.forced || side === g.forced) break;
         g.state = "closed"; g.countered = side; return save();
-      case "nextbout": {                            // an engagement moves on: the next pairing starts when the next turn begins
-        if (g.state !== "end" || !mine || !g.eng || !g.eng.pairs) break;
-        const nb = (g.eng.bout || 1) + 1;
-        if (nb > g.eng.pairs.length) break;
-        const pr = g.eng.pairs[nb - 1];
-        const lab = (list, uid) => (list.find(x => x.uid === uid) || {}).label || "Squad";
+      case "unconfirm":
+        if (g.state !== "end" || !mine || !g.eng || g.ext) break;
+        g.confirmed = { ...(g.confirmed || {}), [side]: false }; g.startSeq = null; return save();
+      case "nextbout": {
+        if (g.state !== "end" || !mine || !g.obj || g.ext || !moreBouts(g)) break;
+        const uid = g.eng.pairs[g.eng.bout][side === "a" ? 0 : 1];
+        const st = (M.get("unit/" + myTeam + "/" + uid) || {}).st;
+        if (!g.eng[side + "List"].some(x => x.uid === uid) || (st?.hp && st.hp.hp <= 0)) break;
+        g.confirmed = { ...(g.confirmed || {}), [side]: true };
         const tk = M.get("turn");
-        g.eng.bout = nb; g.seg += 1; g.round = 1;
-        g.a = { ...g.a, uid: pr[0], label: lab(g.eng.aList, pr[0]) };
-        g.b = { ...g.b, uid: pr[1], label: lab(g.eng.bList, pr[1]) };
-        g.obj = null; g.ready = { a: null, b: null }; g.lock = { a: false, b: false };
-        g.reveal = null; g.roll = null; g.rolled = null; g.claim = null; g.done = null;
-        if (tk) { g.state = "queued"; g.startSeq = tk.seq + 1; } else g.state = "ready";
+        if (g.confirmed.a && g.confirmed.b) {
+          if (tk) g.startSeq = tk.seq + 1;
+          else { startNextBout(g); g.state = "ready"; }
+        }
         return save();
       }
       case "setnext": {                             // a side swaps which of its squads takes the next bout
-        if (g.state !== "end" || !mine || !g.eng || !g.eng.pairs) break;
+        if (g.state !== "end" || !mine || !g.obj || g.ext || !g.eng || !g.eng.pairs || g.confirmed?.[side]) break;
         const nb = (g.eng.bout || 1) + 1;
         if (nb > g.eng.pairs.length) break;
         const list = side === "a" ? g.eng.aList : g.eng.bList;
-        if (!list.some(x => x.uid === op.uid)) break;
+        if (!list.some(x => x.uid === op.uid) || (M.get("unit/" + myTeam + "/" + op.uid)?.st?.hp?.hp === 0)) break;
         const pr = g.eng.pairs[nb - 1].slice();
         pr[side === "a" ? 0 : 1] = op.uid;
         g.eng.pairs[nb - 1] = pr;
         return save();
       }
-      case "confirm": {                             // the engagement board: this side names who takes the next bout
-        if (g.state !== "end" || !mine || !g.eng || g.ext) break;
-        const list = side === "a" ? g.eng.aList : g.eng.bList;
-        if (!list.some(x => x.uid === op.uid)) break;
-        g.eng.conf = Object.assign({ a: null, b: null }, g.eng.conf || {});
-        g.eng.conf[side] = op.uid;
-        if (g.eng.conf.a && g.eng.conf.b) { const tk = M.get("turn"); g.eng.startSeq = tk ? tk.seq + 1 : 0; }
-        return save();
+      case "extract": {                          // every squad gets the same response window
+        if (g.state !== "end" || !mine || !g.obj || !g.eng || g.ext) break;
+        const uid = op.uid || g[side].uid;
+        if (!g.eng[side + "List"].some(x => x.uid === uid)) break;
+        const holder = g.holder || { side: g.obj.win, uid: g[g.obj.win].uid };
+        g.ext = { side, uid, holder: holder.side === side && holder.uid === uid, deny: null, smoke: false };
+        g.confirmed = { a: false, b: false }; g.startSeq = null; return save();
       }
-      case "unconfirm":                             // taken back while the turn is still running
-        if (g.state !== "end" || !mine || !g.eng || !g.eng.conf) break;
-        g.eng.conf[side] = null; g.eng.startSeq = null; return save();
-      case "extract":                               // the clash winner walks off with the objective
-        if (g.state !== "end" || !mine || !g.obj || g.obj.win !== side || g.ext) break;
-        g.ext = { side, deny: null, smoke: false }; return save();
-      case "deny":                                  // the other side spends a Flashbang to pin them
+      case "deny":
+        if (g.state !== "end" || !mine || !g.ext || g.ext.side === side || g.ext.deny ||
+            !g.eng[side + "List"].some(x => x.uid === op.uid)) break;
+        g.ext.deny = { uid: op.uid }; return save();
+      case "smokeout":
+        if (g.state !== "end" || !mine || !g.ext || g.ext.side !== side || !g.ext.deny || g.ext.smoke ||
+            !g.eng[side + "List"].some(x => x.uid === op.uid)) break;
+        g.ext.smoke = true; finishDisengage(g); return save();
+      case "letgo":
         if (g.state !== "end" || !mine || !g.ext || g.ext.side === side || g.ext.deny) break;
-        g.ext.deny = { uid: op.uid || null }; return save();
-      case "smokeout":                              // the leaver answers with a Smoke Grenade and gets away
+        finishDisengage(g); return save();
+      case "fighton":
         if (g.state !== "end" || !mine || !g.ext || g.ext.side !== side || !g.ext.deny || g.ext.smoke) break;
-        g.ext.smoke = true; g.state = "closed"; g.secured = side; return save();
-      case "letgo":                                 // nobody stops them: the objective is secured
-        if (g.state !== "end" || !mine || !g.ext || g.ext.side === side || g.ext.deny) break;
-        g.state = "closed"; g.secured = g.ext.side; return save();
-      case "fighton":                               // the extraction was denied: the engagement carries on
-        if (g.state !== "end" || !mine || !g.ext || !g.ext.deny || g.ext.smoke) break;
-        g.ext = null; return save();
+        g.ext = null; g.confirmed = { a: false, b: false }; g.startSeq = null; return save();
       case "concede":                               // my squads are gone: the enemy secures it
         if (g.state !== "end" || !mine) break;
         g.state = "closed"; g.secured = other; return save();
       case "engedit": {                             // withdraw / add / merge on my own side, between bouts
-        if (g.state !== "end" || !mine || !g.eng) break;
+        if (g.state !== "end" || !mine || !g.obj || g.ext || !g.eng) break;
+        g.confirmed = { a: false, b: false }; g.startSeq = null;
         const list = side === "a" ? g.eng.aList : g.eng.bList;
-        if (op.kind === "withdraw" || op.kind === "merge") {
+        if (op.kind === "merge") {
           const rm = (Array.isArray(op.uids) ? op.uids : []).filter(u => list.some(x => x.uid === u));
-          if (!rm.length) break;
+          if (!rm.length || !list.some(x => x.uid === op.keepUid && !rm.includes(x.uid))) break;
+          if (g.holder?.side === side && rm.includes(g.holder.uid)) g.holder.uid = op.keepUid;
           const keep = list.filter(x => !rm.includes(x.uid));
           if (!keep.length) { g.state = "closed"; g.secured = other; return save(); }   // that side has left the fight
           if (side === "a") g.eng.aList = keep; else g.eng.bList = keep;
@@ -727,15 +738,12 @@ export class BattleRoom {
           list.push({ uid: op.uid, label: String(op.label || "Squad").slice(0, 30) });
         } else break;
         const aOk = g.eng.aList.map(x => x.uid), bOk = g.eng.bList.map(x => x.uid);
-        if (g.eng.conf) {
-          if (g.eng.conf.a && !aOk.includes(g.eng.conf.a)) { g.eng.conf.a = null; g.eng.startSeq = null; }
-          if (g.eng.conf.b && !bOk.includes(g.eng.conf.b)) { g.eng.conf.b = null; g.eng.startSeq = null; }
-        }
         g.eng.pairs = (g.eng.pairs || []).map((pr, i) => i < (g.eng.bout || 1) ? pr
           : [aOk.includes(pr[0]) ? pr[0] : aOk[0], bOk.includes(pr[1]) ? pr[1] : bOk[0]]);
         return save();
       }
       case "end":
+        if (!mine || (g.state !== "invite" && (g.state !== "end" || !g.obj || g.ext))) break;
         await M.del("ffsec/" + id + "/a"); await M.del("ffsec/" + id + "/b");
         g.state = "closed"; return save();
     }
