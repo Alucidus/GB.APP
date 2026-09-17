@@ -1996,6 +1996,26 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 .stc-when{margin:6px 0 4px;font:800 10px system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#c4b5fd}
 .stcard p{margin:4px 0 0;font-size:12.5px;line-height:1.35;color:#cbd5e1}
 .stcard p.stc-trade{color:#fca5a5}
+
+/* ===== cf31: enemy-turn DONE = yellow tally ("damage counted so far") ===== */
+.tallyic{width:1.15em;height:1em;display:inline-block;vertical-align:-.12em;flex:none}
+.tick.tally{color:#6b5a1a}
+.tick.tally .tallyic{width:18px;height:15px}
+.tick.tally.on{background:#facc15 !important;border-color:#fde047 !important;color:#1c1400 !important;box-shadow:0 0 10px rgba(250,204,21,.45)}
+.row.counted{box-shadow:inset 3px 0 0 #facc15}
+.donecount.tally{display:inline-flex;align-items:center;gap:6px;color:#fde68a;border-color:#a16207}
+.donecount.tally.all{background:rgba(250,204,21,.18);border-color:#facc15;color:#fde047}
+.donecount.tally{--b-line:#a16207;--b-fill:#15120a}
+.donecount.tally.all{--b-line:#facc15;--b-fill:rgba(250,204,21,.16)}
+#doneBtn.tallybtn{gap:.45cqw}
+#doneBtn.tallybtn .tallyic{width:1.6cqw;height:1.35cqw}
+#doneBtn.tallybtn.isdone{color:#1c1400 !important;text-shadow:none}
+#doneBtn.tallybtn.isdone:before{background:#fde047}
+#doneBtn.tallybtn.isdone:after{background:linear-gradient(110deg,#facc15,#ca8a04)}
+.rechecktag{display:inline-block;margin-left:6px;padding:1px 7px;font:800 10px system-ui,sans-serif;letter-spacing:.08em;vertical-align:middle;white-space:nowrap;
+  color:#1c1400;background:#f59e0b;border:1px solid #fde047;animation:recheckPulse 1.4s ease-in-out infinite}
+@keyframes recheckPulse{0%,100%{box-shadow:0 0 0 rgba(245,158,11,0)}50%{box-shadow:0 0 10px rgba(245,158,11,.9)}}
+@media (prefers-reduced-motion:reduce){.rechecktag{animation:none}}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -7647,6 +7667,7 @@ function applyDisembark(shipR, pick) {
     const put = () => { const rr = roster.find(x => x.uid === uid); if (rr) Object.assign(rr.st.hp, after); };
     put();
     snaps[uid] = snapOf(r);
+    damageUntick(uid);
     logEv(uid, "Emergency Disembark: " + o.txt + (o.dmg === null ? "" : " \u2014 ejected from the " + unitById(shipR.id).short), o.dmg === 0 ? "good" : "bad");
     if (typeof mpForeign === "function") mpForeign(uid, put, () => { const rr = roster.find(x => x.uid === uid); if (rr) Object.assign(rr.st.hp, before); }, "the disembark result was");
   });
@@ -9895,16 +9916,19 @@ function renderRosterCore() {
       const dead = now === 0, pct = now / tot;
       const col = dead ? "#7f1d1d" : pct <= .34 ? "#ef4444" : pct <= .67 ? "#f59e0b" : "#22c55e";
       const cst = locked ? carrierState(r.uid) : null, away = cst && cst.state !== "launched";
-      const showTick = locked && turn.phase === "you" && !dead && !away;
+      const showTick = locked && !dead && !away;
       const dn = showTick && isDone(r.uid);
       const ctl = mpControlOf(r.uid);
-      s += '<div class="row' + (dn ? ' done' : '') + (ctl ? ' ctl' : '') + (cst ? ' car-' + cst.state : '') + '" data-uid="' + r.uid + '" onclick="rowTap(' + r.uid + ')"' + (ctl ? ' style="--ctl:' + ctl.col + '"' : '') + '>' +
-        (showTick ? '<span class="tick' + (dn ? ' on' : '') + '" title="' + (dn ? 'Done this turn \u2014 tap to un-tick' : 'Tap when this unit has finished') + '" onclick="event.stopPropagation();toggleDone(' + r.uid + ')">\u2713</span>' : '') +
+      s += '<div class="row' + (dn ? (turn.phase === "you" ? ' done' : ' counted') : '') + (ctl ? ' ctl' : '') + (cst ? ' car-' + cst.state : '') + '" data-uid="' + r.uid + '" onclick="rowTap(' + r.uid + ')"' + (ctl ? ' style="--ctl:' + ctl.col + '"' : '') + '>' +
+        (showTick ? '<span class="tick' + (turn.phase !== "you" ? ' tally' : '') + (dn ? ' on' : '') + '" title="' + (turn.phase !== "you"
+            ? (dn ? 'Damage counted so far \u2014 a new hit clears this' : 'Tap once this unit\'s damage is applied')
+            : (dn ? 'Done this turn \u2014 tap to un-tick' : 'Tap when this unit has finished')) + '" onclick="event.stopPropagation();toggleDone(' + r.uid + ')">' + doneMark() + '</span>' : '') +
         '<span style="width:6px;height:' + (locked ? 40 : 30) + 'px;border-radius:3px;flex:none;background:' + col + '"></span>' +
         portraitHTML(u, r) +
         '<span style="min-width:0"><div class="nm">' + (u.short || u.name) + (n > 1 ? ' <span style="color:var(--muted)">#' + idx + '</span>' : '') +
           (ctl ? ' <span class="ctltag" title="' + (ctl.me ? 'You have this sheet open' : ctl.name + ' has this sheet open') + '">' + (ctl.me ? '\u270E You' : '\u{1F512} ' + ctl.name) + '</span>' : '') +
-          (cst ? ' ' + carrierTag(r.uid) : '') + (locked ? ' ' + stanceTagHTML(stanceNow(r)) : '') + '</div>' +
+          (cst ? ' ' + carrierTag(r.uid) : '') + (locked ? ' ' + stanceTagHTML(stanceNow(r)) : '') +
+          (locked && needsRecheck(r) ? ' <span class="rechecktag">\u21BB RE-CHECK</span>' : '') + '</div>' +
         '<div class="tr">' + (dead ? "DESTROYED" : (LIMB_LABEL[kl] || "Chest") + " " + now + "/" + tot) + ' \u00b7 ' + u.tier +
         (!dead && u.abilities.some(x => x.kind === "auto" && autoOn(x, u, r.st))
           ? ' <b style="color:#fff;background:#b91c1c;border-radius:3px;padding:0 5px;margin-left:4px">' + u.abilities.find(x => x.kind === "auto").name.split(" ")[0].toUpperCase() + '</b>' : '') +
@@ -11963,7 +11987,7 @@ function draw() {
   }
 }
 
-const APP_BUILD = "cf30";
+const APP_BUILD = "cf31";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
@@ -12043,6 +12067,7 @@ function unlog(uid, key) {
 }
 function aggDmg(uid, key, label, delta, nowVal, max, verb) {
   if (!delta) return;
+  if (delta > 0) damageUntick(uid);
   let e = turn.log.find(x => x.u === uid && x.key === key && x.r === turn.round && x.p === turn.phase);
   if (!e) { logEv(uid, "", "bad", key); e = turn.log[turn.log.length - 1]; e.n = 0; }
   e.n = (e.n || 0) + delta;
@@ -12278,6 +12303,7 @@ function startMyTurn() {
 function startMyTurnCore() {
   if (typeof mp !== "undefined" && mp.data && mp.data.turn) mp.autoSeq = mp.data.turn.seq;   // a manual start counts too
   beforePhase();
+  turn.done = [];                                   // enemy-turn tallies don't carry into your own turn
   turn.round += 1; turn.phase = "you"; turn.started = true;
   roster.forEach(r => {
     const u = unitById(r.id), was = JSON.parse(JSON.stringify(r.st));
@@ -12315,12 +12341,25 @@ function startMyTurnCore() {
   });
   afterPhase();
 }
+// enemy turn: a yellow tally = "this unit's damage is counted so far" (more hits clear it again)
+const TALLY_SVG = '<svg class="tallyic" viewBox="0 0 48 40" aria-hidden="true"><g fill="currentColor"><rect x="9" y="1" width="4.4" height="38" rx="1"/><rect x="18" y="1" width="4.4" height="38" rx="1"/><rect x="27" y="1" width="4.4" height="38" rx="1"/><rect x="36" y="1" width="4.4" height="38" rx="1"/><rect x="-1" y="17.8" width="50" height="4.4" rx="1" transform="rotate(32 24 20)"/></g></svg>';
+const doneMark = () => turn.phase === "you" ? "\u2713" : TALLY_SVG;
+function needsRecheck(r) { return !!(r && r.st && r.st.recheck === turnKeyNow() && !isDone(r.uid) && turn.phase !== "you"); }
+// health went down on a unit already counted this enemy turn: clear its mark
+function damageUntick(uid) {
+  if (turn.phase === "you" || !isDone(uid)) return;
+  const r = roster.find(x => x.uid === uid); if (!r) return;
+  r.st.recheck = turnKeyNow();
+  if (typeof mpTeamMode === "function" && mpTeamMode()) mpQuickDone(uid, false); else setDone(uid, false);
+  logEv(uid, "New damage after DONE \u2014 check this unit again", "remind");
+  mpToast(unitLabel(uid) + " took new damage \u2014 tap DONE again once it's applied.");
+}
 // per-unit "done this turn" ticks
 function isDead(r) { const u = unitById(r.id); return !!(r.st && r.st.hp && r.st.hp[u.kill || "chest"] === 0); }
 function isDone(uid) { return turn.done.indexOf(uid) >= 0; }
 function setDone(uid, v) {
   turn.done = turn.done.filter(x => x !== uid);
-  if (v) turn.done.push(uid);
+  if (v) { turn.done.push(uid); const r = roster.find(x => x.uid === uid); if (r && r.st && r.st.recheck) delete r.st.recheck; }
   save();
 }
 window.toggleDone = uid => {
@@ -12368,7 +12407,7 @@ function setFirst(who) {
   turn.first = who;
   turn.round = who === "enemy" ? 0 : 1;
   turn.phase = who === "enemy" ? "enemy" : "you";
-  save(); renderTurn();
+  save(); renderTurn(); if ($("s3").classList.contains("on")) renderRoster();
 }
 function newGame() {
   if (!mpGuardLeader("start a new game")) return;
@@ -12448,15 +12487,16 @@ function renderTurn() {
   if (ub) ub.style.display = phaseUndo ? "" : "none";
   const db = $("doneBtn");
   if (db) {
-    const show = !!(CUR && you && locked && !isDead(CUR));
+    const show = !!(CUR && locked && !isDead(CUR) && !outOfPlay(CUR.uid));
     db.style.display = show ? "flex" : "none";
     if (show) {
       const d = isDone(CUR.uid);
-      db.textContent = d ? "\u2713 DONE" : "DONE \u2713";
-      db.className = d ? "isdone" : "";
+      if (you) { db.textContent = d ? "\u2713 DONE" : "DONE \u2713"; db.className = d ? "isdone" : ""; }
+      else { db.innerHTML = "DONE " + TALLY_SVG; db.className = "tallybtn" + (d ? " isdone" : ""); }
       const acc = accentOf(sideKey());
       db.style.borderColor = d ? "" : acc; db.style.color = d ? "" : acc;
-      db.title = d ? "Ticked off for this turn \u2014 tap to un-tick" : "Finished with this unit \u2014 tick it off and go back to the roster";
+      db.title = !you ? (d ? "Damage counted so far \u2014 tap to clear. A new hit clears it by itself." : "This unit's damage is applied \u2014 mark it counted (it can still take more)")
+        : d ? "Ticked off for this turn \u2014 tap to un-tick" : "Finished with this unit \u2014 tick it off and go back to the roster";
     }
   }
   const tl = $("tl");
@@ -12471,7 +12511,7 @@ function renderTurn() {
     let h = '<div class="tb-head">' +
       '<div class="tb-round"><small>TURN</small>' + (turn.round || "\u2014") + '</div>' +
       '<span class="phase ' + (you ? "you" : "enemy") + '">' + label + '</span>' +
-      (you ? '<span class="donecount' + (dt.of && dt.n === dt.of ? ' all' : '') + '">' + dt.n + ' / ' + dt.of + ' done</span>' : '') +
+      (locked ? '<span class="donecount' + (you ? '' : ' tally') + (dt.of && dt.n === dt.of ? ' all' : '') + '">' + (you ? '' : TALLY_SVG + ' ') + dt.n + ' / ' + dt.of + (you ? ' done' : ' counted') + '</span>' : '') +
       (mpOfficialTurn() && mpOfficialTurn().active !== mpMyTeam()
         ? '<span class="mpwait gate">\u23F3 Waiting for the ' + teamName(mpOfficialTurn().active) + ' to end their turn' + mpBuildHint(mpOfficialTurn().active) + '</span>' +
           (mpIsHost() ? '<button class="btn sm" onclick="mpForceTurn(\'' + mpMyTeam() + '\')" title="Fix a stuck turn order">Host: give the turn to the ' + teamName(mpMyTeam()) + ' \u25B8</button>' : '')
@@ -12485,7 +12525,7 @@ function renderTurn() {
         '<span class="chip' + (turn.first === "you" ? " on" : "") + '" onclick="setFirst(\'you\')">' + (turn.first === "you" ? "\u2713 " : "") + 'We do</span>' +
         '<span class="chip' + (turn.first === "enemy" ? " on" : "") + '" onclick="setFirst(\'enemy\')">' + (turn.first === "enemy" ? "\u2713 " : "") + 'Enemy</span>' : '') +
       (!mpTeamMode() ? '<button class="linkbtn" onclick="newGame()">New game</button>' : '') + '</span></div>' +
-      '<div class="tb-sub">' + (you ? (dt.of && dt.n === dt.of ? "Every unit has moved \u2014 end your turn." : "Your turn: tick units off as you finish them, then end the turn here \u2014 once, for the whole force.") : "Enemy turn: use Dodges and Blocks on the sheets, then start your turn here when they finish.") + '</div>' +
+      '<div class="tb-sub">' + (you ? (dt.of && dt.n === dt.of ? "Every unit has moved \u2014 end your turn." : "Your turn: tick units off as you finish them, then end the turn here \u2014 once, for the whole force.") : "Enemy turn: apply damage, then tap DONE on each unit \u2014 a unit hit again clears its mark by itself.") + '</div>' +
       pipsHTML(null, true) +
       '<div class="tb-sub">' + (sel.p === "you" ? "Your turn " : "Enemy turn ") + (sel.r || "(opening)") + (tlSel ? ' \u00b7 <button class="linkbtn" onclick="tlSel=null;renderTurn()">back to now</button>' : '') + '</div>' +
       eventsHTML(null, true);
