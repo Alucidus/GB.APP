@@ -2360,6 +2360,21 @@ ul.hl li{margin:4px 0;font-size:13px;line-height:1.45;color:#cbd5e1}
 #rulesBtn:active{transform:translateX(-50%) translateY(1px)}
 #frame .fdock.c{left:39.3%;width:21.4%}
 #sheet.sqcompact .sx.sqwrap{height:81%}
+
+/* cf46: status in the in-sheet roster picker */
+.pkgrp{margin:10px 2px 4px;font:900 11px system-ui,sans-serif;letter-spacing:.2em;color:var(--acc)}
+.pkrow .pt{width:40px;height:40px}
+.pktags{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+.pktags:empty{display:none}
+.pktags .cartag,.pktags .sttag,.pktags .rechecktag{margin-left:0}
+.pktag{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;font:800 10px system-ui,sans-serif;letter-spacing:.08em;white-space:nowrap}
+.pktag.done{color:#04150e;background:var(--okc,#45e6a1)}
+.pktag.counted{color:#1c1400;background:#facc15}
+.pktag.counted .tallyic{width:12px;height:10px}
+.pktag.cur{color:#0b0f14;background:var(--acc);margin-left:6px}
+.pkrow.pkcur{box-shadow:inset 3px 0 0 var(--acc)}
+.pkrow.pkdead .nm{text-decoration:line-through;color:var(--muted)}
+.pkgo{flex:none;font:700 11px system-ui,sans-serif;color:#c4b5fd;white-space:nowrap}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -7647,24 +7662,25 @@ function drawShip() {
   });
   // abilities
   const dcOn = shipDCActive(u, S);
+  const ownTurn = turn.phase === "you";
   const reps = Object.keys(S.rep || {}).map(k => shipPartLabel(u, k).replace("Twin Mega Particle ", "") + " " + S.rep[k] + "T");
   const rows = {
-    launch: { name: "Launch suits", sub: "up to " + u.launches + " per launch \u00b7 free Boost", ap: "1",
+    launch: { name: "Launch suits", sub: "up to " + u.launches + " per launch \u00b7 free Boost", ap: ownTurn ? "1" : "\u2014",
       cd: "ABOARD " + S.carry.length + "/" + u.hangar + (S.launched.some(d => d.key === turnKeyNow2()) ? " \u00b7 " + S.launched.filter(d => d.key === turnKeyNow2()).length + " OUT" : ""),
-      act: () => shipAbility("launch"), on: S.launched.some(d => d.key === turnKeyNow2()),
+      act: ownTurn ? () => shipAbility("launch") : null, on: S.launched.some(d => d.key === turnKeyNow2()),
       undo: S.launched.some(d => d.key === turnKeyNow2()) ? () => undoLaunch() : null, undoSym: "\u21B6", undoTitle: "Undo the latest launch (AP back)",
       info: "Each launch costs the ship 1 AP and sends out up to " + u.launches + " suit" + (u.launches > 1 ? "s" : "") + " — the ship may pay again to launch more in the same turn. Launched suits keep all their AP, get Boost Stance movement for free (+10cm per AP) and may still attack this turn. A suit launched this turn can't dock until your next turn.\n\nTap the AP to choose who launches; \u21B6 undoes the latest launch.\n\nAboard now: " + (S.carry.length ? S.carry.map(unitLabel).join(", ") : "nobody") + "." },
-    dock: { name: "Dock a suit", sub: "within 5cm \u00b7 aboard after enemy turn", ap: "1",
+    dock: { name: "Dock a suit", sub: "within 5cm \u00b7 aboard after enemy turn", ap: ownTurn ? "1" : "\u2014",
       cd: S.docking.length ? S.docking.map(d => unitLabel(d.uid)).join(", ").toUpperCase() : "\u2014",
-      act: () => shipAbility("dock"), undo: S.docking.length ? () => shipAbility("dock", "undo") : null, undoSym: "\u2715", undoTitle: "Cancel the latest dock",
+      act: ownTurn ? () => shipAbility("dock") : null, undo: ownTurn && S.docking.length ? () => shipAbility("dock", "undo") : null, undoSym: "\u2715", undoTitle: "Cancel the latest dock",
       info: "The suit must be within 5cm of the ship; the ship pays 1 AP. The suit stays on the board until the opposing side's next turn has fully ended, then it is aboard.\n\nWhile docking it may Block and Rolled-Dodge but not use Free Dodges. A Called Shot that lands on its body, or a melee attack, cancels the dock (AP still spent)." },
     dc: { name: "Damage Control", sub: !u.dc ? "cruiser — no spare crew" : dcOn ? "crew 9+ \u00b7 2-turn repairs" : "crew 8 or less — stopped",
       ap: "\u2014", cd: !u.dc ? "NONE" : reps.length ? reps.join(" \u00b7 ") : dcOn ? "READY" : "OFFLINE", warn: u.dc && !dcOn,
       info: "While Crew HP is 9 or more, a Thruster, the Bridge or a weapon system knocked out comes back at full HP after 2 full turns. At 8 Crew HP or less, repairs stop and anything knocked out stays down. Hull damage never repairs.\n\nCruisers (1 squad, 8 Crew HP) can never run Damage Control." },
     base: { name: "Base of Operations", sub: "tier " + u.base + " module aboard", ap: "\u2014", cd: "TIER " + u.base,
       info: "This capital ship carries a tier-" + u.base + " Base of Operations module (campaign rules)." },
-    decoy: { name: "Decoy Balloons", sub: "secretly pick the real ship (1–3)", ap: S.decoy && S.decoy.ch ? "1" : "\u2014",
-      cd: S.decoy && S.decoy.left ? "ACTIVE " + S.decoy.left + "T" : S.decoy && S.decoy.ch ? "1 CHARGE" : "USED", act: () => shipAbility("decoy"), on: S.decoy && S.decoy.left > 0,
+    decoy: { name: "Decoy Balloons", sub: "secretly pick the real ship (1–3)", ap: S.decoy && S.decoy.ch && ownTurn ? "1" : "\u2014",
+      cd: S.decoy && S.decoy.left ? "ACTIVE " + S.decoy.left + "T" : S.decoy && S.decoy.ch ? "1 CHARGE" : "USED", act: ownTurn ? () => shipAbility("decoy") : null, on: S.decoy && S.decoy.left > 0,
       info: "1 AP, 1 charge per game. Write down a number from 1 to 3 — that's the real ship.\n\nAttackers more than 30cm away must name a number first; a wrong guess hits a balloon (attack wasted, AP spent). Within 30cm no guess is needed. Area attacks ignore the decoys. The balloons deflate after 3 full turns, or as soon as the real ship is identified within 30cm." },
     bridgehit: { name: "Bridge hit", sub: "2 crew lost \u00b7 −3 to own rolls", ap: "\u2014",
       cd: S.bridgeHit === 2 ? "NEXT TURN" : S.bridgeHit === 1 ? "THIS TURN" : "\u2014", warn: S.bridgeHit > 0,
@@ -7716,6 +7732,7 @@ function drawShip() {
   mvb.onclick = e => {
     e.stopPropagation();
     if (cantMove || !mpSheetCanEdit()) return;
+    if (turn.phase !== "you") { mpToast("That can only be done on your own turn."); return; }
     qa.m += 1; st.ap -= 1; logMoves(); shipCommit();
   };
   const mu = el("div", "qau" + (qa.m ? "" : " hide"));
@@ -7870,6 +7887,7 @@ window.loadConfirm = () => {
 // ---------- launching and docking from the ship's sheet ----------
 function openLaunchPicker() {
   const st = CUR.st, S = st.ship, u = U, key = turnKeyNow2();
+  if (turn.phase !== "you") { mpToast("Suits are launched on your own turn."); return; }
   if (!S.carry.length) { mpToast("No suits aboard to launch."); return; }
   if (st.ap < 1) { mpToast("Not enough AP."); return; }
   const pickSet = new Set();
@@ -7925,6 +7943,7 @@ function undoLaunch() {
 }
 function openDockPicker() {
   const st = CUR.st, S = st.ship, u = U, key = turnKeyNow2();
+  if (turn.phase !== "you") { mpToast("Docking is declared on your own turn."); return; }
   if (S.carry.length + S.docking.length >= u.hangar) { mpToast("The hangar is full."); return; }
   if (st.ap < 1) { mpToast("Not enough AP."); return; }
   const cands = suitsInRoster().filter(r => !isDead(r) && !carrierState(r.uid));   // launched this turn: can't dock until next turn
@@ -8369,7 +8388,7 @@ function drawGround() {
   const logMoves = () => qaLog(CUR.uid, "qa:m", qa.m, "Moved " + qa.m + "\u00d7 (" + (qa.m * cm) + "cm, " + qa.m + " AP)");
   const mvb = el("div", "qab move" + (cantMove || turn.phase !== "you" ? " off" : ""));
   mvb.innerHTML = "<b>MOVE</b><small>" + (dead ? "destroyed" : cm + "cm \u00b7 1 AP") + "</small>";
-  mvb.onclick = e => { e.stopPropagation(); if (cantMove || !mpSheetCanEdit()) return; qa.m += 1; st.ap -= 1; logMoves(); gvCommit(); };
+  mvb.onclick = e => { e.stopPropagation(); if (cantMove || !mpSheetCanEdit()) return; if (turn.phase !== "you") { mpToast("That can only be done on your own turn."); return; } qa.m += 1; st.ap -= 1; logMoves(); gvCommit(); };
   const mu = el("div", "qau" + (qa.m ? "" : " hide"));
   mu.innerHTML = "<span>\u21B6</span>" + (qa.m ? "<small>\u00d7" + qa.m + "</small>" : "");
   mu.onclick = e => { e.stopPropagation(); if (!qa.m || !mpSheetCanEdit()) return; qa.m -= 1; st.ap = Math.min(u.ap, st.ap + 1); logMoves(); gvCommit(); };
@@ -9111,6 +9130,7 @@ window.sqAct = (i, what, arg) => {
   const soldierStance = () => stanceOf({ stance: s.stance });
   if (what === "ap") { s.ap = Math.max(0, Math.min(3, s.ap + (rep ? 1 : -1))); }
   else if (what === "move") {
+    if (turn.phase !== "you") { mpToast("That can only be done on your own turn."); return; }
     if (s.ap < 1) { mpToast(who + " has no AP left."); return; }
     s.ap -= 1; const n = sqBump(s, "mv", 1);
     qaLog(uid, "sq:mv" + i, n, who + " moved " + n + "\u00d7 (" + (n * 10) + "cm)");
@@ -11463,20 +11483,39 @@ window.openPicker = (mode, slot) => {
     ? ("Choose an ally within " + LEND.range + ". Costs <b>" + LEND.ap + " AP</b> — you have <b>" + ap + "</b>."
        + (canAfford ? " Lasts until recalled." : " <span style='color:#fca5a5'>Not enough AP.</span>"))
     : "Tap a model to open its sheet.";
-  roster.forEach(r => {
-    if (lendMode && (r.uid === CUR.uid || isShip(unitById(r.id)) || isGround(unitById(r.id)) || outOfPlay(r.uid))) return;
-    const un = unitById(r.id), n = countOf(r.id), idx = copyIndex(r);
-    const kl = un.kill || "chest", tot = un.limb[kl], now = r.st.hp[kl];
-    const dead = now === 0;
-    const col = dead ? "#7f1d1d" : (now / tot) <= .34 ? "#ef4444" : (now / tot) <= .67 ? "#f59e0b" : "#22c55e";
-    const d = el("div", "row");
-    d.innerHTML = '<span style="width:6px;height:28px;border-radius:3px;flex:none;background:' + col + '"></span>' +
-      '<span style="min-width:0"><div class="nm">' + markPipHTML(r, 'inl') + (un.short || un.name) + (n > 1 ? ' #' + idx : '') + '</div>' +
-      '<div class="tr">' + (dead ? "DESTROYED" : (LIMB_LABEL[kl] || "Chest") + " " + now + "/" + tot) + '</div></span>';
-    d.onclick = () => {
-      if (lendMode) { lendTo(slot, r); } else { closePicker(); openSheet(r.uid); }
-    };
-    lst.appendChild(d);
+  // cf46: grouped rows with the same status tags as the roster screen
+  const groups = [["suits", "Mobile suits"], ["ships", "Ships"], ["ground", "Ground units"]];
+  groups.forEach(([gk, gl]) => {
+    const rows = roster.filter(r => unitTab(unitById(r.id)) === gk)
+      .filter(r => !(lendMode && (r.uid === CUR.uid || isShip(unitById(r.id)) || isGround(unitById(r.id)) || outOfPlay(r.uid))));
+    if (!rows.length) return;
+    if (!lendMode) { const hd = el("div", "pkgrp"); hd.textContent = gl.toUpperCase() + " \u00b7 " + rows.length; lst.appendChild(hd); }
+    rows.forEach(r => {
+      const un = unitById(r.id), n = countOf(r.id), idx = copyIndex(r);
+      const kl = un.kill || "chest", tot = un.limb[kl], now = r.st.hp[kl];
+      const dead = now === 0;
+      const col = dead ? "#7f1d1d" : (now / tot) <= .34 ? "#ef4444" : (now / tot) <= .67 ? "#f59e0b" : "#22c55e";
+      const cst = locked ? carrierState(r.uid) : null;
+      const ctl = typeof mpControlOf === "function" ? mpControlOf(r.uid) : null;
+      const isCur = CUR && CUR.uid === r.uid;
+      const you = turn.phase === "you";
+      const doneTag = locked && !dead && !(cst && cst.state === "aboard") && isDone(r.uid)
+        ? (you ? '<span class="pktag done">\u2713 DONE</span>' : '<span class="pktag counted">' + TALLY_SVG + ' COUNTED</span>') : '';
+      const d = el("div", "row pkrow" + (cst ? " car-" + cst.state : "") + (dead ? " pkdead" : "") + (isCur ? " pkcur" : ""));
+      d.innerHTML = '<span style="width:6px;height:36px;border-radius:3px;flex:none;background:' + col + '"></span>' +
+        portraitHTML(un) +
+        '<span style="min-width:0;flex:1"><div class="nm">' + markPipHTML(r, 'inl') + (un.short || un.name) + (n > 1 ? ' <span style="color:var(--muted)">#' + idx + '</span>' : '') +
+          (isCur ? ' <span class="pktag cur">OPEN NOW</span>' : '') +
+          (ctl && !isCur ? ' <span class="ctltag">' + (ctl.me ? '\u270E You' : '\u{1F512} ' + ctl.name) + '</span>' : '') + '</div>' +
+          '<div class="tr">' + (dead ? "DESTROYED" : (LIMB_LABEL[kl] || "Chest") + " " + now + "/" + tot) + ' \u00b7 ' + (un.tier || "") + '</div>' +
+          '<div class="pktags">' + (cst ? carrierTag(r.uid) : '') + (locked ? stanceTagHTML(stanceNow(r)) : '') + doneTag +
+            (locked && needsRecheck(r) ? '<span class="rechecktag">\u21BB RE-CHECK</span>' : '') + '</div></span>' +
+        (cst && cst.state === "aboard" && !lendMode ? '<span class="pkgo">opens the ' + cst.u.short + '</span>' : '');
+      d.onclick = () => {
+        if (lendMode) { lendTo(slot, r); } else { closePicker(); openSheet(r.uid); }
+      };
+      lst.appendChild(d);
+    });
   });
   $("pick").classList.add("on");
 };
@@ -12730,6 +12769,7 @@ function draw() {
     mv.onclick = e => {
       e.stopPropagation();
       if (cantMove) return;                          // no AP to spend, or immobilised
+      if (turn.phase !== "you") { mpToast("That can only be done on your own turn."); return; }
       qa.m += 1; ap -= 1; logMoves(); quiet();
     };
 
@@ -13236,7 +13276,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf45";
+const APP_BUILD = "cf47";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

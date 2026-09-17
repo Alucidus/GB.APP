@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf45)
+# Gunpla Battle — Cloudflare version (build cf47)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -113,3 +113,5 @@ public/            the app (index.html, images, service worker)
 | cf43 | `public/index.html`, `public/sw.js` | Soldier cards: stat **bars** on the left of the art (AP · HP · Kevlar, + Armor · Shield) replace the bubbles; tap a bar to select it → ▲ ▼ − + ✓ strip (AP ±1; health bars ± the DMG amount); every soldier's art is the same size |
 | cf44 | `public/index.html`, `public/sw.js` | **Sheets fit the screen** (16:9 sheet sized to the space left by the top bar and timeline — no scrolling, centred on wide screens); **one-row top bar on phones**; **bigger mobile suit tables** (taller Abilities / Weapons rows, larger text and tap targets); larger ship / vehicle table text |
 | cf45 | `public/index.html`, `public/sw.js` | Squad sheet: ⓘ GROUND RULES is now a full-size button centred in the bottom row on its own plate (all three tabs); soldier cards get the freed height |
+| cf46 | `public/index.html`, `public/sw.js` | In-sheet ROSTER picker shows unit status: grouped (Mobile suits / Ships / Ground units), portraits, ⚓ ABOARD · carrier (greyed, "opens the …"), LAUNCHED / DOCKING, stance, ✓ DONE or counted tally, ↻ RE-CHECK, who has the sheet open, OPEN NOW, destroyed |
+| cf47 | `public/index.html`, `public/sw.js` | Fix: launching, docking and decoys only on your own turn (cells show — in the enemy turn); MOVE buttons on suit, ship, vehicle and soldier sheets no longer spend AP during the enemy turn |
