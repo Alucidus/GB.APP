@@ -2147,7 +2147,21 @@ window.ffReady = () => {
   ffOp({ op: "ready", id: f.id, hp: alive, supp: Math.min(8, supp) });
 };
 function ffSumNext(q) { q.nextExtra = Math.min(8, (q.nextOnes || 0) + (q.nextMargin || 0)); }
-window.ffExtra = d => { if (!CUR) return; const q = CUR.st.sq.qr; q.nextOnes = Math.max(0, Math.min(8, (q.nextOnes || 0) + d)); ffSumNext(q); save(); ffLastSig = ""; renderFF(); };
+// how many of your dice rolled a 1: one tap, updated in place (no redraw, so the screen doesn't jump)
+window.ffOnes = n => {
+  if (!CUR) return;
+  const q = CUR.st.sq.qr, alive = sqAlive(CUR.st);
+  q.nextOnes = Math.max(0, Math.min(8, n)); ffSumNext(q); save();
+  document.querySelectorAll("#ffx .ffo").forEach(b => b.classList.toggle("on", +b.dataset.n === q.nextOnes));
+  const nd = document.querySelector("#ffx .ffnd");
+  if (nd) nd.innerHTML = ffNextText(q, alive);
+};
+window.ffExtra = d => { if (CUR) ffOnes((CUR.st.sq.qr.nextOnes || 0) + d); };
+function ffNextText(q, alive) {
+  const ne = Math.min(8, (q.nextOnes || 0) + (q.nextMargin || 0));
+  return "Next round you roll <b>" + qrDice(alive, ne) + "</b> dice" + (ne ? " (" + ne + " set aside)" : "");
+}
+let ffDetOpen = false;
 // physical dice: pick the margin you lost by and the app applies it
 const FF_MARGINS = [
   { k: "m1", lab: "Lost by 1", fx: "1 die set aside next round", cas: 0, sup: 1 },
@@ -2254,32 +2268,36 @@ function ffApply(f) {
   const my = f.reveal[s], foe = f.reveal[o], lines = [];
   let cas = 0, fx = [];
   if (my !== "none" && q.items[my] > 0) q.items[my] -= 1;
-  if (my === "fb") lines.push(foe === "sm" ? "COUNTERED \u2014 their Smoke cancels your Flashbang." : "Your Flashbang lands \u2014 they roll 3 fewer dice this round.");
-  if (my === "sm") { if (foe === "gr") lines.push("COUNTERED \u2014 their Grenade cancels your Smoke."); else { lines.push("Your Smoke clears your set-aside dice \u2014 roll your full firepower this round."); q.supp = 0; q.suppFlash = 0; } }
-  if (my === "gr") { if (foe === "fb") { lines.push("COUNTERED \u2014 flashed mid-throw, your Grenade drops at your feet: 1 casualty to you."); cas += 1; fx.push("boom"); } else lines.push("Your Grenade lands \u2014 1 casualty on them."); }
+  const chips = [];
+  const say = (tone, chip, line) => { chips.push({ t: tone, s: chip }); lines.push(line); };
   q.flashNow = 0;
-  if (foe === "fb") { if (my === "sm") lines.push("Their Flashbang is cancelled by your Smoke."); else { lines.push("FLASHED \u2014 you roll 3 fewer dice THIS round."); q.flashNow = 3; fx.push("flash"); } }
-  if (foe === "sm") { lines.push(my === "gr" ? "Their Smoke is cancelled by your Grenade." : "Their Smoke clears their suppression."); if (my !== "gr") fx.push("smoke"); }
-  if (foe === "gr") { if (my === "fb") lines.push("COUNTERED \u2014 their Grenade blows up on their own squad."); else { lines.push("Their Grenade lands \u2014 1 casualty to you."); cas += 1; fx.push("boom"); } }
-  if (my === "none" && foe === "none") lines.push("No items this round.");
+  if (my === "fb") { if (foe === "sm") say("bad", "Your flashbang was blocked", "Their Smoke cancelled your Flashbang."); else say("good", "Flashbang landed: they roll 3 fewer dice", "Your Flashbang lands \u2014 they roll 3 fewer dice this round."); }
+  if (my === "sm") { if (foe === "gr") say("bad", "Your smoke was blocked", "Their Grenade cancelled your Smoke."); else { say("good", "Smoke cleared your set-aside dice", "Your Smoke clears your set-aside dice \u2014 roll your full firepower this round."); q.supp = 0; q.suppFlash = 0; } }
+  if (my === "gr") { if (foe === "fb") { say("bad", "Flashed mid-throw: your grenade hit you (1 down)", "Flashed mid-throw \u2014 your Grenade dropped at your feet: 1 casualty to you."); cas += 1; fx.push("boom"); } else say("good", "Grenade hit: 1 enemy down", "Your Grenade lands \u2014 1 casualty on them."); }
+  if (foe === "fb") { if (my === "sm") say("good", "You blocked their flashbang", "Your Smoke cancelled their Flashbang."); else { say("bad", "Flashed: you roll 3 fewer dice", "Flashed \u2014 you roll 3 fewer dice this round."); q.flashNow = 3; fx.push("flash"); } }
+  if (foe === "sm") { if (my === "gr") say("good", "You blocked their smoke", "Your Grenade cancelled their Smoke."); else { say("neutral", "They cleared their set-aside dice", "Their Smoke clears their set-aside dice."); fx.push("smoke"); } }
+  if (foe === "gr") { if (my === "fb") say("good", "Their grenade hit their own squad", "Your Flashbang made their Grenade drop on their own squad."); else { say("bad", "Their grenade: 1 of yours down", "Their Grenade lands \u2014 1 casualty to you."); cas += 1; fx.push("boom"); } }
+  if (my === "none" && foe === "none") say("neutral", "No items this round", "No items this round.");
   if (f.mode === "rolled" && f.roll) {
     const mine = f.roll[s] || [], theirs = f.roll[o] || [];
     const score = a => a.reduce((m, v) => m + (v === 6 ? 2 : v >= 3 ? 1 : 0), 0);
     const volley = a => a.length >= 2 && a.length <= 5 && a.every(v => v === 6);
     const ms = score(mine), ts = score(theirs);
-    if (volley(theirs)) { cas += VOLLEY(theirs.length); lines.push("THEIR PERFECT VOLLEY \u2014 you lose " + VOLLEY(theirs.length) + "."); }
-    else if (volley(mine)) lines.push("PERFECT VOLLEY \u2014 you destroy " + VOLLEY(mine.length) + " of theirs.");
+    const casText = c => c + " casualt" + (c === 1 ? "y" : "ies");
+    if (volley(theirs)) { cas += VOLLEY(theirs.length); say("bad", "Their perfect volley: " + VOLLEY(theirs.length) + " of yours down", "Their Perfect Volley \u2014 you lose " + VOLLEY(theirs.length) + "."); }
+    else if (volley(mine)) say("good", "Perfect volley: " + VOLLEY(mine.length) + " enemies down", "Your Perfect Volley destroys " + VOLLEY(mine.length) + " of theirs.");
     else {
       const m = ms - ts;
-      if (m < 0) { const [c, su] = MARGIN_FX(-m); cas += c; q.nextMargin = su; ffSumNext(q); lines.push("They win the exchange by " + (-m) + " \u2014 you take " + c + " casualt" + (c === 1 ? "y" : "ies") + (su ? " + " + su + " dice set aside next round" : "") + "."); }
-      else if (m > 0) { const [c, su] = MARGIN_FX(m); lines.push("You win the exchange by " + m + " \u2014 they take " + c + " casualt" + (c === 1 ? "y" : "ies") + (su ? " + " + su + " dice set aside next round" : "") + "."); }
-      else lines.push("The exchange is tied " + ms + "\u2013" + ts + ".");
+      if (m < 0) { const [c, su] = MARGIN_FX(-m); cas += c; q.nextMargin = su; ffSumNext(q); say("bad", "Lost by " + (-m) + ": " + casText(c) + (su ? " + " + su + " set aside" : ""), "They won the exchange " + ts + "\u2013" + ms + " \u2014 you take " + casText(c) + (su ? " and set " + su + " dice aside next round" : "") + "."); }
+      else if (m > 0) { const [c, su] = MARGIN_FX(m); say("good", "Won by " + m + ": they take " + casText(c) + (su ? " + " + su + " set aside" : ""), "You won the exchange " + ms + "\u2013" + ts + " \u2014 they take " + casText(c) + (su ? " and set " + su + " dice aside next round" : "") + "."); }
+      else say("neutral", "Tied " + ms + "\u2013" + ts, "The exchange is tied " + ms + "\u2013" + ts + ".");
     }
     const ones = mine.filter(v => v === 1).length;
-    if (ones) { q.nextOnes = ones; ffSumNext(q); lines.push(ones + " of your dice rolled a 1 \u2014 set aside next round."); }
-    if (mine.length === 1 && mine[0] === 6) lines.push("LAST MAN STANDING \u2014 your soldier breaks contact and escapes.");
+    q.nextOnes = ones; ffSumNext(q);
+    if (ones) lines.push(ones + " of your dice rolled a 1 \u2014 set aside next round.");
+    if (mine.length === 1 && mine[0] === 6) say("good", "Last man standing: your soldier escapes", "Last Man Standing \u2014 your soldier breaks contact and escapes.");
   }
-  q.res = lines;
+  q.res = lines; q.chips = chips;
   logEv(uid, "Firefight round " + f.round + ": you " + FF_ITEMS[my].n + " vs them " + FF_ITEMS[foe].n, "info");
   save();
   return { cas, fx };
@@ -2363,44 +2381,37 @@ function renderFF() {
       }, 1700);
     } else if (counted === "done") {
       const my = f.reveal[s], foe = f.reveal[o], iReady = !!f.ready[s];
-      const still = ffShown[rkey + ":flip"] ? " still" : ""; ffShown[rkey + ":flip"] = 1;   // flip the cards only once
-      body = '<div class="ffreveal"><div class="ffcard mine' + still + ' it-' + my + '"><small>YOU</small><b>' + FF_ITEMS[my].i + '</b><span>' + FF_ITEMS[my].n + '</span></div>' +
-        '<div class="ffvs">VS</div><div class="ffcard foe' + still + ' it-' + foe + '"><small>ENEMY</small><b>' + FF_ITEMS[foe].i + '</b><span>' + FF_ITEMS[foe].n + '</span></div></div>' +
-        (f.mode === "rolled" && f.roll ? '<div class="ffdice"><div><small>YOUR DICE</small><p>' + ffDiceHTML(f.roll[s]) + '</p></div><div><small>ENEMY DICE</small><p>' + ffDiceHTML(f.roll[o]) + '</p></div></div>' : '') +
-        '<div class="ffres">' + (q.res || []).map(t => '<p' + (/COUNTERED/.test(t) ? ' class="cnt"' : '') + '>' + t + '</p>').join("") + '</div>' +
-        (() => {
-          const fp = FIREPOWER(alive), fl = q.flashNow || 0, off = q.supp + fl, nowDice = qrDice(alive, off);
-          const parts = 'Firepower ' + fp + (q.supp ? ' \u2212 ' + q.supp + ' set aside' : '') + (fl ? ' \u2212 3 flashed' : '') + (alive > 1 && fp - off < 2 ? ' (minimum 2)' : '');
-          const rollBox = f.mode === "physical"
-            ? '<div class="ffroll"><b>\u{1F3B2} ROLL ' + nowDice + ' DICE NOW</b><span>' + parts + '</span>' +
-              (off ? '<em>' + (fl ? 'You were flashed \u2014 ' : '') + 'physically move ' + Math.min(off, fp) + ' dice away from your pool before rolling.</em>' : '') +
-              '<small>1 = set aside next round \u00b7 2 = miss \u00b7 3\u20135 = 1 success \u00b7 6 = 2 successes</small></div>'
-            : (fl ? '<div class="ffroll small"><span>' + parts + ' \u2192 ' + nowDice + ' dice rolled</span></div>' : '');
-          // margin table (with the winner and row highlighted when the app rolled)
-          let hi = -1, head = '<b>MARGIN TABLE</b><span>compare successes \u2014 the loser takes the result</span>';
-          if (f.mode === "rolled" && f.roll) {
-            const sc = a => (a || []).reduce((m, v) => m + (v === 6 ? 2 : v >= 3 ? 1 : 0), 0);
-            const ms = sc(f.roll[s]), ts = sc(f.roll[o]), m = Math.abs(ms - ts);
-            hi = m === 0 ? 0 : m === 1 ? 1 : m <= 3 ? 2 : m === 4 ? 3 : m === 5 ? 4 : 5;
-            head = '<b>YOU ' + ms + ' \u2013 ' + ts + ' ENEMY</b><span>' + (ms === ts ? 'tied \u2014 no effect' : (ms > ts ? 'you win' : 'the enemy wins') + ' by ' + m) + '</span>';
-          }
-          const key = f.id + ":" + f.seg + ":" + f.round, applied = q.marginKey === key;
-          const mt = f.mode === "physical"
-            ? '<button class="ffmbtn' + (applied ? ' done' : '') + '" onclick="ffMarginPick()">' +
-                (applied ? '\u2713 ' + q.marginLab + '<small>tap to change</small>' : '\u{1F4CB} LOST THIS ROUND? PICK THE MARGIN<small>compare successes \u2014 the app applies casualties and set-aside dice</small>') + '</button>'
-            : '<div class="ffmargin"><div class="fm-h">' + head + '</div><div class="fm-rows">' +
-              MARGIN_TABLE.map(([mm, oo], k) => '<span class="' + (k === hi ? 'on' : '') + '"><b>' + mm + '</b>' + oo + '</span>').join("") + '</div></div>';
-          const ones = q.nextOnes || 0, mg = q.nextMargin || 0, ne = Math.min(8, ones + mg), nextDice = qrDice(alive, ne);
-          const nextBox = f.round < 4 ? '<div class="ffnext"><b>NEXT ROUND</b>' +
-            '<span class="ne">Your dice that rolled a 1' +
-              '<span class="sqstep"><button onclick="ffExtra(-1)">\u2212</button><b>' + ones + '</b><button onclick="ffExtra(1)">+</button></span></span>' +
-            (mg ? '<span class="nf">Margin: ' + mg + ' set aside</span>' : '') +
-            '<span class="nd">\u2192 you start next round with <b>' + nextDice + '</b> dice' + (ne ? ' (' + ne + ' set aside)' : '') + '</span></div>' : '';
-          return rollBox + mt + nextBox;
-        })() +
-        '<div class="ffrow"><button class="btn big ' + (iReady ? "ready" : "pri") + '" onclick="' + (iReady ? "ffUnready()" : "ffReady()") + '">' +
-          (iReady ? "\u2713 READY \u2014 tap to wait" : f.round >= 4 ? "READY \u2014 finish the segment" : "READY FOR ROUND " + (f.round + 1)) + '</button></div>' +
+      const still = ffShown[rkey + ":flip"] ? " still" : ""; ffShown[rkey + ":flip"] = 1;   // flip only once
+      const fp = FIREPOWER(alive), fl = q.flashNow || 0, off = q.supp + fl, nowDice = qrDice(alive, off);
+      const parts = "Firepower " + fp + (q.supp ? " \u2212 " + q.supp + " set aside" : "") + (fl ? " \u2212 3 flashed" : "") + (alive > 1 && fp - off < 2 ? " (minimum 2)" : "");
+      const rolled = f.mode === "rolled" && f.roll;
+      // left: what happened
+      const vs = '<div class="ffvs2' + still + '"><span class="it-' + my + '"><small>YOU</small><b>' + FF_ITEMS[my].i + '</b>' + FF_ITEMS[my].n + '</span>' +
+        '<em>VS</em><span class="it-' + foe + '"><small>ENEMY</small><b>' + FF_ITEMS[foe].i + '</b>' + FF_ITEMS[foe].n + '</span></div>';
+      const dice = rolled ? '<div class="ffdice"><div><small>YOUR DICE</small><p>' + ffDiceHTML(f.roll[s]) + '</p></div><div><small>ENEMY DICE</small><p>' + ffDiceHTML(f.roll[o]) + '</p></div></div>' : '';
+      const chips = '<div class="ffchips">' + (q.chips || []).map(c => '<span class="ffchip ' + c.t + '">' + (c.t === "good" ? "\u2713 " : c.t === "bad" ? "\u26A0 " : "") + c.s + '</span>').join("") + '</div>';
+      const det = '<details class="ffdet"' + (ffDetOpen ? ' open' : '') + ' ontoggle="ffDetOpen=this.open"><summary>\u24D8 Details</summary>' +
+        (q.res || []).map(t => '<p>' + t + '</p>').join("") +
+        '<p class="key">Dice: 1 = set aside next round \u00b7 2 = miss \u00b7 3\u20135 = 1 success \u00b7 6 = 2 successes</p>' +
+        (rolled ? '<div class="fm-rows">' + MARGIN_TABLE.map(([mm, oo]) => '<span><b>' + mm + '</b>' + oo + '</span>').join("") + '</div>' : '') + '</details>';
+      // right: what to do
+      const rollBox = !rolled
+        ? '<div class="ffroll"><b>\u{1F3B2} ROLL ' + nowDice + ' DICE NOW</b><span>' + parts + '</span>' +
+          (off ? '<em>' + (fl ? 'Flashed \u2014 ' : '') + 'move ' + Math.min(off, fp) + ' dice away before rolling</em>' : '') + '</div>'
+        : '<div class="ffroll small"><span>The app rolled ' + (f.roll[s] || []).length + ' dice for you' + (off ? ' (' + parts + ')' : '') + '</span></div>';
+      const ones = q.nextOnes || 0, maxOnes = Math.max(1, rolled ? (f.roll[s] || []).length : nowDice);
+      const onesRow = f.round < 4 ? '<div class="ffones"><span>How many of your dice rolled a 1?</span><div class="ffonesrow">' +
+        Array.from({ length: maxOnes + 1 }, (_, n) => '<button type="button" class="ffo' + (n === ones ? ' on' : '') + '" data-n="' + n + '" onclick="ffOnes(' + n + ')">' + n + '</button>').join("") +
+        '</div></div>' : '';
+      const key = f.id + ":" + f.seg + ":" + f.round, applied = q.marginKey === key;
+      const margin = !rolled
+        ? '<button class="ffmbtn' + (applied ? ' done' : '') + '" onclick="ffMarginPick()">' + (applied ? '\u2713 ' + q.marginLab + ' \u00b7 change' : '\u{1F4CB} Lost this round? Pick the margin') + '</button>'
+        : '';
+      const next = f.round < 4 ? '<div class="ffnd">' + ffNextText(q, alive) + '</div>' : '';
+      const ready = '<button class="btn big ffready ' + (iReady ? "ready" : "pri") + '" onclick="' + (iReady ? "ffUnready()" : "ffReady()") + '">' +
+        (iReady ? "\u2713 READY \u2014 tap to wait" : f.round >= 4 ? "READY \u2014 finish the segment" : "READY FOR ROUND " + (f.round + 1)) + '</button>' +
         '<span class="ffwho">' + (f.ready[o] ? "\u2713 The enemy is ready" : "The enemy is adjusting\u2026") + '</span>';
+      body = '<div class="ffrv2"><div class="ffcolL">' + vs + dice + chips + det + '</div><div class="ffcolR">' + rollBox + onesRow + margin + next + ready + '</div></div>';
     } else body = '<div class="ffcount"><b class="keep">' + (ffShown[rkey + ":n"] || 1) + '</b></div>';   // a redraw mid-countdown keeps the number
   } else if (f.state === "end") {
     const ob = f.obj;
@@ -2411,14 +2422,16 @@ function renderFF() {
       '<button class="btn" onclick="ffSegment(true)">\u2726 Forced Re-Engagement</button>' +
       '<button class="btn" onclick="ffEnd()">End firefight</button></div></div>';
   }
+  const keepScroll = box.querySelector(".ffpanel") ? box.querySelector(".ffpanel").scrollTop : 0;
   box.innerHTML = '<div class="ffpanel">' +
     '<div class="ffhead"><b>\u2694 FIREFIGHT</b><span class="ffpips">' + pips + '</span><span class="ffmode">' + (f.mode === "rolled" ? "ROLLED DICE" : f.mode === "physical" ? "PHYSICAL DICE" : "") + (f.seg > 1 ? " \u00b7 SEGMENT " + f.seg : "") + '</span>' +
       '<button class="btn sm" onclick="ffPause()">\u23F8 Pause</button></div>' +
-    '<div class="ffsides"><div class="ffside me"><small>YOUR SQUAD</small><b>' + myLabel + '</b><em>' + alive + ' / 8 \u00b7 FP ' + FIREPOWER(alive) + (q.supp ? ' \u00b7 ' + q.supp + ' dice set aside' : '') + '</em>' +
+    '<div class="ffsides"><div class="ffside me"><small>YOU</small><b>' + myLabel + '</b><em>' + alive + ' / 8 \u00b7 FP ' + FIREPOWER(alive) + (q.supp ? ' \u00b7 ' + q.supp + ' dice set aside' : '') + '</em>' +
       '<span class="ffinv">' + ["fb", "sm", "gr"].map(k => FF_ITEMS[k].i + "\u00d7" + q.items[k]).join("  ") + '</span></div>' +
-      '<div class="ffside foe"><small>ENEMY SQUAD</small><b>' + foeLabel + '</b><em>' + enemyAlive + ' / 8</em><span class="ffinv">items hidden</span></div></div>' +
+      '<div class="ffside foe"><small>ENEMY</small><b>' + foeLabel + '</b><em>' + enemyAlive + ' / 8</em><span class="ffinv">items hidden</span></div></div>' +
     (!otherHere ? '<div class="ffpause">\u23F8 The enemy player has stepped away \u2014 a teammate of theirs can resume the firefight.</div>' : '') +
     '<div class="ffbody">' + body + '</div></div>';
+  if (keepScroll) box.querySelector(".ffpanel").scrollTop = keepScroll;
 }
 // invites on the defending team, and a challenger's declined notice
 function renderFFInvites() {
@@ -6820,7 +6833,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf79";
+const APP_BUILD = "cf80";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
