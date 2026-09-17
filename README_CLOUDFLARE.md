@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf25)
+# Gunpla Battle — Cloudflare version (build cf28)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -93,3 +93,6 @@ public/            the app (index.html, images, service worker)
 | cf23 | `public/index.html`, `public/sw.js` | Lobby: picking Federation no longer lays a blue wash over the (already bright) left half — it stays crisp, only the Spacenoid half dims; the Spacenoid red glow is unchanged |
 | cf24 | `public/index.html`, `public/sw.js` | Fix: Start My Turn now turns fully green on the Spacenoid side too (a more specific Spacenoid red rule was overriding the fill) |
 | cf25 | `public/index.html`, `public/sw.js` | **Turns start automatically**: when the other team ends its turn, the leader's device starts yours (full start-of-turn upkeep) and everyone gets a green "your turn has started" notice; if a teammate still has a sheet open it waits and names them. Fix: undoing a turn start no longer counts as ending the turn (it used to hand the turn to the other team) |
+| cf26 | `public/index.html`, `public/sw.js`, **new folder** `public/img/ground/` (32 images) | **Ground units, stage 1**: Ground Units tab with vehicle cards (free, per-type caps + 8-vehicle cap); Tank / Car / Helicopter / Jet / Transport Ship sheets (tinted wireframes, HP + Armor rings, OVERMAP/GROUND weapons with cooldowns and Bombing/Strafe charges, Fire/Air Support target-effect tables, AP / Movement / Dodge, MOVE, Hide Stance, cargo, objective, targeting, respawn) |
+| cf27 | `public/index.html`, `public/sw.js` | Fix: the round portrait badge on ship and ground-vehicle sheets used the faded "no portrait yet" style (30% opacity + scan lines) — pictures now show at full strength (was nearly invisible on Spacenoid sheets) |
+| cf28 | `public/index.html`, `public/sw.js` | Ship and ground-vehicle health bubbles: numbers centred in the white bubble (current value large, "/max" small underneath); three-digit hulls fit |

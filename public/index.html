@@ -1498,10 +1498,11 @@ body.spa #s5 .mpcode span{border-color:#ff4d5a}
 #frame .fstatc{font-size:1.06cqw;color:#f2f7ff;font-weight:800;letter-spacing:.14em;text-shadow:0 1px 2px rgba(0,0,0,.8)}
 #frame .fshipport{width:6.4cqw;height:6.4cqw;border-radius:50%}
 #frame .fshipport img{object-fit:contain !important;object-position:50% 50% !important;width:92% !important;height:92% !important;left:4% !important;top:4% !important;opacity:.85}
-#sheet .shp{width:4.3%;font-size:clamp(5px,1.75cqw,24px);flex-direction:row;align-items:baseline;justify-content:center;gap:0;z-index:5}
-#sheet .shp small{font-size:.5em;opacity:.55;font-weight:700}
+#sheet .shp{width:4.3%;font-size:clamp(5px,1.75cqw,24px);flex-direction:column;align-items:center;justify-content:center;gap:0;z-index:5;
+  line-height:1;padding:0;text-align:center}
+#sheet .shp small{display:block;font-size:.45em;line-height:1;opacity:.6;font-weight:800;margin-top:.08em}
 #sheet .shp.big{width:5.6%;font-size:clamp(6px,2.1cqw,28px)}
-#sheet .shp.big.w3{width:6%;font-size:clamp(5px,1.6cqw,22px)}
+#sheet .shp.big.w3{width:6%;font-size:clamp(5px,1.75cqw,24px)}
 #sheet .sx.stag{position:absolute;transform:translate(-50%,-50%);font:800 clamp(4px,.8cqw,11px) system-ui,sans-serif;letter-spacing:.08em;
   padding:.1cqw .5cqw;background:#475569;color:#fff;z-index:6;white-space:nowrap}
 #sheet .sx.stag.rep{background:#0e7490}
@@ -1928,6 +1929,39 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 .mpprompt.started{border-color:#45e6a1;background:linear-gradient(90deg,rgba(6,78,59,.85),rgba(6,20,16,.85));animation:startedIn .5s cubic-bezier(.2,.9,.3,1.2)}
 @keyframes startedIn{0%{transform:translateY(-8px) scale(.98);opacity:0}100%{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.mpprompt.started{animation:none}}
+
+/* ================= GROUND VEHICLES (cf26) ================= */
+.pt.shipp.gp img{transform:scale(1.1)}
+.gcap{margin:4px 2px 8px;font-size:13px;color:#cbd5e1}
+.gcap b{color:#fff}
+.shipcard.gcard{min-height:250px}
+.shipcard.gcard .sc-art{width:52%;height:52%;right:1%;top:14%}
+.shipcard.gcard .sc-info{max-width:64%}
+.shipcard.gcard .sc-name{font-size:clamp(18px,1.9vw,27px);line-height:1.05;margin-bottom:10px;white-space:normal;overflow-wrap:anywhere}
+.shipcard.gcard .sc-foot{flex-wrap:wrap;row-gap:6px}
+.shipcard.gcard .sc-dp{white-space:nowrap}
+.shipcard.gcard .sc-stats{display:flex;flex-wrap:wrap;gap:5px}
+.shipcard.gcard .sc-st{min-width:46px;padding:4px 6px}
+.shipcard.gcard .sc-st b{font-size:15px;white-space:nowrap}
+.shipcard.gcard.full{opacity:.72}
+.shipcard.gcard.soon{cursor:default;filter:grayscale(.5);opacity:.8}
+.shipcard.gcard.soon:hover{transform:none}
+.sc-qty.capped{background:#f59e0b}
+.sc-add.off{background:#475569;box-shadow:none}
+#frame .gtarget{background:rgba(3,8,14,.72)}
+#sheet .sx.gtargets{position:absolute;width:35.4%;z-index:4;font-size:clamp(5px,.86cqw,12px);color:#e8f1fb}
+#sheet .sx.gtargets table{width:100%;border-collapse:collapse}
+#sheet .sx.gtargets td{padding:.35cqw .5cqw;border-bottom:1px solid var(--f-line)}
+#sheet .sx.gtargets td:first-child{font-weight:800;color:var(--f-acc);white-space:nowrap;width:34%}
+#sheet .sx.gtargets p{margin:.6cqw .4cqw 0;color:var(--f-mut);line-height:1.35}
+#sheet .sx.gtargets p i{display:block;margin-top:.3cqw;color:#fde68a;font-style:normal}
+#sheet .sx.gnote{position:absolute;transform:translate(-50%,-50%);z-index:5;white-space:nowrap;font:700 clamp(4px,.72cqw,10px) system-ui,sans-serif;
+  color:var(--f-mut);background:rgba(0,0,0,.55);padding:.15cqw .5cqw}
+#sheet .sx .gscale{font-style:normal;font-weight:900;letter-spacing:.08em;padding:0 .3cqw;margin-right:.2cqw}
+#sheet .sx .gscale.om{color:#0b0f14;background:var(--f-acc)}
+#sheet .sx .gscale.gd{color:#0b0f14;background:#fbbf24}
+#frame .fshiplbl small{font-size:.7em;color:var(--f-mut)}
+#sheet .sx.sname.long{font-size:clamp(7px,1.75cqw,24px);letter-spacing:.06em}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -7137,7 +7171,7 @@ function buildShipFrame() {
   const cx = 94.3, cy = 10.6;
   add("fdial o", { left: pc(cx), top: pc(cy) }); add("fdial i", { left: pc(cx), top: pc(cy) });
   add("fdial arc full", { left: pc(cx), top: pc(cy) });
-  const pf = add("fport ph fshipport", { left: pc(cx), top: pc(cy) });
+  const pf = add("fport fshipport", { left: pc(cx), top: pc(cy) });
   const pim = document.createElement("img"); pim.alt = ""; pim.src = "img/portraits/" + u.portrait + ".webp"; pf.appendChild(pim);
   const mk = markOf(CUR);
   if (mk) { const pp = document.createElement("span"); pp.className = "mpip fp"; pp.style.setProperty("--pc", mk.c); pf.appendChild(pp); }
@@ -7318,7 +7352,7 @@ function carrierState(uid) {
 const outOfPlay = uid => { const c = carrierState(uid); return !!c && (c.state === "aboard" || c.state === "docking"); };
 const catapultActive = uid => { const c = carrierState(uid); return !!c && c.state === "launched" && turn.phase === "you"; };
 const carriersInRoster = () => roster.filter(r => isShip(unitById(r.id)) && !isDead(r));
-const suitsInRoster = () => roster.filter(r => !isShip(unitById(r.id)));
+const suitsInRoster = () => roster.filter(r => unitTab(unitById(r.id)) === "suits");
 function carrierTag(uid) {
   const c = carrierState(uid); if (!c) return "";
   const nm = c.u.short.toUpperCase();
@@ -7582,7 +7616,358 @@ function applyDisembark(shipR, pick) {
   if (CUR && $("s4").classList.contains("on")) draw(); else renderRoster();
 }
 
+// ================= GROUND VEHICLES (cf26 — stage 1) =================
+// Rulebook Sections 13 / 13.5 / 13.7. Ground units cost no DP; each side is capped per type and at 8 vehicles overall.
+// State: r.st.hp.hp (flat HP, both scales), r.st.ap, r.st.gv (armor, cooldowns, charges, hide, cargo, objective).
+const GROUND_CAP = { tank: 2, car: 4, heli: 2, jet: 2, transport: 2, squad: 4 };
+const GROUND_VEHICLE_CAP = 8;
+const GV_TARGETS = {
+  fire: [["Infantry Squad", "Squad Splash Table (d10)"], ["Ground vehicle", "6 dmg \u2014 armour-piercing"], ["Mobile suit", "2 dmg to all 6 locations"], ["Aircraft", "Cannot target at all"]],
+  air:  [["Infantry Squad", "Squad Splash Table (d10)"], ["Ground vehicle", "3 dmg"], ["Aircraft", "3 dmg"], ["Mobile suit", "3 dmg to all 6 locations \u00b7 no Dodge"]],
+};
+const SPLASH_TABLE = "d10: 1\u20133 = 1 casualty \u00b7 4\u20136 = 2 \u00b7 7\u20138 = 3 \u00b7 9 = 4 \u00b7 10 = 5";
+const GV_TYPES = {
+  tank: { cls: "Tank", hp: 18, armor: 6, ap: 4, moveCm: 15, dodge: null, prox: 40, respawn: "base", cargo: 0, objective: true, targets: "fire",
+    targetNote: "Fire Support hits friend and foe inside the radius. Aircraft are never affected.",
+    gw: [
+      { key: "fire", scale: "OVERMAP", name: "Fire Support", dmg: "per target", ap: 2, range: "60cm \u00b7 10cm AoE", cd: 1,
+        note: "The Tank's only Overmap attack. Standard range-based to-hit. Everything inside the 10cm radius is a target, friend or foe. Effect by target: Infantry Squad \u2192 Squad Splash Table (" + SPLASH_TABLE + "); ground vehicle \u2192 6 damage (armour-piercing round); mobile suit \u2192 2 damage to all 6 locations; aircraft \u2192 cannot be targeted." },
+      { key: "cannon", scale: "GROUND", name: "Main Cannon", dmg: "6", ap: 2, range: "10cm AoE", cd: 1,
+        note: "Detailed Battle Map. 6 damage in a 10cm radius \u2014 kills any soldier outright, no Kevlar save. Rolled Dodge 4+ (1d6). 1 turn cooldown." },
+      { key: "mg", scale: "GROUND", name: "Machine Gun", dmg: "8d6 \u00b7 3+", ap: 1, range: "60cm", cd: 0,
+        note: "Detailed Battle Map. 8d6, 3+ to hit, 1 damage (2 on a 6, critical). Cannot damage Armor." },
+    ] },
+  car: { cls: "Car", hp: 8, armor: 3, ap: 3, moveCm: 25, dodge: 12, prox: 30, respawn: "base", cargo: 1, targets: null,
+    targetNote: "The Car has no Overmap attack. A squad riding inside may still make its own Coordinated Strike out of the vehicle \u2014 that uses the squad's action and stats.",
+    gw: [
+      { key: "mg", scale: "GROUND", name: "Machine Gun", dmg: "8d6 \u00b7 3+", ap: 1, range: "60cm", cd: 0,
+        note: "Detailed Battle Map. 8d6, 3+ to hit (a mounted gun is steadier than a soldier's), 1 damage (2 on a 6, critical). Cannot damage Armor." },
+    ] },
+  heli: { cls: "Helicopter", hp: 6, armor: 0, ap: 3, moveCm: 35, dodge: 14, prox: 40, respawn: "base", cargo: 1, targets: "air", overmapOnly: true,
+    targetNote: "Air Support is always 3 damage \u2014 except Infantry Squads, which roll the Squad Splash Table.",
+    gw: [
+      { key: "air", scale: "OVERMAP", name: "Air Support", dmg: "3 \u00b7 per target", ap: 2, range: "15cm AoE", cd: 0,
+        note: "Standard range-based to-hit, unlimited uses. 15cm radius. Infantry Squad \u2192 Squad Splash Table; ground vehicle 3; aircraft 3; mobile suit 3 to all 6 locations with no Dodge. Ground units use their normal Rolled Dodge." },
+      { key: "strafe", scale: "GROUND CALL", name: "Strafe Run", dmg: "4", ap: 2, range: "20\u00d710cm", cd: 0, charges: 4,
+        note: "Fly into range of an active ground engagement and spend 2 AP to grant it 1 Strafe charge (max 4). A 20\u00d710cm lane, 4 damage, not armour-piercing, Rolled Dodge 4+. In Quick Resolve a charge rolls the Squad Splash Table. The squad hit may fire back with a Rocket (Anti-Air Retaliation)." },
+    ] },
+  jet: { cls: "Jet", hp: 3, armor: 0, ap: 4, moveCm: 50, dodge: 10, prox: 30, respawn: "board edge", cargo: 0, targets: "air", overmapOnly: true,
+    targetNote: "Air Support is always 3 damage \u2014 except Infantry Squads, which roll the Squad Splash Table. A missile barrage: mobile suits take 3 on every location.",
+    gw: [
+      { key: "air", scale: "OVERMAP", name: "Air Support", dmg: "3 \u00b7 per target", ap: 2, range: "10cm AoE", cd: 0,
+        note: "Standard range-based to-hit, unlimited uses, armour-piercing. 10cm radius. Infantry Squad \u2192 Squad Splash Table; ground vehicle 3; aircraft 3; mobile suit 3 to all 6 locations with no Dodge." },
+      { key: "bomb", scale: "GROUND CALL", name: "Bombing Run", dmg: "6", ap: 2, range: "10cm AoE", cd: 0, charges: 2,
+        note: "Fly into range of an active ground engagement and spend 2 AP to grant it 1 Bombing charge (max 2). 10cm radius, 6 damage, no Kevlar, NO Rolled Dodge, armour-piercing (strips a Tank's 6 Armor in one pass). In Quick Resolve a charge rolls the Squad Splash Table. The squad hit may fire back with a Rocket." },
+    ] },
+  transport: { cls: "Transport Ship", hp: 20, armor: 0, ap: 3, moveCm: 20, dodge: 14, prox: 60, respawn: "board edge", cargo: 2, targets: null,
+    targetNote: "No weapons \u2014 a delivery platform for boarding squads. Squads may disembark at any point, even mid-space, and continue on their own stats.",
+    gw: [] },
+};
+const GV_MODELS = {
+  federation: { tank: "Type 61", car: "Hover Truck", heli: "Gunperry", jet: "Federation Fighter", transport: "Columbus-class" },
+  spacenoid: { tank: "Magella Attack", car: "Armored Car", heli: "Attack Helicopter", jet: "Dopp", transport: "Papua-class" },
+};
+const GV_ASPECT = { "fed-tank": 1.425, "spa-tank": 1.366, "fed-car": 1.824, "spa-car": 1.482, "fed-heli": 1.218, "spa-heli": 1.519,
+  "fed-jet": 1.843, "spa-jet": 1.63, "fed-transport": 1.613, "spa-transport": 1.541 };
+const GROUND_UNITS = [];
+["federation", "spacenoid"].forEach(fac => {
+  const sk = fac === "federation" ? "fed" : "spa";
+  Object.keys(GV_TYPES).forEach(t => {
+    const T = GV_TYPES[t];
+    GROUND_UNITS.push(Object.assign({}, T, {
+      id: "ground-" + t + "-" + sk, gtype: t, name: GV_MODELS[fac][t] + " (" + T.cls + ")", short: GV_MODELS[fac][t],
+      faction: fac, tier: "Ground " + T.cls, dp: 0, type: "ground", move: T.moveCm + "cm", dodges: 0,
+      kill: "hp", limb: { hp: T.hp }, abilities: [], weapons: [], shields: [],
+      portrait: "../ground/" + sk + "-" + t, wire: "ground/wire-" + sk + "-" + t, aspect: GV_ASPECT[sk + "-" + t] || 1.5,
+    }));
+  });
+});
+const isGround = u => !!(u && u.type === "ground");
+const isVehicle = u => isGround(u) && u.gtype !== "squad";
+
+function gvFresh(u) {
+  return { hp: { hp: u.hp }, dodges: 0, ap: u.ap, track: [], wpn: [], sh: [], shMax: [], shDown: [], pods: null, out: null, lent: [], risk: {},
+    gv: { armor: u.armor, cd: u.gw.map(() => 0), cdFresh: u.gw.map(() => false), ch: u.gw.map(() => 0), hide: false, cargo: 0, objective: false } };
+}
+function gvMigrate(u, st) {
+  const f = gvFresh(u);
+  if (!st.hp || typeof st.hp.hp !== "number") st.hp = f.hp;
+  if (!st.gv || typeof st.gv !== "object") st.gv = f.gv;
+  const G = st.gv;
+  Object.keys(f.gv).forEach(k => { if (G[k] === undefined) G[k] = f.gv[k]; });
+  ["cd", "cdFresh", "ch"].forEach(k => { if (!Array.isArray(G[k]) || G[k].length !== u.gw.length) G[k] = f.gv[k]; });
+  ["track", "wpn", "sh", "shMax", "shDown", "lent"].forEach(k => { if (!Array.isArray(st[k])) st[k] = []; });
+  if (typeof st.ap !== "number") st.ap = u.ap;
+  st.dodges = 0;
+  return st;
+}
+function gvAdvance(u, st) {
+  gvMigrate(u, st);
+  const G = st.gv;
+  st.ap = u.ap;
+  G.cd = G.cd.map((v, i) => { if (G.cdFresh[i]) { G.cdFresh[i] = false; return v; } return Math.max(0, (v || 0) - 1); });
+  G.hide = false;                                    // Hide Stance is declared each turn
+}
+// roster limits: per type, and 8 vehicles overall
+function groundCapCheck(u) {
+  if (!isGround(u)) return null;
+  const mine = roster.map(r => unitById(r.id)).filter(isGround);
+  const sameType = mine.filter(x => x.gtype === u.gtype).length;
+  if (sameType >= GROUND_CAP[u.gtype]) return "Only " + GROUND_CAP[u.gtype] + " " + u.cls + (GROUND_CAP[u.gtype] > 1 ? "s" : "") + " per side.";
+  if (isVehicle(u) && mine.filter(isVehicle).length >= GROUND_VEHICLE_CAP) return "The vehicle limit is " + GROUND_VEHICLE_CAP + " per side (Cars, Tanks, Helicopters, Jets and Transport Ships together).";
+  return null;
+}
+function groundCardsHTML() {
+  const units = UNITS.filter(u => isGround(u) && u.faction === side);
+  const fac = side === "federation" ? "fed" : "spa";
+  const mine = roster.map(r => unitById(r.id)).filter(isGround);
+  const vehicles = mine.filter(isVehicle).length;
+  const card = u => {
+    const n = mine.filter(x => x.id === u.id).length, cap = GROUND_CAP[u.gtype], full = n >= cap || vehicles >= GROUND_VEHICLE_CAP;
+    const stat = (k, v) => '<div class="sc-st"><small>' + k + '</small><b>' + v + '</b></div>';
+    return '<div class="shipcard gcard ' + fac + (n ? ' has' : '') + (full ? ' full' : '') + '" onclick="addUnit(\'' + u.id + '\')">' +
+      '<div class="sc-grid"></div><div class="sc-glow"></div>' +
+      '<div class="sc-art"><img src="img/ground/' + fac + '-' + u.gtype + '.webp" alt="" loading="lazy" decoding="async"></div>' +
+      '<div class="sc-info">' +
+        '<div class="sc-class">' + u.cls + (u.overmapOnly ? ' \u00b7 Overmap only' : '') + '</div>' +
+        '<div class="sc-name">' + u.short + '</div>' +
+        '<div class="sc-stats">' + stat("HP", u.hp) + (u.armor ? stat("Armor", u.armor) : '') + stat("AP", u.ap) + stat("Move", u.moveCm + "cm") +
+          stat("Dodge", u.dodge ? u.dodge + "+" : "none") + (u.cargo ? stat("Squads", u.cargo) : '') + '</div>' +
+        '<div class="sc-weap">' + (u.gw.length ? u.gw.map(w => '<span>' + w.name + '</span>').join("") : '<span class="ab">No weapons</span>') + '</div>' +
+      '</div>' +
+      '<div class="sc-foot">' +
+        '<div class="sc-dp">FREE<small>0 DP</small></div>' +
+        '<div class="sc-qty' + (full ? ' capped' : '') + '">' + n + ' / ' + cap + '</div>' +
+        '<div class="sc-add">' + (full ? 'Limit reached' : '+ Add to force') + '</div>' +
+      '</div></div>';
+  };
+  return '<div class="gcap">Ground units cost <b>no DP</b>. Vehicles on this side: <b>' + vehicles + ' / ' + GROUND_VEHICLE_CAP + '</b></div>' +
+    '<div class="shipgrid">' + units.map(card).join("") +
+      '<div class="shipcard gcard ' + fac + ' soon"><div class="sc-grid"></div>' +
+        '<div class="sc-art"><img src="img/ground/' + fac + '-rifleman.webp" alt="" loading="lazy" decoding="async" style="object-position:85% 50%"></div>' +
+        '<div class="sc-info"><div class="sc-class">Infantry \u00b7 up to 4 squads</div><div class="sc-name">Infantry Squad</div>' +
+        '<div class="sc-weap"><span class="ab">Coming in the next build</span></div></div>' +
+        '<div class="sc-foot"><div class="sc-dp">FREE<small>0 DP</small></div><div class="sc-add off">Next build</div></div></div>' +
+    '</div>';
+}
+
+// ---------- the vehicle sheet ----------
+function gvModelBox(u) {
+  const h = 52, w = u.aspect * h * 0.5625;
+  const maxW = 58;
+  const scale = w > maxW ? maxW / w : 1;
+  return { h: h * scale, w: w * scale, top: 4 + (52 - h * scale) / 2, cx: 34 };
+}
+function buildGroundFrame() {
+  const u = U, key = ["ground", u.id, sideKey(), (CUR && CUR.mark) || ""].join("|");
+  const F = $("frame");
+  $("sheet").dataset.side = sideKey();
+  $("sheet").classList.add("shipsheet");
+  if (key === frameKey && F.childElementCount) return;
+  frameKey = key;
+  F.innerHTML = "";
+  const add = (cls, st, html) => { const d = document.createElement("div"); d.className = cls; if (st) Object.assign(d.style, st); if (html !== undefined) d.innerHTML = html; F.appendChild(d); return d; };
+  const pc = v => v + "%";
+  add("fbreath"); add("fbreath b2"); add("fgrid");
+  add("fb tl"); add("fb tr"); add("fb bl"); add("fb br");
+  add("fstripe", { left: "36%", top: "1cqw" }); add("fstripe", { left: "4%", bottom: "1.2cqw" });
+  add("fdock l"); add("fdock r");
+  const b = gvModelBox(u);
+  const mw = add("fmech fship", { left: pc(b.cx), top: pc(b.top), height: pc(b.h), width: b.w + "cqw" });
+  const mi = document.createElement("canvas"); mi.className = "fmech-in"; mw.appendChild(mi);
+  paintMech(mi, u.wire, sideKey());
+  // HP (and Armor) rings on the model
+  const rings = u.armor ? [["hp", 26, 34, "HP"], ["armor", 42, 34, "ARMOR"]] : [["hp", 34, 34, "HP"]];
+  rings.forEach(([k, x, y, lab]) => {
+    add("fret" + (k === "hp" ? " big" : ""), { left: pc(x), top: pc(y) });
+    add("flbl flimb fshiplbl", { left: pc(x), top: pc(y - (k === "hp" ? 7.6 : 6.4)) }, k === "armor" ? "ARMOR <small>(GROUND)</small>" : "HP");
+  });
+  add("fsec", { left: "23.2%", top: "57.4%" }, "<i></i>WEAPONS<i></i>");
+  add("fsec", { left: "74.2%", top: "57.9%" }, "<i></i>STATUS<i></i>");
+  const table = (x0, x1, rows, cols, heads, nums, numX) => {
+    const y0 = rows[0], yh = rows[1], H = rows[rows.length - 1] - y0;
+    const t = add("ftbl", { left: pc(x0), top: pc(y0), width: pc(x1 - x0), height: pc(H) });
+    const hd = document.createElement("div"); hd.className = "fhead"; hd.style.height = pc((yh - y0) / H * 100); t.appendChild(hd);
+    rows.slice(2, -1).forEach(r => { const d = document.createElement("div"); d.className = "frow"; d.style.top = pc((r - y0) / H * 100); t.appendChild(d); });
+    cols.forEach(c => { const d = document.createElement("div"); d.className = "fcol"; d.style.left = pc((c - x0) / (x1 - x0) * 100); t.appendChild(d); });
+    heads.forEach(([hx, txt]) => add("flbl fth", { left: pc(hx), top: pc((y0 + yh) / 2) }, txt));
+    nums.forEach((y, i) => add("flbl fnum", { left: pc(numX), top: pc(y) }, String(i + 1)));
+  };
+  table(5.3, 43.2, [62.3, 66.9, 72.1, 77.2, 82.3, 86.8, 90.9], [24.2, 29.9, 34.8],
+    [[14.7, "WEAPON"], [27.05, "DMG"], [32.35, "AP"], [39.0, "RANGE"]], SHIP_ROWS_W, 6.2);
+  table(57.0, 94.8, [63.0, 67.5, 72.8, 77.9, 83.0, 87.4, 91.6], [76.0, 81.6],
+    [[66.5, "STATUS"], [78.8, "AP"], [88.2, "STATE"]], SHIP_ROWS_A, 57.9);
+  GV_HEX.forEach(([y, t]) => { add("flbl fstatc", { left: "49.8%", top: pc(y - 4.4) }, t); add("fhex", { left: "49.8%", top: pc(y) }); });
+  // target effects panel (right, under the name panel)
+  add("ftbl gtarget", { left: "57%", top: "22.5%", width: "37.8%", height: "30.5%" });
+  add("flbl fth", { left: "75.9%", top: "25%" }, u.targets === "fire" ? "FIRE SUPPORT \u2014 TARGET EFFECTS" : u.targets === "air" ? "AIR SUPPORT \u2014 TARGET EFFECTS" : "OVERMAP ATTACK");
+  add("fname fshipname"); add("flbl fsub", { left: "69.6%", top: "4.9%" }, "GROUND //");
+  const cx = 94.3, cy = 10.6;
+  add("fdial o", { left: pc(cx), top: pc(cy) }); add("fdial i", { left: pc(cx), top: pc(cy) });
+  add("fdial arc full", { left: pc(cx), top: pc(cy) });
+  const pf = add("fport fshipport", { left: pc(cx), top: pc(cy) });
+  const pim = document.createElement("img"); pim.alt = ""; pim.src = "img/portraits/" + u.portrait + ".webp"; pf.appendChild(pim);
+  const mk = markOf(CUR);
+  if (mk) { const pp = document.createElement("span"); pp.className = "mpip fp"; pp.style.setProperty("--pc", mk.c); pf.appendChild(pp); }
+}
+const GV_HEX = [[62.6, "AP"], [72.9, "MOVEMENT"], [83.2, "DODGE"]];
+function gvCommit() { ap = CUR.st.ap; save(); draw(); }
+function gvTap(k) {
+  if (!CUR || !isGround(U) || !mpSheetCanEdit()) return;
+  const st = CUR.st, G = st.gv, uid = CUR.uid;
+  const max = k === "hp" ? U.hp : U.armor, cur = k === "hp" ? st.hp.hp : G.armor;
+  const next = mode === "repair" ? Math.min(max, cur + amount) : Math.max(0, cur - amount);
+  if (next === cur) return;
+  if (k === "hp") st.hp.hp = next; else G.armor = next;
+  aggDmg(uid, "gv:" + k, k === "hp" ? "HP" : "Armor", cur - next, next, max);
+  if (k === "hp" && cur > 0 && next === 0) {
+    logEv(uid, "DESTROYED \u2014 respawns from the " + U.respawn, "bad", "gv0");
+    if (G.cargo > 0) logEv(uid, "Emergency Disembark: roll 1d6 per living soldier aboard \u2014 4+ survives, 1\u20133 perishes", "remind");
+  }
+  if (k === "armor" && cur > 0 && next === 0) logEv(uid, "Armor stripped \u2014 any weapon can now hurt the HP", "bad");
+  gvCommit();
+}
+function gvFire(i) {
+  if (!CUR || !isGround(U) || !mpSheetCanEdit()) return;
+  const st = CUR.st, G = st.gv, w = U.gw[i], uid = CUR.uid;
+  if (st.hp.hp === 0) return;
+  if (G.hide) { mpToast("Hide Stance: this unit can't attack this turn."); return; }
+  if (G.cd[i] > 0) { mpToast(w.name + " is cooling down."); return; }
+  if (w.charges && G.ch[i] >= w.charges) { mpToast("All " + w.charges + " " + w.name + " charges have been granted."); return; }
+  if (st.ap < w.ap) { mpToast("Not enough AP."); return; }
+  st.ap -= w.ap;
+  if (w.cd) { G.cd[i] = w.cd; G.cdFresh[i] = true; }
+  if (w.charges) G.ch[i] += 1;
+  logEv(uid, w.name + (w.charges ? " \u2014 1 charge granted to the ground engagement (" + G.ch[i] + "/" + w.charges + ")" : " fired (" + w.ap + " AP)"), "info");
+  gvCommit();
+}
+function gvToggle(k, v) {
+  if (!CUR || !isGround(U) || !mpSheetCanEdit()) return;
+  const st = CUR.st, G = st.gv, uid = CUR.uid;
+  if (k === "hide") { G.hide = !G.hide; logEv(uid, G.hide ? "Hide Stance \u2014 movement halved, no attacks, untargetable by mobile suits" : "Hide Stance off", G.hide ? "buff" : "info"); }
+  if (k === "objective") { G.objective = !G.objective; logEv(uid, G.objective ? "Carrying the objective" : "Objective dropped", "info"); }
+  if (k === "cargo") G.cargo = Math.max(0, Math.min(U.cargo, G.cargo + v));
+  if (k === "ap") st.ap = Math.max(0, Math.min(U.ap + 4, st.ap + v));
+  if (k === "respawn") {
+    if (!confirm("Respawn this " + U.cls + " at full strength from the " + U.respawn + "?")) return;
+    CUR.st = gvFresh(U); CUR.st.ap = 0; logEv(uid, "Respawned from the " + U.respawn, "good");
+    save(); openSheet(uid); return;
+  }
+  gvCommit();
+}
+function drawGround() {
+  const u = U, st = gvMigrate(u, CUR.st), G = st.gv;
+  hp = st.hp; ap = st.ap; dodges = 0;
+  const sheet = $("sheet");
+  sheet.classList.add("shipsheet");
+  [...sheet.querySelectorAll(".sx,.hp,.grp,.tog,.step,.wrow,.txt,.num,.wpip,.sendbtn,.lenttag,.podstate,.arcring,.arcrot,.qa,.aphit,.swapz,.hudwarn,.porthit")].forEach(n => n.remove());
+  renderAmounts();
+  $("uname").textContent = u.short;
+  $("umeta").textContent = u.cls + " \u00b7 no DP";
+  $("total").textContent = "HP " + st.hp.hp + "/" + u.hp + (u.armor ? " \u00b7 ARMOR " + G.armor + "/" + u.armor : "");
+  const dead = st.hp.hp === 0;
+  $("dead").style.display = dead ? "flex" : "none";
+  $("dead").firstElementChild.textContent = "DESTROYED";
+  const pc = v => v + "%";
+  const add = (tag, cls, style, html) => { const e = el(tag, "sx " + cls, style); if (html !== undefined) e.innerHTML = html; sheet.appendChild(e); return e; };
+  const colOf = (v, m) => v === 0 ? "#64748b" : v / m <= .34 ? "#ef4444" : v / m <= .67 ? "#f59e0b" : "#22c55e";
+  add("div", "sname" + (u.short.length > 11 ? " long" : ""), { left: "69.6%", top: "8.2%" }, u.short.toUpperCase());
+  add("div", "sclass", { left: "69.6%", top: "13.4%" }, u.cls + " \u00b7 " + (u.faction === "federation" ? "Federation" : "Spacenoid") + " \u00b7 no DP");
+  add("div", "sclass", { left: "69.6%", top: "16.6%" }, "TARGETABLE WITHIN " + u.prox + "CM" + (u.overmapOnly ? " \u00b7 OVERMAP ONLY" : ""));
+  // rings
+  const rings = u.armor ? [["hp", 26, 34], ["armor", 42, 34]] : [["hp", 34, 34]];
+  rings.forEach(([k, x, y]) => {
+    const v = k === "hp" ? st.hp.hp : G.armor, m = k === "hp" ? u.hp : u.armor, col = colOf(v, m);
+    const r = add("div", "hp shp" + (k === "hp" ? " big" : ""), { left: pc(x), top: pc(y), borderColor: col,
+      background: v === 0 ? "rgba(100,116,139,.92)" : "rgba(255,255,255,.96)", color: v === 0 ? "#e2e8f0" : "#0f172a" });
+    r.innerHTML = v + "<small>/" + m + "</small>";
+    r.title = (k === "hp" ? "HP (both scales)" : "Armor \u2014 Detailed Battle Map only; only Grenades / Rockets strip it") + " \u2014 tap to " + (mode === "repair" ? "repair" : "damage") + " " + amount;
+    r.onclick = () => gvTap(k);
+  });
+  if (u.armor) add("div", "gnote", { left: "34%", top: "45.5%" }, "Armor exists on the Detailed Battle Map only \u2014 the Overmap uses the flat HP.");
+  if (G.hide) add("div", "hudwarn swarn good", { left: "34%", top: "51%" }, "\u25D2 HIDE STANCE \u2014 UNTARGETABLE BY MOBILE SUITS");
+  // weapons
+  if (!u.gw.length) add("div", "sw-name", { left: "7.2%", top: pc(SHIP_ROWS_W[0]) }, "<b>No weapons</b><span>delivery platform only</span>");
+  u.gw.forEach((w, i) => {
+    const y = SHIP_ROWS_W[i], cd = G.cd[i] || 0, used = w.charges ? G.ch[i] : 0;
+    const off = dead || G.hide || (w.charges && used >= w.charges);
+    const nm = add("div", "sw-name" + (dead ? " off" : ""), { left: "7.2%", top: pc(y) },
+      '<b>' + w.name + '</b><span><em class="gscale ' + (w.scale === "OVERMAP" ? "om" : "gd") + '">' + w.scale + '</em>' +
+      (w.charges ? " \u00b7 " + used + "/" + w.charges + " charges granted" : "") + (w.cd ? " \u00b7 " + w.cd + "-turn cooldown" : "") + '</span>');
+    nm.onclick = () => showNotice(w.name + " \u2014 " + w.scale, w.note);
+    add("div", "sw-cell", { left: "27.05%", top: pc(y) }, w.dmg);
+    add("div", "sw-cell rng", { left: "39.0%", top: pc(y) }, w.range);
+    const b = add("div", "sw-ap" + (off ? " off" : cd ? " cd" : ""), { left: "32.35%", top: pc(y) }, off ? "\u2715" : cd ? "CD " + cd : String(w.ap));
+    b.title = G.hide ? "Hide Stance: no attacks" : cd ? "Cooling down" : "Tap to use (" + w.ap + " AP)";
+    b.onclick = () => gvFire(i);
+  });
+  // target effects
+  const T = u.targets ? GV_TARGETS[u.targets] : null;
+  const tb = add("div", "gtargets", { left: "58.2%", top: "28%" },
+    (T ? '<table>' + T.map(([a, b2]) => '<tr><td>' + a + '</td><td>' + b2 + '</td></tr>').join("") + '</table>' : '') +
+    '<p>' + u.targetNote + (T && T[0][1].indexOf("Splash") >= 0 ? ' <i>Splash: ' + SPLASH_TABLE + '</i>' : '') + '</p>');
+  // status rows
+  const rows = [];
+  rows.push({ name: "Hide Stance", sub: "halve move \u00b7 no attacks \u00b7 hidden from suits", ap: G.hide ? "ON" : "free", cd: G.hide ? "THIS TURN" : "\u2014",
+    act: () => gvToggle("hide"), on: G.hide,
+    info: "Free to declare on your own turn. Movement is halved, the unit cannot attack at all, and it is completely untargetable by mobile suits for the turn regardless of proximity. It does NOT protect against other ground units." });
+  if (u.cargo) rows.push({ name: "Squads aboard", sub: "capacity " + u.cargo + " \u00b7 safe & untargetable", ap: "\u2014", cd: G.cargo + " / " + u.cargo, step: true,
+    info: "Carries " + u.cargo + " Infantry Squad" + (u.cargo > 1 ? "s" : "") + ", safe and untargetable while aboard. If destroyed with squads inside: Emergency Disembark \u2014 roll 1d6 per living soldier, 4+ survives, 1\u20133 perishes; survivors are placed at the wreck. Use \u2212/+ to track who is aboard (linked to squads in the next build)." });
+  if (u.objective) rows.push({ name: "Objective", sub: "may carry the mission objective", ap: G.objective ? "ON" : "set", cd: G.objective ? "CARRYING" : "\u2014", act: () => gvToggle("objective"), on: G.objective,
+    info: "A Tank cannot transport a squad, but may carry the mission objective itself (e.g. the person or item being secured)." });
+  rows.push({ name: "Targeting", sub: "untargetable by suits unless one is within " + u.prox + "cm", ap: "\u2014", cd: (u.dodge ? "DODGE " + u.dodge + "+" : "NO DODGE"),
+    info: "Untargetable by mobile suits by default \u2014 targetable only while an enemy mobile suit is within " + u.prox + "cm (proximity alone). " +
+      (u.dodge ? "Rolled Dodge " + u.dodge + "+ against every attack, unlimited per turn. " : "No Rolled Dodge \u2014 its HP is its defence. ") +
+      "Vulcans cannot be dodged. If both of this side's Comm Arrays are destroyed (2-turn blackout), it is targetable only if it also fired that turn." });
+  rows.push({ name: dead ? "Respawn" : "Respawns from", sub: dead ? "back at full strength" : "when destroyed", ap: dead ? "\u21BB" : "\u2014", cd: u.respawn.toUpperCase(),
+    act: dead ? () => gvToggle("respawn") : null, warn: dead,
+    info: "Destroyed ground units come back: Infantry Squads, Cars, Tanks and Helicopters respawn from your base; Jets and Transport Ships from your board edge \u2014 never above the side's limits." });
+  rows.slice(0, 5).forEach((R, i) => {
+    const y = SHIP_ROWS_A[i];
+    const nm = add("div", "sw-name ab" + (R.warn ? " warn" : ""), { left: "59.0%", top: pc(y) }, '<b>' + R.name + '</b><span>' + R.sub + '</span>');
+    nm.onclick = () => showNotice(R.name, R.info);
+    const a = add("div", "sw-ap ab" + (R.act ? "" : " na") + (R.on ? " on" : ""), { left: "78.8%", top: pc(y) }, R.ap);
+    if (R.act) a.onclick = R.act;
+    add("div", "sw-cd" + (R.warn ? " warn" : "") + (R.step ? " withbtn" : ""), { left: R.step ? "87.6%" : "88.2%", top: pc(y) }, R.cd);
+    if (R.step) {
+      const m = add("div", "sstep", { left: "83.2%", top: pc(y) }, "\u2212"); m.onclick = () => gvToggle("cargo", -1);
+      const p = add("div", "sstep", { left: "93.1%", top: pc(y) }, "+"); p.onclick = () => gvToggle("cargo", 1);
+    }
+  });
+  // AP / movement / dodge
+  {
+    const y = GV_HEX[0][0], g = add("div", "grp sgrp", { left: "49.8%", top: pc(y) }), col = st.ap === 0 ? "#64748b" : "#38bdf8";
+    const m = el("div", "step show"); m.textContent = "\u2212"; m.style.borderColor = col; m.style.color = col; m.onclick = () => gvToggle("ap", -1);
+    const n = el("div", "num"); n.style.borderColor = col; n.innerHTML = st.ap + "<small>/" + u.ap + "</small>";
+    const p = el("div", "step show"); p.textContent = "+"; p.style.borderColor = col; p.style.color = col; p.onclick = () => gvToggle("ap", 1);
+    g.append(m, n, p);
+  }
+  const cm = G.hide ? u.moveCm / 2 : u.moveCm;
+  add("div", "smove" + (G.hide ? " warn" : ""), { left: "49.8%", top: pc(GV_HEX[1][0]) }, cm + "cm<small>" + (G.hide ? "hidden \u00b7 halved" : "per AP") + "</small>");
+  add("div", "smove", { left: "49.8%", top: pc(GV_HEX[2][0]) }, (u.dodge ? u.dodge + "+" : "NONE") + "<small>" + (u.dodge ? "rolled \u00b7 unlimited" : "HP is its defence") + "</small>");
+  // MOVE
+  const QT = sideKey() === "red"
+    ? ["rgba(48,5,10,.5)", "rgba(48,5,10,.78)", "#ff4d5a", "#ffe4e6", "rgba(255,77,90,.24)", "#3a0509"]
+    : ["rgba(6,30,78,.46)", "rgba(6,30,78,.72)", "#7dd3fc", "#e0f2fe", "rgba(125,211,252,.28)", "#082f49"];
+  let qa = st.qa;
+  if (!qa || !sameHalf(qa)) qa = st.qa = { r: turn.round, p: turn.phase, m: 0, d: 0 };
+  const cantMove = st.ap < 1 || dead;
+  const box = add("div", "qa sqa", { left: "49.8%", top: pc(SHIP_MOVE_Y) });
+  ["--qa-bg", "--qa-bg-on", "--qa-ac", "--qa-tx", "--qa-glow", "--qa-dk"].forEach((k, j) => box.style.setProperty(k, QT[j]));
+  const logMoves = () => qaLog(CUR.uid, "qa:m", qa.m, "Moved " + qa.m + "\u00d7 (" + (qa.m * cm) + "cm, " + qa.m + " AP)");
+  const mvb = el("div", "qab move" + (cantMove || turn.phase !== "you" ? " off" : ""));
+  mvb.innerHTML = "<b>MOVE</b><small>" + (dead ? "destroyed" : cm + "cm \u00b7 1 AP") + "</small>";
+  mvb.onclick = e => { e.stopPropagation(); if (cantMove || !mpSheetCanEdit()) return; qa.m += 1; st.ap -= 1; logMoves(); gvCommit(); };
+  const mu = el("div", "qau" + (qa.m ? "" : " hide"));
+  mu.innerHTML = "<span>\u21B6</span>" + (qa.m ? "<small>\u00d7" + qa.m + "</small>" : "");
+  mu.onclick = e => { e.stopPropagation(); if (!qa.m || !mpSheetCanEdit()) return; qa.m -= 1; st.ap = Math.min(u.ap, st.ap + 1); logMoves(); gvCommit(); };
+  box.append(mvb, mu);
+  renderTurn();
+  if (typeof mpSheetMode === "function") mpSheetMode();
+}
+
 SHIP_UNITS.forEach(s => UNITS.push(s));
+GROUND_UNITS.forEach(g => UNITS.push(g));
 const unitById = id => UNITS.find(u => u.id === id);
 
 function show(id) {
@@ -7805,6 +8190,7 @@ function available() {
 window.clearSearch = () => { query = ""; const f = $("search"); if (f) f.value = ""; renderRoster(); };
 function freshState(u) {
   if (u && u.type === "warship") return shipFresh(u);
+  if (u && u.type === "ground") return gvFresh(u);
   const hp = {}; LIMB_ORDER.forEach(k => hp[k] = u.limb[k]);
   return {
     hp, dodges: u.dodges, ap: u.ap,
@@ -7830,6 +8216,7 @@ function copyIndex(r) {
 }
 function addUnit(id) {
   if (!mpGuardLeader("change the roster")) return;
+  { const why = groundCapCheck(unitById(id)); if (why) { mpToast(why); return; } }
   roster.push({ uid: nextUid++, id, st: freshState(unitById(id)) });
   save(); renderRoster();
 }
@@ -8066,7 +8453,7 @@ function promptMarks(id) {
 function portraitHTML(u, r) {
   const tap = r ? ' onclick="event.stopPropagation();openMarkWheel(' + r.uid + ')" title="Tap to set a colour marker"' : '';
   return u.portrait
-    ? '<span class="pt' + (u.type === "warship" ? ' shipp' : '') + (r ? ' tapm' : '') + '"' + tap + '><img src="img/portraits/' + u.portrait + '.webp" alt="" loading="lazy" decoding="async">' + markPipHTML(r) + '</span>'
+    ? '<span class="pt' + (u.type === "warship" || u.type === "ground" ? ' shipp' : '') + (u.type === "ground" ? ' gp' : '') + (r ? ' tapm' : '') + '"' + tap + '><img src="img/portraits/' + u.portrait + '.webp" alt="" loading="lazy" decoding="async">' + markPipHTML(r) + '</span>'
     : '<span class="pt ph' + (u.type === "warship" ? ' shipph' : '') + (r ? ' tapm' : '') + '"' + (tap || (u.type === "warship" ? '' : ' title="Portrait coming soon"')) + '><img src="' + modelImg(u) + '" alt="" loading="lazy" decoding="async">' + markPipHTML(r) + '</span>';
 }
 // Lists used to rely on CSS multi-column layout. Safari fails to register taps outside the first column
@@ -9205,6 +9592,16 @@ window.oppDetail = uid => {
   const x = (td.roster || []).find(y => y.uid === uid); if (!x) return;
   const u = unitById(x.id), ud = mp.data["unit/" + ot + "/" + uid], st = (ud && ud.st) || {};
   const hpNow = st.hp || u.limb;
+  if (isGround(u)) {
+    const G = st.gv || gvFresh(u).gv, hpv = (st.hp || {}).hp ?? u.hp, p = hpv / u.hp;
+    let rows2 = '<div class="od-row"><span class="od-dot" style="background:' + HEALTH_COL(p) + '"></span><span>HP</span><b style="color:' + HEALTH_COL(p) + '">' + HEALTH_WORD(p) + '</b></div>';
+    if (u.armor) { const pa = G.armor / u.armor; rows2 += '<div class="od-row"><span class="od-dot" style="background:' + HEALTH_COL(pa) + '"></span><span>Armor (ground battle)</span><b style="color:' + HEALTH_COL(pa) + '">' + (pa <= 0 ? "Stripped" : HEALTH_WORD(pa)) + '</b></div>'; }
+    if (G.hide) rows2 += '<div class="od-row"><span></span><span>Hide Stance</span><b>Hidden from mobile suits</b></div>';
+    $("popT").textContent = "Enemy \u2014 " + u.short; $("popK").textContent = teamName(ot) + " \u00b7 " + u.cls;
+    $("popS").innerHTML = ""; $("popB").innerHTML = '<div class="oppdetail">' + rows2 + '</div><p class="cws" style="margin-top:8px">Exact numbers are hidden for enemy units.</p>';
+    $("pop").classList.add("on");
+    return;
+  }
   if (isShip(u)) {
     const S = st.ship || shipFresh(u).ship, sst = { hp: { hull: (st.hp || {}).hull ?? u.hull }, ship: S };
     const parts = ["hull", "bridge", "thr0", "thr1"].concat(u.sw.map(w => w.key));
@@ -9252,7 +9649,7 @@ function renderTabs() {
   const count = t => roster.filter(r => unitTab(unitById(r.id)) === t).length;
   const tab = (t, label, extra) => '<button class="rtab ' + t + (rosterTab === t ? ' on' : '') + '" onclick="setRosterTab(\'' + t + '\')">' +
     TAB_ICON[t] + '<span>' + label + '</span>' + (extra || '<b>' + count(t) + '</b>') + '</button>';
-  setHTMLIfChanged(box, tab("suits", "Mobile suits") + tab("ships", "Ships") + tab("ground", "Ground units", '<em>SOON</em>'));
+  setHTMLIfChanged(box, tab("suits", "Mobile suits") + tab("ships", "Ships") + tab("ground", "Ground units"));
 }
 function groundNoticeHTML() {
   return '<div class="uc"><div class="uc-stripes"></div><div class="uc-body">' +
@@ -9310,12 +9707,10 @@ function renderRosterCore() {
   renderTabs();
   const shownRoster = roster.filter(r => unitTab(unitById(r.id)) === rosterTab);
   const tabNoun = rosterTab === "ships" ? "ship(s)" : rosterTab === "ground" ? "ground unit(s)" : "mobile suit(s)";
-  if (rosterTab === "ground") {
-    setHTMLIfChanged(box, groundNoticeHTML());
-  } else if (roster.length && !shownRoster.length) {
+  if (roster.length && !shownRoster.length) {
     setHTMLIfChanged(box, '<div class="grouphdr">' + (locked ? "Deployed force" : "Your roster") + ' \u2014 no ' + tabNoun.replace("(s)", "s") + '</div><div class="empty">' +
-      (locked ? 'No ' + (rosterTab === "ships" ? "warships" : "mobile suits") + ' in this force.'
-              : rosterTab === "ships" ? 'No warships yet \u2014 pick one below.' : 'No mobile suits yet \u2014 pick one below.') + '</div>');
+      (locked ? 'No ' + (rosterTab === "ships" ? "warships" : rosterTab === "ground" ? "ground units" : "mobile suits") + ' in this force.'
+              : rosterTab === "ships" ? 'No warships yet \u2014 pick one below.' : rosterTab === "ground" ? 'No ground units yet \u2014 pick some below. They cost no DP.' : 'No mobile suits yet \u2014 pick one below.') + '</div>');
   } else if (!roster.length) {
     setHTMLIfChanged(box, '<div class="grouphdr">Your roster</div><div class="empty">' + (mpTeamMode() && !mpAmLeader()
       ? 'Your team leader \u{1F451} ' + mpLeaderName(mpMyTeam()) + ' is picking the roster \u2014 it will appear here as they build it.'
@@ -9359,7 +9754,7 @@ function renderRosterCore() {
   pool.style.display = ""; hdr.style.display = ""; if (tools) tools.style.display = "flex";
   if (rosterTab !== "suits") {                                     // the other tabs have no search box
     if (tools) tools.style.display = "none";
-    if (rosterTab === "ground") hdr.style.display = "none"; else hdr.textContent = "Available warships";
+    hdr.textContent = rosterTab === "ground" ? "Available ground units" : "Available warships";
   } else hdr.textContent = "Available mobile suits";
   const poolSig = JSON.stringify([side, query, budget, roster.map(r => r.id), typeof mpTeamMode === "function" && mpTeamMode(), rosterTab]);
   if (pool.__sig === poolSig && pool.firstChild) return;
@@ -9369,9 +9764,8 @@ function renderRosterCore() {
   if (rosterTab !== "suits") {
     pool.classList.remove("list");
     if (tools) tools.style.display = "none";
-    if (rosterTab === "ground") { hdr.style.display = "none"; return; }
-    hdr.textContent = "Available warships";
-    pool.innerHTML = shipCardsHTML();
+    hdr.textContent = rosterTab === "ground" ? "Available ground units" : "Available warships";
+    pool.innerHTML = rosterTab === "ground" ? groundCardsHTML() : shipCardsHTML();
     return;
   }
   pool.classList.add("list");
@@ -9419,7 +9813,7 @@ const LIMB_POS_RED = {
 };
 const limbPos = bg => (bg === "red" || bg === "red360") ? LIMB_POS_RED : LIMB_POS_DEFAULT;
 const LIMB_ORDER = ["head", "chest", "rightArm", "leftArm", "rightLeg", "leftLeg"];
-const LIMB_LABEL = { head: "Head", chest: "Chest", rightArm: "Right Arm", leftArm: "Left Arm", rightLeg: "Right Leg", leftLeg: "Left Leg", hull: "Hull" };
+const LIMB_LABEL = { head: "Head", chest: "Chest", rightArm: "Right Arm", leftArm: "Left Arm", rightLeg: "Right Leg", leftLeg: "Left Leg", hull: "Hull", hp: "HP" };
 const SKILL_Y = [24.6, 29.7, 34.7, 39.7, 44.1];
 const COL = { skillName: 7.3, skillAP: 25.8, skillCD: 35.5, wName: 7.3, wDmg: 25.8, wAP: 31.1, wRange: 37.7,
               nameX: 67.2, nameY: 11.7, dpX: 67.2, dpY: 17.2, moveX: 80.5, moveY: 38.5 };
@@ -9440,6 +9834,7 @@ const GUNDAM_SPACENOID = ["rx-78gp02a-gundam-physalis", "xi-gundam-gundam"];   /
 const isGruntTier = u => /Grunt/.test(u.tier);
 const mechModel = u => {
   if (u && u.type === "warship") return "ship-" + u.ship;
+  if (u && u.type === "ground") return u.wire;
   if (isGruntTier(u)) return u.faction === "spacenoid" ? "zaku" : u.faction === "federation" ? "gm" : (side === "spacenoid" ? "zaku" : "gm");
   if (u.faction === "spacenoid") return GUNDAM_SPACENOID.some(k => u.id.indexOf(k) === 0) ? "gundam" : "sazabi";
   return "gundam";
@@ -9486,7 +9881,7 @@ function paintMech(canvas, model, colour) {
     if (canvas.dataset.want === key) show(mechTinted[key]);
   };
   let img = mechSrc[model];
-  if (!img) { img = mechSrc[model] = new Image(); img.src = (model.indexOf("ship-") === 0 ? "img/" : "img/mech-") + model + ".webp"; }
+  if (!img) { img = mechSrc[model] = new Image(); img.src = (model.indexOf("ship-") === 0 || model.indexOf("ground/") === 0 ? "img/" : "img/mech-") + model + ".webp"; }
   if (img.complete && img.naturalWidth) ready(img);
   else img.addEventListener("load", () => ready(img), { once: true });
 }
@@ -9501,6 +9896,7 @@ function applyHud() {
 function buildFrame() {
   if (!U) return;
   if (isShip(U)) { buildShipFrame(); return; }
+  if (isGround(U)) { buildGroundFrame(); return; }
   $("sheet").classList.remove("shipsheet");
   const cov = ["blue360", "red360", "phenex"].indexOf(U.bg) >= 0 ? "360" : "180";
   const ring = !!U.ring, model = mechModel(U), rolled = isGruntTier(U);
@@ -9594,8 +9990,8 @@ function openSheet(uid) {
   { const cs = locked ? carrierState(uid) : null;
     if (cs && cs.state === "aboard") { mpToast(unitLabel(uid) + " is aboard the " + cs.u.short + " \u2014 launch it from the ship's sheet."); openSheet(cs.ship.uid); return; } }
   U = unitById(CUR.id);
-  if (isShip(U)) {                                   // warships have their own sheet
-    const s = shipMigrate(U, CUR.st);
+  if (isShip(U) || isGround(U)) {                    // warships and ground vehicles have their own sheets
+    const s = isShip(U) ? shipMigrate(U, CUR.st) : gvMigrate(U, CUR.st);
     hp = s.hp; dodges = 0; ap = s.ap; track = s.track; wpn = s.wpn; sh = s.sh; shDown = s.shDown; shMax = s.shMax;
     out = null; lent = s.lent; pods = null; risk = s.risk; swapMode = false; swapFrom = null; active = null;
     applyHud();
@@ -9704,7 +10100,7 @@ window.openPicker = (mode, slot) => {
        + (canAfford ? " Lasts until recalled." : " <span style='color:#fca5a5'>Not enough AP.</span>"))
     : "Tap a model to open its sheet.";
   roster.forEach(r => {
-    if (lendMode && (r.uid === CUR.uid || isShip(unitById(r.id)) || outOfPlay(r.uid))) return;
+    if (lendMode && (r.uid === CUR.uid || isShip(unitById(r.id)) || isGround(unitById(r.id)) || outOfPlay(r.uid))) return;
     const un = unitById(r.id), n = countOf(r.id), idx = copyIndex(r);
     const kl = un.kill || "chest", tot = un.limb[kl], now = r.st.hp[kl];
     const dead = now === 0;
@@ -10042,6 +10438,7 @@ function abilityLocked(a, abilities, trackArr) {
 
 function draw() {
   if (U && isShip(U)) { drawShip(); return; }
+  if (U && isGround(U)) { drawGround(); return; }
   $("sheet").classList.remove("shipsheet");
   [...$("sheet").querySelectorAll(".sx")].forEach(n => n.remove());
   persist();
@@ -11384,7 +11781,7 @@ function draw() {
   }
 }
 
-const APP_BUILD = "cf25";
+const APP_BUILD = "cf28";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
@@ -11394,6 +11791,7 @@ $("mDmg").onclick = () => { mode = "damage"; document.body.classList.remove("rep
 $("mRep").onclick = () => { mode = "repair"; document.body.classList.add("repair"); $("mRep").className = "on-rep"; $("mDmg").className = ""; };
 function advance(u, st) {
   if (isShip(u)) { shipAdvance(u, st); return; }
+  if (isGround(u)) { gvAdvance(u, st); return; }
   // modes tick first, so a buff that runs out does not leak into the new turn
   u.abilities.forEach((a, i) => {
     const t = st.track[i];
