@@ -2732,6 +2732,111 @@ body.spa .ffside.foe{background:linear-gradient(270deg,rgba(56,189,248,.14),tran
 .sfx.ring{width:clamp(220px,42vmin,460px);animation:sfxRing .9s ease-out forwards}
 @keyframes sfxRing{0%{opacity:0;transform:translate(-50%,-50%) scale(.2)}20%{opacity:.85}100%{opacity:0;transform:translate(-50%,-50%) scale(1.3)}}
 @media (prefers-reduced-motion:reduce){.m3-mega{display:none}}
+/* ================= HANGAR EFFECTS (cf66) ================= */
+#lbfx{position:fixed;z-index:-1;pointer-events:none;overflow:hidden}
+#lbfx>*{position:absolute}
+body.fed #lbfx .lb-eye.z,body.fed #lbfx .lb-strip.r,body.fed #lbfx .lb-win.zeon,body.fed #lbfx .lb-search.b{opacity:.45}
+body.spa #lbfx .lb-eye.g,body.spa #lbfx .lb-strip.b,body.spa #lbfx .lb-win.fed,body.spa #lbfx .lb-search.a{opacity:.55}
+/* eyes */
+.lb-eye{display:block;border-radius:50%;transform:translate(-50%,-50%);mix-blend-mode:screen}
+.lb-eye.g{top:25%;width:1.6%;height:1.3%;background:radial-gradient(circle,#fff 0,#fef08a 30%,rgba(250,204,21,.6) 50%,rgba(250,204,21,0) 72%);animation:lbEyeG 3.4s ease-in-out infinite}
+.lb-eye.g.l{left:28.2%}.lb-eye.g.r{left:29.7%;animation-delay:.15s}
+@keyframes lbEyeG{0%,100%{opacity:.35;transform:translate(-50%,-50%) scale(.9)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.25)}}
+.lb-eye.z{top:28.5%;left:69.6%;width:2.2%;height:2.4%;background:radial-gradient(circle,#fff 0,#f0abfc 22%,rgba(236,72,153,.75) 45%,rgba(236,72,153,0) 72%);
+  animation:lbMono 8s ease-in-out infinite,lbMonoGlow 2.2s ease-in-out infinite}
+@keyframes lbMono{0%,18%,100%{left:69.6%}30%,42%{left:68.8%}58%,72%{left:70.8%}84%{left:69.6%}}
+@keyframes lbMonoGlow{0%,100%{opacity:.75;filter:brightness(1)}50%{opacity:1;filter:brightness(1.4)}}
+/* light strips: a pulse chasing upwards */
+.lb-strip{width:.32%;transform:translateX(-50%);overflow:hidden;mix-blend-mode:screen;border-radius:2px}
+.lb-strip i{position:absolute;left:0;right:0;height:22%;opacity:0;animation:lbChase 3.6s linear var(--d,0s) infinite}
+.lb-strip i:nth-child(2){animation-delay:calc(var(--d,0s) + 1.8s)}
+.lb-strip.b i{background:linear-gradient(180deg,rgba(140,200,255,0),rgba(170,215,255,.95),rgba(140,200,255,0));box-shadow:0 0 8px rgba(120,180,255,.9)}
+.lb-strip.r i{background:linear-gradient(180deg,rgba(255,80,100,0),rgba(255,120,130,.95),rgba(255,80,100,0));box-shadow:0 0 8px rgba(255,60,80,.9)}
+@keyframes lbChase{0%{top:100%;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:-25%;opacity:0}}
+/* searchlights */
+.lb-search{top:-4%;width:16%;height:92%;transform-origin:50% 0;mix-blend-mode:screen;
+  clip-path:polygon(44% 0,56% 0,100% 100%,0 100%);animation:lbSweep 15s ease-in-out infinite alternate}
+.lb-search.a{left:24%;background:linear-gradient(180deg,rgba(190,220,255,.2),rgba(190,220,255,0) 85%)}
+.lb-search.b{left:62%;background:linear-gradient(180deg,rgba(255,170,170,.16),rgba(255,170,170,0) 85%);animation-delay:-7s;animation-duration:17s}
+@keyframes lbSweep{0%{transform:rotate(-16deg)}100%{transform:rotate(16deg)}}
+/* floor */
+.lb-sheen{left:0;right:0;top:87%;bottom:0;mix-blend-mode:screen;background:linear-gradient(100deg,transparent 35%,rgba(210,225,255,.12) 47%,rgba(255,190,200,.08) 53%,transparent 65%);background-size:220% 100%;animation:lbSheen 10s linear infinite}
+@keyframes lbSheen{0%{background-position:120% 0}100%{background-position:-120% 0}}
+.lb-fog{left:-25%;right:-25%;top:76%;height:28%;pointer-events:none;
+  background:radial-gradient(ellipse 30% 45% at 25% 60%,rgba(170,185,210,.2),transparent 70%),radial-gradient(ellipse 28% 40% at 70% 55%,rgba(170,185,210,.16),transparent 70%)}
+.lb-fog.a{animation:lbFog 28s linear infinite alternate}
+.lb-fog.b{top:82%;opacity:.8;animation:lbFog 36s linear infinite alternate-reverse}
+@keyframes lbFog{0%{transform:translateX(-8%)}100%{transform:translateX(8%)}}
+.lb-dust{inset:0}
+.lb-dust i{position:absolute;width:2px;height:2px;border-radius:50%;background:rgba(230,236,255,.55);opacity:0;animation:lbDust var(--dur) linear var(--del) infinite}
+@keyframes lbDust{0%{transform:translate(0,0);opacity:0}15%{opacity:.7}85%{opacity:.5}100%{transform:translate(var(--dx),-18vh);opacity:0}}
+/* sparks + window battle */
+.lb-sparks{inset:0}
+.lb-spark{position:absolute;transform:translate(-50%,-50%) scale(.3);opacity:0;animation:lbSpark .42s ease-out forwards}
+@keyframes lbSpark{0%{opacity:0;transform:translate(-50%,-50%) scale(.3) rotate(0)}25%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.2) rotate(40deg)}}
+.lb-win{overflow:hidden}
+.lb-win.fed{left:33%;top:5%;width:12%;height:29%}
+.lb-win.zeon{left:55%;top:5%;width:12%;height:33%}
+.lb-wbeam{position:absolute;width:34%;height:5%;object-fit:fill;opacity:0;transform:translate(-50%,-50%) rotate(var(--ang));animation:lbWBeam .8s ease-out forwards}
+@keyframes lbWBeam{0%{opacity:0;transform:translate(-50%,-50%) rotate(var(--ang)) translateX(-40%)}20%{opacity:.85}100%{opacity:0;transform:translate(-50%,-50%) rotate(var(--ang)) translateX(60%)}}
+.lb-wboom{position:absolute;width:18%;opacity:0;transform:translate(-50%,-50%) scale(.2);animation:lbWBoom .9s ease-out forwards}
+@keyframes lbWBoom{0%{opacity:0;transform:translate(-50%,-50%) scale(.2)}20%{opacity:.9}100%{opacity:0;transform:translate(-50%,-50%) scale(1.1)}}
+/* your side powers up */
+#lbfx.pw-fed .lb-eye.g{animation:lbFlare 1.6s ease-out}
+#lbfx.pw-spa .lb-eye.z{animation:lbFlare 1.6s ease-out}
+@keyframes lbFlare{0%{opacity:.4;transform:translate(-50%,-50%) scale(1)}15%{opacity:1;transform:translate(-50%,-50%) scale(4);filter:brightness(2)}100%{opacity:.9;transform:translate(-50%,-50%) scale(1.2)}}
+#lbfx.pw-fed .lb-strip.b i,#lbfx.pw-spa .lb-strip.r i{animation-duration:.9s}
+#lbfx.pw-fed .lb-strip.b,#lbfx.pw-spa .lb-strip.r{width:.6%;opacity:1 !important}
+/* everyone ready: beacons + launch sequence */
+.lb-beacon{display:block;top:0;width:12%;height:18%;border-radius:50%;opacity:0;transition:opacity .4s;mix-blend-mode:screen;
+  background:conic-gradient(from 0deg,rgba(255,170,40,0),rgba(255,180,60,.6) 18%,rgba(255,170,40,0) 36%,rgba(255,170,40,0) 50%,rgba(255,180,60,.6) 68%,rgba(255,170,40,0) 86%)}
+.lb-beacon.l{left:1%}.lb-beacon.r{right:1%}
+#lbfx.alarm .lb-beacon{opacity:1;animation:lbSpin 1.2s linear infinite}
+@keyframes lbSpin{to{transform:rotate(360deg)}}
+#lbfx.alarm:after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0,rgba(255,160,40,.14),transparent 60%);animation:lbAlarm 1.2s ease-in-out infinite}
+@keyframes lbAlarm{0%,100%{opacity:.3}50%{opacity:1}}
+#lbseq{position:fixed;left:50%;bottom:10px;transform:translate(-50%,20px);z-index:4;display:flex;gap:10px;align-items:center;padding:5px 14px;opacity:0;pointer-events:none;
+  font:900 11px system-ui,sans-serif;letter-spacing:.24em;color:#1c1300;background:#fbbf24;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:opacity .3s,transform .3s}
+#lbseq span{font-weight:700;letter-spacing:.14em}
+#lbseq.on{opacity:1;transform:translate(-50%,0);animation:lbBlink 1.2s ease-in-out infinite}
+@keyframes lbBlink{0%,100%{filter:brightness(1)}50%{filter:brightness(1.35)}}
+#lbfx.lite .lb-dust,#lbfx.lite .lb-sparks,#lbfx.lite .lb-win,#lbfx.lite .lb-fog.b,#lbfx.lite .lb-search{display:none}
+/* hangar doors: seam sparks + steam */
+#hangar .hd-seam{position:absolute;left:50%;top:0;bottom:0;width:0;z-index:5;pointer-events:none}
+.hs-spark{position:absolute;left:0;width:11vmin;opacity:0;transform:translate(-50%,-50%) scale(.2);animation:hsSpark .5s ease-out forwards}
+@keyframes hsSpark{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(0)}30%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.3) rotate(50deg)}}
+.hs-steam{position:absolute;width:30vmin;height:16vmin;border-radius:50%;opacity:0;background:radial-gradient(ellipse,rgba(225,232,240,.6),rgba(225,232,240,0) 70%);animation:hsSteam 1s ease-out forwards}
+.hs-steam.l{right:0;--dx:-14vmin}.hs-steam.r{left:0;--dx:14vmin}
+@keyframes hsSteam{0%{opacity:0;transform:translate(0,-50%) scale(.3)}30%{opacity:.9}100%{opacity:0;transform:translate(var(--dx),-60%) scale(1.3)}}
+
+/* ================= ROSTER / BUDGET HANGAR EFFECTS (cf66) ================= */
+#rsfx{position:fixed;z-index:-1;pointer-events:none;overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,transparent 38%,rgba(0,0,0,.6) 55%,#000 70%);mask-image:linear-gradient(90deg,transparent 0,transparent 38%,rgba(0,0,0,.6) 55%,#000 70%)}
+#rsfx>*{position:absolute}
+.rs-eye{display:block;border-radius:50%;transform:translate(-50%,-50%);mix-blend-mode:screen}
+.rs-eye.g{background:radial-gradient(ellipse,#fff 0,#a7f3d0 25%,rgba(52,211,153,.6) 50%,rgba(52,211,153,0) 72%);animation:rsEyeG 3.6s ease-in-out infinite}
+@keyframes rsEyeG{0%,100%{opacity:.35;transform:translate(-50%,-50%) scale(.9)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.35)}}
+.rs-eye.z{background:radial-gradient(circle,#fff 0,#fda4af 22%,rgba(244,63,94,.75) 45%,rgba(244,63,94,0) 72%);animation:rsMono 9s ease-in-out infinite,rsMonoGlow 2.2s ease-in-out infinite}
+@keyframes rsMono{0%,18%,100%{margin-left:0}30%,42%{margin-left:-.7%}58%,72%{margin-left:.7%}84%{margin-left:0}}
+@keyframes rsMonoGlow{0%,100%{opacity:.7;filter:brightness(1)}50%{opacity:1;filter:brightness(1.45)}}
+.rs-light{display:block;width:2.4%;height:2.4%;border-radius:50%;transform:translate(-50%,-50%);mix-blend-mode:screen;opacity:.0;
+  background:radial-gradient(circle,rgba(255,255,255,.9) 0,rgba(200,225,255,.35) 35%,rgba(200,225,255,0) 70%);animation:rsFlicker 7s steps(1) var(--d,0s) infinite}
+#rsfx.spa .rs-light{background:radial-gradient(circle,rgba(255,240,220,.9) 0,rgba(255,170,120,.35) 35%,rgba(255,170,120,0) 70%)}
+@keyframes rsFlicker{0%,100%{opacity:.8}46%{opacity:.8}47%{opacity:.15}48%{opacity:.75}49%{opacity:.1}50%{opacity:.85}88%{opacity:.8}89%{opacity:.3}90%{opacity:.8}}
+.rs-mist{display:block;width:30%;height:16%;border-radius:50%;transform:translate(-50%,-50%);opacity:.5;
+  background:radial-gradient(ellipse,rgba(170,200,235,.35),rgba(170,200,235,0) 70%);animation:rsMist 14s ease-in-out var(--d,0s) infinite alternate}
+#rsfx.spa .rs-mist{background:radial-gradient(ellipse,rgba(235,170,160,.3),rgba(235,170,160,0) 70%)}
+@keyframes rsMist{0%{transform:translate(-58%,-50%) scale(.9);opacity:.35}100%{transform:translate(-42%,-54%) scale(1.15);opacity:.7}}
+.rs-search{left:62%;top:-4%;width:16%;height:95%;transform-origin:50% 0;mix-blend-mode:screen;clip-path:polygon(44% 0,56% 0,100% 100%,0 100%);
+  background:linear-gradient(180deg,rgba(190,220,255,.16),rgba(190,220,255,0) 85%);animation:lbSweep 16s ease-in-out infinite alternate}
+#rsfx.spa .rs-search{background:linear-gradient(180deg,rgba(255,180,160,.14),rgba(255,180,160,0) 85%)}
+.rs-sheen{left:0;right:0;top:86%;bottom:0;mix-blend-mode:screen;background:linear-gradient(100deg,transparent 35%,rgba(210,225,255,.12) 50%,transparent 65%);background-size:220% 100%;animation:lbSheen 11s linear infinite}
+#rsfx.spa .rs-sheen{background-image:linear-gradient(100deg,transparent 35%,rgba(255,190,170,.1) 50%,transparent 65%)}
+.rs-dust{inset:0}
+.rs-dust i{position:absolute;width:2px;height:2px;border-radius:50%;background:rgba(230,236,255,.55);opacity:0;animation:lbDust var(--dur) linear var(--del) infinite}
+.rs-sparks{inset:0}
+.rs-spark{position:absolute;transform:translate(-50%,-50%) scale(.3);opacity:0;animation:lbSpark .42s ease-out forwards}
+#rsfx.lite .rs-dust,#rsfx.lite .rs-sparks,#rsfx.lite .rs-search{display:none}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -10083,7 +10188,8 @@ function show(id) {
   if (id === "s0") { stashTeam(); refreshSideCards(); renderLanding(); }
   if (id === "s1") { stashTeam(); refreshSideCards(); if (!menuSide) menuSide = side || null; renderMenu(); }
   if (id === "s2") renderPresets();
-  if (id === "s5") renderLobby();
+  if (id === "s2" || id === "s3") setTimeout(() => { if (typeof rsInit === "function") { rsInit(); rsSpawn(); } }, 0);
+  if (id === "s5") { renderLobby(); setTimeout(() => { if (typeof lbInit === "function") { lbInit(); lbLayout(); lbSpawn(); } }, 0); }
   else applyTheme();                           // leaving the lobby: back to this device's side colours
   if (id !== "s3") document.body.classList.remove("locked");
   else document.body.classList.toggle("locked", locked);
@@ -10318,7 +10424,8 @@ function m3Start() {
   const blastSize = () => { const r = Math.random(); return r < 0.5 ? rnd(3, 6) : r < 0.85 ? rnd(6, 10) : rnd(10, 15); };
   const blast = (fx, onFed, at, size, delay) => setTimeout(() => {
     if (!fx.isConnected) return;
-    sprite(fx, onFed ? pick(["boom-o1", "boom-o2", "boom-o3"]) : pick(["boom-p1", "boom-p2", "star-p"]), at[0], at[1], size, size > 10 ? "big" : "", size > 10 ? 1700 : 1300);
+    // space explosions: starbursts and rings only (yellow on Federation ships, pink on Zeon ships)
+    sprite(fx, onFed ? pick(["star-y", "star-y", "ring-o"]) : pick(["star-p", "star-p", "ring-p"]), at[0], at[1], size, size > 10 ? "big" : "", size > 10 ? 1700 : 1300);
     if (size > 10) sprite(fx, onFed ? "ring-o" : "ring-p", at[0], at[1], size * 1.5, "ring", 1500);
   }, delay || 0);
   const beam = (fx, fromFed, mega) => {
@@ -10342,7 +10449,7 @@ function m3Start() {
       bm.className = "m3-beam";
       bm.style.width = rnd(8, 20).toFixed(1) + "vmax"; bm.style.height = rnd(1, 2.4).toFixed(2) + "vmax";
       fx.appendChild(bm); setTimeout(() => bm.remove(), 700);
-      setTimeout(() => { if (fx.isConnected) sprite(fx, fromFed ? pick(["star-p", "boom-p1", "spark-p"]) : pick(["star-y", "boom-o1", "boom-o3"]), b[0], b[1], blastSize(), "hit"); }, 430);
+      setTimeout(() => { if (fx.isConnected) sprite(fx, fromFed ? pick(["star-p", "star-p", "ring-p"]) : pick(["star-y", "star-y", "ring-o"]), b[0], b[1], blastSize(), "hit"); }, 430);
     }
   };
   const boom = () => {
@@ -10417,6 +10524,196 @@ function m3Init() {
   document.addEventListener("visibilitychange", () => { if (!document.hidden) m3Start(); });
 }
 
+// ================= HANGAR (LOBBY) EFFECTS (cf66) =================
+// An effects layer sized exactly like the hangar picture (cover, 50% / 30%), so every effect is placed in picture %.
+const LB_IMG = { w: 1536, h: 1024, px: 0.5, py: 0.3 };
+const LB_STRIPS = [   // [x %, top %, bottom %, colour]  the light strips on the central pillar and the upper-left gantry
+  [46.6, 12, 77, "b"], [53.6, 10, 77, "r"], [20.6, 5, 42, "b"], [16.4, 17, 25, "b"],
+];
+const LB_SPARKS = [[33.5, 84, "b"], [22, 44, "b"], [40.5, 55, "b"], [63.5, 83, "r"], [80.5, 45, "r"], [58, 55, "r"]];
+const LB_WINDOWS = { fed: [33, 5, 45, 34], zeon: [55, 5, 67, 38] };   // [x0, y0, x1, y1] %
+let lbT = { spark: 0, win: 0 };
+function lbOn() { const s5 = $("s5"); return !!(s5 && s5.classList.contains("on") && !document.hidden); }
+function lbReduced() { return !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches); }
+function lbLite() { return (navigator.deviceMemory && navigator.deviceMemory <= 2) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2); }
+function lbLayout() {
+  const box = $("lbfx"); if (!box) return;
+  const W = innerWidth, H = innerHeight, s = Math.max(W / LB_IMG.w, H / LB_IMG.h);
+  const iw = LB_IMG.w * s, ih = LB_IMG.h * s;
+  box.style.left = ((W - iw) * LB_IMG.px) + "px"; box.style.top = ((H - ih) * LB_IMG.py) + "px";
+  box.style.width = iw + "px"; box.style.height = ih + "px";
+}
+function lbInit() {
+  const s5 = $("s5"); if (!s5 || $("lbfx") || lbReduced()) return;
+  const box = document.createElement("div"); box.id = "lbfx"; box.setAttribute("aria-hidden", "true");
+  if (lbLite()) box.classList.add("lite");
+  let h = '<div class="lb-search a"></div><div class="lb-search b"></div>' +
+    '<div class="lb-win fed"></div><div class="lb-win zeon"></div>' +
+    '<i class="lb-eye g l"></i><i class="lb-eye g r"></i><i class="lb-eye z"></i>';
+  LB_STRIPS.forEach(([x, t, b, c], k) => {
+    h += '<div class="lb-strip ' + c + '" style="left:' + x + '%;top:' + t + '%;height:' + (b - t) + '%;--d:' + (k * 0.7).toFixed(1) + 's"><i></i><i></i></div>';
+  });
+  h += '<div class="lb-sheen"></div><div class="lb-fog a"></div><div class="lb-fog b"></div><div class="lb-dust"></div><div class="lb-sparks"></div>' +
+    '<i class="lb-beacon l"></i><i class="lb-beacon r"></i>';
+  box.innerHTML = h;
+  const dust = box.querySelector(".lb-dust");
+  for (let k = 0; k < 22; k++) {
+    const d = document.createElement("i");
+    d.style.left = (Math.random() * 100).toFixed(1) + "%"; d.style.top = (20 + Math.random() * 70).toFixed(1) + "%";
+    d.style.setProperty("--dur", (10 + Math.random() * 12).toFixed(1) + "s"); d.style.setProperty("--del", (-Math.random() * 20).toFixed(1) + "s");
+    d.style.setProperty("--dx", ((Math.random() - 0.5) * 8).toFixed(1) + "vw");
+    dust.appendChild(d);
+  }
+  s5.appendChild(box);
+  lbLayout();
+  addEventListener("resize", lbLayout);
+  addEventListener("orientationchange", () => setTimeout(lbLayout, 150));
+  const seq = document.createElement("div"); seq.id = "lbseq"; seq.setAttribute("aria-hidden", "true");
+  seq.innerHTML = '<b>LAUNCH SEQUENCE</b><span>ALL PILOTS READY</span>';
+  s5.appendChild(seq);
+}
+function lbSpawn() {
+  clearTimeout(lbT.spark); clearTimeout(lbT.win);
+  if (!lbOn()) return;
+  const box = $("lbfx"); if (!box || box.classList.contains("lite")) return;
+  // welding sparks at the suits' feet and on the gantries
+  const sparks = () => {
+    if (!lbOn()) return;
+    const holder = box.querySelector(".lb-sparks");
+    if (holder && holder.childElementCount < 10) {
+      const [x, y, c] = LB_SPARKS[Math.floor(Math.random() * LB_SPARKS.length)];
+      const n = 2 + Math.floor(Math.random() * 3);
+      for (let k = 0; k < n; k++) setTimeout(() => {
+        const im = document.createElement("img"); im.className = "lb-spark"; im.alt = "";
+        im.src = "img/fx/" + (c === "b" ? (Math.random() < 0.5 ? "star-y" : "star-w") : (Math.random() < 0.5 ? "star-y" : "spark-p")) + ".webp";
+        im.style.left = (x + (Math.random() - 0.5) * 1.5) + "%"; im.style.top = (y + (Math.random() - 0.5) * 1.5) + "%";
+        im.style.width = (1.2 + Math.random() * 1.8).toFixed(2) + "%";
+        holder.appendChild(im); setTimeout(() => im.remove(), 450);
+      }, k * 90);
+    }
+    lbT.spark = setTimeout(sparks, 600 + Math.random() * 1600);
+  };
+  // the battle outside: tiny beams and blasts in the space windows
+  const windows = () => {
+    if (!lbOn()) return;
+    const fedWin = Math.random() < 0.5, [x0, y0, x1, y1] = LB_WINDOWS[fedWin ? "fed" : "zeon"];
+    const holder = box.querySelector(".lb-win." + (fedWin ? "fed" : "zeon"));
+    if (holder && holder.childElementCount < 4) {
+      const im = document.createElement("img"); im.alt = "";
+      const beamShot = Math.random() < 0.55;
+      im.className = beamShot ? "lb-wbeam" : "lb-wboom";
+      // space explosions: starbursts and rings only (the window's own side colour)
+      im.src = "img/fx/" + (beamShot ? (fedWin ? "beam-p" : "beam-y") : (fedWin ? (Math.random() < 0.6 ? "star-y" : "ring-o") : (Math.random() < 0.6 ? "star-p" : "ring-p"))) + ".webp";
+      im.style.left = (10 + Math.random() * 70) + "%"; im.style.top = (15 + Math.random() * 65) + "%";
+      im.style.setProperty("--ang", ((Math.random() < 0.5 ? 0 : 180) + (Math.random() - 0.5) * 30).toFixed(0) + "deg");
+      holder.appendChild(im); setTimeout(() => im.remove(), 900);
+    }
+    lbT.win = setTimeout(windows, 900 + Math.random() * 1800);
+  };
+  lbT.spark = setTimeout(sparks, 500);
+  lbT.win = setTimeout(windows, 800);
+}
+// your side powers up when you pick it
+function lbPower(t) {
+  const box = $("lbfx"); if (!box) return;
+  const cls = t === "federation" ? "pw-fed" : "pw-spa";
+  box.classList.remove("pw-fed", "pw-spa"); void box.offsetWidth; box.classList.add(cls);
+  clearTimeout(box._pw); box._pw = setTimeout(() => box.classList.remove(cls), 2200);
+}
+// everyone ready: beacons + launch sequence tag
+function lbAlarm(on) {
+  const box = $("lbfx"), seq = $("lbseq");
+  if (box) box.classList.toggle("alarm", !!on);
+  if (seq) seq.classList.toggle("on", !!on);
+}
+// hangar doors: sparks along the seam and steam as they seal
+function hangarSeamFx() {
+  const H = $("hangar"); if (!H || lbLite()) return;
+  let seam = H.querySelector(".hd-seam");
+  if (!seam) { seam = document.createElement("div"); seam.className = "hd-seam"; H.appendChild(seam); }
+  seam.innerHTML = "";
+  for (let k = 0; k < 7; k++) {
+    const im = document.createElement("img"); im.alt = ""; im.className = "hs-spark";
+    im.src = "img/fx/" + (k % 2 ? "star-y" : "star-w") + ".webp";
+    im.style.top = (8 + k * 13 + Math.random() * 6) + "%";
+    im.style.animationDelay = (0.36 + Math.random() * 0.12).toFixed(2) + "s";
+    seam.appendChild(im);
+  }
+  for (let k = 0; k < 4; k++) {
+    const st = document.createElement("i"); st.className = "hs-steam " + (k % 2 ? "l" : "r");
+    st.style.top = (15 + k * 22) + "%"; st.style.animationDelay = (0.45 + k * 0.05).toFixed(2) + "s";
+    seam.appendChild(st);
+  }
+  clearTimeout(seam._t); seam._t = setTimeout(() => { seam.innerHTML = ""; }, 1500);
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) lbSpawn(); });
+
+
+// ================= ROSTER / BUDGET HANGAR EFFECTS (cf66) =================
+// A layer sized like the side's hangar picture (cover, 70% / 40%; 72% / 50% on tall screens), faded out over the list side.
+const RS_CFG = {
+  federation: { eye: { x: 71.4, y: 16.6, w: 1.4, h: 1.0, kind: "g" }, lights: [[62.7, 3.8], [63.7, 6.5], [92.3, 5.2]],
+    sparks: [[65.6, 84], [82.6, 84], [94.2, 7], [54.5, 27]], mist: [[66, 86], [83, 86]] },
+  spacenoid: { eye: { x: 69.1, y: 13.4, w: 1.7, h: 2.0, kind: "z" }, lights: [[58.5, 5.2], [78.7, 6.5], [83, 8.3]],
+    sparks: [[59.8, 85], [81.6, 85], [85.5, 26], [57, 30]], mist: [[62, 86], [82, 86]] },
+};
+let rsT = 0;
+function rsScreen() { for (const id of ["s2", "s3"]) { const sc = $(id); if (sc && sc.classList.contains("on")) return sc; } return null; }
+function rsSide() { return document.body.classList.contains("spa") ? "spacenoid" : document.body.classList.contains("fed") ? "federation" : null; }
+function rsLayout() {
+  const box = $("rsfx"); if (!box) return;
+  const W = innerWidth, H = innerHeight, s = Math.max(W / 1672, H / 941), iw = 1672 * s, ih = 941 * s;
+  const tall = W / H <= 0.8, px = tall ? 0.72 : 0.7, py = tall ? 0.5 : 0.4;
+  box.style.left = ((W - iw) * px) + "px"; box.style.top = ((H - ih) * py) + "px";
+  box.style.width = iw + "px"; box.style.height = ih + "px";
+}
+function rsInit() {
+  const sc = rsScreen(), side = rsSide();
+  if (!sc || !side || lbReduced()) { const b = $("rsfx"); if (b && !sc) b.remove(); return; }
+  let box = $("rsfx");
+  if (box && (box.parentNode !== sc || box.dataset.side !== side)) { box.remove(); box = null; }
+  if (!box) {
+    const C = RS_CFG[side];
+    box = document.createElement("div"); box.id = "rsfx"; box.dataset.side = side; box.setAttribute("aria-hidden", "true");
+    box.className = side === "federation" ? "fed" : "spa";
+    if (lbLite()) box.classList.add("lite");
+    let h = '<i class="rs-eye ' + C.eye.kind + '" style="left:' + C.eye.x + '%;top:' + C.eye.y + '%;width:' + C.eye.w + '%;height:' + C.eye.h + '%"></i>';
+    C.lights.forEach(([x, y], k) => { h += '<i class="rs-light" style="left:' + x + '%;top:' + y + '%;--d:' + (k * 1.3).toFixed(1) + 's"></i>'; });
+    C.mist.forEach(([x, y], k) => { h += '<i class="rs-mist" style="left:' + x + '%;top:' + y + '%;--d:' + (-k * 4) + 's"></i>'; });
+    h += '<div class="rs-search"></div><div class="rs-sheen"></div><div class="rs-dust"></div><div class="rs-sparks"></div>';
+    box.innerHTML = h;
+    const dust = box.querySelector(".rs-dust");
+    for (let k = 0; k < 16; k++) {
+      const d = document.createElement("i");
+      d.style.left = (45 + Math.random() * 55).toFixed(1) + "%"; d.style.top = (25 + Math.random() * 65).toFixed(1) + "%";
+      d.style.setProperty("--dur", (11 + Math.random() * 12).toFixed(1) + "s"); d.style.setProperty("--del", (-Math.random() * 20).toFixed(1) + "s");
+      d.style.setProperty("--dx", ((Math.random() - 0.5) * 6).toFixed(1) + "vw");
+      dust.appendChild(d);
+    }
+    sc.insertBefore(box, sc.firstChild);
+  }
+  rsLayout();
+}
+function rsSpawn() {
+  clearTimeout(rsT);
+  const box = $("rsfx"); if (!box || box.classList.contains("lite") || !rsScreen() || document.hidden) return;
+  const C = RS_CFG[box.dataset.side], holder = box.querySelector(".rs-sparks");
+  if (holder && holder.childElementCount < 8) {
+    const [x, y] = C.sparks[Math.floor(Math.random() * C.sparks.length)], n = 2 + Math.floor(Math.random() * 3);
+    for (let k = 0; k < n; k++) setTimeout(() => {
+      const im = document.createElement("img"); im.className = "rs-spark"; im.alt = "";
+      im.src = "img/fx/" + (Math.random() < 0.6 ? "star-y" : "star-w") + ".webp";
+      im.style.left = (x + (Math.random() - 0.5) * 1.6) + "%"; im.style.top = (y + (Math.random() - 0.5) * 1.6) + "%";
+      im.style.width = (1.2 + Math.random() * 1.8).toFixed(2) + "%";
+      holder.appendChild(im); setTimeout(() => im.remove(), 450);
+    }, k * 90);
+  }
+  rsT = setTimeout(rsSpawn, 900 + Math.random() * 2200);
+}
+addEventListener("resize", rsLayout);
+addEventListener("orientationchange", () => setTimeout(rsLayout, 150));
+document.addEventListener("visibilitychange", () => { if (!document.hidden) rsSpawn(); });
+
 window.landOnline = () => { if (mp.code) hangarGo(() => openMP()); else playClash(() => openMP()); };
 window.landOffline = () => hangarGo(() => show("s1"));
 window.menuPick = s => { menuSide = menuSide === s ? null : s; renderMenu(); };
@@ -10434,6 +10731,7 @@ window.hangarGo = (fn, sideHint) => {
   H.className = "run " + (sd === "spacenoid" ? "spa" : "fed");
   void H.offsetWidth;
   H.classList.add("shut");
+  if (typeof hangarSeamFx === "function") hangarSeamFx();
   setTimeout(() => {
     try { fn(); } catch (e) { console.error(e); }
     setTimeout(() => {
@@ -11864,6 +12162,7 @@ function renderLobby() {
                   : '<button class="btn" onclick="if (confirm(\'Leave this session? Your roster on this device stays as it is.\')) mpLeave(false)">Leave session</button>') +
     '</div></div>');
   const myT = (me && me.team) || null;
+  if (typeof lbAlarm === "function") lbAlarm(!battle && st.canStart);
   if (mp.fxTeam !== undefined && myT && myT !== mp.fxTeam && !battle) lobbyTeamFx(myT);
   mp.fxTeam = myT;
 }
@@ -11880,6 +12179,7 @@ function lobbyTeamFx(t) {
   void fx.offsetWidth;
   fx.className = "on " + cls;
   clearTimeout(fx._t); fx._t = setTimeout(() => { fx.className = ""; }, 1900);
+  if (typeof lbPower === "function") lbPower(t);
 }
 
 // ---------- rendering on the roster / sheet ----------
@@ -14285,7 +14585,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf64";
+const APP_BUILD = "cf66";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

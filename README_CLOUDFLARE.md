@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf64)
+# Gunpla Battle — Cloudflare version (build cf66)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -132,3 +132,5 @@ public/            the app (index.html, images, service worker)
 | cf62 | `public/index.html`, `public/sw.js` | Menu battle effects: long beams stretched from ship to target (flash on, thin out, big impact + ring), bolts of random length / thickness (sometimes in bursts of 3), blasts in small / medium / big sizes (big ones with a shockwave ring), chains of small blasts across a ship; bigger fireball + ring when a part is destroyed on a sheet |
 | cf63 | `public/index.html`, `public/sw.js`, **replaced** 13 images in `public/img/fx/` | Explosion sprites re-cut: each sprite is separated along the gaps between them (no clipped rays, no fragments of neighbours, soft fade where two touch; every edge verified clear). Menu hits now show in front of the near ships |
 | cf64 | `public/index.html`, `public/sw.js` | Menu battle: more beam fire — events every 0.7–1.9s, long beams 22% and bolts 50% of events, sometimes answered by return fire; up to 12 effects at once (Federation beams pink, Zeon beams yellow) |
+| cf65 | `public/index.html`, `public/sw.js` | Menu space explosions use only starbursts and rings: star-y + orange ring on Federation ships (Zeon's yellow fire), star-p + pink ring on Zeon ships (Federation's pink fire) |
+| cf66 | `public/index.html`, `public/sw.js` | **Hangar effects.** Team lobby: Gundam eye glow, Zaku mono-eye sweep, light strips chasing upwards, searchlights, floor sheen, fog and dust, welding sparks, distant battle in the space windows (stars / rings), your hangar powers up when you pick a side, alarm beacons + LAUNCH SEQUENCE when everyone is ready, sparks and steam on the hangar doors. Budget / roster screens: the side's hangar gets eye glow (Nu Gundam visor / Zaku mono-eye sweep), flickering ceiling lights, drifting mist, dust, floor sheen, a searchlight and welding sparks, faded out behind the list. Lite mode keeps only the glows; reduced motion turns them off |
