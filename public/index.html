@@ -2851,8 +2851,8 @@ body.spa .ffside.foe{background:linear-gradient(270deg,rgba(56,189,248,.14),tran
     <div class="m3-l base" data-d="base"></div><div class="m3-stars" data-d="stars"></div>
     <div class="m3-l emb" data-d="emb"></div><div class="m3-l embGlow" data-d="emb"></div>
     <div class="m3-l farFed" data-d="far"></div><div class="m3-l farZeon" data-d="far"></div>
-    <div class="m3-fx" data-d="fx"></div>
     <div class="m3-l nearFed" data-d="near"></div><div class="m3-l nearZeon" data-d="near"></div>
+    <div class="m3-fx" data-d="fx"></div>
     <div class="m3-l rocks" data-d="rocks"></div>
     <div class="m3-l fg" data-d="fg"></div>
     <div class="m3-embers" data-d="embers"></div>
@@ -2906,8 +2906,8 @@ body.spa .ffside.foe{background:linear-gradient(270deg,rgba(56,189,248,.14),tran
     <div class="m3-l base" data-d="base"></div><div class="m3-stars" data-d="stars"></div>
     <div class="m3-l emb" data-d="emb"></div><div class="m3-l embGlow" data-d="emb"></div>
     <div class="m3-l farFed" data-d="far"></div><div class="m3-l farZeon" data-d="far"></div>
-    <div class="m3-fx" data-d="fx"></div>
     <div class="m3-l nearFed" data-d="near"></div><div class="m3-l nearZeon" data-d="near"></div>
+    <div class="m3-fx" data-d="fx"></div>
     <div class="m3-l rocks" data-d="rocks"></div>
     <div class="m3-l fg" data-d="fg"></div>
     <div class="m3-embers" data-d="embers"></div>
@@ -10349,13 +10349,14 @@ function m3Start() {
     const root = m3Root();
     if (!root || root.parentNode.classList.contains("m3lite")) { if (root) M3.boomT = setTimeout(boom, 3000); return; }
     const fx = root.querySelector(".m3-fx");
-    if (fx && fx.childElementCount < 8) {
-      const r = Math.random(), fromFed = Math.random() < 0.5;
-      if (r < 0.14) beam(fx, fromFed, true);                           // long beam
-      else if (r < 0.5) {                                               // one to three bolts
-        const n = Math.random() < 0.3 ? 3 : 1;
+    if (fx && fx.childElementCount < 12) {
+      const r = Math.random(), fromFed = Math.random() < 0.5;          // Federation fires pink, Zeon fires yellow
+      if (r < 0.22) beam(fx, fromFed, true);                           // long beam
+      else if (r < 0.72) {                                              // one to three bolts, sometimes answered
+        const n = Math.random() < 0.35 ? 3 : 1;
         for (let k = 0; k < n; k++) setTimeout(() => fx.isConnected && beam(fx, fromFed, false), k * 140);
-      } else if (r < 0.62) {                                            // a chain of small blasts across one ship
+        if (Math.random() < 0.3) setTimeout(() => fx.isConnected && beam(fx, !fromFed, Math.random() < 0.25), 380 + Math.random() * 300);
+      } else if (r < 0.82) {                                            // a chain of small blasts across one ship
         const onFed = Math.random() < 0.5, c = pick(onFed ? FED : ZEON), n = 2 + Math.floor(Math.random() * 3);
         for (let k = 0; k < n; k++) blast(fx, onFed, [c[0] + (k - n / 2) * rnd(1.5, 3) * (onFed ? 1 : -1), c[1] + rnd(-2, 2)], rnd(3, 6), k * rnd(120, 220));
       } else {                                                          // a single hit, small to big
@@ -10363,7 +10364,7 @@ function m3Start() {
         blast(fx, onFed, jit(pick(onFed ? FED : ZEON), 6), blastSize(), 0);
       }
     }
-    M3.boomT = setTimeout(boom, 900 + Math.random() * 2000);
+    M3.boomT = setTimeout(boom, 700 + Math.random() * 1200);
   };
   M3.boomT = setTimeout(boom, 1200);
 }
@@ -14284,7 +14285,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf62";
+const APP_BUILD = "cf64";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
