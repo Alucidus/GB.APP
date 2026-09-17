@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf93)
+# Gunpla Battle — Cloudflare version (build cf94)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -161,3 +161,4 @@ public/            the app (index.html, images, service worker)
 | cf91 | **`src/index.js`** (server), `public/app.js`, `public/index.html`, `public/sw.js` | Forced Re-Engagement only against an enemy squad this squad has already fought: the server records each pair of squads at their first reveal; the Force button only appears when there is one, its picker lists only those squads, and the server refuses anything else |
 | cf92 | `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | Quick Resolve tab: the squad's remaining items (Flashbang / Smoke Grenade / Grenade — pips, "N left" / "none left") are now the first thing on the tab; the firefight card and the round guide / margin table follow below |
 | cf93 | `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | Offline Quick Resolve = item tracker: tap an item tile to use one (its mark is crossed out), tap a crossed mark to restore it, ↺ Refill all for a new engagement; each change is logged on the unit's timeline. Online games keep the automatic tracking |
+| cf94 | **`src/index.js`** (server), `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | **Counter from the notification:** "◌ Counter with Smoke" on the banner now counters straight away (confirm; takes the squad quietly if nobody has it open), says when there's no Smoke or a teammate has the squad open; the squad-sheet button explains instead of doing nothing. **Roll for me is step by step:** reveal → 🎲 ROLL FOR ME → waits for the enemy → both players' dice revealed together (1s red, 6s gold, successes counted, result worked out) → casualties if you lost → summary; READY only once the loser has removed their casualties |

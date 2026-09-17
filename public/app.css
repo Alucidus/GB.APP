@@ -3125,3 +3125,25 @@ button.mb-item.fxtog{font:inherit;color:#dfe9f4;background:none;border-top:0;bor
 .qrr-t .pp i.used{position:relative;border-color:var(--muted);opacity:.7}
 .qrr-t .pp i.used:before,.qrr-t .pp i.used:after{content:"";position:absolute;left:50%;top:50%;width:150%;height:2px;background:#ef4444;transform:translate(-50%,-50%) rotate(45deg)}
 .qrr-t .pp i.used:after{transform:translate(-50%,-50%) rotate(-45deg)}
+/* cf94: banner counter */
+.ffinvrow b small{display:block;font-weight:700;font-size:.85em;color:#fde68a;margin-top:2px}
+.ffinvrow .btn small{font-size:.85em;opacity:.85}
+/* cf94: Roll for me — dice shown together */
+.ffdice2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ffdice2 .dr{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.25)}
+.ffdice2 .dr.me{border-color:#38bdf8}
+.ffdice2 .dr.foe{border-color:#f87171}
+.ffdice2 small{font:800 10px system-ui,sans-serif;letter-spacing:.18em;color:var(--muted)}
+.ffdice2 p{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin:0}
+.ffdice2 b{font:900 16px system-ui,sans-serif;color:#fff}
+.ffdz{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:6px;font:900 18px system-ui,sans-serif;font-style:normal;background:#e2e8f0;color:#0f172a}
+.ffdz.d1{background:#fecaca;color:#7f1d1d;box-shadow:0 0 0 2px #ef4444}
+.ffdz.d2{opacity:.5}
+.ffdz.d6{background:#fde68a;color:#713f12;box-shadow:0 0 0 2px #f59e0b}
+.ffdz.roll{animation:ffTumble .9s cubic-bezier(.2,.8,.3,1) both}
+@keyframes ffTumble{0%{transform:translateY(-14px) rotate(-200deg) scale(.5);opacity:0;color:transparent}60%{transform:rotate(30deg) scale(1.1);opacity:1;color:transparent}100%{transform:none;color:inherit}}
+.ffreslt{display:flex;flex-direction:column;gap:6px}
+.ffreslt.late{animation:ffBanner .35s ease-out 1s both}
+.ffrollbtn{min-height:60px !important;font-size:20px !important;letter-spacing:.12em}
+@media (max-height:560px){ .ffdz{width:26px;height:26px;font-size:14px} .ffdice2 .dr{padding:4px} .ffdice2 b{font-size:13px} .ffrollbtn{min-height:46px !important;font-size:16px !important} }
+@media (max-height:400px){ .ffdz{width:22px;height:22px;font-size:12px} }

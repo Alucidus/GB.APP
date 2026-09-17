@@ -517,6 +517,7 @@ export class BattleRoom {
         if (!mine || (g.state !== "ready" && g.state !== "reveal")) break;
         if (g.state === "reveal" && g.mode === "physical" && g.claim && (g.claim.a || g.claim.b) &&
             (!claimsAgree(g.claim) || !g.done || !g.done.a || !g.done.b)) break;   // results must agree and losses be applied
+        if (g.state === "reveal" && g.mode === "rolled" && (!g.roll || !g.done || !g.done.a || !g.done.b)) break;   // rolled: dice first, then losses
         const hp = Math.max(0, Math.min(8, op.hp | 0)), supp = Math.max(0, Math.min(8, op.supp | 0));
         g.ready[side] = { hp, supp }; g.hp[side] = hp;
         if (g.ready.a && g.ready.b) {
@@ -534,6 +535,30 @@ export class BattleRoom {
         g.claim[side] = op.result; g.done[side] = op.result !== "lost";     // the loser is done once their losses are applied
         g.ready = { a: null, b: null };
         return save();
+      case "roll": {                                // Roll for me: both sides press, then both pools are rolled together
+        if (g.state !== "reveal" || !mine || g.mode !== "rolled" || g.roll) break;
+        g.rolled = g.rolled || { a: false, b: false };
+        g.rolled[side] = true;
+        if (g.rolled.a && g.rolled.b) {
+          const pa = g.reveal.a, pb = g.reveal.b;
+          const fp = hp => hp >= 7 ? 8 : hp >= 5 ? 7 : hp >= 3 ? 6 : hp >= 1 ? 5 : 0;
+          const pool = (sd, mineItem, theirItem) => {
+            const p0 = (g.pool && g.pool[sd]) || { hp: 8, supp: 0 };
+            const supp = mineItem === "sm" && theirItem !== "gr" ? 0 : p0.supp;       // my Smoke clears my set-aside dice
+            const flashed = theirItem === "fb" && mineItem !== "sm" ? 3 : 0;          // their Flashbang takes 3 dice off THIS roll
+            return p0.hp <= 0 ? 0 : p0.hp === 1 ? 1 : Math.max(fp(p0.hp) - supp - flashed, 2);
+          };
+          g.roll = { a: roll(pool("a", pa, pb)), b: roll(pool("b", pb, pa)), round: g.round };
+          // who won (the same rules the devices apply): a Perfect Volley on 2-5 dice beats everything, then successes
+          const score = d => d.reduce((m, v) => m + (v === 6 ? 2 : v >= 3 ? 1 : 0), 0);
+          const volley = d => d.length >= 2 && d.length <= 5 && d.every(v => v === 6);
+          const va = volley(g.roll.a), vb = volley(g.roll.b);
+          const w = va && !vb ? "a" : vb && !va ? "b" : (score(g.roll.a) > score(g.roll.b) ? "a" : score(g.roll.b) > score(g.roll.a) ? "b" : null);
+          g.claim = w ? { a: w === "a" ? "won" : "lost", b: w === "b" ? "won" : "lost" } : { a: "tied", b: "tied" };
+          g.done = { a: g.claim.a !== "lost", b: g.claim.b !== "lost" };
+        }
+        return save();
+      }
       case "applied":                               // the loser has applied the margin result and casualties
         if (g.state !== "reveal" || !mine || !g.claim || g.claim[side] !== "lost") break;
         g.done[side] = true; return save();
@@ -551,16 +576,7 @@ export class BattleRoom {
           const hk = ffPairKey(g.a.team, g.a.uid, g.b.team, g.b.uid);
           if (!M.has(hk)) await M.set(hk, { at: now });                         // these two squads have now fought
           g.claim = { a: null, b: null }; g.done = { a: false, b: false };     // physical dice: who won, and who has applied their losses
-          if (g.mode === "rolled") {
-            const fp = hp => hp >= 7 ? 8 : hp >= 5 ? 7 : hp >= 3 ? 6 : hp >= 1 ? 5 : 0;
-            const pool = (sd, mine, theirs) => {
-              const p0 = (g.pool && g.pool[sd]) || { hp: 8, supp: 0 };
-              const supp = mine === "sm" && theirs !== "gr" ? 0 : p0.supp;          // my Smoke clears my set-aside dice
-              const flashed = theirs === "fb" && mine !== "sm" ? 3 : 0;               // their Flashbang takes 3 dice off THIS roll
-              return p0.hp <= 0 ? 0 : p0.hp === 1 ? 1 : Math.max(fp(p0.hp) - supp - flashed, 2);
-            };
-            g.roll = { a: roll(pool("a", pa, pb)), b: roll(pool("b", pb, pa)), round: g.round };
-          }
+          if (g.mode === "rolled") g.rolled = { a: false, b: false };       // each side presses ROLL FOR ME; dice come when both have
         }
         return save();
       case "unpick":
