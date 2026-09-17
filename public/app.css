@@ -2793,39 +2793,11 @@ body.spa #lbfx .lb-eye.g,body.spa #lbfx .lb-strip.b,body.spa #lbfx .lb-win.fed,b
 @keyframes lbBlink{0%,100%{filter:brightness(1)}50%{filter:brightness(1.35)}}
 #lbfx.lite .lb-dust,#lbfx.lite .lb-sparks,#lbfx.lite .lb-win,#lbfx.lite .lb-fog.b,#lbfx.lite .lb-search{display:none}
 
-/* ================= ROSTER / BUDGET HANGAR EFFECTS (cf66) ================= */
-#rsfx{position:fixed;z-index:-1;pointer-events:none;overflow:hidden;
-  -webkit-mask-image:linear-gradient(90deg,transparent 0,transparent 38%,rgba(0,0,0,.6) 55%,#000 70%);mask-image:linear-gradient(90deg,transparent 0,transparent 38%,rgba(0,0,0,.6) 55%,#000 70%)}
-#rsfx>*{position:absolute}
-.rs-eye{display:block;border-radius:50%;transform:translate(-50%,-50%);mix-blend-mode:screen}
-.rs-eye.g{background:radial-gradient(ellipse,#fff 0,#a7f3d0 25%,rgba(52,211,153,.6) 50%,rgba(52,211,153,0) 72%);animation:rsEyeG 3.6s ease-in-out infinite}
-@keyframes rsEyeG{0%,100%{opacity:.35;transform:translate(-50%,-50%) scale(.9)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.35)}}
-.rs-eye.z{background:radial-gradient(circle,#fff 0,#fda4af 22%,rgba(244,63,94,.75) 45%,rgba(244,63,94,0) 72%);animation:rsMono 9s ease-in-out infinite,rsMonoGlow 2.2s ease-in-out infinite}
-@keyframes rsMono{0%,18%,100%{translate:0 0}30%,42%{translate:-35% 0}58%,72%{translate:35% 0}84%{translate:0 0}}
-@keyframes rsMonoGlow{0%,100%{opacity:.7;filter:brightness(1)}50%{opacity:1;filter:brightness(1.45)}}
-.rs-light{display:block;width:2.4%;height:2.4%;border-radius:50%;transform:translate(-50%,-50%);mix-blend-mode:screen;opacity:.0;
-  background:radial-gradient(circle,rgba(255,255,255,.9) 0,rgba(200,225,255,.35) 35%,rgba(200,225,255,0) 70%);animation:rsFlicker 7s steps(1) var(--d,0s) infinite}
-#rsfx.spa .rs-light{background:radial-gradient(circle,rgba(255,240,220,.9) 0,rgba(255,170,120,.35) 35%,rgba(255,170,120,0) 70%)}
-@keyframes rsFlicker{0%,100%{opacity:.8}46%{opacity:.8}47%{opacity:.15}48%{opacity:.75}49%{opacity:.1}50%{opacity:.85}88%{opacity:.8}89%{opacity:.3}90%{opacity:.8}}
-.rs-mist{display:block;width:30%;height:16%;border-radius:50%;transform:translate(-50%,-50%);opacity:.5;
-  background:radial-gradient(ellipse,rgba(170,200,235,.35),rgba(170,200,235,0) 70%);animation:rsMist 14s ease-in-out var(--d,0s) infinite alternate}
-#rsfx.spa .rs-mist{background:radial-gradient(ellipse,rgba(235,170,160,.3),rgba(235,170,160,0) 70%)}
-@keyframes rsMist{0%{transform:translate(-58%,-50%) scale(.9);opacity:.35}100%{transform:translate(-42%,-54%) scale(1.15);opacity:.7}}
-.rs-search{left:62%;top:-4%;width:16%;height:95%;transform-origin:50% 0;clip-path:polygon(44% 0,56% 0,100% 100%,0 100%);
-  background:linear-gradient(180deg,rgba(190,220,255,.16),rgba(190,220,255,0) 85%);animation:lbSweep 16s ease-in-out infinite alternate}
-#rsfx.spa .rs-search{background:linear-gradient(180deg,rgba(255,180,160,.14),rgba(255,180,160,0) 85%)}
-.rs-sheen{left:0;right:0;top:86%;bottom:0;background:linear-gradient(100deg,transparent 35%,rgba(210,225,255,.12) 50%,transparent 65%);background-size:220% 100%;animation:lbSheen 11s linear infinite}
-#rsfx.spa .rs-sheen{background-image:linear-gradient(100deg,transparent 35%,rgba(255,190,170,.1) 50%,transparent 65%)}
-.rs-dust{inset:0}
-.rs-dust i{position:absolute;width:2px;height:2px;border-radius:50%;background:rgba(230,236,255,.55);opacity:0;animation:lbDust var(--dur) linear var(--del) infinite}
-.rs-sparks{inset:0}
-.rs-spark{position:absolute;transform:translate(-50%,-50%) scale(.3);opacity:0;animation:lbSpark .42s ease-out forwards}
-#rsfx.lite .rs-dust,#rsfx.lite .rs-sparks,#rsfx.lite .rs-search{display:none}
 
 /* cf68: on big screens the menu scene is drawn at up to 1920×1080 and scaled up (the art is 1672px wide) */
 #s0 .m-bg.m3,#s1 .m-bg.m3{transform-origin:0 0}
 #s0 .m-bg.m3.capped,#s1 .m-bg.m3.capped{right:auto;bottom:auto;will-change:scale}
-#lbfx.capped,#rsfx.capped{transform-origin:0 0;will-change:scale}
+#lbfx.capped{transform-origin:0 0;will-change:scale}
 
 /* cf68: big screens — the frosted-glass blur is swapped for a slightly more solid panel (blurring an animated background is costly at 1440p / 4K) */
 html.bigscreen .qab,html.bigscreen .qau,html.bigscreen #loadDlg,html.bigscreen .lb2-sides .lb-team,html.bigscreen #mpLobby:not(.lb2wrap),
@@ -2834,8 +2806,7 @@ html.bigscreen .lb2-sides .lb-team,html.bigscreen .lb2-ctl .lb-host,html.bigscre
 /* automatic lite effects when a device can't keep up */
 html.fx-lite #s0 .m-bg.m3 .m3-l,html.fx-lite #s1 .m-bg.m3 .m3-l,html.fx-lite .m3-stars:before,html.fx-lite .m3-stars:after{animation:none !important}
 html.fx-lite .m3-embers,html.fx-lite .m3-fx,html.fx-lite .embGlow,
-html.fx-lite #lbfx .lb-dust,html.fx-lite #lbfx .lb-sparks,html.fx-lite #lbfx .lb-win,html.fx-lite #lbfx .lb-fog.b,html.fx-lite #lbfx .lb-search,
-html.fx-lite #rsfx .rs-dust,html.fx-lite #rsfx .rs-sparks,html.fx-lite #rsfx .rs-search{display:none !important}
+html.fx-lite #lbfx .lb-dust,html.fx-lite #lbfx .lb-sparks,html.fx-lite #lbfx .lb-win,html.fx-lite #lbfx .lb-fog.b,html.fx-lite #lbfx .lb-search{display:none !important}
 
 /* cf71: effects toggle */
 button.mb-item.fxtog{font:inherit;color:#dfe9f4;background:none;border-top:0;border-right:0;border-bottom:0;text-align:left;margin:0}

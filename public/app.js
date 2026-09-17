@@ -2454,7 +2454,6 @@ function show(id) {
   if (id === "s0") { stashTeam(); refreshSideCards(); renderLanding(); }
   if (id === "s1") { stashTeam(); refreshSideCards(); if (!menuSide) menuSide = side || null; renderMenu(); }
   if (id === "s2") renderPresets();
-  if (id === "s2" || id === "s3") setTimeout(() => { if (typeof rsInit === "function") { rsInit(); rsSpawn(); } }, 0);
   if (id === "s5") { renderLobby(); setTimeout(() => { if (typeof lbInit === "function") { lbInit(); lbLayout(); lbSpawn(); } }, 0); }
   else applyTheme();                           // leaving the lobby: back to this device's side colours
   if (id !== "s3") document.body.classList.remove("locked");
@@ -2870,44 +2869,6 @@ function lbAlarm(on) {}
 document.addEventListener("visibilitychange", () => { if (!document.hidden) lbSpawn(); });
 
 
-// ================= ROSTER / BUDGET HANGAR EFFECTS (cf66) =================
-// A layer sized like the side's hangar picture (cover, 70% / 40%; 72% / 50% on tall screens), faded out over the list side.
-const RS_CFG = {
-  federation: { eye: { x: 71.4, y: 16.6, w: 1.4, h: 1.0, kind: "g" }, lights: [[62.7, 3.8], [63.7, 6.5], [92.3, 5.2]],
-    sparks: [[65.6, 84], [82.6, 84], [94.2, 7], [54.5, 27]], mist: [[66, 86], [83, 86]] },
-  spacenoid: { eye: { x: 69.1, y: 13.4, w: 1.7, h: 2.0, kind: "z" }, lights: [[58.5, 5.2], [78.7, 6.5], [83, 8.3]],
-    sparks: [[59.8, 85], [81.6, 85], [85.5, 26], [57, 30]], mist: [[62, 86], [82, 86]] },
-};
-let rsT = 0;
-function rsScreen() { for (const id of ["s2", "s3"]) { const sc = $(id); if (sc && sc.classList.contains("on")) return sc; } return null; }
-function rsSide() { return document.body.classList.contains("spa") ? "spacenoid" : document.body.classList.contains("fed") ? "federation" : null; }
-function rsLayout() {
-  const box = $("rsfx"); if (!box) return;
-  const W = document.documentElement.clientWidth || innerWidth, H = document.documentElement.clientHeight || innerHeight, s = Math.max(W / 1672, H / 941), iw = 1672 * s, ih = 941 * s, k = Math.max(1, s);
-  const sc = rsScreen(), [px, py] = sc ? bgAnchor(sc, "::after", 0.7, 0.4) : [0.7, 0.4];
-  box.style.left = ((W - iw) * px) + "px"; box.style.top = ((H - ih) * py) + "px";
-  box.style.width = (iw / k) + "px"; box.style.height = (ih / k) + "px";
-  box.style.scale = k > 1 ? String(k) : ""; box.classList.toggle("capped", k > 1);
-}
-function rsInit() {
-  const sc = rsScreen(), side = rsSide();
-  if (!sc || !side || lbReduced()) { const b = $("rsfx"); if (b && !sc) b.remove(); return; }
-  let box = $("rsfx");
-  if (box && (box.parentNode !== sc || box.dataset.side !== side)) { box.remove(); box = null; }
-  if (!box) {
-    const C = RS_CFG[side];
-    box = document.createElement("div"); box.id = "rsfx"; box.dataset.side = side; box.setAttribute("aria-hidden", "true");
-    box.className = side === "federation" ? "fed" : "spa";
-    let h = '<i class="rs-eye ' + C.eye.kind + '" style="left:' + C.eye.x + '%;top:' + C.eye.y + '%;width:' + C.eye.w + '%;height:' + C.eye.h + '%"></i>';
-    box.innerHTML = h;
-    sc.insertBefore(box, sc.firstChild);
-  }
-  rsLayout();
-}
-function rsSpawn() {}
-addEventListener("resize", rsLayout);
-addEventListener("orientationchange", () => setTimeout(rsLayout, 150));
-document.addEventListener("visibilitychange", () => { if (!document.hidden) rsSpawn(); });
 
 
 // ---------- performance: big-screen tweaks + automatic lite effects (cf68) ----------
@@ -6858,7 +6819,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf77";
+const APP_BUILD = "cf78";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
