@@ -2165,7 +2165,7 @@ function ffNextText(q, alive) {
   const ne = Math.min(8, (q.nextOnes || 0) + (q.nextMargin || 0));
   return "Next round you roll <b>" + qrDice(alive, ne) + "</b> dice" + (ne ? " (" + ne + " set aside)" : "");
 }
-let ffDetOpen = false;
+let ffDetOpen = false, ffTurnKey = "";
 // ---------- physical dice: one step at a time (cf83) ----------
 // roll -> ones -> compare (won / lost / tied) -> [lost: margin -> casualties] -> summary.  The winner waits until the loser is done.
 const FF_AGREE = (a, b) => (a === "won" && b === "lost") || (a === "lost" && b === "won") || (a === "tied" && b === "tied");
@@ -2479,6 +2479,8 @@ function renderFF() {
     const cs = cf ? [cf.id, cf.state, cf.round, cf.seg, cf.a.pid, cf.b.pid].join("|") : "-";
     if (cs !== ffCardSig) { ffCardSig = cs; setTimeout(() => { if (CUR && U && isSquad(U)) draw(); }, 0); }
   }
+  const fightKey = (ffActiveFight() || {}).id + ":" + ((ffActiveFight() || {}).round || "");
+  if (fightKey !== ffTurnKey) { ffTurnKey = fightKey; setTimeout(() => { if (typeof renderTurn === "function" && turn) renderTurn(); }, 0); }
   const f = ffMine();
   if (!f || ffHidden) { if (box) box.remove(); ffLastSig = ""; renderFFInvites(); return; }
   if (f.state === "closed" || f.state === "declined") { if (box) box.remove(); ffLastSig = ""; renderFFInvites(); return; }
@@ -7011,7 +7013,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf83";
+const APP_BUILD = "cf84";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
@@ -7376,8 +7378,18 @@ window.mpPassLead = () => {
   $("pick").classList.add("on");
 };
 function mpOfficialTurn() { return typeof mpTeamMode === "function" && mpTeamMode() ? (mp.data.turn || null) : null; }
+// a firefight between the teams that is mid-segment (its 4 rounds aren't finished)
+function ffActiveFight() {
+  if (typeof mpTeamMode !== "function" || !mpTeamMode()) return null;
+  return Object.values(mp.data).find(v => v && v.id && v.a && v.b && ["mode", "ready", "pick", "reveal"].includes(v.state)) || null;
+}
 function endMyTurn() {
   const tk = mpOfficialTurn();
+  const fight = ffActiveFight();
+  if (tk && fight) {
+    mpToast("\u2694 A firefight is still going (round " + fight.round + " of 4) \u2014 finish its 4 rounds before ending the turn.");
+    renderTurn(); return;
+  }
   if (tk && tk.active !== mpMyTeam()) { mpToast("It's the " + teamPoss(tk.active) + " turn right now."); renderTurn(); return; }
   if (tk && mpEndGate() === "wait") {
     if (!(tk.req && tk.req.team === mpMyTeam() && tk.req.seq === tk.seq)) {
@@ -7493,6 +7505,8 @@ function doneTally() {
 }
 function phaseTap() {
   if (!mpGuardLeader(turn.phase === "you" ? "end the turn" : "start the turn")) return;
+  const fight = turn.phase === "you" && ffActiveFight();
+  if (fight) { mpToast("\u2694 A firefight is still going (round " + fight.round + " of 4) \u2014 finish its 4 rounds before ending the turn."); return; }
   const busy = mpOthersEditing();
   if (busy.length) { mpToast("Wait until these sheets are closed: " + busy.join(", ")); return; }
   if (turn.phase !== "you") { startMyTurn(); return; }
@@ -7598,13 +7612,15 @@ function renderTurn() {
   const label = you ? "YOUR TURN" : "ENEMY TURN";
   const nUnits = roster.filter(r => !isDead(r) && !outOfPlay(r.uid)).length;   // destroyed units and passengers are out of the fight
   const scope = " \u2014 all " + nUnits + (nUnits === 1 ? " unit" : " units");
-  const btnTxt = (you ? "End My Turn" : "Start My Turn") + scope + " \u25B8";
+  const fightNow = you && typeof ffActiveFight === "function" && ffActiveFight();
+  const btnTxt = fightNow ? "\u2694 Firefight in progress \u2014 round " + fightNow.round + " of 4"
+    : (you ? "End My Turn" : "Start My Turn") + scope + " \u25B8";
   const sel = tlSel || { r: turn.round, p: turn.phase };
   // sheet: top bar + bottom strip
   const pc = $("phaseChip");
   if (pc) { pc.textContent = (turn.round ? "T" + turn.round : "OPENING") + " \u00b7 " + label + "  \u2197 roster"; pc.className = "phase sm " + (you ? "you" : "enemy"); }
   const pb = $("phaseBtn");
-  if (pb) { pb.textContent = btnTxt; pb.className = "btn sm " + (you ? "pri" : "enemyturn"); }
+  if (pb) { pb.textContent = btnTxt; pb.className = "btn sm " + (fightNow ? "fightlock" : you ? "pri" : "enemyturn"); }
   const ub = $("undoBtn");
   if (ub) ub.style.display = phaseUndo ? "" : "none";
   const db = $("doneBtn");
@@ -7649,7 +7665,7 @@ function renderTurn() {
           (mpIsHost() ? '<button class="btn sm" onclick="mpForceTurn(\'' + mpMyTeam() + '\')" title="Fix a stuck turn order">Host: give the turn to the ' + teamName(mpMyTeam()) + ' \u25B8</button>' : '')
         : mpTeamMode() && !mpAmLeader()
         ? '<span class="mpwait">\u{1F451} ' + mpLeaderName(mpMyTeam()) + (you ? ' ends the turn' : ' starts the turn') + '</span>'
-        : '<button class="btn big ' + (you ? "pri" : "enemyturn") + (you && dt.of && dt.n === dt.of ? " ready" : "") +
+        : '<button class="btn big ' + (fightNow ? "fightlock" : you ? "pri" : "enemyturn") + (you && !fightNow && dt.of && dt.n === dt.of ? " ready" : "") +
             (!you && mpOfficialTurn() && mpOfficialTurn().active === mpMyTeam() ? " startnow" : "") + '" onclick="phaseTap()">' + btnTxt + '</button>') +
       (phaseUndo && (!mpTeamMode() || (mpAmLeader() && you)) ? '<button class="btn" onclick="undoPhase()">\u21B6 Undo</button>' : '') +
       '<span style="margin-left:auto;display:flex;gap:6px;align-items:center">' +

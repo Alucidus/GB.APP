@@ -316,9 +316,12 @@ export class BattleRoom {
     if (w.clearResult) await M.del("res/" + pid);
 
     // 2c. the one official turn order: only the active team's leader can end the turn, once per turn
+    // (never while a firefight is mid-segment: its 4 rounds must be played out first)
+    const fightOn = () => M.keys("ff/").some(k => { const g = M.get(k); return !!g && ["mode", "ready", "pick", "reveal"].includes(g.state); });
     if (w.endTurn && typeof w.endTurn === "object") {
       const tk = M.get("turn");
       if (!tk || !amLeader || tk.active !== myTeam || w.endTurn.seq !== tk.seq) denied.push("end-turn");
+      else if (fightOn()) denied.push("end-turn:firefight");
       else { await M.set("turn", { ...tk, active: myTeam === "federation" ? "spacenoid" : "federation", seq: tk.seq + 1, at: now, endedBy: myTeam, req: null }); push = true; }
     }
     // end-turn REQUEST: the active leader asks to end while the other side is still counting damage
@@ -326,6 +329,7 @@ export class BattleRoom {
       const tk = M.get("turn");
       if (!tk || !amLeader || tk.active !== myTeam) denied.push("end-request");
       else if (w.endRequest.cancel) { if (tk.req) { await M.set("turn", { ...tk, req: null }); push = true; } }
+      else if (fightOn()) denied.push("end-request:firefight");
       else if (w.endRequest.seq === tk.seq && !(tk.req && tk.req.seq === tk.seq)) { await M.set("turn", { ...tk, req: { team: myTeam, seq: tk.seq, at: now, ok: false } }); push = true; }
     }
     // the other side's leader lets the turn go early ("Accept now")

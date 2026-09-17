@@ -3078,3 +3078,5 @@ button.mb-item.fxtog{font:inherit;color:#dfe9f4;background:none;border-top:0;bor
   .ffonesrow.big .ffo{min-height:42px}
   .ffwiz .ffvs2 small{display:none}
 }
+/* cf84: end-turn locked during a firefight */
+.btn.fightlock{background:rgba(245,158,11,.15);border-color:#f59e0b;color:#fde68a;cursor:not-allowed}
