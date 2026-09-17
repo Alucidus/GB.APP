@@ -105,6 +105,7 @@ try {
  await pa.locator('.ffboard-card').filter({hasText:'Blue 3'}).getByRole('button',{name:/Disengage/}).click();await flush(pa,a);await both();
  await pb.getByRole('button',{name:'Deny · 1 Flashbang',exact:true}).click();await pb.locator('#picklist .row').filter({hasText:'Red 2'}).click();await flush(pb,b);await both();
  await pa.getByRole('button',{name:'Smoke out · 1 Smoke',exact:true}).click();await pa.locator('#picklist .row').filter({hasText:'Blue 1'}).click();await flush(pa,a);await both();
+ await pb.getByRole('button',{name:'Let them go',exact:true}).click();await flush(pb,b);await both();
  assert.equal(room.mem.get('ff/testfight').secured,'a');assert.equal(room.mem.get('ff/testfight').state,'closed');
  assert.match(await pb.locator('#ffx').innerText(),/They extracted with 🚩 Car/);
  assert.equal(await pa.evaluate(()=>roster.find(r=>r.uid===1).st.sq.qr.items.sm),0);

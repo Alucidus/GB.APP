@@ -1,10 +1,10 @@
-# Engagement board verification (cf100)
+# Engagement board verification (cf101)
 
 ## Automated checks completed
 
 Run `npm test` (Node 22+; no dependency installation needed for this test).
 
-140 assertions passed against the production BattleRoom using a local HTTP adapter and in-memory Durable Object storage. Two player seats create a battle, challenge, accept, and play four-round physical bouts. Checks cover confirmation/un-confirm, turn gates including the older roster-save path, next-turn start, roster add/withdraw, denied and successful disengagement, waiting-squad item eligibility, objective ownership after merging, plain 1v1, rolled Objective Clash, and forced re-engagement counters.
+160 assertions passed against the production BattleRoom using a local HTTP adapter and in-memory Durable Object storage. Two player seats create a battle, challenge, accept, and play four-round physical bouts. Checks cover confirmation/un-confirm, turn gates including the older roster-save path, next-turn start, roster add/withdraw, denied and successful disengagement, waiting-squad item eligibility, objective ownership after merging, plain 1v1, rolled Objective Clash, and forced re-engagement counters.
 
 Node VM checks call the actual client board and end-state renderer for both teams, checking mutually exclusive screens and private enemy items. They also execute objective bookkeeping and the merge handler, checking ownership transfer, the eight-soldier cap, healthiest survivor, and no item refill.
 
@@ -22,8 +22,10 @@ npx playwright install chromium
 npm run test:browser
 ```
 
-The browser scenario drives board buttons, checks item spending, and writes screenshots under `tests/screenshots/`. Review the screenshots and try a full game on two physical devices before treating cf100 as visually verified.
+The browser scenario drives board buttons, checks item spending, and writes screenshots under `tests/screenshots/`. Review the screenshots and try a full game on two physical devices before treating cf101 as visually verified.
 
 ## Limits
 
 The adapter does not test Cloudflare WebSockets, Cloudflare deployment, or Durable Object persistence. Existing networking and infrastructure settings were retained. The live Worker has not been deployed by this task.
+
+cf101 adds checks for another Flashbang after Smoke, repeated Smoke responses, duplicate-response rejection, turn blocking during the chain, and challenge objective markers for both teams (including equal squad IDs and escaped names). The user reported cf100 functionality working; this does not replace cf101 visual verification.

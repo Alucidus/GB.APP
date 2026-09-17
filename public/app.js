@@ -2180,6 +2180,11 @@ window.ffPickTap = (side, uid) => {
   if (k >= 0) set.splice(k, 1); else set.push(uid);
   ffPickRender();
 };
+function ffChallengeObjective(uid, team) {
+  const st = team === mpMyTeam() ? roster.find(r => r.uid === uid)?.st : mp.data["unit/" + team + "/" + uid]?.st;
+  const held = objHeld(st);
+  return held && st?.hp?.hp !== 0 ? '<span class="ffpick-objective">🚩 ' + ffText(held.name || "Objective") + '</span>' : '';
+}
 function ffPickRender() {
   const P = ffSel; if (!P) return;
   const box = (side, x, team) => {
@@ -2187,7 +2192,7 @@ function ffPickRender() {
     return '<div class="ffsq ' + ffSideClass(team) + (on ? ' on' : '') + (off ? ' off' : '') + '"' +
       (off ? '' : ' onclick="ffPickTap(\'' + side + '\',' + x.uid + ')"') + '>' +
       '<span class="pt shipp gp"><img src="img/ground/' + (team === "federation" ? "fed" : "spa") + '-rifleman.webp" alt=""></span>' +
-      '<span class="t"><b>' + x.label + '</b><em>' + (x.alive <= 0 ? "wiped out" : x.busy ? "\u2694 in a firefight" : x.aboard ? "aboard a vehicle" : x.alive + " / 8 \u00b7 " + HEALTH_WORD(x.alive / 8)) + '</em></span>' +
+      '<span class="t"><b>' + ffText(x.label) + '</b>' + ffChallengeObjective(x.uid, team) + '<em>' + (x.alive <= 0 ? "wiped out" : x.busy ? "\u2694 in a firefight" : x.aboard ? "aboard a vehicle" : x.alive + " / 8 \u00b7 " + HEALTH_WORD(x.alive / 8)) + '</em></span>' +
       (on ? '<span class="tick">\u2713</span>' : '') + '</div>';
   };
   const col = (side, list, team, title) => '<div class="ffcol"><h5 class="' + ffSideClass(team) + '">' + title + '</h5>' + list.map(x => box(side, x, team)).join("") + '</div>';
@@ -2715,7 +2720,7 @@ window.ffLetGo = () => { const f = ffMine(); if (f && confirm(f.ext?.holder ? "L
 window.ffSmokeOut = () => {
   const f = ffMine(); if (!f) return;
   ffSpendPick(f, "sm", "\u25CC Smoke out", "Pick whose Smoke Grenade covers the escape.",
-    x => { ffOp({ op: "smokeout", id: f.id, uid: x.uid }); mpToast("\u25CC Smoke — your squad gets away."); });
+    x => { ffOp({ op: "smokeout", id: f.id, uid: x.uid }); mpToast("\u25CC Smoke thrown — the enemy can flash again or let you go."); });
 };
 window.ffFightOn = () => { const f = ffMine(); if (f) ffOp({ op: "fighton", id: f.id }); };
 window.ffConcede = () => { const f = ffMine(); if (f && confirm("Your squads are out of the fight. The enemy secures the objective?")) ffOp({ op: "concede", id: f.id }); };
@@ -2999,9 +3004,19 @@ function ffDisengageScreen(f, s) {
   const who = (f.eng[ex.side + "List"].find(x => x.uid === ex.uid) || f[ex.side]).label;
   const obj = ex.holder ? ' with 🚩 ' + ffText(f.eng.obj || 'the objective') : '';
   const has = k => ffMySquads(f).some(x => x.alive > 0 && x.items[k] > 0);
-  return '<div class="ffmsg ffdeparture"><b>' + (own ? 'Disengaging: ' : 'They are disengaging: ') + ffText(who) + obj + '</b>' +
-    (own ? ex.deny ? '<span>The enemy used a Flashbang. Use Smoke to get away, or stay and choose fighters again.</span><div class="ffrow wrap"><button class="btn big pri" onclick="ffSmokeOut()"' + (!has('sm') ? ' disabled' : '') + '>Smoke out · 1 Smoke</button><button class="btn" onclick="ffFightOn()">Stay and fight on</button></div>' + (!has('sm') ? '<small>No Smoke left in your engagement.</small>' : '') : '<span>Waiting for the enemy to let you go or deny with a Flashbang.</span>' :
-      ex.deny ? '<span>Flashbang thrown — waiting for their Smoke response.</span>' : '<span>Any of your squads in this engagement can spend a Flashbang.</span><div class="ffrow wrap"><button class="btn big pri" onclick="ffDeny()"' + (!has('fb') ? ' disabled' : '') + '>Deny · 1 Flashbang</button><button class="btn" onclick="ffLetGo()">Let them go</button></div>') + '</div>';
+  let response;
+  if (own && ex.smoke) {
+    response = '<span>Smoke thrown — waiting for the enemy to flash again or let you go.</span><small>Each new Flashbang needs another Smoke. Any engaged squad can supply it.</small>';
+  } else if (own && ex.deny) {
+    response = '<span>The enemy used ' + (ex.flashes > 1 ? 'another ' : 'a ') + 'Flashbang. Answer with Smoke, or stay and choose fighters again.</span><div class="ffrow wrap"><button class="btn big pri" onclick="ffSmokeOut()"' + (!has('sm') ? ' disabled' : '') + '>Smoke out · 1 Smoke</button><button class="btn" onclick="ffFightOn()">Stay and fight on</button></div>' + (!has('sm') ? '<small>No Smoke left in your engagement — stay and fight on.</small>' : '');
+  } else if (own) {
+    response = '<span>Waiting for the enemy to let you go or deny with a Flashbang.</span>';
+  } else if (ex.deny && !ex.smoke) {
+    response = '<span>Flashbang thrown — waiting for their Smoke response.</span>';
+  } else {
+    response = '<span>' + (ex.smoke ? 'They answered with Smoke. Spend another Flashbang from any engaged squad to stop them again.' : 'Any of your squads in this engagement can spend a Flashbang.') + '</span><div class="ffrow wrap"><button class="btn big pri" onclick="ffDeny()"' + (!has('fb') ? ' disabled' : '') + '>' + (ex.smoke ? 'Flash again' : 'Deny') + ' · 1 Flashbang</button><button class="btn" onclick="ffLetGo()">Let them go</button></div>' + (!has('fb') ? '<small>No Flashbangs left — let them go to finish the escape.</small>' : '');
+  }
+  return '<div class="ffmsg ffdeparture"><b>' + (own ? 'Disengaging: ' : 'They are disengaging: ') + ffText(who) + obj + '</b>' + response + '</div>';
 }
 
 function renderFF() {
@@ -7586,7 +7601,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf100";
+const APP_BUILD = "cf101";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

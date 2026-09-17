@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf100)
+# Gunpla Battle — Cloudflare version (build cf101)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -14,6 +14,16 @@ src/index.js       the Worker + BattleRoom (sessions, leaders, locks, deliveries
 public/            the app (index.html, images, service worker)
 .gitignore
 ```
+
+## cf101 — Matching artwork, objective picker, and repeated extraction counters
+
+- Engagement board styling now follows the existing Gunpla kit UI: cut-corner panels, roster-style rows, faction emblems, existing infantry art, blue Federation and red/gold Spacenoid panels, and existing theme colors for controls. No new art downloads are required.
+- The challenge squad picker shows the carried objective name on both teams, including on phones. Team identity is used when squad IDs overlap.
+- **Designer rule change:** Smoke counters the latest Flashbang, not the entire extraction. The pursuing side can choose **Flash again**, spending another charge from any living engaged squad. Another Smoke is required to answer it. Continue until the pursuing side lets them go or the departing side stays to fight. The latter clears fighter confirmations. If no Flashbang remains, use **Let them go** to acknowledge the escape.
+- The rulebook now describes this item exchange and removes the guaranteed-Smoke-escape wording. The ordinary queued Forced Re-Engagement counter remains a cancellation of that attempt; another attempt can be made with another available Flashbang through the existing Force a re-engagement action.
+- Deploy the **whole project**, including `src/index.js`. The server, UI, stylesheet, and cache version changed; all devices should show **cf101**.
+
+**Checks:** 160 automated assertions passed, including repeated Flash/Smoke responses, duplicate-action rejection, the turn gate during the exchange, and both teams’ objective markers. The existing two-browser Playwright scenario was updated but remains unrun because Chromium is unavailable in this environment. The user confirmed cf100’s functionality in play; cf101’s visual changes still need an on-device look. No deployment was performed.
 
 ## cf100 — Engagement board update
 
@@ -184,3 +194,5 @@ The end of a bout now shows one decision at a time: Objective Clash, then the en
 | cf99 | `public/app.js`, `public/index.html`, `public/sw.js` | **Objectives can be named:** the roster / enemy-list marker now reads 🚩 SERVER ROOM (the engagement's name is applied automatically when a squad wins the clash), the squad's Overmap banner shows the name with Rename and Clear, marking one by hand asks for the name, and a Tank carrying an objective names it too (shown on its sheet and roster row) |
 
 | cf100 | **`src/index.js`**, `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js`; new `bump.py` and tests | One-decision end-of-bout flow; roster board with own item icons; two-sided reversible fighter confirmation; next-turn bout start; per-squad disengagement and any-squad counters; More menu. 140 automated assertions pass; browser visual check pending. |
+
+| cf101 | `src/index.js`, `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | Matching Gunpla board skin and existing art; named objectives in challenge picker; repeated Flash/Smoke extraction counters. 160 automated assertions pass; visual review pending. |

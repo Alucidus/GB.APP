@@ -706,15 +706,15 @@ export class BattleRoom {
         g.confirmed = { a: false, b: false }; g.startSeq = null; return save();
       }
       case "deny":
-        if (g.state !== "end" || !mine || !g.ext || g.ext.side === side || g.ext.deny ||
+        if (g.state !== "end" || !mine || !g.ext || g.ext.side === side || (g.ext.deny && !g.ext.smoke) ||
             !g.eng[side + "List"].some(x => x.uid === op.uid)) break;
-        g.ext.deny = { uid: op.uid }; return save();
+        g.ext.deny = { uid: op.uid }; g.ext.smoke = false; g.ext.flashes = (g.ext.flashes || 0) + 1; return save();
       case "smokeout":
         if (g.state !== "end" || !mine || !g.ext || g.ext.side !== side || !g.ext.deny || g.ext.smoke ||
             !g.eng[side + "List"].some(x => x.uid === op.uid)) break;
-        g.ext.smoke = true; finishDisengage(g); return save();
+        g.ext.smoke = true; g.ext.smokes = (g.ext.smokes || 0) + 1; return save();
       case "letgo":
-        if (g.state !== "end" || !mine || !g.ext || g.ext.side === side || g.ext.deny) break;
+        if (g.state !== "end" || !mine || !g.ext || g.ext.side === side || (g.ext.deny && !g.ext.smoke)) break;
         finishDisengage(g); return save();
       case "fighton":
         if (g.state !== "end" || !mine || !g.ext || g.ext.side !== side || !g.ext.deny || g.ext.smoke) break;

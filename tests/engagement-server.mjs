@@ -46,7 +46,14 @@ try {
  // Merging transfers holder identity to the surviving squad.
  await ff(a,{op:'engedit',kind:'merge',uids:[3],keepUid:1});ok(state().holder.uid===1,'holder follows merge survivor');
  await ff(a,{op:'extract',uid:1});await ff(b,{op:'deny',uid:2});await ff(a,{op:'smokeout',uid:1});
- ok(state().state==='closed'&&state().secured==='a','smoke secures objective');
+ ok(state().state==='end'&&state().ext.smoke&&!state().secured,'smoke leaves another flash response window');
+ await ff(a,{op:'smokeout',uid:1},true);
+ ok((await sync(b,{endTurn:{seq:2}})).denied.includes('end-turn:firefight'),'cannot end turn during counter chain');
+ await ff(b,{op:'deny',uid:1});ok(!state().ext.smoke&&state().ext.flashes===2,'a different squad flashes again');
+ await ff(b,{op:'deny',uid:2},true);await ff(b,{op:'letgo'},true);
+ await ff(a,{op:'smokeout',uid:1});ok(state().ext.smokes===2,'second smoke reopens response');
+ await ff(b,{op:'letgo'});
+ ok(state().state==='closed'&&state().secured==='a','escape completes after opponent lets go');
  // Plain 1v1 and rolled objective; forcing the next bout remains queued.
  id='singleff';await ff(b,{op:'invite',aUid:3,bUid:3,aLabel:'Red 3',bLabel:'Blue 3'});await ff(a,{op:'accept'});
  await ff(a,{op:'mode',pick:'roll'});await ff(b,{op:'mode',pick:'roll'});
@@ -70,6 +77,12 @@ try {
    ok(html.includes('Confirm fighter')&&!html.includes('Forced Re-Engagement'),'upcoming bout controls');
    ctx.f.confirmed={a:true,b:true};ok(vm.runInContext('ffBoard(f,s)',ctx).includes('Un-confirm'),'unconfirm on board');
    ctx.f.ext={side:sd,uid:1,holder:true,deny:{uid:2}};ok(vm.runInContext('ffDisengageScreen(f,s)',ctx).includes('Smoke out'),'denied response');
+   ctx.f.ext.smoke=true;
+   ok(vm.runInContext('ffDisengageScreen(f,s)',ctx).includes('waiting for the enemy to flash again'),'smoke waits on defender');
+   ctx.f.ext.side=sd==='a'?'b':'a';
+   ok(vm.runInContext('ffDisengageScreen(f,s)',ctx).includes('Flash again'),'defender gets flash-again button');
+   ctx.roster.forEach(r=>{r.st.sq.qr.items.fb=0;});
+   ok(vm.runInContext('ffDisengageScreen(f,s)',ctx).includes('No Flashbangs left'),'empty bag cannot reflash');
    ctx.f.eng.bout=2;ok(vm.runInContext('ffBoard(f,s)',ctx).includes('Forced Re-Engagement'),'forced option after all bouts');
    ctx.f.eng.obj='<img onerror=bad>';ok(!vm.runInContext('ffBoard(f,s)',ctx).includes('<img onerror'),'objective escaped');
    // Full end-state renderer: four screens must stay mutually exclusive.
@@ -105,5 +118,15 @@ try {
 
 
  }
+ // Challenge objective markers distinguish same-numbered squads on opposite teams.
+ const ownUnit=unit(8).st,enemyUnit=unit(8).st;
+ ownUnit.sq.holdsObj={name:'Car'};enemyUnit.sq.holdsObj={name:'Server <room>'};
+ const markerCtx=vm.createContext({roster:[{uid:1,st:ownUnit}],mp:{data:{'unit/spacenoid/1':{st:enemyUnit}}},mpMyTeam:()=> 'federation',objHeld:st=>st?.sq?.holdsObj});
+ vm.runInContext(app.slice(app.indexOf('function ffText('),app.indexOf('function ffMoreBouts(')),markerCtx);
+ vm.runInContext(app.slice(app.indexOf('function ffChallengeObjective('),app.indexOf('function ffPickRender(')),markerCtx);
+ ok(vm.runInContext('ffChallengeObjective(1,"federation")',markerCtx).includes('🚩 Car'),'own picker objective');
+ ok(vm.runInContext('ffChallengeObjective(1,"spacenoid")',markerCtx).includes('Server &lt;room&gt;'),'enemy marker escaped and team-specific');
+ enemyUnit.hp.hp=0;ok(vm.runInContext('ffChallengeObjective(1,"spacenoid")',markerCtx)==='','dead squad has no marker');
+ ownUnit.sq.holdsObj=null;ok(vm.runInContext('ffChallengeObjective(1,"federation")',markerCtx)==='','no false marker');
  console.log('PASS '+checks+' assertions: two-player protocol, real four-round bouts, turn gates, confirmation reversal, disengagement, waiting-squad responses, roster edits, holder merge, queued next bout, plain 1v1, rolled clash, forced counter, both board perspectives and item privacy.');
 } finally {await new Promise(r=>server.close(r));}
