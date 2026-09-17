@@ -2574,6 +2574,66 @@ body.spa .ffside.foe{background:linear-gradient(270deg,rgba(56,189,248,.14),tran
 @keyframes ffShake{0%,100%{transform:none}20%{transform:translate(-10px,6px)}40%{transform:translate(9px,-7px)}60%{transform:translate(-6px,-4px)}80%{transform:translate(4px,3px)}}
 @media (prefers-reduced-motion:reduce){.ffanim.smoke i,.ffanim.boom i,.ffcount b,.ffcard{animation-duration:.01s}.ffanim.flash{animation:ffFlash .6s ease-out forwards}}
 @media (max-width:700px){.ffitems{grid-template-columns:repeat(2,1fr)}.ffcount b{font-size:80px}}
+
+/* ================= LANDING SCENE: layers + parallax (cf54) ================= */
+#s0 .m-bg.m3{background:#04060a;inset:0;overflow:hidden}
+#s0 .m-bg.m3:after{z-index:6;background:linear-gradient(180deg,rgba(4,6,10,.25) 0%,rgba(4,6,10,0) 22%,rgba(4,6,10,.08) 50%,rgba(4,6,10,.62) 78%,rgba(4,6,10,.9) 100%)}
+.m3 .m3-l{position:absolute;inset:-8%;background:no-repeat center/cover}
+/* lite mode (low-memory devices): parallax only, no ambient motion */
+#s0.m3lite .m3-l,#s0.m3lite .m3-stars:before,#s0.m3lite .m3-stars:after{animation:none !important}
+#s0.m3lite .m3-embers,#s0.m3lite .m3-fx,#s0.m3lite .embGlow{display:none}
+.m3-l.base{background-image:url(img/m3-base.webp);animation:m3Breath 32s ease-in-out infinite alternate}
+.m3-l.emb,.m3-l.embGlow{background-image:url(img/m3-emblem.webp)}
+.m3-l.embGlow{opacity:0;filter:blur(.5vmax) brightness(1.8);animation:m3GlowOp 4.5s ease-in-out infinite}
+@keyframes m3GlowOp{0%,100%{opacity:0}50%{opacity:.75}}
+.m3-l.shipsL{background-image:url(img/m3-ships-l.webp);animation:m3AdvL 17s ease-in-out infinite alternate}
+.m3-l.shipsR{background-image:url(img/m3-ships-r.webp);animation:m3AdvR 19s ease-in-out infinite alternate}
+.m3-l.rocks{background-image:url(img/m3-rocks.webp);animation:m3Float 26s ease-in-out infinite alternate}
+.m3-l.fg{background-image:url(img/m3-fg.webp)}
+@keyframes m3Breath{0%{transform:scale(1)}100%{transform:scale(1.06)}}
+@keyframes m3Pulse{0%,100%{filter:brightness(1) drop-shadow(0 0 0 rgba(255,255,255,0));opacity:.92}
+  50%{filter:brightness(1.35) drop-shadow(0 0 1.4vmax rgba(190,210,255,.55));opacity:1}}
+@keyframes m3AdvL{0%{transform:translate(-1.4vw,.4vh)}100%{transform:translate(1.2vw,-.5vh)}}
+@keyframes m3AdvR{0%{transform:translate(1.4vw,-.3vh)}100%{transform:translate(-1.2vw,.5vh)}}
+@keyframes m3Float{0%{transform:translate(0,0) rotate(0)}100%{transform:translate(-1.6vw,-1.1vh) rotate(.5deg)}}
+.m3-stars{position:absolute;inset:-8%;pointer-events:none}
+.m3-stars:before,.m3-stars:after{content:"";position:absolute;inset:0;background-repeat:repeat}
+.m3-stars:before{background-image:radial-gradient(1.4px 1.4px at 12% 18%,#fff,transparent),radial-gradient(1.2px 1.2px at 32% 8%,#cfe3ff,transparent),
+  radial-gradient(1.6px 1.6px at 58% 14%,#fff,transparent),radial-gradient(1.2px 1.2px at 78% 26%,#ffd6da,transparent),radial-gradient(1.4px 1.4px at 90% 6%,#fff,transparent),
+  radial-gradient(1.1px 1.1px at 44% 30%,#fff,transparent);background-size:48vw 40vh;animation:m3Twinkle 3.4s ease-in-out infinite alternate}
+.m3-stars:after{background-image:radial-gradient(1.3px 1.3px at 22% 12%,#fff,transparent),radial-gradient(1.1px 1.1px at 66% 22%,#e0ecff,transparent),
+  radial-gradient(1.5px 1.5px at 84% 16%,#fff,transparent),radial-gradient(1.1px 1.1px at 6% 34%,#ffe0e4,transparent);background-size:37vw 33vh;animation:m3Twinkle 2.6s ease-in-out -1.3s infinite alternate}
+@keyframes m3Twinkle{0%{opacity:.15}100%{opacity:.9}}
+.m3-fx{position:absolute;inset:-8%;pointer-events:none}
+.m3-boom{position:absolute;width:7vmax;height:7vmax;border-radius:50%;transform:translate(-50%,-50%) scale(0);animation:m3Boom 1.5s ease-out forwards}
+.m3-boom.blue{background:radial-gradient(circle,#fff 0,rgba(125,211,252,.95) 18%,rgba(56,120,255,.5) 42%,rgba(56,120,255,0) 70%)}
+.m3-boom.red{background:radial-gradient(circle,#fff 0,rgba(255,200,120,.95) 16%,rgba(255,60,60,.55) 42%,rgba(255,40,40,0) 70%)}
+@keyframes m3Boom{0%{transform:translate(-50%,-50%) scale(0);opacity:0}10%{opacity:1}30%{transform:translate(-50%,-50%) scale(calc(var(--s,1)*1));opacity:.9}
+  100%{transform:translate(-50%,-50%) scale(calc(var(--s,1)*1.6));opacity:0}}
+.m3-embers{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:5}
+.m3-embers i{position:absolute;bottom:-3%;width:var(--sz);height:var(--sz);border-radius:50%;opacity:0;animation:m3Ember var(--dur) linear var(--del) infinite}
+.m3-embers i.b{background:#9ad8ff;box-shadow:0 0 6px 2px rgba(120,190,255,.8)}
+.m3-embers i.r{background:#ffb08a;box-shadow:0 0 6px 2px rgba(255,90,60,.8)}
+@keyframes m3Ember{0%{transform:translate(0,0);opacity:0}12%{opacity:.9}70%{opacity:.6}100%{transform:translate(var(--dx),-62vh);opacity:0}}
+@media (prefers-reduced-motion:reduce){.m3-l,.m3-stars:before,.m3-stars:after{animation:none !important}.m3-embers,.m3-fx{display:none}}
+/* the clash plays over the live landing scene, then flies through it (front layers rush past first) */
+#clashFx.onm3 .cx-bg{display:none}
+#s0.m3clash .m-bg.m3:after{opacity:0;transition:opacity .4s}
+#s0.m3hit #m3{animation:cxShake2 .45s linear}
+#s0.m3zoom #m3{animation:m3zOut .75s ease-in forwards}
+@keyframes m3zOut{0%{opacity:1}55%{opacity:1}100%{opacity:0}}
+#s0.m3zoom #m3 .m3-embers,#s0.m3zoom #m3 .m3-fx,#s0.m3zoom #m3 .m3-stars,#s0.m3zoom #m3 .embGlow{display:none}
+#s0.m3zoom #m3 [data-d="base"]{animation:m3Breath 32s ease-in-out infinite alternate,m3zBase .75s cubic-bezier(.75,0,1,.55) forwards}
+#s0.m3zoom #m3 .emb{animation:m3zEmb .75s cubic-bezier(.75,0,1,.55) forwards}
+#s0.m3zoom #m3 [data-d="fg"]{animation:m3zFg .75s cubic-bezier(.75,0,1,.55) forwards}
+#s0.m3zoom #m3 [data-d="rocks"]{animation:m3Float 26s ease-in-out infinite alternate,m3zRocks .75s cubic-bezier(.75,0,1,.55) forwards}
+#s0.m3zoom #m3 [data-d="shipsL"]{animation:m3AdvL 17s ease-in-out infinite alternate,m3zShips .75s cubic-bezier(.75,0,1,.55) forwards}
+#s0.m3zoom #m3 [data-d="shipsR"]{animation:m3AdvR 19s ease-in-out infinite alternate,m3zShips .75s cubic-bezier(.75,0,1,.55) forwards}
+@keyframes m3zBase{0%{scale:1}100%{scale:1.25}}
+@keyframes m3zEmb{0%{scale:1}100%{scale:1.5}}
+@keyframes m3zShips{0%{scale:1}100%{scale:1.6}}
+@keyframes m3zRocks{0%{scale:1}100%{scale:2.2}}
+@keyframes m3zFg{0%{scale:1}100%{scale:3}}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -2689,7 +2749,15 @@ body.spa .ffside.foe{background:linear-gradient(270deg,rgba(56,189,248,.14),tran
 
 <!-- 0. landing: how to play -->
 <section id="s0" class="screen on">
-  <div class="m-bg m2"></div>
+  <div class="m-bg m3" id="m3">
+    <div class="m3-l base" data-d="base"></div><div class="m3-stars" data-d="stars"></div>
+    <div class="m3-l emb" data-d="emb"></div><div class="m3-l embGlow" data-d="emb"></div>
+    <div class="m3-l shipsL" data-d="shipsL"></div><div class="m3-l shipsR" data-d="shipsR"></div>
+    <div class="m3-fx" data-d="fx"></div>
+    <div class="m3-l rocks" data-d="rocks"></div>
+    <div class="m3-l fg" data-d="fg"></div>
+    <div class="m3-embers" data-d="embers"></div>
+  </div>
   <div class="m-top">
     <span>BUILD <i>/</i> FIGHT <i>/</i> CONQUER</span>
     <span>MOBILE SUITS <i>/</i> TABLETOP <i>/</i> THE BATTLEFIELD IS YOURS</span>
@@ -9908,6 +9976,7 @@ function renderMenu() {
 // ---- landing page ----
 function renderLanding() {
   layoutMenu();
+  if (typeof m3Init === "function") { m3Init(); m3Start(); }
   const ems = $("moEmbs");
   if (ems && !ems.childElementCount)
     ems.innerHTML = ["#fcFed .fc-emb", "#fcSpa .fc-emb"].map(q => { const e = document.querySelector(q); return e ? e.outerHTML : ""; }).join("");
@@ -10002,6 +10071,8 @@ function playClash(after) {
   const lr = $("mLogo") ? $("mLogo").getBoundingClientRect() : null;
   fx.innerHTML = (lr ? '<img class="cx-logo" src="img/menu2-logo.webp" alt="" style="left:' + lr.left + 'px;top:' + lr.top + 'px;width:' + lr.width + 'px;height:' + lr.height + 'px">' : '') + '<div class="cx-shake"><div class="cx-scene"><div class="cx-bg"></div><div class="cx-l"></div><div class="cx-r"></div><div class="cx-glow"></div><div class="cx-ring"></div><div class="cx-clash"></div></div></div><div class="cx-end"></div>' +
     '<div class="cx-flash"></div>' + (seen ? '<button class="cx-skip">SKIP \u25B8</button>' : '');
+  const live = $("m3"), sc = fx.querySelector(".cx-scene");
+  if (live) { fx.classList.add("onm3"); s0.classList.add("m3clash"); }
   document.body.appendChild(fx);
   s0.classList.add("clashing");
   const timers = [];
@@ -10013,15 +10084,102 @@ function playClash(after) {
     fx.classList.add("white", "logo", "out");
     after();
     s0.classList.remove("clashing");
-    setTimeout(() => { fx.remove(); clashBusy = false; }, 750);
+    setTimeout(() => { fx.remove(); clashBusy = false; s0.classList.remove("m3clash", "m3hit", "m3zoom"); }, 750);
   };
   if (seen) fx.addEventListener("click", finish);
   requestAnimationFrame(() => fx.classList.add("go"));
-  timers.push(setTimeout(() => fx.classList.add("hit"), 760));
-  timers.push(setTimeout(() => fx.classList.add("zoom"), 900));
+  timers.push(setTimeout(() => { fx.classList.add("hit"); s0.classList.add("m3hit"); }, 760));
+  timers.push(setTimeout(() => { fx.classList.add("zoom"); s0.classList.add("m3zoom"); }, 900));
   timers.push(setTimeout(() => fx.classList.add("white"), 1300));
   timers.push(setTimeout(() => fx.classList.add("logo"), 1750));
   timers.push(setTimeout(finish, 3100));
+}
+
+// ================= LANDING SCENE: layered parallax (cf54) =================
+// Layers back → front, each with a depth (how far it moves, in % of the screen).
+const M3_DEPTH = { base: 0.7, stars: 0.9, emb: 1.3, shipsL: 2.6, shipsR: 2.6, rocks: 4.2, fx: 3, fg: 6.4, embers: 7.2 };
+const M3 = { x: 0, y: 0, tx: 0, ty: 0, raf: 0, drag: null, gyro: null, gyroBase: null, asked: false, boomT: 0 };
+function m3On() { const s0 = $("s0"); return !!(s0 && s0.classList.contains("on") && !document.hidden); }
+function m3Reduced() { return !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches); }
+function m3Apply(root, x, y) {
+  root.querySelectorAll("[data-d]").forEach(el => {
+    const d = M3_DEPTH[el.dataset.d] || 0;
+    el.style.translate = (x * d).toFixed(3) + "vw " + (y * d * 0.6).toFixed(3) + "vh";
+  });
+}
+function m3Loop() {
+  M3.raf = 0;
+  if (!m3On() || $("s0").classList.contains("m3clash")) return;     // no parallax work while the clash plays
+  let tx = M3.tx, ty = M3.ty;
+  if (!M3.drag && M3.gyro) { tx = M3.gyro.x; ty = M3.gyro.y; }
+  M3.x += (tx - M3.x) * 0.08; M3.y += (ty - M3.y) * 0.08;
+  const root = $("m3"); if (root) m3Apply(root, M3.x, M3.y);
+  M3.raf = requestAnimationFrame(m3Loop);
+}
+function m3Start() {
+  if (m3Reduced()) return;
+  if (!M3.raf) M3.raf = requestAnimationFrame(m3Loop);
+  clearTimeout(M3.boomT);
+  const boom = () => {
+    if (!m3On() || $("s0").classList.contains("m3lite")) return;
+    const fx = document.querySelector("#m3 .m3-fx");
+    if (fx && fx.childElementCount < 4) {
+      const b = document.createElement("i");
+      const left = Math.random() < 0.5;
+      b.className = "m3-boom " + (left ? "blue" : "red");
+      b.style.left = (left ? 8 + Math.random() * 34 : 56 + Math.random() * 36) + "%";
+      b.style.top = (14 + Math.random() * 44) + "%";
+      b.style.setProperty("--s", (0.5 + Math.random() * 0.9).toFixed(2));
+      fx.appendChild(b); setTimeout(() => b.remove(), 1600);
+    }
+    M3.boomT = setTimeout(boom, 1400 + Math.random() * 2600);
+  };
+  M3.boomT = setTimeout(boom, 1200);
+}
+const m3Clamp = v => Math.max(-1, Math.min(1, v));
+function m3Init() {
+  const s0 = $("s0"); if (!s0 || s0.dataset.m3) return;
+  s0.dataset.m3 = "1";
+  if ((navigator.deviceMemory && navigator.deviceMemory <= 2) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2)) s0.classList.add("m3lite");
+  // embers rising from the ruins
+  const em = s0.querySelector(".m3-embers");
+  if (em && !em.childElementCount) for (let k = 0; k < 18; k++) {
+    const e = document.createElement("i");
+    e.style.left = (Math.random() * 100).toFixed(1) + "%";
+    e.style.setProperty("--dur", (7 + Math.random() * 7).toFixed(1) + "s");
+    e.style.setProperty("--del", (-Math.random() * 14).toFixed(1) + "s");
+    e.style.setProperty("--dx", ((Math.random() - 0.5) * 12).toFixed(1) + "vw");
+    e.style.setProperty("--sz", (2 + Math.random() * 3).toFixed(1) + "px");
+    e.className = Math.random() < 0.5 ? "b" : "r";
+    em.appendChild(e);
+  }
+  // mouse: the scene leans away from the pointer; touch: drag to look around, springs back on release
+  s0.addEventListener("pointermove", ev => {
+    if (ev.pointerType === "mouse") {
+      M3.tx = -m3Clamp((ev.clientX / innerWidth) * 2 - 1);
+      M3.ty = -m3Clamp((ev.clientY / innerHeight) * 2 - 1);
+    } else if (M3.drag) {
+      M3.tx = m3Clamp((ev.clientX - M3.drag.x) / (innerWidth * 0.45));
+      M3.ty = m3Clamp((ev.clientY - M3.drag.y) / (innerHeight * 0.45));
+    }
+  }, { passive: true });
+  s0.addEventListener("pointerdown", ev => {
+    if (ev.pointerType !== "mouse") M3.drag = { x: ev.clientX, y: ev.clientY };
+    // phone tilt: iOS asks once, on a tap
+    if (!M3.asked && window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === "function") {
+      M3.asked = true;
+      DeviceOrientationEvent.requestPermission().catch(() => {});
+    }
+  }, { passive: true });
+  const release = () => { M3.drag = null; M3.tx = 0; M3.ty = 0; };
+  ["pointerup", "pointercancel"].forEach(t => s0.addEventListener(t, ev => { if (ev.pointerType !== "mouse") release(); }, { passive: true }));
+  s0.addEventListener("pointerleave", ev => { if (ev.pointerType === "mouse") { M3.tx = 0; M3.ty = 0; } }, { passive: true });
+  window.addEventListener("deviceorientation", ev => {
+    if (ev.gamma == null || ev.beta == null) return;
+    if (!M3.gyroBase) M3.gyroBase = { b: ev.beta };
+    M3.gyro = { x: m3Clamp(-ev.gamma / 25), y: m3Clamp(-(ev.beta - M3.gyroBase.b) / 25) };
+  });
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) m3Start(); });
 }
 
 window.landOnline = () => { if (mp.code) hangarGo(() => openMP()); else playClash(() => openMP()); };
@@ -13892,7 +14050,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf53";
+const APP_BUILD = "cf54";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
