@@ -2121,6 +2121,66 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 .vlsep{margin:8px 0 4px;font:900 11px system-ui,sans-serif;letter-spacing:.2em;color:var(--muted)}
 .shipcard.gcard .sc-art.sq img{object-position:85% 50%}
 @media (max-width:900px){.sqsold{grid-template-columns:repeat(2,1fr)}.qr{grid-template-columns:1fr}.sqgrid.om{grid-template-columns:1fr}}
+
+/* ===== cf35: touch-friendly soldier cards + ground limit meter ===== */
+.sqsold2{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:minmax(min-content,1fr);gap:.7cqw;flex:1;min-height:0;overflow:auto;padding-right:.2cqw}
+.sq2{position:relative;display:flex;flex-direction:column;gap:.5cqw;padding:.7cqw .8cqw;background:rgba(3,8,14,.8);border:1px solid var(--f-line);
+  clip-path:polygon(0 0,calc(100% - .9cqw) 0,100% .9cqw,100% 100%,.9cqw 100%,0 calc(100% - .9cqw))}
+.sq2.down{opacity:.5;filter:grayscale(.85)}
+.sq2-top{display:flex;align-items:center;gap:.6cqw;min-height:0}
+#sheet .sqwrap .sq2-top img{width:3.2cqw;height:4cqw;min-width:28px;min-height:36px;flex:none}
+.sq2-top b{display:block;font-size:1.1em;color:#fff}
+.sq2-top em{font-style:normal;font-size:.75em;color:var(--f-mut)}
+.sq2-kia{margin-left:auto;font:900 .95em system-ui,sans-serif;letter-spacing:.16em;color:#fff;background:#7f1d1d;padding:.1cqw .6cqw}
+.sq2-bubs{display:flex;flex-wrap:nowrap;gap:.4cqw;justify-content:space-around;align-items:flex-start}
+.sq2-bubs.four .sbub{width:4.1cqw;height:4.1cqw;min-width:40px;min-height:40px}
+.sq2-bubs.four .sbub-in{inset:.36cqw}
+.sq2-bubs.four .sbub-in b{font-size:clamp(12px,1.45cqw,21px)}
+.sbub{position:relative;width:4.9cqw;height:4.9cqw;min-width:46px;min-height:46px;border-radius:50%;padding:0;cursor:pointer;flex:none;border:0;
+  background:conic-gradient(var(--c) calc(var(--p) * 1%),rgba(255,255,255,.12) 0);box-shadow:0 0 .8cqw rgba(0,0,0,.6);
+  margin-bottom:1.25cqw;transition:transform .08s;-webkit-tap-highlight-color:transparent}
+.sbub:active{transform:scale(.92)}
+.sbub-in{position:absolute;inset:.42cqw;border-radius:50%;background:rgba(255,255,255,.96);display:flex;align-items:center;justify-content:center;gap:0;line-height:1}
+.sbub-in b{font:900 clamp(13px,1.7cqw,24px) system-ui,sans-serif;color:#0f172a}
+.sbub-in i{font:800 clamp(7px,.75cqw,11px) system-ui,sans-serif;font-style:normal;color:#64748b;align-self:flex-end;margin-bottom:.9cqw}
+.sbub.zero .sbub-in{background:rgba(100,116,139,.9)}
+.sbub.zero .sbub-in b{color:#e2e8f0}
+.sbub small{position:absolute;left:50%;top:calc(100% + .25cqw);transform:translateX(-50%);white-space:nowrap;font:800 clamp(6px,.62cqw,9px) system-ui,sans-serif;letter-spacing:.12em;color:var(--f-mut)}
+.sq2-acts{display:flex;flex-direction:row;gap:.4cqw}
+.sq2-acts .sact{flex:1;min-width:0}
+.sact{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:.1cqw;min-height:2.9cqw;padding:.45cqw .8cqw;cursor:pointer;text-align:left;
+  color:#e2e8f0;background:linear-gradient(110deg,rgba(250,204,21,.18),rgba(0,0,0,.55) 70%);border:1px solid #a16207;
+  clip-path:polygon(.5cqw 0,100% 0,calc(100% - .5cqw) 100%,0 100%);-webkit-tap-highlight-color:transparent}
+.sact:active{filter:brightness(1.3)}
+.sact b{font:800 .92em system-ui,sans-serif;color:#fde68a}
+.sact small{font-size:.68em;color:#cbd5e1}
+.sact em{position:absolute;right:.8cqw;top:50%;transform:translateY(-50%);font:900 1.35em system-ui,sans-serif;font-style:normal;color:#facc15}
+.sact.empty{opacity:.55;border-color:#475569;background:rgba(0,0,0,.5)}
+.sact.empty em{color:#94a3b8}
+.sact.swap{background:linear-gradient(110deg,var(--f-panel),rgba(0,0,0,.55) 70%);border-color:var(--f-acc)}
+.sact.swap b{color:#fff}
+.sq2 p{margin:auto 0 0;font-size:.7em;line-height:1.3;color:#94a3b8}
+@media (max-width:1000px){.sqsold2{grid-template-columns:repeat(2,minmax(0,1fr))}.sbub{width:9cqw;height:9cqw}.sbub-in{inset:.8cqw}.sbub small{font-size:9px}}
+/* ground limit meter */
+.gcap2{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin:6px 0 12px;padding:12px 16px;background:rgba(6,10,16,.85);border:1px solid var(--acc-line);
+  clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)}
+.gcap2.full{border-color:#f59e0b;box-shadow:inset 0 0 0 1px #f59e0b}
+.gcap-main{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.gcap-main small{font:900 12px system-ui,sans-serif;letter-spacing:.2em;color:var(--acc)}
+.gcap-main b{font:900 34px system-ui,sans-serif;color:#fff;line-height:1}
+.gcap-main b i{font-style:normal;font-size:.55em;color:var(--muted)}
+.gcap-bar{display:flex;gap:4px}
+.gcap-bar i{width:22px;height:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);clip-path:polygon(4px 0,100% 0,calc(100% - 4px) 100%,0 100%)}
+.gcap-bar i.on{background:var(--acc);border-color:var(--acc);box-shadow:0 0 8px var(--acc-glow)}
+.gcap2.full .gcap-bar i.on{background:#f59e0b;border-color:#f59e0b}
+.gcap-main em{font-style:normal;font-weight:800;font-size:12px;letter-spacing:.06em;color:var(--muted)}
+.gcap2.full .gcap-main em{color:#fbbf24}
+.gcap-types{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+.gcap-chip{padding:5px 10px;font:700 12px system-ui,sans-serif;color:var(--muted);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14)}
+.gcap-chip b{color:#fff;margin-left:4px}
+.gcap-chip.some{border-color:var(--acc-line);color:#e2e8f0}
+.gcap-chip.full{border-color:#f59e0b;background:rgba(245,158,11,.14);color:#fde68a}
+.gcap-chip.full b{color:#fbbf24}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -7914,7 +7974,14 @@ function groundCardsHTML() {
         '<div class="sc-add">' + (full ? 'Limit reached' : '+ Add to force') + '</div>' +
       '</div></div>';
   };
-  return '<div class="gcap">Ground units cost <b>no DP</b>. Vehicles on this side: <b>' + vehicles + ' / ' + GROUND_VEHICLE_CAP + '</b></div>' +
+  const typeCount = t => mine.filter(x => x.gtype === t).length;
+  const chip = (t, lab) => { const n = typeCount(t), c = GROUND_CAP[t]; return '<span class="gcap-chip' + (n >= c ? ' full' : n ? ' some' : '') + '">' + lab + ' <b>' + n + ' / ' + c + '</b></span>'; };
+  return '<div class="gcap2' + (vehicles >= GROUND_VEHICLE_CAP ? ' full' : '') + '">' +
+      '<div class="gcap-main"><small>VEHICLE LIMIT</small><b>' + vehicles + '<i> / ' + GROUND_VEHICLE_CAP + '</i></b>' +
+        '<span class="gcap-bar">' + Array.from({ length: GROUND_VEHICLE_CAP }, (_, k) => '<i class="' + (k < vehicles ? 'on' : '') + '"></i>').join("") + '</span>' +
+        '<em>' + (vehicles >= GROUND_VEHICLE_CAP ? 'FULL \u2014 no more vehicles' : (GROUND_VEHICLE_CAP - vehicles) + ' left \u00b7 ground units cost no DP') + '</em></div>' +
+      '<div class="gcap-types">' + chip("tank", "Tank") + chip("car", "Car") + chip("heli", "Helicopter") + chip("jet", "Jet") + chip("transport", "Transport") + chip("squad", "Infantry Squads") + '</div>' +
+    '</div>' +
     '<div class="shipgrid">' + units.map(card).join("") +
     '</div>';
 }
@@ -8374,7 +8441,7 @@ window.sqSoldier = (i, what, j) => {
   const st = CUR.st, s = st.sq.soldiers[i], uid = CUR.uid, rep = mode === "repair";
   if (what === "hp" || what === "kev") {
     const was = s[what], before = sqAlive(st);
-    s[what] = rep ? Math.min(6, was + 1) : Math.max(0, was - 1);
+    s[what] = rep ? Math.min(6, was + amount) : Math.max(0, was - amount);
     if (s[what] === was) return;
     if (what === "hp") {
       aggDmg(uid, "sq:s" + i, sqLabel(st, i), was - s[what], s[what], 6);
@@ -8382,7 +8449,7 @@ window.sqSoldier = (i, what, j) => {
     } else aggDmg(uid, "sq:k" + i, sqLabel(st, i) + " Kevlar", was - s.kev, s.kev, 6);
   } else if (what === "sha" || what === "shh") {
     const S = st.sq.shield[s.r], k = what === "sha" ? "a" : "h", max = k === "a" ? 3 : 6, was = S[k];
-    S[k] = rep ? Math.min(max, was + 1) : Math.max(0, was - 1);
+    S[k] = rep ? Math.min(max, was + amount) : Math.max(0, was - amount);
     if (S[k] === was) return;
     aggDmg(uid, "sq:" + s.r + k, sqLabel(st, i) + " shield " + (k === "a" ? "Armor" : "HP"), was - S[k], S[k], max);
   } else if (what === "item") {
@@ -8567,28 +8634,34 @@ function drawSquad() {
       '</div>' +
     '</div>';
   } else if (S.tab === "soldiers") {
-    h += '<div class="sqsold">' + S.soldiers.map((s, i) => {
+    const bub = (v, m, kind, lab, act) => {
+      const p = m ? Math.round(v / m * 100) : 0;
+      const col = kind === "kev" ? "#38bdf8" : kind === "ar" ? "#e2e8f0" : kind === "sh" ? "#94a3b8"
+        : v === 0 ? "#64748b" : p <= 34 ? "#ef4444" : p <= 67 ? "#f59e0b" : "#22c55e";
+      return '<button class="sbub k-' + kind + (v === 0 ? ' zero' : '') + '" style="--p:' + p + ';--c:' + col + '" onclick="' + act + '" title="' + lab + ' \u2014 tap to ' + (mode === "repair" ? "repair" : "damage") + ' ' + amount + '">' +
+        '<span class="sbub-in"><b>' + v + '</b><i>/' + m + '</i></span><small>' + lab + '</small></button>';
+    };
+    h += '<div class="sqsold2">' + S.soldiers.map((s, i) => {
       const R = sqRole(s.r), down = s.hp <= 0;
-      const pipsHP = Array.from({ length: 6 }, (_, k) => '<i class="' + (k < s.hp ? 'on' : '') + '"></i>').join("");
-      const pipsK = Array.from({ length: 6 }, (_, k) => '<i class="' + (k < s.kev ? 'on kv' : '') + '"></i>').join("");
-      let extra = "";
+      let bubs = bub(s.hp, 6, "hp", "HP", "sqSoldier(" + i + ",'hp')") + bub(s.kev, 6, "kev", "KEVLAR", "sqSoldier(" + i + ",'kev')");
       if (R.shield) {
         const SH = S.shield[s.r];
-        extra += '<div class="sqrow"><small>SHIELD</small><span class="sqp" onclick="sqSoldier(' + i + ',\'sha\')">' + Array.from({ length: 3 }, (_, k) => '<i class="' + (k < SH.a ? 'on ar' : '') + '"></i>').join("") + '</span>' +
-          '<span class="sqp" onclick="sqSoldier(' + i + ',\'shh\')">' + Array.from({ length: 6 }, (_, k) => '<i class="' + (k < SH.h ? 'on sh' : '') + '"></i>').join("") + '</span></div>';
-        extra += '<div class="sqrow"><small>HOLDING</small><button class="sqswap" onclick="sqSoldier(' + i + ',\'swap\')">' + R.swap[S.eq[s.r] || 0] + ' \u21C4 ' + R.swap[S.eq[s.r] ? 0 : 1] + ' (1 AP)</button></div>';
+        bubs += bub(SH.a, 3, "ar", "ARMOR", "sqSoldier(" + i + ",'sha')") + bub(SH.h, 6, "sh", "SHIELD", "sqSoldier(" + i + ",'shh')");
       }
+      let acts = "";
+      if (R.shield) acts += '<button class="sact swap" onclick="sqSoldier(' + i + ',\'swap\')"><b>\u21C4 ' + R.swap[S.eq[s.r] || 0] + '</b><small>swap \u00b7 1 AP</small></button>';
       if (R.items) Object.keys(R.items).forEach(k => {
-        extra += '<div class="sqrow"><small>' + SQ_ITEM[k].icon + ' ' + SQ_ITEM[k].name.toUpperCase() + '</small><span class="sqp" onclick="sqSoldier(' + i + ',\'item\',\'' + k + '\')" title="' + SQ_ITEM[k].note + '">' +
-          Array.from({ length: 2 }, (_, x) => '<i class="' + (x < S.items[k] ? 'on it' : '') + '"></i>').join("") + '</span></div>';
+        const n = S.items[k];
+        acts += '<button class="sact item' + (n ? '' : ' empty') + '" onclick="sqSoldier(' + i + ',\'item\',\'' + k + '\')" title="' + SQ_ITEM[k].note + '">' +
+          '<b>' + SQ_ITEM[k].icon + ' ' + SQ_ITEM[k].name.replace(" Launcher", "").replace(" Grenade", "") + '</b><small>' + (mode === "repair" ? 'tap: +1' : n ? 'tap to use' : 'none left') + '</small><em>\u00d7' + n + '</em></button>';
       });
-      return '<div class="sqs' + (down ? ' down' : '') + '"><div class="sqs-top"><img src="img/ground/' + u.sk + '-' + s.r + '.webp" alt=""><div><b>' + sqLabel(st, i) + '</b><em>' + R.wpn + '</em></div></div>' +
-        '<div class="sqrow"><small>HP</small><span class="sqp" onclick="sqSoldier(' + i + ',\'hp\')">' + pipsHP + '</span></div>' +
-        '<div class="sqrow"><small>KEVLAR</small><span class="sqp" onclick="sqSoldier(' + i + ',\'kev\')">' + pipsK + '</span></div>' +
-        extra + '<p>' + R.line + '</p>' + (down ? '<div class="sqkia">KIA</div>' : '') + '</div>';
+      return '<div class="sq2' + (down ? ' down' : '') + '">' +
+        '<div class="sq2-top" title="' + R.line + '"><img src="img/ground/' + u.sk + '-' + s.r + '.webp" alt=""><div><b>' + sqLabel(st, i) + '</b><em>' + R.wpn + '</em></div>' + (down ? '<span class="sq2-kia">KIA</span>' : '') + '</div>' +
+        '<div class="sq2-bubs' + (R.shield ? ' four' : '') + '">' + bubs + '</div>' +
+        (acts ? '<div class="sq2-acts">' + acts + '</div>' : '') +
+        (R.shield ? '' : '<p>' + R.line + '</p>') + '</div>';
     }).join("") + '</div>' +
-    '<div class="sqnote">Every soldier: 3 AP \u00b7 10cm/AP \u00b7 no Dodge vs bullets (Cover only) \u00b7 4+ Rolled Dodge vs blasts (not Rockets / Bombing Run). ' +
-      '<b>Kevlar:</b> a regular hit (3\u20135) \u2192 roll 1d6, 4+ takes it off Kevlar instead of HP. Criticals, Sniper, Grenades, Rockets and cannons ignore Kevlar. Tap pips to damage (Repair mode restores). All item charges refresh each new engagement.</div>';
+    '<div class="sqnote">Tap a bubble to apply the <b>DMG</b> amount at the top (Repair adds it back) \u00b7 3 AP \u00b7 10cm/AP \u00b7 <b>Kevlar:</b> regular hit (3\u20135) \u2192 1d6, 4+ hits Kevlar; crits, Sniper, Grenades, Rockets, cannons ignore it.</div>';
   } else {
     const myN = qrDice(alive, q.supp), foeN = qrDice(q.foeHp, q.foeSupp);
     const opt = (side, k, lab) => '<button class="qrit' + (q[side] === k ? ' on' : '') + (side === "my" && k !== "none" && q.items[k] < 1 ? ' off' : '') + '" onclick="qrSet(\'' + side + '\',\'' + k + '\')">' + lab + '</button>';
@@ -12647,7 +12720,7 @@ function draw() {
   }
 }
 
-const APP_BUILD = "cf34";
+const APP_BUILD = "cf35";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
