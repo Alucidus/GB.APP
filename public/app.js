@@ -2714,8 +2714,9 @@ function m3Start() {
   const blast = (fx, onFed, at, size, delay) => setTimeout(() => {
     if (!fx.isConnected) return;
     // space explosions: starbursts and rings only (yellow on Federation ships, pink on Zeon ships)
-    sprite(fx, onFed ? pick(["star-y", "star-y", "ring-o"]) : pick(["star-p", "star-p", "ring-p"]), at[0], at[1], size, size > 10 ? "big" : "", size > 10 ? 1700 : 1300);
-    if (size > 10) sprite(fx, onFed ? "ring-o" : "ring-p", at[0], at[1], size * 1.5, "ring", 1500);
+    // every hit is a starburst; a shockwave ring is only ever added around one (always on big hits, sometimes on medium)
+    sprite(fx, onFed ? "star-y" : "star-p", at[0], at[1], size, size > 10 ? "big" : "", size > 10 ? 1700 : 1300);
+    if (size > 10 || (size > 6 && Math.random() < 0.35)) sprite(fx, onFed ? "ring-o" : "ring-p", at[0], at[1], size * 1.5, "ring", 1500);
   }, delay || 0);
   const beam = (fx, fromFed, mega) => {
     const a = jit(pick(fromFed ? FED : ZEON), 4), b = jit(pick(fromFed ? ZEON : FED), 5);
@@ -2738,7 +2739,7 @@ function m3Start() {
       bm.className = "m3-beam";
       bm.style.width = "calc(var(--m3u) * " + rnd(8, 20).toFixed(1) + ")"; bm.style.height = "calc(var(--m3u) * " + rnd(1, 2.4).toFixed(2) + ")";
       fx.appendChild(bm); setTimeout(() => bm.remove(), 700);
-      setTimeout(() => { if (fx.isConnected) sprite(fx, fromFed ? pick(["star-p", "star-p", "ring-p"]) : pick(["star-y", "star-y", "ring-o"]), b[0], b[1], blastSize(), "hit"); }, 430);
+      setTimeout(() => { if (fx.isConnected) blast(fx, !fromFed, b, blastSize(), 0); }, 430);
     }
   };
   const boom = () => {
@@ -6819,7 +6820,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf78";
+const APP_BUILD = "cf79";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf78)
+# Gunpla Battle — Cloudflare version (build cf79)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -146,3 +146,4 @@ public/            the app (index.html, images, service worker)
 | cf76 | **`src/index.js`** (server), `public/app.js`, `public/index.html`, `public/sw.js` (build number) | Antivirus false-positive fix for the server file: the Worker no longer invents internal addresses (`https://room/ws`, `https://room/rpc`) to talk to a session room — it forwards the real request / uses the app's own `/api/sync` address, and the room answers on `/api/ws` and `/api/sync`. No change to what devices send or receive |
 | cf77 | `public/app.css`, `public/app.js`, `public/index.html`, `public/sw.js` | Lobby Zaku eye: larger at rest (2.3% × 2.8% of the picture instead of 1.9% × 2.3%, same sweep route along the visor), with a gentle flare when Spacenoid is picked (1.45× instead of 4×) |
 | cf78 | `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | Removed the eye glow effect from the budget / roster screens (both sides) — code and styles deleted; the lobby eyes are unchanged |
+| cf79 | `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | Menu space explosions: a shockwave ring never appears on its own — every hit is a starburst, with a ring added around it on big hits (always) and some medium hits; beam impacts follow the same rule |
