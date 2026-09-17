@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf58)
+# Gunpla Battle — Cloudflare version (build cf59)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -126,3 +126,4 @@ public/            the app (index.html, images, service worker)
 | cf56 | `src/index.js`, `public/index.html`, `public/sw.js` | Quick Resolve tab rebuilt around the online firefight (the old one-device board is removed): challenge / open card, round guide, margin table. Clash screen: dice are rolled AFTER the item reveal (Smoke clears this roll's set-aside dice; the server rolls then in rolled mode); big 'ROLL N DICE NOW' box with the breakdown and a plain 'you were flashed — physically move N dice away' instruction; NEXT ROUND box (flash + your 1s / margin suppression → dice next round) |
 | cf57 | `src/index.js`, `public/index.html`, `public/sw.js` | Flashbang now removes 3 dice from the enemy's roll THIS round (server rolls accordingly; Smoke still cancels it). Physical dice: '📋 LOST THIS ROUND? PICK THE MARGIN' opens the margin table (incl. enemy Perfect Volley) and applies casualties + set-aside dice; the next-round box counts your 1s + margin. Rolled dice: highlighted margin table with both totals. Reveal cards flip only once |
 | cf58 | `public/index.html`, `public/sw.js` | Firefight screen: flash / smoke / explosion effects play on their own layer (adjusting your 1s can't cut them short or replay them); a redraw during the 3-2-1 countdown keeps the current number |
+| cf59 | `public/index.html`, `public/sw.js`, **new** `public/img/m4-far-fed.webp`, `m4-far-zeon.webp`, `m4-near-fed.webp`, `m4-near-zeon.webp`, **replaced** `public/img/menu2-bg.webp`; **delete** `public/img/m3-ships-l.webp` and `m3-ships-r.webp` | Menu scene uses the designer's new ships: 9 ships cut out and arranged as far and near layers per fleet (Federation left, Zeon right, facing each other around the emblem), each with its own parallax depth and drift; the clash fly-through and the end background use them too |
