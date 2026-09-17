@@ -488,16 +488,13 @@ export class BattleRoom {
         g.mode = op.yes ? "rolled" : "physical"; g.rollAsk = null; g.state = "ready"; return save();
       case "ready": {                               // start of a round (after adjusting casualties)
         if (!mine || (g.state !== "ready" && g.state !== "reveal")) break;
-        const dice = Math.max(0, Math.min(8, op.dice | 0)), hp = Math.max(0, Math.min(8, op.hp | 0));
-        g.ready[side] = { dice, hp }; g.hp[side] = hp;
+        const hp = Math.max(0, Math.min(8, op.hp | 0)), supp = Math.max(0, Math.min(8, op.supp | 0));
+        g.ready[side] = { hp, supp }; g.hp[side] = hp;
         if (g.ready.a && g.ready.b) {
           if (g.state === "reveal") g.round += 1;
-          g.reveal = null;
-          if (g.round > 4) { g.state = "end"; g.roll = null; }
-          else {
-            g.state = "pick"; g.lock = { a: false, b: false };
-            g.roll = g.mode === "rolled" ? { a: roll(g.ready.a.dice), b: roll(g.ready.b.dice), round: g.round } : null;
-          }
+          g.reveal = null; g.roll = null;
+          if (g.round > 4) g.state = "end";
+          else { g.state = "pick"; g.lock = { a: false, b: false }; g.pool = { a: g.ready.a, b: g.ready.b }; }
           g.ready = { a: null, b: null };
         }
         return save();
@@ -513,6 +510,15 @@ export class BattleRoom {
           const pa = M.get("ffsec/" + id + "/a") || "none", pb = M.get("ffsec/" + id + "/b") || "none";
           await M.del("ffsec/" + id + "/a"); await M.del("ffsec/" + id + "/b");
           g.reveal = { a: pa, b: pb, round: g.round, at: now }; g.state = "reveal";
+          if (g.mode === "rolled") {
+            const fp = hp => hp >= 7 ? 8 : hp >= 5 ? 7 : hp >= 3 ? 6 : hp >= 1 ? 5 : 0;
+            const pool = (sd, mine, theirs) => {
+              const p0 = (g.pool && g.pool[sd]) || { hp: 8, supp: 0 };
+              const supp = mine === "sm" && theirs !== "gr" ? 0 : p0.supp;
+              return p0.hp <= 0 ? 0 : p0.hp === 1 ? 1 : Math.max(fp(p0.hp) - supp, 2);
+            };
+            g.roll = { a: roll(pool("a", pa, pb)), b: roll(pool("b", pb, pa)), round: g.round };
+          }
         }
         return save();
       case "unpick":
