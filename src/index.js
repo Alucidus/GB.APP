@@ -40,6 +40,9 @@ const validTeam = t => TEAMS.includes(t);
 const validUid = u => Number.isInteger(u) && u > 0 && u < 1e6;
 const lockOk = k => { const m = /^(federation|spacenoid)\/(\d+)$/.exec(k || ""); return m && validUid(+m[2]) ? m : null; };
 
+// physical-dice results agree when one side won and the other lost, or both tied
+const claimsAgree = c => !!c && ((c.a === "won" && c.b === "lost") || (c.a === "lost" && c.b === "won") || (c.a === "tied" && c.b === "tied"));
+
 // ---------------- Worker ----------------
 export default {
   async fetch(request, env) {
@@ -490,6 +493,8 @@ export class BattleRoom {
         g.mode = op.yes ? "rolled" : "physical"; g.rollAsk = null; g.state = "ready"; return save();
       case "ready": {                               // start of a round (after adjusting casualties)
         if (!mine || (g.state !== "ready" && g.state !== "reveal")) break;
+        if (g.state === "reveal" && g.mode === "physical" && g.claim && (g.claim.a || g.claim.b) &&
+            (!claimsAgree(g.claim) || !g.done || !g.done.a || !g.done.b)) break;   // results must agree and losses be applied
         const hp = Math.max(0, Math.min(8, op.hp | 0)), supp = Math.max(0, Math.min(8, op.supp | 0));
         g.ready[side] = { hp, supp }; g.hp[side] = hp;
         if (g.ready.a && g.ready.b) {
@@ -501,6 +506,15 @@ export class BattleRoom {
         }
         return save();
       }
+      case "claim":                                 // physical dice: "I won" / "I lost" / "Tied"
+        if (g.state !== "reveal" || !mine || g.mode !== "physical" || !["won", "lost", "tied"].includes(op.result)) break;
+        g.claim = g.claim || { a: null, b: null }; g.done = g.done || { a: false, b: false };
+        g.claim[side] = op.result; g.done[side] = op.result !== "lost";     // the loser is done once their losses are applied
+        g.ready = { a: null, b: null };
+        return save();
+      case "applied":                               // the loser has applied the margin result and casualties
+        if (g.state !== "reveal" || !mine || !g.claim || g.claim[side] !== "lost") break;
+        g.done[side] = true; return save();
       case "unready":
         if (!mine || !g.ready[side]) break;
         g.ready[side] = null; return save();
@@ -512,6 +526,7 @@ export class BattleRoom {
           const pa = M.get("ffsec/" + id + "/a") || "none", pb = M.get("ffsec/" + id + "/b") || "none";
           await M.del("ffsec/" + id + "/a"); await M.del("ffsec/" + id + "/b");
           g.reveal = { a: pa, b: pb, round: g.round, at: now }; g.state = "reveal";
+          g.claim = { a: null, b: null }; g.done = { a: false, b: false };     // physical dice: who won, and who has applied their losses
           if (g.mode === "rolled") {
             const fp = hp => hp >= 7 ? 8 : hp >= 5 ? 7 : hp >= 3 ? 6 : hp >= 1 ? 5 : 0;
             const pool = (sd, mine, theirs) => {
@@ -529,10 +544,18 @@ export class BattleRoom {
         await M.del("ffsec/" + id + "/" + side); g.lock[side] = false; return save();
       case "objective": {
         if (g.state !== "end" || !mine) break;
-        const ha = g.hp.a || 0, hb = g.hp.b || 0;
+        const other = side === "a" ? "b" : "a";
+        // current squad health, as the caller's device sees it (falls back to the last ready report)
+        const hpOk = v => Number.isInteger(v) && v >= 0 && v <= 8;
+        const ha = hpOk(op[side === "a" ? "hpMine" : "hpFoe"]) ? op[side === "a" ? "hpMine" : "hpFoe"] : (g.hp.a || 0);
+        const hb = hpOk(op[side === "b" ? "hpMine" : "hpFoe"]) ? op[side === "b" ? "hpMine" : "hpFoe"] : (g.hp.b || 0);
+        if (g.mode === "physical") {                  // real dice: the players roll and report who won
+          if (op.win !== "mine" && op.win !== "theirs") break;
+          g.obj = { manual: true, win: op.win === "mine" ? side : other, ha, hb, seg: g.seg }; return save();
+        }
         let ra, rb, t = 0;
         do { ra = d6() + d6() + Math.max(0, ha - hb); rb = d6() + d6() + Math.max(0, hb - ha); t++; } while (ra === rb && t < 20);
-        g.obj = { a: ra, b: rb, win: ra > rb ? "a" : "b", seg: g.seg }; return save();
+        g.obj = { a: ra, b: rb, win: ra > rb ? "a" : "b", ha, hb, seg: g.seg }; return save();
       }
       case "segment":                               // another 4-round segment (re-engage / Forced Re-Engagement)
         if (g.state !== "end" || !mine) break;

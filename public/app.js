@@ -2155,6 +2155,7 @@ window.ffOnes = n => {
   const f = ffMine(); if (f) q.onesKey = f.id + ":" + f.seg + ":" + f.round;   // the dice have been rolled this round
   save();
   const rb = document.querySelector("#ffx .ffcolR .ffroll:not(.small)"); if (rb) rb.remove();   // so it can't be mistaken for next round's roll
+  if (f && f.mode === "physical") { ffFs(f, q).ones = q.nextOnes; window.ffGo("compare"); return; }
   document.querySelectorAll("#ffx .ffo").forEach(b => b.classList.toggle("on", +b.dataset.n === q.nextOnes));
   const nd = document.querySelector("#ffx .ffnd");
   if (nd) nd.innerHTML = ffNextText(q, alive);
@@ -2165,6 +2166,149 @@ function ffNextText(q, alive) {
   return "Next round you roll <b>" + qrDice(alive, ne) + "</b> dice" + (ne ? " (" + ne + " set aside)" : "");
 }
 let ffDetOpen = false;
+// ---------- physical dice: one step at a time (cf83) ----------
+// roll -> ones -> compare (won / lost / tied) -> [lost: margin -> casualties] -> summary.  The winner waits until the loser is done.
+const FF_AGREE = (a, b) => (a === "won" && b === "lost") || (a === "lost" && b === "won") || (a === "tied" && b === "tied");
+function ffFs(f, q) {
+  const k = f.id + ":" + f.seg + ":" + f.round;
+  if (!q.fs || q.fs.k !== k) q.fs = { k, s: "roll" };
+  return q.fs;
+}
+window.ffGo = step => {
+  if (!CUR) return;
+  const f = ffMine(); if (!f) return;
+  ffFs(f, CUR.st.sq.qr).s = step; save(); ffLastSig = ""; renderFF();
+};
+window.ffClaim = r => {
+  const f = ffMine(); if (!f || !CUR) return;
+  const q = CUR.st.sq.qr, fs = ffFs(f, q), was = fs.claim;
+  fs.claim = r;
+  ffOp({ op: "claim", id: f.id, result: r });
+  if (r === "lost") {
+    if (fs.applied) { ffOp({ op: "applied", id: f.id }); ffGo("summary"); return; }   // losses already applied this round
+    ffGo("margin"); return;
+  }
+  q.nextMargin = 0; ffSumNext(q);
+  if (was === "lost" && fs.applied && typeof mpToast === "function") mpToast("If soldiers were removed by mistake, bring them back with Repair.");
+  fs.applied = false;
+  ffGo(r === "won" ? "wait" : "tie");
+};
+function ffLossDone() {
+  const f = ffMine(); if (!f || !CUR) return;
+  const fs = ffFs(f, CUR.st.sq.qr);
+  fs.applied = true;
+  ffOp({ op: "applied", id: f.id });
+  ffGo("summary");
+}
+function ffApplyLoss(lab, fx, cas, sup) {
+  const f = ffMine(); if (!f || !CUR) return;
+  const q = CUR.st.sq.qr, fs = ffFs(f, q);
+  q.nextMargin = sup; ffSumNext(q);
+  q.marginKey = fs.k; q.marginLab = lab + ": " + fx;
+  fs.lab = lab + " \u00b7 " + fx;
+  logEv(CUR.uid, "Firefight round " + f.round + ": " + lab.toLowerCase() + " \u2014 " + fx, "bad");
+  if (cas > 0 && sqAlive(CUR.st) > 0) {
+    fs.target = Math.max(0, sqAlive(CUR.st) - cas); fs.s = "cas"; save(); ffLastSig = ""; renderFF();
+    setTimeout(() => window.ffCasualties(), 150);
+  } else { save(); ffLossDone(); }
+}
+window.ffPickMargin = k => {
+  const M = FF_MARGINS.find(m => m.k === k); if (!M) return;
+  if (M.pv) { window.ffGo("volley"); return; }
+  ffApplyLoss(M.lab, M.fx, M.cas, M.sup);
+};
+window.ffPickVolley = n => ffApplyLoss("Lost to a Perfect Volley (" + n + " sixes)", VOLLEY(n) + " destroyed", VOLLEY(n), 0);
+window.ffCasualties = () => {
+  if (!CUR) return;
+  const f = ffMine(); if (!f) return;
+  const fs = ffFs(f, CUR.st.sq.qr), left = Math.max(0, sqAlive(CUR.st) - (fs.target || 0));
+  if (left <= 0) { ffLossDone(); return; }
+  sqCasualtyPicker(left, fs.lab || "", () => {
+    if (!CUR) return;
+    if (sqAlive(CUR.st) <= (fs.target || 0)) ffLossDone(); else { ffLastSig = ""; renderFF(); }
+  });
+};
+function ffWizard(f, s, o, q, alive, v) {
+  const fs = ffFs(f, q), cl = f.claim || {}, dn = f.done || {};
+  const mine = cl[s], theirs = cl[o];
+  const agree = !!(mine && theirs && FF_AGREE(mine, theirs));
+  const clash = !!(mine && theirs && !agree);
+  const tag = (n, t) => '<div class="ffstep"><small>STEP ' + n + ' OF 6</small><b>' + t + '</b></div>';
+  const back = to => '<button type="button" class="ffback" onclick="ffGo(\'' + to + '\')">\u2190 Back</button>';
+  const readyBtn = () => {
+    const iReady = !!f.ready[s], ok = agree && dn[s] && dn[o];
+    if (!ok) return '<div class="ffwait">\u23F3 ' + (!theirs ? "Waiting for the enemy to report their result\u2026" : "Waiting for the enemy to apply their losses\u2026") + '</div>';
+    return '<button class="btn big ffready ' + (iReady ? "ready" : "pri") + '" onclick="' + (iReady ? "ffUnready()" : "ffReady()") + '">' +
+      (iReady ? "\u2713 READY \u2014 tap to wait" : f.round >= 4 ? "READY \u2014 finish the segment" : "READY FOR ROUND " + (f.round + 1)) + '</button>' +
+      '<span class="ffwho">' + (f.ready[o] ? "\u2713 The enemy is ready" : "Waiting for the enemy to press ready\u2026") + '</span>';
+  };
+  const summary = () => {
+    const res = mine === "won" ? '<div class="ffchip good">\u2713 You won the exchange</div>'
+      : mine === "tied" ? '<div class="ffchip neutral">Tied \u2014 no effect</div>'
+      : '<div class="ffchip bad">\u26A0 ' + (fs.lab || q.marginLab || "You lost the exchange") + '</div>';
+    return tag(6, "Round " + f.round + " summary") + res +
+      (f.round < 4 ? '<div class="ffnd">' + ffNextText(q, alive) + '</div>' : '') + readyBtn();
+  };
+  let st = fs.s;
+  if (clash) st = "compare";
+  let h = "";
+  switch (st) {
+    case "roll":
+      h = tag(1, "Reveal \u2014 now roll") + v.vs + v.chips + v.det +
+        '<div class="ffroll"><b>\u{1F3B2} ROLL ' + v.nowDice + ' DICE</b><span>' + v.parts + '</span>' +
+        (v.off ? '<em>' + (v.fl ? 'Flashed \u2014 ' : '') + 'move ' + Math.min(v.off, v.fp) + (Math.min(v.off, v.fp) === 1 ? ' die' : ' dice') + ' away before rolling</em>' : '') + '</div>' +
+        '<button class="btn big pri ffnext" onclick="ffGo(\'ones\')">\u2713 DICE ROLLED \u25B8</button>';
+      break;
+    case "ones":
+      h = tag(2, "How many of your dice rolled a 1?") +
+        '<div class="ffonesrow big">' + Array.from({ length: Math.max(1, v.nowDice) + 1 }, (_, n) =>
+          '<button type="button" class="ffo' + (fs.ones === n ? ' on' : '') + '" data-n="' + n + '" onclick="ffOnes(' + n + ')">' + n + '</button>').join("") + '</div>' +
+        '<small class="ffhint">They are set aside next round.</small>' + back("roll");
+      break;
+    case "compare":
+      h = tag(3, "Compare successes") +
+        (clash ? '<div class="ffwarn">\u26A0 ' + (mine === "won" && theirs === "won" ? "You both said you won \u2014 there can only be one winner."
+          : mine === "lost" && theirs === "lost" ? "You both said you lost \u2014 there can only be one loser."
+          : "Your results don't match \u2014 one of you said tied.") + ' Recount your successes and choose again.</div>'
+          : '<div class="ffbanner">\u{1F3AF} Now compare your successes with the enemy<small>3\u20135 = 1 success \u00b7 6 = 2 successes \u00b7 1 and 2 = none</small></div>') +
+        '<button class="ffbig won' + (mine === "won" ? ' on' : '') + '" onclick="ffClaim(\'won\')">\u2713 I WON</button>' +
+        '<button class="ffbig lost' + (mine === "lost" ? ' on' : '') + '" onclick="ffClaim(\'lost\')">\u2717 I LOST</button>' +
+        '<button class="fftie' + (mine === "tied" ? ' on' : '') + '" onclick="ffClaim(\'tied\')">= Tied</button>' + back("ones");
+      break;
+    case "margin":
+      h = tag(4, "You lost \u2014 by how much?") + '<div class="ffmgrid">' +
+        FF_MARGINS.map(M => '<button type="button" class="ffmopt' + (M.pv ? ' pv' : '') + '" onclick="ffPickMargin(\'' + M.k + '\')"><b>' + M.lab.replace("Lost to a ", "") + '</b><span>' + (M.pv ? "all their dice were 6s" : M.fx) + '</span></button>').join("") +
+        '</div>' + back("compare");
+      break;
+    case "volley":
+      h = tag(4, "Perfect Volley \u2014 how many sixes?") +
+        '<small class="ffhint">Counts for any squad rolling 2\u20135 dice, including a suppressed squad down to 2.</small><div class="ffmgrid">' +
+        [2, 3, 4, 5].map(n => '<button type="button" class="ffmopt pv" onclick="ffPickVolley(' + n + ')"><b>' + n + ' sixes</b><span>' + VOLLEY(n) + ' of yours destroyed</span></button>').join("") +
+        '</div>' + back("margin");
+      break;
+    case "cas": {
+      const left = Math.max(0, alive - (fs.target || 0));
+      h = tag(5, "Remove casualties") + '<div class="ffchip bad">\u26A0 ' + (fs.lab || "") + '</div>' +
+        (left > 0 ? '<button class="btn big pri ffnext" onclick="ffCasualties()">Choose who falls (' + left + ' left)</button>'
+                  : '<button class="btn big pri ffnext" onclick="ffCasualties()">Continue \u25B8</button>');
+      break;
+    }
+    case "wait":
+      if (agree && dn[o]) { h = summary(); break; }
+      h = tag(4, "You won the exchange") + '<div class="ffchip good">\u2713 You won \u2014 the enemy applies their losses</div>' +
+        '<div class="ffwait">\u23F3 ' + (!theirs ? "Waiting for the enemy to report their result\u2026" : "Waiting for the enemy to apply their losses\u2026") + '</div>' + back("compare");
+      break;
+    case "tie":
+      if (agree) { h = summary(); break; }
+      h = tag(4, "Tied") + '<div class="ffchip neutral">Tied \u2014 no effect this round</div>' +
+        '<div class="ffwait">\u23F3 Waiting for the enemy to confirm the tie\u2026</div>' + back("compare");
+      break;
+    default:
+      h = summary();
+  }
+  return '<div class="ffwiz">' + h + '</div>';
+}
+
 // physical dice: pick the margin you lost by and the app applies it
 const FF_MARGINS = [
   { k: "m1", lab: "Lost by 1", fx: "1 die set aside next round", cas: 0, sup: 1 },
@@ -2232,7 +2376,13 @@ window.ffPick = item => {
   ffOp({ op: "pick", id: f.id, item });
 };
 window.ffUnpick = () => { const f = ffMine(); if (f) ffOp({ op: "unpick", id: f.id }); };
-window.ffObjective = () => { const f = ffMine(); if (f) ffOp({ op: "objective", id: f.id }); };
+// objective clash: rolled mode = the server rolls with the current HP; physical = the players roll and report the winner
+window.ffObjective = win => {
+  const f = ffMine(); if (!f || !CUR) return;
+  const o = ffOther(ffSideOf(f)), est = (mp.data["unit/" + f[o].team + "/" + f[o].uid] || {}).st || {};
+  const enemyHp = est.hp && Number.isInteger(est.hp.hp) ? est.hp.hp : undefined;     // unknown: the server uses its last report
+  ffOp({ op: "objective", id: f.id, hpMine: sqAlive(CUR.st), hpFoe: enemyHp, win });
+};
 window.ffSegment = forced => {
   const f = ffMine(); if (!f) return;
   const q = CUR.st.sq.qr;
@@ -2337,7 +2487,7 @@ function renderFF() {
   const enemyUnit = (mp.data["unit/" + f[o].team + "/" + f[o].uid] || {}).st || {};
   const enemyAlive = enemyUnit.hp ? enemyUnit.hp.hp : "?";
   const otherHere = ffSidePidAlive(f, o) || f.state === "invite";
-  const sig = JSON.stringify([f, alive, q.supp, q.flashNow, q.nextOnes, q.nextMargin, q.onesKey, q.marginKey, q.marginPick, q.items, q.res, otherHere, enemyAlive]);
+  const sig = JSON.stringify([f, alive, q.supp, q.flashNow, q.nextOnes, q.nextMargin, q.onesKey, q.fs, q.marginKey, q.marginPick, q.items, q.res, otherHere, enemyAlive]);
   if (!box) { box = document.createElement("div"); box.id = "ffx"; document.body.appendChild(box); }
   if (sig === ffLastSig) return;
   ffLastSig = sig;
@@ -2415,13 +2565,37 @@ function renderFF() {
       const ready = '<button class="btn big ffready ' + (iReady ? "ready" : "pri") + '" onclick="' + (iReady ? "ffUnready()" : "ffReady()") + '">' +
         (iReady ? "\u2713 READY \u2014 tap to wait" : f.round >= 4 ? "READY \u2014 finish the segment" : "READY FOR ROUND " + (f.round + 1)) + '</button>' +
         '<span class="ffwho">' + (f.ready[o] ? "\u2713 The enemy is ready" : "The enemy is adjusting\u2026") + '</span>';
-      body = '<div class="ffrv2"><div class="ffcolL">' + vs + dice + chips + det + '</div><div class="ffcolR">' + rollBox + onesRow + margin + next + ready + '</div></div>';
+      body = f.mode === "physical"
+        ? ffWizard(f, s, o, q, alive, { vs, chips, det, nowDice, parts, off, fl, fp })
+        : '<div class="ffrv2"><div class="ffcolL">' + vs + dice + chips + det + '</div><div class="ffcolR">' + rollBox + onesRow + margin + next + ready + '</div></div>';
     } else body = '<div class="ffcount"><b class="keep">' + (ffShown[rkey + ":n"] || 1) + '</b></div>';   // a redraw mid-countdown keeps the number
   } else if (f.state === "end") {
-    const ob = f.obj;
-    body = '<div class="ffmsg"><b>Segment ' + f.seg + ' complete</b><span>Both squads still standing? Roll the Objective Clash to see who secures the objective.</span>' +
-      (ob ? '<div class="ffobj ' + (ob.win === s ? "win" : "lose") + '"><b>' + ob[s] + ' vs ' + ob[o] + '</b><span>' + (ob.win === s ? "Your squad secures the objective" : "The enemy secures the objective") + '</span></div>' : '') +
-      '<div class="ffrow wrap"><button class="btn big pri" onclick="ffObjective()">Objective Clash (2d6 + HP)</button>' +
+    const ob = f.obj && f.obj.seg === f.seg ? f.obj : null, mineHp = alive, foeHp = enemyAlive;
+    const adv = typeof foeHp === "number" ? mineHp - foeHp : null;
+    const bonus = adv === null ? 'Check the enemy squad\u2019s HP \u2014 the side with more HP adds +1 per HP of advantage'
+      : adv > 0 ? '<b class="ok">YOU add +' + adv + '</b> to your roll \u00b7 the enemy rolls flat'
+      : adv < 0 ? '<b class="bad">The ENEMY adds +' + (-adv) + '</b> to their roll \u00b7 you roll flat'
+      : 'Equal HP \u2014 <b>no bonus</b> for either side';
+    let result = '';
+    if (ob) {
+      const won = ob.win === s;
+      result = '<div class="ffobj ' + (won ? "win" : "lose") + '">' + (ob.manual ? '' : '<b>' + ob[s] + ' vs ' + ob[o] + '</b>') +
+        '<span>' + (won ? "\u2713 Your squad secures the objective" : "\u26A0 The enemy secures the objective") + '</span></div>';
+    }
+    const physical = f.mode === "physical";
+    const clash = physical
+      ? '<div class="ffoc"><b>\u{1F3B2} OBJECTIVE CLASH \u2014 each squad rolls 2d6</b>' +
+          '<span class="ocHp">Your squad <b>' + mineHp + ' HP</b> \u00b7 Enemy <b>' + foeHp + ' HP</b></span>' +
+          '<span class="ocBn">' + bonus + '</span>' +
+          '<small>Higher total secures the objective \u00b7 re-roll ties</small>' +
+          '<div class="ffrow wrap"><button class="btn big' + (ob && ob.win === s ? ' pri' : '') + '" onclick="ffObjective(\'mine\')">\u2713 We secured it</button>' +
+          '<button class="btn big' + (ob && ob.win !== s ? ' pri' : '') + '" onclick="ffObjective(\'theirs\')">They secured it</button></div></div>'
+      : '<div class="ffoc"><b>OBJECTIVE CLASH \u2014 2d6 + HP advantage</b><span class="ocHp">Your squad <b>' + mineHp + ' HP</b> \u00b7 Enemy <b>' + foeHp + ' HP</b></span>' +
+          '<span class="ocBn">' + bonus + '</span>' +
+          (ob ? '' : '<div class="ffrow"><button class="btn big pri" onclick="ffObjective()">Roll the Objective Clash</button></div>') + '</div>';
+    body = '<div class="ffmsg"><b>Segment ' + f.seg + ' complete</b><span>Both squads still standing? Settle who secures the objective.</span>' +
+      clash + result +
+      '<div class="ffrow wrap">' +
       '<button class="btn" onclick="ffSegment(false)">New 4-round segment</button>' +
       '<button class="btn" onclick="ffSegment(true)">\u2726 Forced Re-Engagement</button>' +
       '<button class="btn" onclick="ffEnd()">End firefight</button></div></div>';
@@ -6837,7 +7011,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf81";
+const APP_BUILD = "cf83";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

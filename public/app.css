@@ -3022,3 +3022,59 @@ button.mb-item.fxtog{font:inherit;color:#dfe9f4;background:none;border-top:0;bor
   .ffcolR .ffready{min-height:38px}
   .ffcolR .ffwho{display:none}
 }
+/* cf82: objective clash panel */
+.ffoc{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px;border:2px solid #facc15;background:rgba(250,204,21,.08);text-align:center}
+.ffoc>b{font-size:16px;letter-spacing:.06em;color:#fde68a}
+.ffoc .ocHp{font-size:14px;color:#e2e8f0}
+.ffoc .ocBn{font-size:15px;color:#e2e8f0}
+.ffoc .ocBn b.ok{color:#86efac}
+.ffoc .ocBn b.bad{color:#fca5a5}
+.ffoc small{color:var(--muted)}
+@media (max-height:560px){ .ffoc{padding:5px;gap:2px} .ffoc>b{font-size:13px} .ffoc .ocHp,.ffoc .ocBn{font-size:12px} .ffoc .btn.big{padding:6px 12px;font-size:13px} }
+/* ================= FIREFIGHT: physical dice, one step at a time (cf83) ================= */
+.ffwiz{display:flex;flex-direction:column;gap:8px;width:min(620px,100%);margin:0 auto}
+.ffstep{display:flex;align-items:baseline;gap:10px;justify-content:center}
+.ffstep small{font:800 10px system-ui,sans-serif;letter-spacing:.2em;color:var(--muted)}
+.ffstep b{font:900 17px system-ui,sans-serif;letter-spacing:.04em;color:#fff}
+.ffbanner{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px;border:2px solid #38bdf8;background:rgba(56,189,248,.12);color:#e0f2fe;font-weight:900;font-size:15px;text-align:center;animation:ffBanner .35s ease-out both}
+.ffbanner small{font-weight:700;font-size:12px;color:#bae6fd}
+@keyframes ffBanner{0%{opacity:0;transform:translateY(-8px)}100%{opacity:1;transform:none}}
+.ffwarn{padding:8px;border:2px solid #f59e0b;background:rgba(245,158,11,.14);color:#fde68a;font-weight:900;text-align:center;animation:ffBanner .35s ease-out both}
+.ffbig{min-height:64px;font:900 24px system-ui,sans-serif;letter-spacing:.12em;cursor:pointer;border:2px solid;-webkit-tap-highlight-color:transparent}
+.ffbig.won{color:#dcfce7;background:rgba(22,163,74,.35);border-color:#22c55e}
+.ffbig.lost{color:#fee2e2;background:rgba(220,38,38,.35);border-color:#ef4444}
+.ffbig.on{box-shadow:inset 0 0 0 3px #fff}
+.ffbig:active,.fftie:active,.ffmopt:active,.ffback:active{transform:scale(.98)}
+.fftie{min-height:40px;font:800 15px system-ui,sans-serif;letter-spacing:.1em;color:#e2e8f0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.3);cursor:pointer}
+.fftie.on{box-shadow:inset 0 0 0 2px #fff}
+.ffback{align-self:flex-start;background:none;border:0;color:var(--muted);font:700 13px system-ui,sans-serif;cursor:pointer;padding:4px 2px}
+.ffhint{color:var(--muted);text-align:center}
+.ffonesrow.big .ffo{min-height:60px;font-size:24px}
+.ffmgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.ffmopt{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:8px 10px;text-align:left;color:#fee2e2;background:rgba(220,38,38,.12);border:1px solid rgba(239,68,68,.6);cursor:pointer}
+.ffmopt b{font:900 15px system-ui,sans-serif}
+.ffmopt span{font-size:12px;color:#fecaca}
+.ffmopt.pv{background:rgba(167,139,250,.12);border-color:rgba(167,139,250,.7);color:#ede9fe}
+.ffmopt.pv span{color:#ddd6fe}
+.ffwait{padding:10px;text-align:center;font-weight:800;color:#fde68a;border:1px dashed rgba(253,230,138,.5)}
+.ffwiz .ffnext,.ffwiz .ffready{width:100%;min-height:52px;font-size:16px}
+.ffwiz .ffroll b{font-size:26px}
+@media (max-height:560px){
+  .ffwiz{gap:5px}
+  .ffstep b{font-size:14px}
+  .ffbanner{padding:4px;font-size:13px}
+  .ffbig{min-height:50px;font-size:19px}
+  .fftie{min-height:32px;font-size:13px}
+  .ffonesrow.big .ffo{min-height:48px;font-size:20px}
+  .ffmopt{padding:5px 8px}
+  .ffmopt b{font-size:13px}
+  .ffmopt span{font-size:11px}
+  .ffwiz .ffnext,.ffwiz .ffready{min-height:42px;font-size:14px}
+  .ffwiz .ffroll b{font-size:19px}
+  .ffwait{padding:6px}
+}
+@media (max-height:400px){
+  .ffbig{min-height:44px;font-size:17px}
+  .ffonesrow.big .ffo{min-height:42px}
+  .ffwiz .ffvs2 small{display:none}
+}
