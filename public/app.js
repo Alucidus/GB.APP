@@ -2505,7 +2505,7 @@ addEventListener("orientationchange", () => setTimeout(layoutMenu, 150));
 function renderMenu() {
   layoutMenu();
   if (typeof m3Init === "function") { m3Init(); m3Start(); }
-  if (typeof fxApply === "function") fxApply();
+  if (typeof Effects !== "undefined") Effects.menuShown();
   $("fcFed").classList.toggle("sel", menuSide === "federation");
   $("fcSpa").classList.toggle("sel", menuSide === "spacenoid");
   document.querySelector(".m-cards").classList.toggle("picked", !!menuSide);
@@ -2527,7 +2527,7 @@ function renderMenu() {
 function renderLanding() {
   layoutMenu();
   if (typeof m3Init === "function") { m3Init(); m3Start(); }
-  if (typeof fxApply === "function") fxApply();
+  if (typeof Effects !== "undefined") Effects.menuShown();
   const ems = $("moEmbs");
   if (ems && !ems.childElementCount)
     ems.innerHTML = ["#fcFed .fc-emb", "#fcSpa .fc-emb"].map(q => { const e = document.querySelector(q); return e ? e.outerHTML : ""; }).join("");
@@ -2744,7 +2744,7 @@ function m3Start() {
   };
   const boom = () => {
     const root = m3Root();
-    if (!root || root.parentNode.classList.contains("m3lite") || document.documentElement.classList.contains("autolite")) { if (root) M3.boomT = setTimeout(boom, 3000); return; }
+    if (!root || document.documentElement.classList.contains("fx-lite")) { if (root) M3.boomT = setTimeout(boom, 3000); return; }
     const fx = root.querySelector(".m3-fx");
     if (fx && fx.childElementCount < 12) {
       const r = Math.random(), fromFed = Math.random() < 0.5;          // Federation fires pink, Zeon fires yellow
@@ -2770,7 +2770,6 @@ function m3Init() {
   const s0 = $("s0"); if (!s0 || s0.dataset.m3) return;
   s0.dataset.m3 = "1";
   const screens = ["s0", "s1"].map(id => $(id)).filter(Boolean);
-  if ((navigator.deviceMemory && navigator.deviceMemory <= 2) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2)) screens.forEach(sc => sc.classList.add("m3lite"));
   // embers rising from the ruins
   screens.forEach(sc => { const em = sc.querySelector(".m3-embers");
   if (em && !em.childElementCount) for (let k = 0; k < 18; k++) {
@@ -2828,7 +2827,6 @@ const LB_WINDOWS = { fed: [33, 5, 45, 34], zeon: [55, 5, 67, 38] };   // [x0, y0
 let lbT = { spark: 0, win: 0 };
 function lbOn() { const s5 = $("s5"); return !!(s5 && s5.classList.contains("on") && !document.hidden); }
 function lbReduced() { return !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches); }
-function lbLite() { return (navigator.deviceMemory && navigator.deviceMemory <= 2) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2); }
 // where the background picture actually sits (it is anchored differently on narrow screens)
 function bgAnchor(el, pseudo, fx, fy) {
   try {
@@ -2900,7 +2898,6 @@ function rsInit() {
     const C = RS_CFG[side];
     box = document.createElement("div"); box.id = "rsfx"; box.dataset.side = side; box.setAttribute("aria-hidden", "true");
     box.className = side === "federation" ? "fed" : "spa";
-    if (lbLite()) box.classList.add("lite");
     let h = '<i class="rs-eye ' + C.eye.kind + '" style="left:' + C.eye.x + '%;top:' + C.eye.y + '%;width:' + C.eye.w + '%;height:' + C.eye.h + '%"></i>';
     box.innerHTML = h;
     sc.insertBefore(box, sc.firstChild);
@@ -2920,56 +2917,76 @@ function perfBigScreen() {
 }
 perfBigScreen(); addEventListener("resize", perfBigScreen);
 
-// ---------- effects toggle (bottom bar): FULL / LITE, remembered on this device (cf71) ----------
-function fxPref() { try { return localStorage.getItem("gb.fx"); } catch (e) { return null; } }   // "full" | "lite" | null (automatic)
-function fxApply() {
-  const pref = fxPref(), H = document.documentElement;
-  if (pref === "lite") H.classList.add("autolite");
-  else if (pref === "full") H.classList.remove("autolite");
-  const lite = H.classList.contains("autolite");
-  document.querySelectorAll(".fxtog").forEach(b => {
-    b.classList.toggle("lite", lite);
-    b.setAttribute("aria-checked", lite ? "false" : "true");
-    b.querySelector(".fxstate").textContent = lite ? "LITE" : "FULL";
-    b.querySelector(".fxsub").textContent = lite ? (pref ? "TAP FOR FULL" : "AUTO \u00b7 TAP FOR FULL") : "TAP FOR LITE";
-  });
-}
-window.toggleFx = () => {
-  const lite = document.documentElement.classList.contains("autolite");
-  try { localStorage.setItem("gb.fx", lite ? "full" : "lite"); sessionStorage.removeItem("gb.autolite"); } catch (e) {}
-  fxApply();
-  if (lite && typeof m3Start === "function") m3Start();          // back to full: restart the scene's effects
-  if (typeof mpToast === "function") mpToast(lite ? "Full background effects on." : "Lite effects: background animations off.");
-};
-const PERF = { on: false, bad: 0, since: 0 };
-function perfWatch() {
-  if (PERF.on) return; PERF.on = true;
-  let last = performance.now(), sum = 0, n = 0, t0 = last;
-  const tick = now => {
-    const busy = ["s0", "s1", "s2", "s3", "s5"].some(id => { const e = $(id); return e && e.classList.contains("on"); });
-    const dt = now - last; last = now;
-    if (!busy || document.hidden || document.documentElement.classList.contains("autolite") || $("clashFx") || typeof hangarBusy !== "undefined" && hangarBusy) {
-      sum = 0; n = 0; t0 = now;                          // only judge steady screens
-    } else if (dt < 1000) {
-      sum += dt; n++;
-      if (now - t0 > 3000) {
-        const avg = sum / n;
-        PERF.bad = avg > 28 ? PERF.bad + 1 : 0;           // slower than ~35 fps
-        if (PERF.bad >= 2 && fxPref() !== "full") {
-          document.documentElement.classList.add("autolite"); fxApply();
-          try { sessionStorage.setItem("gb.autolite", "1"); } catch (e) {}   // this session only: a fresh start tries full effects again
+// ================= EFFECTS QUALITY (cf75) =================
+// One saved setting and one class on <html>:
+//   gb.effects = "auto" (default) | "full" | "lite"
+//   <html class="fx-lite">  turns the ambient background animation off (parallax and eye glows stay)
+// Auto starts with full effects and switches to lite for this visit if a menu runs slowly for a few seconds.
+// The speed check only runs while a menu is on screen, and stops once it has an answer.
+const Effects = {
+  KEY: "gb.effects",
+  lite: false,
+  checked: false,                       // auto: has this visit's speed check finished?
+  busy: false,
+  mode() {
+    try { return localStorage.getItem(this.KEY) || "auto"; } catch (e) { return "auto"; }
+  },
+  apply(lite) {
+    this.lite = lite;
+    document.documentElement.classList.toggle("fx-lite", lite);
+    this.paint();
+  },
+  paint() {
+    const auto = this.mode() === "auto";
+    document.querySelectorAll(".fxtog").forEach(b => {
+      b.classList.toggle("lite", this.lite);
+      b.setAttribute("aria-pressed", this.lite ? "true" : "false");
+      b.querySelector(".fxstate").textContent = this.lite ? "LITE" : "FULL";
+      b.querySelector(".fxsub").textContent = this.lite ? (auto ? "AUTO \u00b7 TAP FOR FULL" : "TAP FOR FULL") : "TAP FOR LITE";
+    });
+  },
+  toggle() {
+    const next = this.lite ? "full" : "lite";
+    try { localStorage.setItem(this.KEY, next); } catch (e) {}
+    this.apply(next === "lite");
+    if (!this.lite && typeof m3Start === "function") m3Start();
+    if (typeof mpToast === "function") mpToast(this.lite ? "Lite effects: background animations off." : "Full background effects on.");
+  },
+  // called whenever a menu appears
+  menuShown() {
+    this.paint();
+    if (this.mode() === "auto" && !this.lite && !this.checked) this.measure();
+  },
+  // time a few seconds of frames on the menu; slower than ~35 fps twice in a row -> lite for this visit
+  measure() {
+    if (this.busy) return;
+    this.busy = true;
+    const onMenu = () => ["s0", "s1"].some(id => { const e = $(id); return e && e.classList.contains("on"); }) && !document.hidden && !$("clashFx");
+    let last = 0, sum = 0, n = 0, slow = 0, windows = 0;
+    const frame = now => {
+      if (!onMenu() || this.mode() !== "auto") { this.busy = false; return; }   // left the menu: stop, try again next time
+      if (last && now - last < 1000) { sum += now - last; n++; }
+      last = now;
+      if (sum > 3000) {
+        const avg = sum / n; windows++;
+        slow = avg > 28 ? slow + 1 : 0;
+        sum = 0; n = 0;
+        if (slow >= 2) {
+          this.apply(true);
           if (typeof mpToast === "function") mpToast("Background effects reduced to keep things smooth.");
         }
-        sum = 0; n = 0; t0 = now;
+        if (slow >= 2 || windows >= 3) { this.checked = true; this.busy = false; return; }   // answer found: stop measuring
       }
-    }
-    requestAnimationFrame(tick);
-  };
-  requestAnimationFrame(tick);
-}
-try { if (sessionStorage.getItem("gb.autolite") === "1" && fxPref() !== "full") document.documentElement.classList.add("autolite"); } catch (e) {}
-fxApply();
-try { if (localStorage.getItem("gb.noautolite") !== "1") perfWatch(); } catch (e) { perfWatch(); }
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  },
+  init() {
+    try { ["gb.fx", "gb.noautolite"].forEach(k => localStorage.removeItem(k)); sessionStorage.removeItem("gb.autolite"); } catch (e) {}   // settings from older builds
+    this.apply(this.mode() === "lite");
+  },
+};
+Effects.init();
 
 window.landOnline = () => { if (mp.code) hangarGo(() => openMP()); else playClash(() => openMP()); };
 window.landOffline = () => hangarGo(() => show("s1"));
@@ -6841,7 +6858,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf73";
+const APP_BUILD = "cf75";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
