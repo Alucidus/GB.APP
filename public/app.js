@@ -1696,9 +1696,9 @@ function qrResourcesHTML(S) {
       '<span class="ct">' + (n ? n + ' left' : 'none left') + '</span><small>' + (offline ? (n ? 'tap to use one' : 'all used \u2014 tap a crossed mark to restore') : NAMES[k][1]) + '</small></div>';
   };
   const f = mpTeamMode() && CUR ? ffForUid(CUR.uid, mpMyTeam()) : null;
-  const sub = offline ? 'tap an item when you use it' : f && f.state !== "queued" ? 'in the current firefight' : 'refill at the start of each new engagement';
+  const sub = offline ? 'tap an item when you use it' : 'no refills \u2014 resupply by riding a vehicle';
   return '<div class="qrres"><h4>QUICK RESOLVE RESOURCES <small>' + sub + '</small>' +
-    (offline ? '<button class="btn sm qrrefill" onclick="qrItemRefill()">\u21BA Refill all</button>' : '') + '</h4>' +
+    (offline ? '<button class="btn sm qrrefill" onclick="qrItemRefill()" title="Squads resupply by riding a vehicle">\u21BA Resupplied</button>' : '') + '</h4>' +
     '<div class="qrr-g">' + ["fb", "sm", "gr"].map(tile).join("") + '</div></div>';
 }
 
@@ -2588,14 +2588,11 @@ window.sqObjective = on => {
 };
 function ffSync(f) {
   const s = ffSideOf(f), q = CUR.st.sq.qr;
-  if (q.ffId === f.id && q.ffSeg !== f.seg && f.seg > 1) {   // a new segment (Forced Re-Engagement): items reset
-    q.ffSeg = f.seg; q.items = { fb: 2, sm: 1, gr: 1 }; q.supp = 0; q.suppFlash = 0; q.nextOnes = 0; q.nextMargin = 0; q.nextExtra = 0;
-    logEv(CUR.uid, "Segment " + f.seg + " vs " + f[ffOther(s)].label + " \u2014 items refilled", "info"); save();
-  }
   if (q.ffId !== f.id) {                                   // a new engagement: items refill
-    q.ffId = f.id; q.ffSeg = f.seg; q.items = { fb: 2, sm: 1, gr: 1 }; q.round = 1; q.supp = 0; q.suppFlash = 0; q.next = 0; q.nextFlash = 0; q.nextExtra = 0; q.nextOnes = 0; q.nextMargin = 0; q.res = null; q.ffRound = "1:1"; q.ffApplied = "";
-    logEv(CUR.uid, "Firefight vs " + f[ffOther(s)].label + " \u2014 items refilled", "info"); save();
+    q.ffId = f.id; q.ffSeg = f.seg; q.round = 1; q.supp = 0; q.suppFlash = 0; q.next = 0; q.nextFlash = 0; q.nextExtra = 0; q.nextOnes = 0; q.nextMargin = 0; q.res = null; q.ffRound = "1:1"; q.ffApplied = "";
+    logEv(CUR.uid, "Firefight vs " + f[ffOther(s)].label, "info"); save();
   }
+  // items are never refilled by a fight: a squad keeps what is left until it resupplies aboard a vehicle
   const ok = f.id + ":" + f.seg;
   if (f.obj && f.obj.seg === f.seg && q.objKey !== ok) {
     q.objKey = ok;
@@ -7286,7 +7283,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf94";
+const APP_BUILD = "cf95";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
@@ -7715,6 +7712,21 @@ function startMyTurnCore() {
     const u = unitById(r.id), was = JSON.parse(JSON.stringify(r.st));
     advance(u, r.st);
     const st = r.st, uid = r.uid;
+    // squads resupply by riding a vehicle: aboard through a whole turn = a full set of items again
+    if (isSquad(u) && st.sq) {
+      st.sq.qr = st.sq.qr || {};
+      const q = st.sq.qr, cs = carrierState(uid), aboard = cs && cs.state === "aboard";
+      if (!aboard) delete q.abRound;
+      else if (q.abRound == null) q.abRound = turn.round;                       // just boarded: the clock starts
+      else if (turn.round > q.abRound) {
+        const it = q.items || (q.items = { fb: 2, sm: 1, gr: 1 });
+        if (it.fb < 2 || it.sm < 1 || it.gr < 1) {
+          q.items = { fb: 2, sm: 1, gr: 1 };
+          logEv(uid, "\u2693 Resupplied aboard the " + (cs.u.short || cs.u.name) + " \u2014 2 Flashbangs \u00b7 1 Smoke \u00b7 1 Grenade", "buff");
+        }
+        q.abRound = turn.round;
+      }
+    }
     u.abilities.forEach((a, i) => {
       const A = was.track[i], B = st.track[i];
       if (a.kind === "mode" && A && B) {
