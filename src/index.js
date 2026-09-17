@@ -47,7 +47,7 @@ export default {
     if (url.pathname === "/api/ws") {
       const code = cleanCode(url.searchParams.get("code"));
       if (!validCode(code) || request.headers.get("Upgrade") !== "websocket") return new Response("Bad request", { status: 400 });
-      return roomFor(env, code).fetch(new Request("https://room/ws" + url.search, request));
+      return roomFor(env, code).fetch(request);                 // the room answers on the same /api/ws address
     }
     if (url.pathname === "/api/sync") {
       if (request.method !== "POST") return json(405, { ok: false, error: "Use POST." });
@@ -58,7 +58,7 @@ export default {
         if (!name) return json(400, { ok: false, error: "Enter a player name first." });
         for (let i = 0; i < 12; i++) {
           const code = randomCode();
-          const r = await roomFor(env, code).fetch("https://room/rpc", { method: "POST", body: JSON.stringify({ ...body, action: "init", code, name }) });
+          const r = await roomFor(env, code).fetch(roomRequest(request, { ...body, action: "init", code, name }));
           if (r.status === 409) continue;                        // code already in use: try another
           return r;
         }
@@ -66,12 +66,14 @@ export default {
       }
       const code = cleanCode(body && body.code);
       if (!validCode(code)) return json(400, { ok: false, error: "Session codes are 5 letters." });
-      return roomFor(env, code).fetch("https://room/rpc", { method: "POST", body: JSON.stringify({ ...body, code }) });
+      return roomFor(env, code).fetch(roomRequest(request, { ...body, code }));
     }
     return new Response("Not found", { status: 404 });          // everything else is served from ./public
   },
 };
 const roomFor = (env, code) => env.ROOMS.get(env.ROOMS.idFromName(code));
+// a request for the room, sent to the app's own /api/sync address
+const roomRequest = (request, body) => new Request(new URL("/api/sync", request.url), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
 
 // ---------------- in-memory mirror of a room's storage ----------------
 class Mem {
@@ -112,7 +114,7 @@ export class BattleRoom {
   async fetch(request) {
     await this.mem.load();
     const url = new URL(request.url);
-    if (url.pathname === "/ws") {
+    if (url.pathname === "/api/ws") {
       const pid = url.searchParams.get("pid"), token = url.searchParams.get("token");
       if (!this.live() ) return new Response("Session ended", { status: 410 });
       if (!this.tokenOk(pid, token)) return new Response("Not in this session", { status: 403 });
@@ -120,7 +122,7 @@ export class BattleRoom {
       this.ctx.acceptWebSocket(pair[1], [pid]);
       return new Response(null, { status: 101, webSocket: pair[0] });
     }
-    if (url.pathname === "/rpc") {
+    if (url.pathname === "/api/sync") {
       let body;
       try { body = await request.json(); } catch (e) { return json(400, { ok: false, error: "Bad request." }); }
       const res = await this.handle(body, null);
