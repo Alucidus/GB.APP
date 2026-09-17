@@ -2597,10 +2597,13 @@ function renderFF() {
           (ob ? '' : '<div class="ffrow"><button class="btn big pri" onclick="ffObjective()">Roll the Objective Clash</button></div>') + '</div>';
     body = '<div class="ffmsg"><b>Segment ' + f.seg + ' complete</b><span>Both squads still standing? Settle who secures the objective.</span>' +
       clash + result +
+      // another segment only happens through Forced Re-Engagement, which costs a Flashbang
       '<div class="ffrow wrap">' +
-      '<button class="btn" onclick="ffSegment(false)">New 4-round segment</button>' +
-      '<button class="btn" onclick="ffSegment(true)">\u2726 Forced Re-Engagement</button>' +
-      '<button class="btn" onclick="ffEnd()">End firefight</button></div></div>';
+      (q.items.fb > 0
+        ? '<button class="btn" onclick="ffSegment(true)">\u2726 Forced Re-Engagement <small>(spend 1 Flashbang \u00b7 ' + q.items.fb + ' left)</small></button>'
+        : '<span class="ffhint">No Flashbang left \u2014 you can\u2019t force another segment.</span>') +
+      '<button class="btn pri" onclick="ffEnd()">End firefight</button></div>' +
+      '<small class="ffhint">Forced Re-Engagement is usually played when the enemy tries to move their squad away at the start of their turn.</small></div>';
   }
   const keepScroll = box.querySelector(".ffpanel") ? box.querySelector(".ffpanel").scrollTop : 0;
   box.innerHTML = '<div class="ffpanel">' +
@@ -7013,7 +7016,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf84";
+const APP_BUILD = "cf85";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
