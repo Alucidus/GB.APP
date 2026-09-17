@@ -2486,6 +2486,94 @@ ul.hl li{margin:4px 0;font-size:13px;line-height:1.45;color:#cbd5e1}
   60%{transform:translate(.4vmax,.35vmax)}75%{transform:translate(-.2vmax,.15vmax)}}
 #clashFx .cx-end{inset:-6%}
 #s0 .m-bg.m2{inset:-6%}
+
+/* ================= ONLINE FIREFIGHT (cf53) ================= */
+.fftag{display:inline-block;margin-left:6px;padding:1px 7px;font:800 10px system-ui,sans-serif;letter-spacing:.08em;color:#fff;background:#b91c1c;border:1px solid #fca5a5;vertical-align:middle}
+.ffcta{display:flex;align-items:center;gap:1cqw;flex-wrap:wrap;padding:.6cqw 1cqw;background:rgba(3,8,14,.8);border:1px solid var(--f-acc)}
+.ffcta span{flex:1;min-width:30%;font-size:.85em;color:var(--f-mut)}
+.ffcta.live{border-color:#ef4444;background:linear-gradient(90deg,rgba(127,29,29,.5),rgba(3,8,14,.85))}
+.ffcta.live b{color:#fecaca;letter-spacing:.06em}
+#sheet.sqcompact .qr.online{flex:1}
+#ffinv{position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:95;display:flex;flex-direction:column;gap:6px;width:min(640px,94vw)}
+.ffinvrow{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:10px 14px;color:#fff;
+  background:linear-gradient(90deg,rgba(127,29,29,.96),rgba(15,23,42,.96));border:1px solid #fca5a5;box-shadow:0 8px 30px rgba(0,0,0,.6);animation:ffInvIn .35s ease-out}
+.ffinvrow span{display:flex;gap:6px;flex:none}
+@keyframes ffInvIn{0%{transform:translateY(-20px);opacity:0}100%{transform:none;opacity:1}}
+#ffx{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:2vh 2vw;
+  background:radial-gradient(ellipse at 50% 40%,rgba(20,10,20,.82),rgba(0,0,0,.94));overflow:hidden}
+.ffpanel{position:relative;width:min(1000px,96vw);max-height:96vh;overflow:auto;display:flex;flex-direction:column;gap:12px;padding:14px 16px;color:#e2e8f0;
+  background:linear-gradient(160deg,rgba(15,23,42,.96),rgba(3,6,12,.98));border:1px solid rgba(255,255,255,.18);clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px)}
+.ffhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ffhead>b{font:900 18px system-ui,sans-serif;letter-spacing:.2em;color:#fecaca}
+.ffpips{display:flex;gap:4px}
+.ffpips i{width:22px;height:8px;background:rgba(255,255,255,.14)}
+.ffpips i.past{background:#94a3b8}
+.ffpips i.on{background:#f59e0b;box-shadow:0 0 8px #f59e0b}
+.ffmode{flex:1;font:800 11px system-ui,sans-serif;letter-spacing:.16em;color:var(--muted)}
+.ffsides{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ffside{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border:1px solid rgba(255,255,255,.14)}
+.ffside.me{background:linear-gradient(90deg,rgba(56,189,248,.14),transparent);border-left:3px solid #38bdf8}
+.ffside.foe{background:linear-gradient(270deg,rgba(239,68,68,.14),transparent);border-right:3px solid #ef4444;text-align:right}
+body.spa .ffside.me{background:linear-gradient(90deg,rgba(239,68,68,.14),transparent);border-left-color:#ef4444}
+body.spa .ffside.foe{background:linear-gradient(270deg,rgba(56,189,248,.14),transparent);border-right-color:#38bdf8}
+.ffside small{font:800 10px system-ui,sans-serif;letter-spacing:.18em;color:var(--muted)}
+.ffside b{font-size:18px;color:#fff}
+.ffside em{font-style:normal;font-weight:700}
+.ffinv{font-size:13px;color:#fde68a;letter-spacing:.08em}
+.ffpause{padding:8px 12px;background:rgba(245,158,11,.15);border:1px solid #f59e0b;color:#fde68a;font-weight:700}
+.ffbody{display:flex;flex-direction:column;gap:10px;align-items:stretch;min-height:180px}
+.ffmsg{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.ffmsg>b{font:900 20px system-ui,sans-serif;letter-spacing:.06em;color:#fff}
+.ffmsg>span{color:#cbd5e1;max-width:640px}
+.ffrow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.ffwho{text-align:center;color:var(--muted);font-weight:700}
+.ffitems{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.ffitem{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 8px;cursor:pointer;color:#fff;
+  background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(0,0,0,.4));border:1px solid rgba(255,255,255,.25);-webkit-tap-highlight-color:transparent}
+.ffitem b{font-size:40px;line-height:1}
+.ffitem span{font:800 13px system-ui,sans-serif;letter-spacing:.08em}
+.ffitem em{position:absolute;right:8px;top:6px;font-style:normal;font-weight:900;color:#facc15}
+.ffitem.empty{opacity:.35}
+.ffitem:active{transform:scale(.96)}
+.it-fb{border-color:#e2e8f0}.it-sm{border-color:#94a3b8}.it-gr{border-color:#f97316}
+.ffcount{display:flex;align-items:center;justify-content:center;min-height:220px}
+.ffcount b{font:900 120px system-ui,sans-serif;color:#fff;text-shadow:0 0 30px rgba(255,255,255,.6);animation:ffPulse .55s ease-out infinite}
+@keyframes ffPulse{0%{transform:scale(1.4);opacity:.3}40%{transform:scale(1);opacity:1}100%{transform:scale(.9);opacity:.8}}
+.ffreveal{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center}
+.ffcard{display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px;border:2px solid;animation:ffFlip .5s cubic-bezier(.2,.9,.3,1.2) both}
+.ffcard.foe{animation-delay:.12s}
+.ffcard b{font-size:56px;line-height:1}
+.ffcard small{font:800 10px system-ui,sans-serif;letter-spacing:.2em;color:var(--muted)}
+.ffcard span{font-weight:900;letter-spacing:.06em}
+@keyframes ffFlip{0%{transform:rotateY(90deg) scale(.8);opacity:0}100%{transform:none;opacity:1}}
+.ffvs{font:900 26px system-ui,sans-serif;color:#fecaca}
+.ffres p{margin:4px 0;text-align:center;color:#fde68a}
+.ffres p.cnt{color:#fca5a5;font-weight:900}
+.ffdice{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ffdice small{font:800 10px system-ui,sans-serif;letter-spacing:.18em;color:var(--muted)}
+.ffdice p{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}
+.ffdice i{font-style:normal;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;color:#0b0f14;background:#e2e8f0;border-radius:5px}
+.ffdice i.d6{background:#22c55e}.ffdice i.d1{background:#ef4444;color:#fff}
+.ffadj{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;padding:8px;background:rgba(255,255,255,.05)}
+.ffobj{padding:10px 18px;border:2px solid}
+.ffobj.win{border-color:#22c55e;color:#bbf7d0}.ffobj.lose{border-color:#ef4444;color:#fecaca}
+.ffobj b{display:block;font-size:26px}
+/* animations on the receiving screen */
+.ffanim{position:absolute;inset:0;pointer-events:none;z-index:5}
+.ffanim.flash{background:#fff;animation:ffFlash 1.3s ease-out forwards}
+@keyframes ffFlash{0%{opacity:0}6%{opacity:1}40%{opacity:.85}100%{opacity:0}}
+.ffanim.smoke i{position:absolute;width:60vmax;height:60vmax;border-radius:50%;background:radial-gradient(circle,rgba(160,170,180,.85) 0,rgba(120,130,140,.55) 40%,rgba(120,130,140,0) 70%);
+  animation:ffSmoke 2.6s ease-out forwards}
+.ffanim.smoke i:nth-child(1){left:-20vmax;top:30%}.ffanim.smoke i:nth-child(2){left:20%;top:50%;animation-delay:.1s}.ffanim.smoke i:nth-child(3){left:50%;top:20%;animation-delay:.2s}
+.ffanim.smoke i:nth-child(4){left:70%;top:55%;animation-delay:.05s}.ffanim.smoke i:nth-child(5){left:10%;top:-10%;animation-delay:.15s}
+@keyframes ffSmoke{0%{transform:scale(.2) translateY(20%);opacity:0}25%{opacity:1}100%{transform:scale(1.3) translateY(-10%);opacity:0}}
+.ffanim.boom{animation:ffShake .5s linear}
+.ffanim.boom i{position:absolute;left:50%;top:55%;width:10vmax;height:10vmax;border-radius:50%;transform:translate(-50%,-50%) scale(.2);
+  background:radial-gradient(circle,#fff 0,#fde047 20%,#f97316 45%,rgba(220,38,38,.6) 65%,rgba(0,0,0,0) 72%);animation:ffBoom 1.2s ease-out forwards}
+@keyframes ffBoom{0%{transform:translate(-50%,-50%) scale(.2);opacity:1}40%{opacity:1}100%{transform:translate(-50%,-50%) scale(9);opacity:0}}
+@keyframes ffShake{0%,100%{transform:none}20%{transform:translate(-10px,6px)}40%{transform:translate(9px,-7px)}60%{transform:translate(-6px,-4px)}80%{transform:translate(4px,3px)}}
+@media (prefers-reduced-motion:reduce){.ffanim.smoke i,.ffanim.boom i,.ffcount b,.ffcard{animation-duration:.01s}.ffanim.flash{animation:ffFlash .6s ease-out forwards}}
+@media (max-width:700px){.ffitems{grid-template-columns:repeat(2,1fr)}.ffcount b{font-size:80px}}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -8741,7 +8829,8 @@ function sqRevivePicker() {
   $("pick").classList.add("on");
 }
 window.sqPage = k => { if (!CUR || !isSquad(U)) return; sqSelState = null; CUR.st.sq.page = k; save(); draw(); };
-window.sqTab = t => { if (!CUR || !isSquad(U)) return; sqSelState = null; CUR.st.sq.tab = t; save(); draw(); };
+const sqTabLocal = {};                                   // which tab each squad shows on THIS device
+window.sqTab = t => { if (!CUR || !isSquad(U)) return; sqSelState = null; sqTabLocal[CUR.uid] = t; CUR.st.sq.tab = t; save(); draw(); };
 window.sqPip = () => {
   if (!CUR || !mpSheetCanEdit()) return;
   if (mode === "repair") { sqRevivePicker(); return; }
@@ -8912,6 +9001,7 @@ function buildSquadFrame() {
 }
 function drawSquad() {
   const u = U, st = sqMigrate(u, CUR.st), S = st.sq, q = S.qr, uid = CUR.uid;
+  if (sqTabLocal[uid]) S.tab = sqTabLocal[uid];
   hp = st.hp; ap = st.ap; dodges = 0;
   const sheet = $("sheet");
   sheet.classList.add("shipsheet"); sheet.classList.remove("st-noattack"); updateStanceBtn();
@@ -8936,6 +9026,7 @@ function drawSquad() {
   }
   const tabs = [["overmap", "OVERMAP"], ["soldiers", "8 SOLDIERS"], ["qr", "QUICK RESOLVE"]];
   let h = '<div class="sqtabs">' + tabs.map(([k, t]) => '<button class="sqtab' + (S.tab === k ? ' on' : '') + '" onclick="sqTab(\'' + k + '\')">' + t + '</button>').join("") + '</div>';
+  if (S.tab !== "qr" && mpTeamMode() && ffForUid(uid, mpMyTeam())) h += ffCardHTML();
   const cs = carrierState(uid);
   if (cs && cs.state === "aboard") h += '<div class="sqnote">\u2693 Aboard the ' + cs.u.short + ' \u2014 safe and untargetable. Disembark from the vehicle\'s sheet.</div>';
   if (S.tab === "overmap") {
@@ -9019,7 +9110,8 @@ function drawSquad() {
     const myN = qrDice(alive, q.supp), foeN = qrDice(q.foeHp, q.foeSupp);
     const opt = (side, k, lab) => '<button class="qrit' + (q[side] === k ? ' on' : '') + (side === "my" && k !== "none" && q.items[k] < 1 ? ' off' : '') + '" onclick="qrSet(\'' + side + '\',\'' + k + '\')">' + lab + '</button>';
     const items = ["none", "fb", "sm", "gr"];
-    h += '<div class="qr">' +
+    h += ffCardHTML();
+    h += '<div class="qr' + (mpTeamMode() ? ' online' : '') + '">' +
       '<div class="qrcol">' +
         '<div class="qrhead">ROUND ' + [1, 2, 3, 4].map(r => '<button class="qrr' + (q.round === r ? ' on' : '') + (q.round > r ? ' past' : '') + '" onclick="qrSet(\'round\',' + r + ')">' + r + '</button>').join("") + '</div>' +
         '<div class="qrbig"><small>YOUR SQUAD</small><b>' + alive + '<i>/8</i></b><em>Firepower ' + FIREPOWER(alive) + '</em></div>' +
@@ -9060,6 +9152,7 @@ function drawSquad() {
   box.innerHTML = h;
   renderTurn();
   if (typeof mpSheetMode === "function") mpSheetMode();
+  if (typeof renderFF === "function") renderFF();
 }
 
 // ---------- squads riding in vehicles (Car 1 · Helicopter 1 · Transport Ship 2) ----------
@@ -9435,6 +9528,308 @@ window.sqRules = () => {
   $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Close";
   $("pick").classList.add("on");
 };
+
+// ================= ONLINE FIREFIGHT (cf53) =================
+// A clash between two squads, run by one player on each side. Picks stay on the room server until both are locked.
+const FF_ITEMS = { none: { n: "No item", i: "\u2014" }, fb: { n: "Flashbang", i: "\u2726" }, sm: { n: "Smoke Grenade", i: "\u25CC" }, gr: { n: "Grenade", i: "\u2739" } };
+let ffHidden = false, ffShown = {}, ffLastSig = "";
+const ffAll = () => Object.keys(mp.data || {}).filter(k => k.startsWith("ff/")).map(k => mp.data[k]).filter(Boolean);
+const ffActive = f => f && f.state !== "closed" && f.state !== "declined";
+const ffSideOf = f => f.a.team === mpMyTeam() ? "a" : f.b.team === mpMyTeam() ? "b" : null;
+const ffOther = s => s === "a" ? "b" : "a";
+function ffForUid(uid, team) { return ffAll().find(f => ffActive(f) && ((f.a.uid === uid && f.a.team === team) || (f.b.uid === uid && f.b.team === team))) || null; }
+function ffOp(op) { mp.ffOps = mp.ffOps || []; mp.ffOps.push(op); mpKick(); }
+function ffNewId() { return (Date.now().toString(36) + Math.random().toString(36).slice(2, 6)).slice(-12); }
+function ffSidePidAlive(f, side) {
+  const pid = f[side].pid; if (!pid) return false;
+  const p = mpPlayers()[pid]; return !!(p && mpNow() - (p.seen || 0) < 90000);
+}
+// the clash this device is running (my squad sheet is open and I'm my side's player)
+function ffMine() {
+  if (!mpTeamMode() || !CUR || !U || !isSquad(U) || !$("s4").classList.contains("on")) return null;
+  const f = ffForUid(CUR.uid, mpMyTeam()); if (!f) return null;
+  const s = ffSideOf(f);
+  return f[s].pid === mp.pid ? f : null;
+}
+function ffEnemySquads() {
+  const ot = otherTeam(mpMyTeam()), td = mp.data["team/" + ot];
+  if (!td || !Array.isArray(td.roster)) return [];
+  const aboard = new Set();
+  td.roster.forEach(x => {
+    const st = (mp.data["unit/" + ot + "/" + x.uid] || {}).st || {};
+    ((st.ship && st.ship.carry) || []).forEach(v => aboard.add(v));
+    ((st.gv && st.gv.carry) || []).forEach(v => aboard.add(v));
+  });
+  const squads = td.roster.filter(x => (x.id || "").indexOf("ground-squad") === 0);
+  return squads.map((x, k) => {
+    const st = (mp.data["unit/" + ot + "/" + x.uid] || {}).st || {};
+    const alive = st.hp ? st.hp.hp : 8;
+    return { uid: x.uid, label: "Infantry Squad" + (squads.length > 1 ? " #" + (k + 1) : ""), alive, aboard: aboard.has(x.uid), busy: !!ffForUid(x.uid, ot) };
+  });
+}
+window.ffChallenge = () => {
+  if (!mpTeamMode()) { mpToast("Online firefights need a battle session."); return; }
+  if (!CUR || !isSquad(U) || !mpSheetCanEdit()) return;
+  if (ffForUid(CUR.uid, mpMyTeam())) { mpToast("This squad is already in a firefight."); return; }
+  if (!sqAlive(CUR.st)) { mpToast("This squad has no soldiers left."); return; }
+  const list = ffEnemySquads();
+  $("pickT").textContent = "\u2694 Challenge an enemy squad";
+  $("pickS").innerHTML = "Pick the enemy squad your " + unitLabel(CUR.uid) + " is fighting. Any player on their team can accept.";
+  const lst = $("picklist"); lst.innerHTML = list.length ? "" : '<div class="empty">The enemy has no infantry squads.</div>';
+  list.forEach(e => {
+    const off = e.busy || e.aboard || e.alive <= 0;
+    const d = el("div", "row" + (off ? " car-aboard" : ""));
+    d.innerHTML = '<span class="pt shipp gp"><img src="img/ground/' + (mpMyTeam() === "federation" ? "spa" : "fed") + '-rifleman.webp" alt=""></span>' +
+      '<span style="min-width:0;flex:1"><div class="nm">' + e.label + '</div><div class="tr">' +
+      (e.alive <= 0 ? "wiped out" : e.busy ? "\u2694 already in a firefight" : e.aboard ? "aboard a vehicle" : HEALTH_WORD(e.alive / 8)) + '</div></span>';
+    if (!off) d.onclick = () => {
+      closePicker();
+      ffHidden = false;
+      ffOp({ op: "invite", id: ffNewId(), aUid: CUR.uid, bUid: e.uid, aLabel: unitLabel(CUR.uid), bLabel: e.label });
+      mpToast("Challenge sent \u2014 waiting for the enemy to accept.");
+    };
+    lst.appendChild(d);
+  });
+  $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Cancel";
+  $("pick").classList.add("on");
+};
+window.ffAccept = id => {
+  const f = mp.data["ff/" + id]; if (!f || f.state !== "invite") return;
+  const r = roster.find(x => x.uid === f.b.uid); if (!r) return;
+  const l = mpLockOf(mpMyTeam(), r.uid);
+  if (l && l.pid !== mp.pid && mpLockAlive(l)) { mpToast(mpNameOf(l.pid) + " has that squad open \u2014 they can accept instead."); return; }
+  ffHidden = false;
+  if ($("s4").classList.contains("on")) closeSheet();
+  openSheet(r.uid); sqTab("qr");
+  ffOp({ op: "accept", id });
+};
+window.ffDecline = id => ffOp({ op: "decline", id });
+window.ffResume = id => {
+  const f = mp.data["ff/" + id]; if (!f) return;
+  const s = ffSideOf(f); if (!s) return;
+  const r = roster.find(x => x.uid === f[s].uid); if (!r) return;
+  ffHidden = false;
+  if (!CUR || CUR.uid !== r.uid) { if ($("s4").classList.contains("on")) closeSheet(); openSheet(r.uid); sqTab("qr"); }
+  if (f[s].pid !== mp.pid) ffOp({ op: "join", id });
+  renderFF();
+};
+window.ffPause = () => {
+  const f = ffMine(); ffHidden = true;
+  if (f) { ffOp({ op: "pause", id: f.id }); mpToast("Firefight paused \u2014 resume it from the squad's Quick Resolve tab."); }
+  renderFF();
+};
+window.ffMode = pick => { const f = ffMine(); if (f) ffOp({ op: "mode", id: f.id, pick }); };
+window.ffModeAnswer = yes => { const f = ffMine(); if (f) ffOp({ op: "modeAnswer", id: f.id, yes }); };
+window.ffReady = () => {
+  const f = ffMine(); if (!f) return;
+  const q = CUR.st.sq.qr, alive = sqAlive(CUR.st);
+  const supp = f.state === "reveal" ? q.next : q.supp;       // dice for the round about to start
+  ffOp({ op: "ready", id: f.id, dice: qrDice(alive, supp), hp: alive });
+};
+window.ffUnready = () => { const f = ffMine(); if (f) ffOp({ op: "unready", id: f.id }); };
+window.ffPick = item => {
+  const f = ffMine(); if (!f) return;
+  const q = CUR.st.sq.qr;
+  if (item !== "none" && !(q.items[item] > 0)) { mpToast("No " + FF_ITEMS[item].n + " left."); return; }
+  q.ffPick = item; save();
+  ffOp({ op: "pick", id: f.id, item });
+};
+window.ffUnpick = () => { const f = ffMine(); if (f) ffOp({ op: "unpick", id: f.id }); };
+window.ffObjective = () => { const f = ffMine(); if (f) ffOp({ op: "objective", id: f.id }); };
+window.ffSegment = forced => {
+  const f = ffMine(); if (!f) return;
+  const q = CUR.st.sq.qr;
+  if (forced) {
+    if (!(q.items.fb > 0)) { mpToast("No Flashbang left to force a re-engagement."); return; }
+    q.items.fb -= 1; logEv(CUR.uid, "Forced Re-Engagement \u2014 Flashbang spent", "buff"); save();
+  }
+  ffOp({ op: "segment", id: f.id, forced: !!forced });
+};
+window.ffEnd = () => {
+  const f = ffMine() || (CUR && ffForUid(CUR.uid, mpMyTeam())); if (!f) return;
+  if (!confirm("End this firefight for both sides?")) return;
+  ffOp({ op: "end", id: f.id });
+};
+// ---------- my side's bookkeeping, once per state change ----------
+function ffSync(f) {
+  const s = ffSideOf(f), q = CUR.st.sq.qr;
+  if (q.ffId !== f.id) {                                   // a new engagement: items refill
+    q.ffId = f.id; q.items = { fb: 2, sm: 1, gr: 1 }; q.round = 1; q.supp = 0; q.next = 0; q.res = null; q.ffRound = "1:1"; q.ffApplied = "";
+    logEv(CUR.uid, "Firefight vs " + f[ffOther(s)].label + " \u2014 items refilled", "info"); save();
+  }
+  const rk = f.seg + ":" + f.round;
+  if (q.ffRound !== rk && (f.state === "pick" || f.state === "ready")) {   // a new round began: next round's suppression becomes current
+    const newSeg = q.ffRound && q.ffRound.split(":")[0] !== String(f.seg);
+    q.supp = newSeg ? 0 : q.next; q.next = 0; q.round = f.round; q.ffRound = rk; save();
+  }
+}
+// apply what the reveal means for MY squad (both devices do this for themselves)
+function ffApply(f) {
+  const s = ffSideOf(f), o = ffOther(s), q = CUR.st.sq.qr, uid = CUR.uid;
+  const key = f.id + ":" + f.seg + ":" + f.round;
+  if (q.ffApplied === key) return null;
+  q.ffApplied = key;
+  const my = f.reveal[s], foe = f.reveal[o], lines = [];
+  let cas = 0, fx = [];
+  if (my !== "none" && q.items[my] > 0) q.items[my] -= 1;
+  if (my === "fb") lines.push(foe === "sm" ? "COUNTERED \u2014 their Smoke cancels your Flashbang." : "Your Flashbang lands \u2014 3 of theirs are suppressed next round.");
+  if (my === "sm") { if (foe === "gr") lines.push("COUNTERED \u2014 their Grenade cancels your Smoke."); else { lines.push("Your Smoke clears your suppression."); q.supp = 0; } }
+  if (my === "gr") { if (foe === "fb") { lines.push("COUNTERED \u2014 flashed mid-throw, your Grenade drops at your feet: 1 casualty to you."); cas += 1; fx.push("boom"); } else lines.push("Your Grenade lands \u2014 1 casualty on them."); }
+  if (foe === "fb") { if (my === "sm") lines.push("Their Flashbang is cancelled by your Smoke."); else { lines.push("Their Flashbang lands \u2014 3 of yours are suppressed next round."); q.next = Math.min(8, q.next + 3); fx.push("flash"); } }
+  if (foe === "sm") { lines.push(my === "gr" ? "Their Smoke is cancelled by your Grenade." : "Their Smoke clears their suppression."); if (my !== "gr") fx.push("smoke"); }
+  if (foe === "gr") { if (my === "fb") lines.push("COUNTERED \u2014 their Grenade blows up on their own squad."); else { lines.push("Their Grenade lands \u2014 1 casualty to you."); cas += 1; fx.push("boom"); } }
+  if (my === "none" && foe === "none") lines.push("No items this round.");
+  if (f.mode === "rolled" && f.roll) {
+    const mine = f.roll[s] || [], theirs = f.roll[o] || [];
+    const score = a => a.reduce((m, v) => m + (v === 6 ? 2 : v >= 3 ? 1 : 0), 0);
+    const volley = a => a.length >= 2 && a.every(v => v === 6);
+    const ms = score(mine), ts = score(theirs);
+    if (volley(theirs)) { cas += VOLLEY(theirs.length); lines.push("THEIR PERFECT VOLLEY \u2014 you lose " + VOLLEY(theirs.length) + "."); }
+    else if (volley(mine)) lines.push("PERFECT VOLLEY \u2014 you destroy " + VOLLEY(mine.length) + " of theirs.");
+    else {
+      const m = ms - ts;
+      if (m < 0) { const [c, su] = MARGIN_FX(-m); cas += c; q.next = Math.min(8, q.next + su); lines.push("They win the exchange by " + (-m) + " \u2014 you take " + c + " casualt" + (c === 1 ? "y" : "ies") + (su ? " + " + su + " suppressed" : "") + "."); }
+      else if (m > 0) { const [c, su] = MARGIN_FX(m); lines.push("You win the exchange by " + m + " \u2014 they take " + c + " casualt" + (c === 1 ? "y" : "ies") + (su ? " + " + su + " suppressed" : "") + "."); }
+      else lines.push("The exchange is tied " + ms + "\u2013" + ts + ".");
+    }
+    const ones = mine.filter(v => v === 1).length;
+    if (ones) { q.next = Math.min(8, q.next + ones); lines.push(ones + " of your dice rolled a 1 \u2014 suppressed next round."); }
+    if (mine.length === 1 && mine[0] === 6) lines.push("LAST MAN STANDING \u2014 your soldier breaks contact and escapes.");
+  }
+  q.res = lines;
+  logEv(uid, "Firefight round " + f.round + ": you " + FF_ITEMS[my].n + " vs them " + FF_ITEMS[foe].n, "info");
+  save();
+  return { cas, fx };
+}
+// ---------- the clash screen ----------
+function ffDiceHTML(a) { return (a || []).map(v => '<i class="d' + v + '">' + v + '</i>').join(""); }
+function ffPlay(fx) {
+  const box = $("ffx"); if (!box) return;
+  fx.forEach((k, n) => setTimeout(() => {
+    const d = document.createElement("div"); d.className = "ffanim " + k;
+    if (k === "smoke") d.innerHTML = "<i></i><i></i><i></i><i></i><i></i>";
+    if (k === "boom") d.innerHTML = "<i></i>";
+    box.appendChild(d); setTimeout(() => d.remove(), k === "smoke" ? 2600 : 1400);
+  }, n * 250));
+}
+let ffCardSig = "";
+function renderFF() {
+  let box = $("ffx");
+  renderFFInvites();
+  // keep the squad sheet's firefight card current
+  if (mpTeamMode() && CUR && U && isSquad(U) && $("s4").classList.contains("on") && CUR.st.sq) {
+    const cf = ffForUid(CUR.uid, mpMyTeam());
+    const cs = cf ? [cf.id, cf.state, cf.round, cf.seg, cf.a.pid, cf.b.pid].join("|") : "-";
+    if (cs !== ffCardSig) { ffCardSig = cs; setTimeout(() => { if (CUR && U && isSquad(U)) draw(); }, 0); }
+  }
+  const f = ffMine();
+  if (!f || ffHidden) { if (box) box.remove(); ffLastSig = ""; renderFFInvites(); return; }
+  if (f.state === "closed" || f.state === "declined") { if (box) box.remove(); ffLastSig = ""; renderFFInvites(); return; }
+  ffSync(f);
+  const s = ffSideOf(f), o = ffOther(s), q = CUR.st.sq.qr, alive = sqAlive(CUR.st);
+  const enemyUnit = (mp.data["unit/" + f[o].team + "/" + f[o].uid] || {}).st || {};
+  const enemyAlive = enemyUnit.hp ? enemyUnit.hp.hp : "?";
+  const otherHere = ffSidePidAlive(f, o) || f.state === "invite";
+  const sig = JSON.stringify([f, alive, q.supp, q.next, q.items, q.res, otherHere, enemyAlive]);
+  if (!box) { box = document.createElement("div"); box.id = "ffx"; document.body.appendChild(box); }
+  if (sig === ffLastSig) return;
+  ffLastSig = sig;
+  const myLabel = unitLabel(CUR.uid), foeLabel = f[o].label || "Enemy squad";
+  const pips = [1, 2, 3, 4].map(r => '<i class="' + (r < f.round ? "past" : r === f.round && f.state !== "end" ? "on" : "") + '"></i>').join("");
+  let body = "";
+  const itemBtns = () => Object.keys(FF_ITEMS).map(k => {
+    const n = k === "none" ? null : q.items[k];
+    return '<button class="ffitem it-' + k + (k !== "none" && !n ? " empty" : "") + '" onclick="ffPick(\'' + k + '\')"><b>' + FF_ITEMS[k].i + '</b><span>' + FF_ITEMS[k].n + '</span>' +
+      (n === null ? "" : '<em>\u00d7' + n + '</em>') + '</button>';
+  }).join("");
+  if (f.state === "invite") body = '<div class="ffmsg"><b>Challenge sent</b><span>Waiting for the ' + teamName(f.b.team) + ' to accept\u2026</span><button class="btn" onclick="ffEnd()">Cancel challenge</button></div>';
+  else if (f.state === "mode") {
+    if (!f.rollAsk) body = '<div class="ffmsg"><b>How are you rolling?</b><span>Physical dice: roll at the table and the app tracks items and effects. Roll for me: the app rolls both squads\u2019 dice \u2014 the enemy must agree.</span>' +
+      '<div class="ffrow"><button class="btn big" onclick="ffMode(\'physical\')">\u{1F3B2} Physical dice</button><button class="btn big pri" onclick="ffMode(\'roll\')">\u2699 Roll for me</button></div></div>';
+    else if (f.rollAsk === s) body = '<div class="ffmsg"><b>Asked the enemy to use rolled dice</b><span>Waiting for their answer\u2026</span></div>';
+    else body = '<div class="ffmsg"><b>The enemy wants the app to roll the dice</b><span>Both squads\u2019 dice would be rolled by the app each round.</span>' +
+      '<div class="ffrow"><button class="btn big pri" onclick="ffModeAnswer(true)">Accept rolled dice</button><button class="btn big" onclick="ffModeAnswer(false)">Use physical dice</button></div></div>';
+  } else if (f.state === "ready") {
+    const iReady = !!f.ready[s];
+    body = '<div class="ffmsg"><b>' + (f.seg > 1 ? "Segment " + f.seg + " \u2014 " : "") + "Round " + f.round + ' \u2014 get ready</b><span>' +
+      (f.mode === "rolled" ? "The app rolls " + qrDice(alive, q.supp) + " dice for you." : "Roll " + qrDice(alive, q.supp) + " dice at the table this round.") + '</span>' +
+      '<div class="ffrow"><button class="btn big ' + (iReady ? "ready" : "pri") + '" onclick="' + (iReady ? "ffUnready()" : "ffReady()") + '">' + (iReady ? "\u2713 READY \u2014 tap to wait" : "READY") + '</button></div>' +
+      '<span class="ffwho">' + (f.ready[o] ? "\u2713 The enemy is ready" : "The enemy is getting ready\u2026") + '</span></div>';
+  } else if (f.state === "pick") {
+    const locked = f.lock[s];
+    body = (f.mode === "rolled" && f.roll ? '<div class="ffdice"><div><small>YOUR DICE</small><p>' + ffDiceHTML(f.roll[s]) + '</p></div><div><small>ENEMY DICE</small><p>' + ffDiceHTML(f.roll[o]) + '</p></div></div>' : '') +
+      (locked
+        ? '<div class="ffmsg"><b>\u{1F512} ' + FF_ITEMS[q.ffPick || "none"].n + ' locked in</b><span>' + (f.lock[o] ? "Both locked \u2014 revealing\u2026" : "Waiting for the enemy to choose\u2026") + '</span><button class="btn" onclick="ffUnpick()">Change</button></div>'
+        : '<div class="ffmsg"><b>Choose your item \u2014 blind</b><span>' + (f.lock[o] ? "\u{1F512} The enemy has locked in." : "The enemy is choosing\u2026") + '</span></div><div class="ffitems">' + itemBtns() + '</div>');
+  } else if (f.state === "reveal") {
+    const rkey = f.id + ":" + f.seg + ":" + f.round;
+    const counted = ffShown[rkey];
+    if (!counted) {
+      body = '<div class="ffcount"><b>3</b></div>';
+      ffShown[rkey] = "counting";
+      [2, 1].forEach((n, k) => setTimeout(() => { const c = document.querySelector("#ffx .ffcount b"); if (c) c.textContent = n; }, (k + 1) * 550));
+      setTimeout(() => {
+        ffShown[rkey] = "done";
+        const res = ffApply(f);
+        ffLastSig = "";
+        renderFF();
+        if (res) { ffPlay(res.fx); if (res.cas) setTimeout(() => sqCasualtyPicker(Math.min(res.cas, sqAlive(CUR.st)), "Firefight: " + res.cas + " casualt" + (res.cas === 1 ? "y" : "ies") + "."), 900); }
+      }, 1700);
+    } else if (counted === "done") {
+      const my = f.reveal[s], foe = f.reveal[o], iReady = !!f.ready[s];
+      body = '<div class="ffreveal"><div class="ffcard mine it-' + my + '"><small>YOU</small><b>' + FF_ITEMS[my].i + '</b><span>' + FF_ITEMS[my].n + '</span></div>' +
+        '<div class="ffvs">VS</div><div class="ffcard foe it-' + foe + '"><small>ENEMY</small><b>' + FF_ITEMS[foe].i + '</b><span>' + FF_ITEMS[foe].n + '</span></div></div>' +
+        (f.mode === "rolled" && f.roll ? '<div class="ffdice"><div><small>YOUR DICE</small><p>' + ffDiceHTML(f.roll[s]) + '</p></div><div><small>ENEMY DICE</small><p>' + ffDiceHTML(f.roll[o]) + '</p></div></div>' : '') +
+        '<div class="ffres">' + (q.res || []).map(t => '<p' + (/COUNTERED/.test(t) ? ' class="cnt"' : '') + '>' + t + '</p>').join("") + '</div>' +
+        (f.mode === "physical" ? '<div class="ffadj"><span>Casualties from your dice:</span><button class="btn" onclick="sqPip()">\u2620 Record casualty</button>' +
+          '<span>Suppressed next round</span><span class="sqstep"><button onclick="qrSet(\'next\',-1)">\u2212</button><b>' + q.next + '</b><button onclick="qrSet(\'next\',1)">+</button></span></div>' : '') +
+        '<div class="ffrow"><button class="btn big ' + (iReady ? "ready" : "pri") + '" onclick="' + (iReady ? "ffUnready()" : "ffReady()") + '">' +
+          (iReady ? "\u2713 READY \u2014 tap to wait" : f.round >= 4 ? "READY \u2014 finish the segment" : "READY FOR ROUND " + (f.round + 1)) + '</button></div>' +
+        '<span class="ffwho">' + (f.ready[o] ? "\u2713 The enemy is ready" : "The enemy is adjusting\u2026") + '</span>';
+    } else body = '<div class="ffcount"><b>\u2026</b></div>';
+  } else if (f.state === "end") {
+    const ob = f.obj;
+    body = '<div class="ffmsg"><b>Segment ' + f.seg + ' complete</b><span>Both squads still standing? Roll the Objective Clash to see who secures the objective.</span>' +
+      (ob ? '<div class="ffobj ' + (ob.win === s ? "win" : "lose") + '"><b>' + ob[s] + ' vs ' + ob[o] + '</b><span>' + (ob.win === s ? "Your squad secures the objective" : "The enemy secures the objective") + '</span></div>' : '') +
+      '<div class="ffrow wrap"><button class="btn big pri" onclick="ffObjective()">Objective Clash (2d6 + HP)</button>' +
+      '<button class="btn" onclick="ffSegment(false)">New 4-round segment</button>' +
+      '<button class="btn" onclick="ffSegment(true)">\u2726 Forced Re-Engagement</button>' +
+      '<button class="btn" onclick="ffEnd()">End firefight</button></div></div>';
+  }
+  box.innerHTML = '<div class="ffpanel">' +
+    '<div class="ffhead"><b>\u2694 FIREFIGHT</b><span class="ffpips">' + pips + '</span><span class="ffmode">' + (f.mode === "rolled" ? "ROLLED DICE" : f.mode === "physical" ? "PHYSICAL DICE" : "") + (f.seg > 1 ? " \u00b7 SEGMENT " + f.seg : "") + '</span>' +
+      '<button class="btn sm" onclick="ffPause()">\u23F8 Pause</button></div>' +
+    '<div class="ffsides"><div class="ffside me"><small>YOUR SQUAD</small><b>' + myLabel + '</b><em>' + alive + ' / 8 \u00b7 FP ' + FIREPOWER(alive) + (q.supp ? ' \u00b7 ' + q.supp + ' suppressed' : '') + '</em>' +
+      '<span class="ffinv">' + ["fb", "sm", "gr"].map(k => FF_ITEMS[k].i + "\u00d7" + q.items[k]).join("  ") + '</span></div>' +
+      '<div class="ffside foe"><small>ENEMY SQUAD</small><b>' + foeLabel + '</b><em>' + enemyAlive + ' / 8</em><span class="ffinv">items hidden</span></div></div>' +
+    (!otherHere ? '<div class="ffpause">\u23F8 The enemy player has stepped away \u2014 a teammate of theirs can resume the firefight.</div>' : '') +
+    '<div class="ffbody">' + body + '</div></div>';
+}
+// invites on the defending team, and a challenger's declined notice
+function renderFFInvites() {
+  let bar = $("ffinv");
+  const t = mpTeamMode() ? mpMyTeam() : null;
+  const inv = t ? ffAll().filter(f => f.state === "invite" && f.b.team === t) : [];
+  const declined = t ? ffAll().filter(f => f.state === "declined" && f.a.team === t && f.a.pid === mp.pid && !ffShown["dec:" + f.id]) : [];
+  declined.forEach(f => { ffShown["dec:" + f.id] = 1; mpToast("The enemy declined the firefight with your " + f.a.label + "."); });
+  if (!inv.length) { if (bar) bar.remove(); return; }
+  if (!bar) { bar = document.createElement("div"); bar.id = "ffinv"; document.body.appendChild(bar); }
+  const html = inv.map(f => '<div class="ffinvrow"><b>\u2694 ' + (mpNameOf(f.a.pid) || "The enemy") + '\u2019s ' + f.a.label + ' challenges your ' + f.b.label + '</b>' +
+    '<span><button class="btn sm pri" onclick="ffAccept(\'' + f.id + '\')">Accept</button><button class="btn sm" onclick="ffDecline(\'' + f.id + '\')">Decline</button></span></div>').join("");
+  if (bar.innerHTML !== html) bar.innerHTML = html;
+}
+// the firefight card on a squad's Quick Resolve tab (online)
+function ffCardHTML() {
+  if (!mpTeamMode() || !CUR || !isSquad(U)) return "";
+  const f = ffForUid(CUR.uid, mpMyTeam());
+  if (!f) return '<div class="ffcta"><button class="btn big pri" onclick="ffChallenge()">\u2694 CHALLENGE AN ENEMY SQUAD</button>' +
+    '<span>Online firefight: blind item picks on each device, reveal together, optional rolled dice.</span></div>';
+  const s = ffSideOf(f), o = ffOther(s), mineNow = f[s].pid === mp.pid, someone = ffSidePidAlive(f, s);
+  return '<div class="ffcta live"><b>\u2694 In a firefight with the enemy ' + f[o].label + '</b><span>' +
+    (f.state === "invite" ? (s === "a" ? "Waiting for them to accept." : "Accept it from the banner at the top.") : f.state === "end" ? "Segment " + f.seg + " complete" : f.state === "mode" ? "Choosing dice" : "Round " + Math.min(4, f.round) + " of 4 \u00b7 segment " + f.seg) +
+    (someone && !mineNow ? " \u00b7 " + mpNameOf(f[s].pid) + " is running it" : "") + '</span>' +
+    (f.state !== "invite" || s === "a" ? '<button class="btn big pri" onclick="ffResume(\'' + f.id + '\')">' + (mineNow ? "Open the firefight" : someone ? "Take over" : "Resume") + '</button>' : '') + '</div>';
+}
 
 SHIP_UNITS.forEach(s => UNITS.push(s));
 GROUND_UNITS.forEach(g => UNITS.push(g));
@@ -10290,6 +10685,8 @@ async function mpSync() {
   if (sentEndReq) body.writes.endRequest = sentEndReq;
   if (sentAccept) body.writes.acceptEnd = sentAccept;
   if (sentLead) body.writes.passLead = sentLead;
+  const sentFF = (mp.ffOps || []).slice(0, 6);
+  if (sentFF.length) body.writes.ff = sentFF;
   if (sentSettings) body.writes.settings = sentSettings;
   const unitsSent = {};
   let teamSent;
@@ -10333,6 +10730,11 @@ async function mpSync() {
   if (sentSettings && mp.wantSettings === sentSettings) mp.wantSettings = null;
   rel.forEach(k => { mp.wantRelease.delete(k); mp.held.delete(k); });
   const denied = new Set(j.denied || []);
+  if (sentFF.length) {
+    mp.ffOps.splice(0, sentFF.length);
+    if (denied.has("ff:invite")) mpToast("That squad is already in a firefight.");
+    else if (denied.has("ff:gone")) mpToast("That firefight has already ended.");
+  }
   outbox.forEach(m => {
     const undo = mp.inboxUndo[m.id]; delete mp.inboxUndo[m.id];
     if (denied.has("inbox:" + m.to) && undo) undo();
@@ -11089,6 +11491,7 @@ function lobbyTeamFx(t) {
 
 // ---------- rendering on the roster / sheet ----------
 function mpRender() {
+  if (typeof renderFF === "function") try { renderFF(); } catch (e) { console.error(e); }
   const chip = $("mpChip");
   if (chip) {
     const st = !mp.code ? "off" : mp.status;
@@ -11167,6 +11570,7 @@ function renderOpp() {
       '<span class="opphp" style="background:' + HEALTH_COL(pct) + '"></span>' +
       portraitHTML(u).replace('</span>', markPipHTML(x) + '</span>') +
       '<span style="min-width:0"><div class="nm">' + label + (oppAboard.has(x.uid) ? ' <span class="cartag aboard">\u2693 ABOARD</span>' : '') +
+        (ffForUid(x.uid, t) ? ' <span class="fftag">\u2694 FIREFIGHT</span>' : '') +
         (ud && ud.st ? ' ' + stanceTagHTML(stanceNow({ id: x.id, st: ud.st })) : '') + '</div><div class="tr"><b style="color:' + HEALTH_COL(pct) + '">' + HEALTH_WORD(pct) + '</b> \u00b7 ' + u.tier + '</div></span>' +
       '<span class="dp">' + u.dp.toLocaleString() + '</span></div>';
   });
@@ -11325,7 +11729,8 @@ function renderRosterCore() {
         '<span style="min-width:0"><div class="nm">' + (u.short || u.name) + (n > 1 ? ' <span style="color:var(--muted)">#' + idx + '</span>' : '') +
           (ctl ? ' <span class="ctltag" title="' + (ctl.me ? 'You have this sheet open' : ctl.name + ' has this sheet open') + '">' + (ctl.me ? '\u270E You' : '\u{1F512} ' + ctl.name) + '</span>' : '') +
           (cst ? ' ' + carrierTag(r.uid) : '') + (locked ? ' ' + stanceTagHTML(stanceNow(r)) : '') +
-          (locked && needsRecheck(r) ? ' <span class="rechecktag">\u21BB RE-CHECK</span>' : '') + '</div>' +
+          (locked && needsRecheck(r) ? ' <span class="rechecktag">\u21BB RE-CHECK</span>' : '') +
+          (locked && mpTeamMode() && ffForUid(r.uid, mpMyTeam()) ? ' <span class="fftag">\u2694 FIREFIGHT</span>' : '') + '</div>' +
         '<div class="tr">' + (dead ? "DESTROYED" : (LIMB_LABEL[kl] || "Chest") + " " + now + "/" + tot) + ' \u00b7 ' + u.tier +
         (!dead && u.abilities.some(x => x.kind === "auto" && autoOn(x, u, r.st))
           ? ' <b style="color:#fff;background:#b91c1c;border-radius:3px;padding:0 5px;margin-left:4px">' + u.abilities.find(x => x.kind === "auto").name.split(" ")[0].toUpperCase() + '</b>' : '') +
@@ -11679,7 +12084,7 @@ function persist() {
   CUR.st.risk = risk;
   save();
 }
-function closeSheet() { persist(); if (mpTeamMode()) mpLeaveSheet(); renderRoster(); show("s3"); }
+function closeSheet() { persist(); if (mpTeamMode()) mpLeaveSheet(); renderRoster(); show("s3"); if (typeof renderFF === "function") renderFF(); }
 
 function wake(id) { if (swapMode && U && U.ring && /^l_/.test(id)) { draw(); return; } active = id; clearTimeout(timer); timer = setTimeout(() => { active = null; draw(); }, IDLE); draw(); }
 function el(t, c, s) { const e = document.createElement(t); if (c) e.className = c; if (s) Object.assign(e.style, s); return e; }
@@ -13487,7 +13892,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf52";
+const APP_BUILD = "cf53";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

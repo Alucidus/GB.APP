@@ -401,11 +401,17 @@ export class BattleRoom {
       push = true;
     }
 
-    // 8. reply with everything that changed since the caller's last view (never seat tokens)
+    // 7b. online Firefight (Quick Resolve over the link)
+    if (w.ff && myTeam) {
+      const ops = Array.isArray(w.ff) ? w.ff.slice(0, 6) : [w.ff];
+      for (const op of ops) { if (op && typeof op === "object" && await this.firefight(op, pid, myTeam, players, now, denied)) push = true; }
+    }
+
+    // 8. reply with everything that changed since the caller's last view (never seat tokens or secret picks)
     const known = body.known && typeof body.known === "object" ? body.known : {};
     const changes = {}, etags = {};
     for (const k of M.keys()) {
-      if (k.startsWith("pseat/")) continue;
+      if (k.startsWith("pseat/") || k.startsWith("ffsec/")) continue;
       const e = M.etag(k);
       etags[k] = e;
       if (known[k] !== e) changes[k] = M.get(k);
@@ -422,6 +428,113 @@ export class BattleRoom {
       leaders: this.leaders(this.players(), now), changes, etags, removed, denied,
       timing: { total: Date.now() - T0, list: 0, read: 0, write: 0, wrote: push, store: "cloudflare room" },
     }, { push });
+  }
+
+
+  // ---------- Firefight: one 1-v-1 clash between two squads ----------
+  // ff/<id>      public record (both teams see it)
+  // ffsec/<id>/<side>   a locked item pick — never sent to devices; revealed into ff/<id> once both sides have locked
+  async firefight(op, pid, myTeam, players, now, denied) {
+    const M = this.mem;
+    const ITEMS = ["none", "fb", "sm", "gr"];
+    const ACTIVE = s => s && s.state !== "closed" && s.state !== "declined";
+    const roll = n => [...crypto.getRandomValues(new Uint8Array(Math.max(0, Math.min(8, n | 0))))].map(x => 1 + (x % 6));
+    const d6 = () => 1 + (crypto.getRandomValues(new Uint8Array(1))[0] % 6);
+    const busy = uid => M.keys("ff/").some(k => { const f = M.get(k); return ACTIVE(f) && (f.a.uid === uid || f.b.uid === uid); });
+    for (const k of M.keys("ff/")) { const o = M.get(k); if (o && !ACTIVE(o) && now - (o.at || 0) > 60000) await M.del(k); }   // tidy finished clashes
+    const id = typeof op.id === "string" && /^[a-z0-9]{6,16}$/.test(op.id) ? op.id : null;
+    if (!id) { denied.push("ff:id"); return false; }
+    const key = "ff/" + id;
+    if (op.op === "invite") {
+      const other = myTeam === "federation" ? "spacenoid" : "federation";
+      if (M.has(key) || !validUid(op.aUid) || !validUid(op.bUid) || busy(op.aUid) || busy(op.bUid)) { denied.push("ff:invite"); return false; }
+      await M.set(key, { id, state: "invite", at: now, mode: null, rollAsk: null, round: 1, seg: 1,
+        a: { team: myTeam, uid: op.aUid, pid, label: String(op.aLabel || "").slice(0, 30) },
+        b: { team: other, uid: op.bUid, pid: null, label: String(op.bLabel || "").slice(0, 30) },
+        lock: { a: false, b: false }, ready: { a: null, b: null }, hp: { a: null, b: null }, reveal: null, roll: null, obj: null });
+      return true;
+    }
+    const f = M.get(key);
+    if (!f || !ACTIVE(f)) { denied.push("ff:gone"); return false; }
+    const side = f.a.team === myTeam ? "a" : f.b.team === myTeam ? "b" : null;
+    if (!side) { denied.push("ff:side"); return false; }
+    const other = side === "a" ? "b" : "a";
+    const g = JSON.parse(JSON.stringify(f));
+    const mine = g[side].pid === pid;
+    const save = async () => { g.at = now; await M.set(key, g); return true; };
+    switch (op.op) {
+      case "accept":
+        if (g.state !== "invite" || side !== "b") break;
+        g.b.pid = pid; g.state = "mode"; return save();
+      case "decline":
+        if (g.state !== "invite" || side !== "b") break;
+        g.state = "declined"; return save();
+      case "join":                                   // pick up a paused clash for my side
+        if (g.state === "invite" || (g[side].pid && players[g[side].pid] && now - (players[g[side].pid].seen || 0) < LEAVE_MS && g[side].pid !== pid)) break;
+        g[side].pid = pid; return save();
+      case "pause":
+        if (!mine) break;
+        g[side].pid = null; return save();
+      case "mode":
+        if (g.state !== "mode" || !mine) break;
+        if (op.pick === "physical") { g.mode = "physical"; g.rollAsk = null; g.state = "ready"; return save(); }
+        if (op.pick === "roll") {
+          if (g.rollAsk && g.rollAsk !== side) { g.mode = "rolled"; g.rollAsk = null; g.state = "ready"; return save(); }   // both asked
+          g.rollAsk = side; return save();
+        }
+        break;
+      case "modeAnswer":
+        if (g.state !== "mode" || !mine || !g.rollAsk || g.rollAsk === side) break;
+        g.mode = op.yes ? "rolled" : "physical"; g.rollAsk = null; g.state = "ready"; return save();
+      case "ready": {                               // start of a round (after adjusting casualties)
+        if (!mine || (g.state !== "ready" && g.state !== "reveal")) break;
+        const dice = Math.max(0, Math.min(8, op.dice | 0)), hp = Math.max(0, Math.min(8, op.hp | 0));
+        g.ready[side] = { dice, hp }; g.hp[side] = hp;
+        if (g.ready.a && g.ready.b) {
+          if (g.state === "reveal") g.round += 1;
+          g.reveal = null;
+          if (g.round > 4) { g.state = "end"; g.roll = null; }
+          else {
+            g.state = "pick"; g.lock = { a: false, b: false };
+            g.roll = g.mode === "rolled" ? { a: roll(g.ready.a.dice), b: roll(g.ready.b.dice), round: g.round } : null;
+          }
+          g.ready = { a: null, b: null };
+        }
+        return save();
+      }
+      case "unready":
+        if (!mine || !g.ready[side]) break;
+        g.ready[side] = null; return save();
+      case "pick":
+        if (g.state !== "pick" || !mine || !ITEMS.includes(op.item)) break;
+        await M.set("ffsec/" + id + "/" + side, op.item);
+        g.lock[side] = true;
+        if (g.lock.a && g.lock.b) {
+          const pa = M.get("ffsec/" + id + "/a") || "none", pb = M.get("ffsec/" + id + "/b") || "none";
+          await M.del("ffsec/" + id + "/a"); await M.del("ffsec/" + id + "/b");
+          g.reveal = { a: pa, b: pb, round: g.round, at: now }; g.state = "reveal";
+        }
+        return save();
+      case "unpick":
+        if (g.state !== "pick" || !mine || !g.lock[side]) break;
+        await M.del("ffsec/" + id + "/" + side); g.lock[side] = false; return save();
+      case "objective": {
+        if (g.state !== "end" || !mine) break;
+        const ha = g.hp.a || 0, hb = g.hp.b || 0;
+        let ra, rb, t = 0;
+        do { ra = d6() + d6() + Math.max(0, ha - hb); rb = d6() + d6() + Math.max(0, hb - ha); t++; } while (ra === rb && t < 20);
+        g.obj = { a: ra, b: rb, win: ra > rb ? "a" : "b", seg: g.seg }; return save();
+      }
+      case "segment":                               // another 4-round segment (re-engage / Forced Re-Engagement)
+        if (g.state !== "end" || !mine) break;
+        g.seg += 1; g.round = 1; g.state = "ready"; g.obj = null; g.ready = { a: null, b: null }; g.lock = { a: false, b: false };
+        g.forced = op.forced ? side : null; return save();
+      case "end":
+        await M.del("ffsec/" + id + "/a"); await M.del("ffsec/" + id + "/b");
+        g.state = "closed"; return save();
+    }
+    denied.push("ff:" + String(op.op).slice(0, 12));
+    return false;
   }
 
   async leave(body, R) {
