@@ -2217,6 +2217,65 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 .sq3-line{margin:0;text-align:center;font-size:.68em;line-height:1.3;color:#94a3b8}
 @media (max-width:1000px){.sq3 .sbub{width:4.6cqw;height:4.6cqw;min-width:40px;min-height:40px}.sq3 .sq2-bubs.four .sbub{width:3.9cqw;height:3.9cqw;min-width:34px;min-height:34px}
   .sq3-line{display:none}.sq3pg-t small{display:none}}
+
+/* ===== cf37: soldier card v3 ===== */
+.k-ap{--c:#a78bfa !important}
+.sq2-bubs.three .sbub{width:4.6cqw;height:4.6cqw}
+.sq2-bubs.five .sbub{width:3.55cqw;height:3.55cqw;min-width:36px;min-height:36px}
+.sq2-bubs.five .sbub-in{inset:.32cqw}
+.sq2-bubs.five .sbub-in b{font-size:clamp(11px,1.25cqw,18px)}
+.sq2-bubs.five .sbub small{font-size:clamp(5px,.52cqw,8px);letter-spacing:.06em}
+.sq3-stance{position:absolute;right:0;top:0;z-index:2;display:flex;flex-direction:column;align-items:center;gap:0;padding:.25cqw .5cqw;cursor:pointer;
+  font-size:clamp(12px,1.4cqw,20px);line-height:1;color:var(--f-acc);background:rgba(0,0,0,.6);border:1px solid var(--f-acc);
+  clip-path:polygon(.4cqw 0,100% 0,100% 100%,0 100%,0 .4cqw);-webkit-tap-highlight-color:transparent}
+.sq3-stance small{font:900 clamp(5px,.55cqw,8px) system-ui,sans-serif;letter-spacing:.12em;margin-top:.1cqw}
+.sq3-stance.on{color:#fff;border-color:#c4b5fd;background:linear-gradient(160deg,rgba(124,58,237,.9),rgba(30,12,60,.95))}
+.sq3-stance.on.st-stealth{border-color:#94a3b8;background:rgba(51,65,85,.95)}
+.sq3-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:.35cqw}
+.sq3b{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:3.3cqw;padding:.3cqw .2cqw;cursor:pointer;
+  color:#fff;background:linear-gradient(180deg,var(--f-panel),rgba(0,0,0,.7));border:1px solid var(--f-acc);
+  clip-path:polygon(.45cqw 0,100% 0,100% calc(100% - .45cqw),calc(100% - .45cqw) 100%,0 100%,0 .45cqw);-webkit-tap-highlight-color:transparent}
+.sq3b:active{filter:brightness(1.35)}
+.sq3b b{font:900 clamp(9px,1.05cqw,15px) system-ui,sans-serif;letter-spacing:.12em}
+.sq3b small{font-size:clamp(6px,.6cqw,9px);color:var(--f-mut);white-space:nowrap}
+.sq3b em{position:absolute;right:.2cqw;top:.1cqw;font:900 clamp(7px,.7cqw,11px) system-ui,sans-serif;font-style:normal;color:#facc15}
+.sq3b.fire{border-color:#f59e0b;background:linear-gradient(180deg,rgba(245,158,11,.35),rgba(0,0,0,.7))}
+.sq3b.dodge{border-color:#22c55e;background:linear-gradient(180deg,rgba(34,197,94,.25),rgba(0,0,0,.7))}
+.sq3b.off{opacity:.4}
+.sq3-undo{display:flex;justify-content:center;gap:.4cqw;min-height:1.3cqw}
+.sq3-undo button{cursor:pointer;font:800 clamp(7px,.65cqw,10px) system-ui,sans-serif;padding:0 .5cqw;color:var(--f-mut);background:transparent;border:1px dashed var(--f-line)}
+.sq3-swap{display:flex;flex-direction:column;align-items:center;gap:.05cqw;padding:.25cqw .4cqw;cursor:pointer;color:#e2e8f0;
+  background:rgba(0,0,0,.55);border:1px solid var(--f-line);-webkit-tap-highlight-color:transparent}
+.sq3-swap b{font:800 clamp(8px,.85cqw,13px) system-ui,sans-serif;color:#fff}
+.sq3-swap small{font-size:clamp(6px,.58cqw,9px);color:var(--f-mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.sq3-foot{display:flex;justify-content:center}
+.sq3-info{cursor:pointer;padding:.35cqw 2.4cqw;font:900 clamp(9px,1cqw,14px) system-ui,sans-serif;letter-spacing:.2em;color:var(--f-acc);
+  background:rgba(4,8,14,.85);border:1px solid var(--f-acc);clip-path:polygon(.7cqw 0,calc(100% - .7cqw) 0,100% 100%,0 100%)}
+.sq3 .sq3-name{padding:.15cqw 0}
+/* weapon list + rules panel */
+.wcard{margin:6px 0;padding:10px 12px;cursor:pointer;background:linear-gradient(160deg,rgba(30,41,59,.85),rgba(8,12,18,.95));border:1px solid rgba(255,255,255,.14)}
+.wcard:hover{border-color:var(--acc)}
+.wcard.cur{border-color:var(--acc);box-shadow:inset 3px 0 0 var(--acc)}
+.wcard.thr{border-color:#a16207}
+.wcard.empty{opacity:.5}
+.wc-top{display:flex;align-items:center;gap:8px}
+.wc-top b{font-size:16px;color:#fff;margin-right:auto}
+.wc-top em{font-style:normal;font:800 10px system-ui,sans-serif;letter-spacing:.12em;padding:2px 7px;color:#0b0f14;background:#94a3b8}
+.wc-top em.on{background:var(--acc)}
+.wc-top em.thr{background:#facc15}
+.wc-top em.n{background:transparent;color:#facc15;font-size:14px}
+.wc-stats{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.wc-stats span{display:flex;flex-direction:column;padding:3px 8px;background:rgba(0,0,0,.4);font-weight:700;font-size:13px;color:#e2e8f0}
+.wc-stats small{font:800 9px system-ui,sans-serif;letter-spacing:.14em;color:var(--muted)}
+.wcard p{margin:6px 0 0;font-size:12.5px;color:#cbd5e1;line-height:1.35}
+details.gr{margin:6px 0;background:rgba(8,12,18,.9);border:1px solid rgba(255,255,255,.14)}
+details.gr summary{cursor:pointer;padding:10px 12px;font:900 13px system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--acc)}
+details.gr>div{padding:0 12px 10px}
+details.gr p{margin:6px 0;font-size:13px;line-height:1.45;color:#cbd5e1}
+.grt{width:100%;border-collapse:collapse;margin:6px 0;font-size:12.5px}
+.grt th{text-align:left;padding:4px 6px;color:var(--muted);font-size:10px;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.2)}
+.grt td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.08);color:#e2e8f0}
+@media (max-width:1000px){.sq2-bubs.three .sbub{width:4cqw;height:4cqw;min-width:36px;min-height:36px}.sq3b small,.sq3-swap small{display:none}.sq3-undo{min-height:0}}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -8410,6 +8469,7 @@ function sqMigrate(u, st) {
   if (!st.sq || !Array.isArray(st.sq.soldiers) || st.sq.soldiers.length !== 8) st.sq = f.sq;
   ["shield", "items", "eq", "qr"].forEach(k => { if (!st.sq[k]) st.sq[k] = f.sq[k]; });
   if (!st.sq.qr.items) st.sq.qr.items = f.sq.qr.items;
+  st.sq.soldiers.forEach(x => sqSoldierFix(x));
   if (typeof st.ap !== "number") st.ap = u.ap;
   ["track", "wpn", "sh", "shMax", "shDown", "lent"].forEach(k => { if (!Array.isArray(st[k])) st[k] = []; });
   st.dodges = 0;
@@ -8687,26 +8747,32 @@ function drawSquad() {
         '<span class="sq3pg-t"><b>' + P.t + '</b><small>' + up + ' / 4 standing</small></span></button>';
     }).join("") + '</div>';
     h += '<div class="sq3grid">' + PAGES[page].idx.map(i => {
-      const s = S.soldiers[i], R = sqRole(s.r), down = s.hp <= 0;
-      let bubs = bub(s.hp, 6, "hp", "HP", "sqSoldier(" + i + ",'hp')") + bub(s.kev, 6, "kev", "KEVLAR", "sqSoldier(" + i + ",'kev')");
-      if (R.shield) {
-        const SH = S.shield[s.r];
-        bubs += bub(SH.a, 3, "ar", "ARMOR", "sqSoldier(" + i + ",'sha')") + bub(SH.h, 6, "sh", "SHIELD", "sqSoldier(" + i + ",'shh')");
-      }
-      let acts = "";
-      if (R.shield) acts += '<button class="sact swap" onclick="sqSoldier(' + i + ',\'swap\')"><b>\u21C4 ' + R.swap[S.eq[s.r] || 0] + '</b><small>swap \u00b7 1 AP</small></button>';
-      if (R.items) Object.keys(R.items).forEach(k => {
-        const n = S.items[k];
-        acts += '<button class="sact item' + (n ? '' : ' empty') + '" onclick="sqSoldier(' + i + ',\'item\',\'' + k + '\')" title="' + SQ_ITEM[k].note + '">' +
-          '<b>' + SQ_ITEM[k].icon + ' ' + SQ_ITEM[k].name.replace(" Launcher", "").replace(" Grenade", "") + '</b><small>' + (mode === "repair" ? 'tap: +1' : n ? 'tap to use' : 'none left') + '</small><em>\u00d7' + n + '</em></button>';
-      });
+      const s = S.soldiers[i], R = sqRole(s.r), down = s.hp <= 0, W = SW[s.w];
+      const sst = s.stealth ? "stealth" : stanceOf({ stance: s.stance });
+      const bubs = bub(s.ap, 3, "ap", "AP", "sqAct(" + i + ",'ap')") + bub(s.hp, 6, "hp", "HP", "sqSoldier(" + i + ",'hp')") + bub(s.kev, 6, "kev", "KEVLAR", "sqSoldier(" + i + ",'kev')") +
+        (R.shield ? bub(S.shield[s.r].a, 3, "ar", "ARMOR", "sqSoldier(" + i + ",'sha')") + bub(S.shield[s.r].h, 6, "sh", "SHIELD", "sqSoldier(" + i + ",'shh')") : "");
+      const mv = sqCnt(s, "mv"), dg = sqCnt(s, "dg"), fr = sqCnt(s, "fr");
+      const noFire = W.none || (W.charge && S.items[W.charge] < 1) || s.ap < W.ap;
+      const kit = ROLE_KIT[s.r];
+      const extras = (kit.t || []).map(k => SW_THROW[k].name.split(" ")[0] + " \u00d7" + S.items[k]).concat(W.charge ? [W.name.split(" ")[0] + " \u00d7" + S.items[W.charge]] : []).join(" \u00b7 ");
       return '<div class="sq3' + (down ? ' down' : '') + '">' +
-        '<div class="sq3-art"><span class="sq3-role">' + R.name.toUpperCase() + '</span><img src="img/ground/' + u.sk + '-' + s.r + '.webp" alt="">' + (down ? '<span class="sq3-kia">KIA</span>' : '') + '</div>' +
-        '<div class="sq3-name"><b>' + sqLabel(st, i) + '</b><em>' + R.wpn + '</em></div>' +
-        '<div class="sq2-bubs' + (R.shield ? ' four' : '') + '">' + bubs + '</div>' +
-        '<div class="sq2-acts">' + acts + '</div>' +
-        '<p class="sq3-line">' + R.line + '</p></div>';
-    }).join("") + '</div>';
+        '<div class="sq3-art"><span class="sq3-role">' + R.name.toUpperCase() + '</span>' +
+          '<button class="sq3-stance' + (sst ? ' on st-' + sst : '') + '" onclick="sqStances(' + i + ')" title="Stance">' + (sst ? SOLDIER_STANCES[sst].icon + '<small>' + SOLDIER_STANCES[sst].name.toUpperCase() + '</small>' : '\u25C8<small>STANCE</small>') + '</button>' +
+          '<img src="img/ground/' + u.sk + '-' + s.r + '.webp" alt="">' + (down ? '<span class="sq3-kia">KIA</span>' : '') + '</div>' +
+        '<div class="sq3-name"><b>' + sqLabel(st, i) + '</b></div>' +
+        '<div class="sq2-bubs' + (R.shield ? ' five' : ' three') + '">' + bubs + '</div>' +
+        '<div class="sq3-btns">' +
+          '<button class="sq3b move' + (s.ap < 1 ? ' off' : '') + '" onclick="sqAct(' + i + ',\'move\')"><b>MOVE</b><small>10cm \u00b7 1 AP</small>' + (mv ? '<em>\u00d7' + mv + '</em>' : '') + '</button>' +
+          '<button class="sq3b dodge" onclick="sqAct(' + i + ',\'dodge\')"><b>DODGE</b><small>blast 4+ \u00b7 free</small>' + (dg ? '<em>\u00d7' + dg + '</em>' : '') + '</button>' +
+          '<button class="sq3b fire' + (noFire ? ' off' : '') + '" onclick="sqAct(' + i + ',\'fire\')"><b>FIRE</b><small>' + (W.none ? 'shield up' : W.react ? 'takedown' : W.ap + ' AP') + '</small>' + (fr ? '<em>\u00d7' + fr + '</em>' : '') + '</button>' +
+        '</div>' +
+        '<div class="sq3-undo">' +
+          (mv ? '<button onclick="sqAct(' + i + ',\'unmove\')">\u21B6 move</button>' : '') +
+          (dg ? '<button onclick="sqAct(' + i + ',\'undodge\')">\u21B6 dodge</button>' : '') + '</div>' +
+        '<button class="sq3-swap" onclick="sqWeapons(' + i + ')"><b>\u21C4 ' + W.name + '</b><small>' + (W.none ? 'no attack' : [W.dice, W.range, W.hit].filter(v => v && v !== "\u2014").join(' \u00b7 ')) + (extras ? ' \u00b7 ' + extras : '') + '</small></button>' +
+      '</div>';
+    }).join("") + '</div>' +
+    '<div class="sq3-foot"><button class="sq3-info" onclick="sqRules()">\u24D8 GROUND RULES</button></div>';
   } else {
     const myN = qrDice(alive, q.supp), foeN = qrDice(q.foeHp, q.foeSupp);
     const opt = (side, k, lab) => '<button class="qrit' + (q[side] === k ? ' on' : '') + (side === "my" && k !== "none" && q.items[k] < 1 ? ' off' : '') + '" onclick="qrSet(\'' + side + '\',\'' + k + '\')">' + lab + '</button>';
@@ -8902,6 +8968,211 @@ function openVehicleDisembark(vr) {
   };
   drawV();
 }
+
+// ---------- soldier card v3 (cf37): AP / MOVE / DODGE / FIRE / weapon list / per-soldier stance ----------
+const SW = {
+  rifle:  { name: "Rifle",           ap: 1, dice: "3d6", range: "60cm",           hit: "3+",            dmg: "1 (2 on a 6)" },
+  mg:     { name: "Machine Gun",     ap: 2, dice: "8d6", range: "60cm",           hit: "4+",            dmg: "1 (2 on a 6)" },
+  sniper: { name: "Sniper Rifle",    ap: 2, dice: "1d6", range: "30cm+ (no max)", hit: "3+ hit \u00b7 5+ crit", dmg: "4 \u00b7 8 on a crit", note: "No Kevlar save. The only weapon that reaches the far corners of a 1\u00d71m map." },
+  pistol: { name: "Pistol",          ap: 1, dice: "2d6", range: "under 30cm",     hit: "3+",            dmg: "1 (2 on a 6)", note: "The Sniper's backup inside 30cm." },
+  smg:    { name: "SMG",             ap: 1, dice: "3d6", range: "60cm",           hit: "4+",            dmg: "1 (2 on a 6)" },
+  shield: { name: "Riot Shield",     ap: 0, none: true, dice: "\u2014", range: "\u2014", hit: "\u2014", dmg: "3 Armor + 6 HP",
+            note: "Mobile cover: protects allies behind it along the shooter's line. Small arms can't damage its Armor \u2014 only Grenades and Rockets. A blast from the front is absorbed; flanks and rear bypass it. No attack while held." },
+  rocket: { name: "Rocket Launcher", ap: 2, charge: "rocket", dice: "\u2014", range: "60cm \u00b7 10cm radius", hit: "\u2014", dmg: "3 to everyone inside",
+            note: "No Dodge. Armour-piercing \u2014 damages vehicle Armor and shields. Friend or foe. Only 2 per Armor Unit." },
+  knife:  { name: "Knife",           ap: 0, react: true, dice: "1d6", range: "melee", hit: "3+ takedown", dmg: "takedown",
+            note: "When an enemy triggers Recon's Stealth reveal while the Knife is equipped: roll 3+ on 1d6 for a takedown. On a failure the target 'dodges' and may act freely. The attempt reveals Recon either way." },
+};
+const SW_THROW = {
+  nade:  { name: "Grenade",       ap: 1, range: "20cm throw \u00b7 10cm radius", dmg: "3 to everyone inside", note: "Friend or foe. Rolled Dodge 4+. Damages vehicle Armor and shields." },
+  flash: { name: "Flashbang",     ap: 1, range: "20cm throw \u00b7 10cm radius", dmg: "flash",
+           note: "Everyone inside chooses: turn away (free, back exposed, can't fire outside the new facing arc until turning back) or arm-block (4+ on 1d6)." },
+  smoke: { name: "Smoke Grenade", ap: 1, range: "20cm throw \u00b7 15cm radius", dmg: "cover", note: "Anyone shooting into or through the cloud needs a natural 6." },
+};
+const ROLE_KIT = {
+  rifleman: { w: ["rifle"] }, mg: { w: ["mg"], t: ["nade"] }, sniper: { w: ["sniper", "pistol"] },
+  armor: { w: ["shield", "rocket"] }, shield: { w: ["shield", "smg"], t: ["flash"] }, recon: { w: ["smg", "knife"], t: ["smoke"] },
+};
+const SOLDIER_STANCES = {
+  overwatch: { name: "Overwatch", icon: "\u{1F441}", cost: "1 AP", ap: 1, lasts: "until your next turn",
+               eff: "Watch a 10cm-wide line. Free reaction attack on an enemy that walks through it." },
+  peek:      { name: "Peek & Shoot", icon: "\u2316", cost: "WEAPON AP", lasts: "one shot",
+               eff: "Needs Cover. Your shot gets \u22121 to its hit number (Rifle 3+ \u2192 2+; Sniper hit 2+ / crit 4+). Return fire (only if the target faces you) needs +1 on every die." },
+  defense:   { name: "Defense", icon: "\u{1F6E1}", cost: "FREE", lasts: "until your next turn",
+               eff: "Protect an ally within 10cm: intercept an attack aimed at them and take the hit yourself (Block still works for the Armor Unit's shield)." },
+  stealth:   { name: "Stealth", icon: "\u25D0", cost: "TOGGLE", lasts: "until switched off", recon: true,
+               eff: "Recon becomes a marker (always visible). An enemy soldier within 10cm forces a reveal. Firing the SMG reveals you too." },
+};
+function sqSoldierFix(s) {
+  const kit = ROLE_KIT[s.r];
+  if (typeof s.ap !== "number") s.ap = 3;
+  if (!s.w || !kit.w.includes(s.w)) s.w = kit.w[0];
+  return s;
+}
+const sKey = () => turnKeyNow2();
+function sqCnt(s, k) { return s[k] && s[k].key === sKey() ? s[k].n : 0; }
+function sqBump(s, k, d) { const n = Math.max(0, sqCnt(s, k) + d); s[k] = { key: sKey(), n }; return n; }
+window.sqAct = (i, what, arg) => {
+  if (!CUR || !isSquad(U) || !mpSheetCanEdit()) return;
+  const st = CUR.st, S = st.sq, s = sqSoldierFix(S.soldiers[i]), uid = CUR.uid, who = sqLabel(st, i), rep = mode === "repair";
+  if (s.hp <= 0 && what !== "ap") { mpToast(who + " is down."); return; }
+  const soldierStance = () => stanceOf({ stance: s.stance });
+  if (what === "ap") { s.ap = Math.max(0, Math.min(3, s.ap + (rep ? 1 : -1))); }
+  else if (what === "move") {
+    if (s.ap < 1) { mpToast(who + " has no AP left."); return; }
+    s.ap -= 1; const n = sqBump(s, "mv", 1);
+    qaLog(uid, "sq:mv" + i, n, who + " moved " + n + "\u00d7 (" + (n * 10) + "cm)");
+  } else if (what === "unmove") {
+    if (!sqCnt(s, "mv")) return;
+    s.ap = Math.min(3, s.ap + 1); const n = sqBump(s, "mv", -1);
+    qaLog(uid, "sq:mv" + i, n, who + " moved " + n + "\u00d7 (" + (n * 10) + "cm)");
+  } else if (what === "dodge") {
+    const n = sqBump(s, "dg", 1);
+    qaLog(uid, "sq:dg" + i, n, who + " \u2014 blast dodge roll" + (n > 1 ? "s: " + n : "") + " (4+ on 1d6)");
+    mpToast("Blast dodge: 4+ on 1d6. Rockets and Bombing Runs can't be dodged; bullets can't be dodged (Cover only).");
+  } else if (what === "undodge") {
+    if (!sqCnt(s, "dg")) return;
+    const n = sqBump(s, "dg", -1);
+    qaLog(uid, "sq:dg" + i, n, who + " \u2014 blast dodge roll" + (n > 1 ? "s: " + n : "") + " (4+ on 1d6)");
+  } else if (what === "fire") {
+    const W = SW[s.w];
+    if (W.none) { mpToast(who + " is holding the Riot Shield \u2014 swap weapons (1 AP) to attack."); return; }
+    if (stanceOf(st) === "hide") { mpToast("The squad is in Hide Stance \u2014 no attacks this turn."); return; }
+    if (W.charge && S.items[W.charge] < 1) { mpToast("No " + W.name + " rounds left."); return; }
+    if (s.ap < W.ap) { mpToast(W.name + " needs " + W.ap + " AP."); return; }
+    s.ap -= W.ap;
+    if (W.charge) S.items[W.charge] -= 1;
+    if (s.stealth && s.w === "smg") { s.stealth = false; logEv(uid, who + " revealed by firing", "info"); }
+    const n = sqBump(s, "fr", 1);
+    logEv(uid, who + (W.react ? " attempts a knife takedown (3+)" : " fired the " + W.name + (W.ap ? " (" + W.ap + " AP)" : "")) + (W.charge ? " \u2014 " + S.items[W.charge] + " left" : ""), "info");
+  } else if (what === "throw") {
+    const T = SW_THROW[arg];
+    if (stanceOf(st) === "hide") { mpToast("The squad is in Hide Stance \u2014 no attacks this turn."); return; }
+    if (S.items[arg] < 1) { mpToast("No " + T.name + " left."); return; }
+    if (s.ap < T.ap) { mpToast("Throwing needs " + T.ap + " AP."); return; }
+    s.ap -= T.ap; S.items[arg] -= 1;
+    logEv(uid, who + " threw a " + T.name + " (1 AP) \u2014 " + S.items[arg] + " left", "buff");
+    closePicker();
+  } else if (what === "swap") {
+    if (arg === s.w) { closePicker(); return; }
+    if (s.ap < 1) { mpToast("Switching weapons costs 1 AP."); return; }
+    s.ap -= 1; s.w = arg;
+    logEv(uid, who + " switched to the " + SW[arg].name + " (1 AP)", "info");
+    closePicker();
+  } else if (what === "stance") {
+    const D = SOLDIER_STANCES[arg];
+    if (arg === "peek") { closePicker(); showNotice("Peek & Shoot", D.eff + "\n\nIt costs the weapon's own AP \u2014 use FIRE as normal."); return; }
+    if (turn.phase !== "you") { mpToast("Stances are declared on your own turn."); return; }
+    if (arg === "stealth") { s.stealth = !s.stealth; if (s.stealth) s.stance = null; logEv(uid, who + (s.stealth ? " goes stealthed (marker)" : " is revealed"), "info"); closePicker(); sqCommit(); return; }
+    if (s.stealth) { mpToast("Stealth never combines with another stance \u2014 reveal first."); return; }
+    const cur = soldierStance();
+    if (cur === arg) {
+      if (D.ap && s.stance.key === sKey()) s.ap = Math.min(3, s.ap + D.ap);
+      s.stance = null; logEv(uid, who + " drops " + D.name, "info"); closePicker(); sqCommit(); return;
+    }
+    const refund = cur && SOLDIER_STANCES[cur].ap && s.stance.key === sKey() ? SOLDIER_STANCES[cur].ap : 0;
+    if ((D.ap || 0) > s.ap + refund) { mpToast(D.name + " needs " + D.ap + " AP."); return; }
+    s.ap = s.ap + refund - (D.ap || 0);
+    s.stance = { k: arg, r: turn.round, key: sKey() };
+    logEv(uid, who + " \u2014 " + D.name + (D.ap ? " (1 AP)" : ""), "buff");
+    closePicker();
+  }
+  sqCommit();
+};
+window.sqWeapons = i => {
+  if (!CUR || !isSquad(U)) return;
+  const st = CUR.st, S = st.sq, s = sqSoldierFix(S.soldiers[i]), kit = ROLE_KIT[s.r];
+  $("pickT").textContent = sqLabel(st, i) + " \u2014 weapons";
+  $("pickS").innerHTML = "Tap a weapon to switch to it (<b>1 AP</b>). Thrown items are used straight from here (<b>1 AP</b>, no switch needed). " + s.ap + " AP left.";
+  const lst = $("picklist"); lst.innerHTML = "";
+  const card = (title, W, onTap, badge, cls) => {
+    const d = el("div", "wcard" + (cls ? " " + cls : ""));
+    d.innerHTML = '<div class="wc-top"><b>' + title + '</b>' + badge + '</div>' +
+      '<div class="wc-stats">' + [["AP", W.ap], ["DICE", W.dice], ["RANGE", W.range], ["HIT", W.hit], ["DAMAGE", W.dmg]]
+        .filter(([, v]) => v !== undefined && v !== "\u2014").map(([k, v]) => '<span><small>' + k + '</small>' + v + '</span>').join("") + '</div>' + (W.note ? '<p>' + W.note + '</p>' : '');
+    d.onclick = onTap; lst.appendChild(d);
+  };
+  kit.w.forEach(k => {
+    const W = SW[k], cur = s.w === k;
+    card(W.name, W, () => sqAct(i, "swap", k),
+      (cur ? '<em class="on">EQUIPPED</em>' : '<em>SWITCH \u00b7 1 AP</em>') + (W.charge ? '<em class="n">\u00d7' + S.items[W.charge] + '</em>' : ''), cur ? "cur" : "");
+  });
+  (kit.t || []).forEach(k => {
+    const T = SW_THROW[k];
+    card(T.name + " \u00b7 thrown", T, () => sqAct(i, "throw", k), '<em class="thr">THROW \u00b7 1 AP</em><em class="n">\u00d7' + S.items[k] + '</em>', S.items[k] ? "thr" : "thr empty");
+  });
+  $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Close";
+  $("pick").classList.add("on");
+};
+window.sqStances = i => {
+  if (!CUR || !isSquad(U)) return;
+  const st = CUR.st, s = sqSoldierFix(st.sq.soldiers[i]);
+  const cur = s.stealth ? "stealth" : stanceOf({ stance: s.stance });
+  $("pickT").textContent = sqLabel(st, i) + " \u2014 stance";
+  $("pickS").innerHTML = "Detailed Battle Map stances. One at a time; Stealth never combines. Tap an active stance to drop it.";
+  const lst = $("picklist"); lst.innerHTML = "";
+  const grid = el("div", "stgrid");
+  Object.keys(SOLDIER_STANCES).forEach(k => {
+    const D = SOLDIER_STANCES[k];
+    if (D.recon && s.r !== "recon") return;
+    const c = el("button", "stcard st-" + k + (cur === k ? " on" : ""));
+    c.innerHTML = '<div class="stc-top"><span class="stc-ic">' + D.icon + '</span><b>' + D.name + '</b><em>' + D.cost + '</em></div>' +
+      '<div class="stc-when">' + (cur === k ? "\u2713 ACTIVE \u00b7 " : "") + D.lasts + '</div><p>' + D.eff + '</p>';
+    c.onclick = () => sqAct(i, "stance", k);
+    grid.appendChild(c);
+  });
+  lst.appendChild(grid);
+  $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Close";
+  $("pick").classList.add("on");
+};
+window.sqRules = () => {
+  const sec = (t, body, open) => '<details class="gr"' + (open ? ' open' : '') + '><summary>' + t + '</summary><div>' + body + '</div></details>';
+  const tbl = rows => '<table class="grt">' + rows.map((r, k) => '<tr>' + r.map(c => k ? '<td>' + c + '</td>' : '<th>' + c + '</th>').join("") + '</tr>').join("") + '</table>';
+  $("pickT").textContent = "\u24D8 Ground rules \u2014 Detailed Battle Map";
+  $("pickS").innerHTML = "Section 13.6 / 13.7 at a glance.";
+  $("picklist").innerHTML =
+    sec("Map, conversion & ranges",
+      tbl([["Map", "Use"], ["60\u00d760cm", "building interior, small room, tight urban fight"], ["1\u00d71m", "ship decks, hangars, big structures"]]) +
+      "<p>Each squad fields <b>8 soldier models</b>. Casualties convert 1:1 to Squad Health on the Overmap. Rifle, Machine Gun, SMG and Pistol are capped at <b>60cm</b>; the Sniper Rifle needs 30cm+ with no maximum. A full turn on this map is one round of soldier actions.</p>", true) +
+    sec("Soldier stats & squad",
+      tbl([["Stat", "Value"], ["AP", "3"], ["HP", "6"], ["Kevlar", "6 (separate pool)"], ["Movement", "10cm per AP"], ["Dodge", "none vs bullets (Cover only) \u00b7 4+ on 1d6 vs blasts"]]) +
+      tbl([["Role", "No.", "Weapon", "AP", "Range", "Hit", "Damage"],
+        ["Rifleman", "3", "Rifle 3d6", "1", "60cm", "3+", "1 (2 on a 6)"],
+        ["Machine Gunner", "1", "MG 8d6 + Grenade \u00d72", "2", "60cm", "4+", "1 (2 on a 6)"],
+        ["Sniper", "1", "Sniper Rifle 1d6", "2", "30cm+", "3+ / 5+ crit", "4 / 8"],
+        ["Sniper backup", "\u2014", "Pistol 2d6", "1", "under 30cm", "3+", "1 (2 on a 6)"],
+        ["Armor Unit", "1", "Riot Shield + Rocket \u00d72", "2 (rocket)", "60cm", "\u2014", "3 AoE"],
+        ["Shield Unit", "1", "Riot Shield + SMG 3d6 + Flashbang \u00d72", "1", "60cm", "4+", "1 (2 on a 6)"],
+        ["Recon", "1", "SMG 3d6 + Knife + Smoke \u00d72", "1", "60cm", "4+", "1 (2 on a 6)"]]) +
+      "<p><b>Switching weapons costs 1 AP</b> (Shield \u21C4 Rocket / SMG, Sniper \u21C4 Pistol, SMG \u21C4 Knife). <b>Thrown items cost 1 AP</b>; the <b>Rocket costs 2 AP</b>.</p>") +
+    sec("Kevlar & dodging blasts",
+      "<p><b>Kevlar:</b> on a regular hit (3\u20135, 1 damage) roll 1d6 \u2014 <b>4+</b> the vest takes it instead of HP. Criticals (6), Sniper fire, Grenades, Rockets and vehicle cannons ignore Kevlar. At 0 the vest is spent.</p>" +
+      "<p><b>Blast dodge:</b> any soldier inside an area attack may roll 1d6 \u2014 <b>4+</b> avoids it (Grenades, Strafe Runs, Tank Main Cannon, Hull-strike blasts). <b>Rockets and Bombing Runs can't be dodged.</b> Bullets can't be dodged at all \u2014 Cover is the only defence.</p>") +
+    sec("Shields",
+      "<p>Armor Unit and Shield Unit each carry a <b>Riot Shield (3 Armor + 6 HP)</b> that protects any ally behind it along the shooter's actual line of fire. Small arms can't touch its Armor; only Grenades and Rockets can. A Grenade or Rocket from the front is absorbed completely \u2014 but a 3-damage blast strips all 3 Armor, leaving the 6 HP open. <b>Flank or rear blasts bypass the shield.</b> Only the Armor Unit is melee-immune (the Shield Unit has no stab-proof vest). Two shields let a squad cover a front and a flank.</p>") +
+    sec("Items (charges refresh every new engagement)",
+      tbl([["Item", "Holder", "No.", "Range", "Effect"],
+        ["Grenade", "Machine Gunner", "2", "20cm throw \u00b7 10cm", "3 damage to everyone inside \u00b7 Dodge 4+"],
+        ["Rocket Launcher", "Armor Unit", "2", "60cm \u00b7 10cm", "3 damage to everyone inside \u00b7 no Dodge \u00b7 armour-piercing"],
+        ["Flashbang", "Shield Unit", "2", "20cm throw \u00b7 10cm", "turn away (free, back exposed) or arm-block 4+"],
+        ["Smoke Grenade", "Recon", "2", "20cm throw \u00b7 15cm", "shooting into / through it needs a natural 6"]]) +
+      "<p>All thrown items share a <b>20cm</b> maximum throw. Grenades damage vehicle Armor just like Rockets.</p>") +
+    sec("Recon: Knife & Stealth",
+      "<p><b>Knife</b> (equip 1 AP): when an enemy triggers Recon's Stealth reveal, roll <b>3+ on 1d6</b> for a takedown. On a failure the target dodges and may act freely; the attempt reveals Recon either way.</p>" +
+      "<p><b>Stealth:</b> Recon becomes a marker (always visible to both players). An enemy soldier within <b>10cm</b> forces a reveal; firing the SMG reveals too.</p>") +
+    sec("Stances (Detailed Map)",
+      "<p><b>Overwatch</b> \u2014 1 AP, watch a 10cm-wide line; free reaction attack on anyone who walks through before your next turn.</p>" +
+      "<p><b>Peek & Shoot</b> \u2014 needs Cover, costs the weapon's AP; your shot is \u22121 to its hit number (Sniper: hit 2+, crit 4+). Return fire (only if the target faces you) is free but +1 on every die (Sniper: hit 4+, crit 6+).</p>" +
+      "<p><b>Defense</b> \u2014 free, end of turn, until your next turn: intercept an attack aimed at an ally within 10cm (the Armor Unit may still Block with the shield).</p>") +
+    sec("Vehicles in a ground battle",
+      "<p>Vehicles use <b>Armor + HP</b> here. Rifle, Machine Gun, SMG, Pistol and Sniper can't damage Armor at all \u2014 only <b>Grenades and Rockets</b> can. Once Armor is 0, any weapon hurts the HP.</p>" +
+      tbl([["Vehicle", "Armor", "HP", "AP", "Move", "Weapons"],
+        ["Tank", "6", "18", "4", "15cm/AP", "Main Cannon 2 AP, 10cm AoE, 6 dmg, Dodge 4+, 1-turn cooldown \u00b7 MG 1 AP, 60cm, 8d6 at 3+"],
+        ["Car", "3", "8", "3", "25cm/AP", "MG 1 AP, 60cm, 8d6 at 3+ \u00b7 carries 1 squad"]]) +
+      "<p>Aircraft never land on this map: a Helicopter's <b>Strafe Run</b> (20\u00d710cm, 4 dmg, Dodge 4+) and a Jet's <b>Bombing Run</b> (10cm, 6 dmg, no Dodge, armour-piercing) arrive as charges. A squad hit by one may fire back with a Rocket.</p>");
+  $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Close";
+  $("pick").classList.add("on");
+};
 
 SHIP_UNITS.forEach(s => UNITS.push(s));
 GROUND_UNITS.forEach(g => UNITS.push(g));
@@ -12765,7 +13036,7 @@ function draw() {
   }
 }
 
-const APP_BUILD = "cf36";
+const APP_BUILD = "cf37";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
@@ -12776,7 +13047,7 @@ $("mRep").onclick = () => { mode = "repair"; document.body.classList.add("repair
 function advance(u, st) {
   if (isShip(u)) { shipAdvance(u, st); return; }
   if (isGround(u)) {
-    if (u.gtype === "squad") { sqMigrate(u, st); st.ap = sqAlive(st) === 1 ? 1 : u.ap; return; }
+    if (u.gtype === "squad") { sqMigrate(u, st); st.ap = sqAlive(st) === 1 ? 1 : u.ap; st.sq.soldiers.forEach(x => { sqSoldierFix(x); x.ap = x.hp > 0 ? 3 : 0; }); return; }
     gvAdvance(u, st); return;
   }
   // modes tick first, so a buff that runs out does not leak into the new turn

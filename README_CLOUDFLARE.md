@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf36)
+# Gunpla Battle — Cloudflare version (build cf37)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -104,3 +104,4 @@ public/            the app (index.html, images, service worker)
 | cf34 | `public/index.html`, `public/sw.js` | **Infantry Squads** (up to 4, free): 3-tab sheet — **Overmap** (squad health = living soldiers with a who-falls picker, AP, Hide, Coordinated Strike), **8 Soldiers** (HP / Kevlar / shields / swaps / items / KIA), **Quick Resolve** (rounds, firepower & suppression, item charges, blind call + reveal with the counter triangle, margin / volley tables, optional simulated dice, Objective Clash, Forced Re-Engagement, new segment / engagement). **Squads ride in vehicles** (Car 1, Heli 1, Transport 2): load step at Confirm, embark / disembark, Emergency Disembark when the vehicle is destroyed. Fix: ☢ on vehicles / squads |
 | cf35 | `public/index.html`, `public/sw.js` | 8 Soldiers tab rebuilt for touch: big tap bubbles (HP, Kevlar, shield Armor / HP) that apply the chosen DMG amount, large item and swap buttons, 2-column scrolling grid on phones. Ground Units tab: prominent vehicle-limit meter (8-slot bar) + per-type limit chips |
 | cf36 | `public/index.html`, `public/sw.js` | 8 Soldiers tab split into two pages of four (Riflemen & MG · Specialists) with page buttons showing faces and survivors; tall cards with large soldier art, role tag, KIA stamp, name bar, bubbles and gear buttons — no scrolling |
+| cf37 | `public/index.html`, `public/sw.js` | Soldier cards v3: AP bubble (3, refills each turn); MOVE (1 AP) / DODGE (free, blast 4+) / FIRE (current weapon's AP, uses Rocket charges) with counters + undo; ⇄ weapon button = switch (1 AP) + full weapon list with thrown items (1 AP each); per-soldier stance corner (Overwatch 1 AP, Peek & Shoot, Defense 10cm, Recon Stealth); ⓘ GROUND RULES panel (Section 13.6 / 13.7) |
