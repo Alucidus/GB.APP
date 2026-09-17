@@ -514,8 +514,9 @@ export class BattleRoom {
             const fp = hp => hp >= 7 ? 8 : hp >= 5 ? 7 : hp >= 3 ? 6 : hp >= 1 ? 5 : 0;
             const pool = (sd, mine, theirs) => {
               const p0 = (g.pool && g.pool[sd]) || { hp: 8, supp: 0 };
-              const supp = mine === "sm" && theirs !== "gr" ? 0 : p0.supp;
-              return p0.hp <= 0 ? 0 : p0.hp === 1 ? 1 : Math.max(fp(p0.hp) - supp, 2);
+              const supp = mine === "sm" && theirs !== "gr" ? 0 : p0.supp;          // my Smoke clears my set-aside dice
+              const flashed = theirs === "fb" && mine !== "sm" ? 3 : 0;               // their Flashbang takes 3 dice off THIS roll
+              return p0.hp <= 0 ? 0 : p0.hp === 1 ? 1 : Math.max(fp(p0.hp) - supp - flashed, 2);
             };
             g.roll = { a: roll(pool("a", pa, pb)), b: roll(pool("b", pb, pa)), round: g.round };
           }
