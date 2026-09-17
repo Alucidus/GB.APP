@@ -459,7 +459,7 @@ body.repair .amt .a.on{background:var(--okc);border-color:var(--okc);color:#0415
 #tblbody td{border-bottom:1px solid #1f2b35}
 
 /* sheet overlay buttons: uniform angular buttons, DONE right beside ROSTER */
-#rosterBtn,#tablesBtn,#doneBtn,#stanceBtn{position:absolute;top:auto;bottom:.8%;transform:none;z-index:40;box-sizing:border-box;
+#rosterBtn,#tablesBtn,#doneBtn,#stanceBtn,#rulesBtn{position:absolute;top:auto;bottom:.8%;transform:none;z-index:40;box-sizing:border-box;
   width:10.2cqw;height:3.7cqw;min-height:0;padding:0;display:flex;align-items:center;justify-content:center;
   border-radius:0;border:1px solid;font-size:clamp(9px,1.25cqw,17px);font-weight:900;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;
   background:linear-gradient(110deg,rgba(255,255,255,.10),rgba(8,13,19,.94) 60%);box-shadow:inset 0 0 1.4cqw rgba(0,0,0,.6);
@@ -467,7 +467,7 @@ body.repair .amt .a.on{background:var(--okc);border-color:var(--okc);color:#0415
 #rosterBtn{left:auto;right:1.5%}
 #doneBtn{left:auto;right:calc(1.5% + 10.8cqw)}
 #tablesBtn{left:1.5%;right:auto}
-#rosterBtn:active,#tablesBtn:active,#doneBtn:active,#stanceBtn:active{transform:translateY(1px);filter:brightness(.88)}
+#rosterBtn:active,#tablesBtn:active,#doneBtn:active,#stanceBtn:active,#rulesBtn:active{transform:translateY(1px);filter:brightness(.88)}
 #doneBtn.isdone{background:linear-gradient(110deg,#45e6a1,#23a873);border-color:#b7f7da;color:#03140c;box-shadow:inset 0 0 1.2cqw rgba(255,255,255,.25)}
 
 /* in-sheet chips and buttons get the same cut corners */
@@ -693,11 +693,11 @@ body.hud #sheet .apdrop .num{animation:apdrop .6s ease-out}
 #frame .fdock:before{content:"";position:absolute;left:50%;top:0;width:28%;height:.16cqw;transform:translateX(-50%);background:var(--f-acc);box-shadow:0 0 .6cqw var(--f-glow)}
 #frame .fdock.l{left:3.1%;width:11.8%}
 #frame .fdock.r{left:76.1%;width:20.8%}
-#rosterBtn,#tablesBtn,#doneBtn,#stanceBtn{width:9.6cqw;height:3.6cqw;bottom:1.3%;border:0 !important;background:none !important;box-shadow:none !important;
+#rosterBtn,#tablesBtn,#doneBtn,#stanceBtn,#rulesBtn{width:9.6cqw;height:3.6cqw;bottom:1.3%;border:0 !important;background:none !important;box-shadow:none !important;
   clip-path:none !important;isolation:isolate;color:var(--acc,#7dd3fc) !important;text-shadow:0 0 .5cqw var(--acc-glow,rgba(125,211,252,.5))}
-#rosterBtn:before,#tablesBtn:before,#doneBtn:before,#stanceBtn:before{content:"";position:absolute;inset:0;z-index:-2;background:var(--acc,#7dd3fc);
+#rosterBtn:before,#tablesBtn:before,#doneBtn:before,#stanceBtn:before,#rulesBtn:before{content:"";position:absolute;inset:0;z-index:-2;background:var(--acc,#7dd3fc);
   clip-path:polygon(0 .7cqw,.7cqw 0,calc(100% - 1.1cqw) 0,100% 1.1cqw,100% 100%,1cqw 100%,0 calc(100% - 1cqw))}
-#rosterBtn:after,#tablesBtn:after,#doneBtn:after,#stanceBtn:after{content:"";position:absolute;inset:.12cqw;z-index:-1;
+#rosterBtn:after,#tablesBtn:after,#doneBtn:after,#stanceBtn:after,#rulesBtn:after{content:"";position:absolute;inset:.12cqw;z-index:-1;
   background:linear-gradient(110deg,var(--acc-btn,#10304a),rgba(6,10,16,.97) 62%);
   clip-path:polygon(0 .64cqw,.64cqw 0,calc(100% - 1.04cqw) 0,100% 1.04cqw,100% 100%,.94cqw 100%,0 calc(100% - .94cqw))}
 #tablesBtn{left:3.4%;right:auto}
@@ -1396,7 +1396,7 @@ body.spa #oppBox .opphdr{border-image:linear-gradient(90deg,#38bdf8,transparent)
 #mpRO{position:absolute;inset:0;z-index:60;display:none;cursor:not-allowed;background:repeating-linear-gradient(-45deg,rgba(0,0,0,.0) 0 18px,rgba(255,255,255,.025) 18px 36px)}
 #mpROtag{position:absolute;left:50%;top:1.2%;transform:translateX(-50%);z-index:61;display:none;pointer-events:none;
   padding:.5cqw 1.6cqw;font:800 1.35cqw system-ui,sans-serif;letter-spacing:.08em;color:#fde68a;background:rgba(0,0,0,.82);border:1px solid #b45309}
-#sheet #rosterBtn,#sheet #tablesBtn,#sheet #stanceBtn{z-index:62}
+#sheet #rosterBtn,#sheet #tablesBtn,#sheet #stanceBtn,#sheet #rulesBtn{z-index:62}
 body.mpro #mDmg,body.mpro #mRep,body.mpro #amtBar,body.mpro #resetU{opacity:.35;pointer-events:none}
 .mpwait{font:800 13px system-ui,sans-serif;letter-spacing:.06em;color:var(--muted);padding:10px 14px;border:1px dashed var(--acc-line)}
 /* lobby */
@@ -2328,6 +2328,38 @@ ul.hl li{margin:4px 0;font-size:13px;line-height:1.45;color:#cbd5e1}
 .sq3.down .sq4-bars{opacity:.6}
 #sheet.sqcompact .sq3b{min-height:4.4cqw}
 @media (max-width:1000px){.sq4-bars{width:56%;top:2.6cqw}.sbar{padding:.2cqw .35cqw}.sq4-adj button{min-height:28px}}
+
+/* ===== cf44: sheet fits the screen; one-row top bar on phones ===== */
+#s4.on{min-height:100vh;min-height:100dvh}
+#s4 #sheet{margin:0 auto;max-width:100%}
+#tl{max-height:16vh;overflow-y:auto}
+@media (max-width:1000px){
+  #topbar{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;gap:5px;padding:4px 6px;scrollbar-width:none}
+  #topbar::-webkit-scrollbar{display:none}
+  #topbar>*{flex:none}
+  #topbar #umeta,#topbar #total{display:none}
+  #topbar .name{max-width:22vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+  #topbar .btn.sm{padding:4px 8px;font-size:11px}
+  #topbar .seg button{padding:4px 8px;font-size:11px}
+  #topbar .amt .a{min-width:22px;padding:3px 5px;font-size:11px}
+  #topbar .phase{font-size:10px;padding:3px 7px;letter-spacing:.06em}
+  #tl{max-height:14vh;padding:3px 8px 4px}
+  #tl .ev{font-size:10px;padding:2px 6px}
+}
+
+/* cf44: larger ship / vehicle table text and tap cells */
+#sheet .sx.sw-name b{font-size:clamp(9px,1.18cqw,17px)}
+#sheet .sx.sw-name span{font-size:clamp(7px,.8cqw,11px)}
+#sheet .sx.sw-cell{font-size:clamp(9px,1.12cqw,16px)}
+#sheet .sx.sw-cell.rng{font-size:clamp(8px,.98cqw,14px)}
+#sheet .sx.sw-ap{min-width:3cqw;padding:.3cqw .55cqw;font-size:clamp(9px,1.12cqw,16px)}
+#sheet .sx.sw-cd{font-size:clamp(8px,.95cqw,14px)}
+
+/* cf45: GROUND RULES in the bottom row (centred, on its own plate) */
+#rulesBtn{left:50%;right:auto;width:17cqw;transform:translateX(-50%);align-items:center;justify-content:center;letter-spacing:.14em}
+#rulesBtn:active{transform:translateX(-50%) translateY(1px)}
+#frame .fdock.c{left:39.3%;width:21.4%}
+#sheet.sqcompact .sx.sqwrap{height:81%}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -2597,7 +2629,7 @@ ul.hl li{margin:4px 0;font-size:13px;line-height:1.45;color:#cbd5e1}
   <div id="sheet"><div id="frame" aria-hidden="true"></div><div id="hudfx" aria-hidden="true"><i class="hs"></i></div><div id="dead"><div>DESTROYED</div></div>
     <div id="rosterBtn" onclick="openPicker()">ROSTER</div>
     <div id="doneBtn" style="display:none"></div><div id="helpBtn" onclick="openSheetHelp()" title="How this sheet works">?</div>
-    <div id="tablesBtn" onclick="openTables()">TABLES</div><div id="stanceBtn" onclick="openStances()">STANCE</div></div>
+    <div id="tablesBtn" onclick="openTables()">TABLES</div><div id="stanceBtn" onclick="openStances()">STANCE</div><div id="rulesBtn" onclick="sqRules()" style="display:none">&#x24D8;&nbsp;GROUND RULES</div></div>
   <div id="tl"></div>
 </section>
 
@@ -7544,7 +7576,7 @@ function buildShipFrame() {
 }
 function drawShip() {
   const u = U, st = shipMigrate(u, CUR.st), S = st.ship;
-  $("sheet").classList.remove("st-noattack", "sqcompact"); updateStanceBtn();
+  $("sheet").classList.remove("st-noattack", "sqcompact"); updateStanceBtn(); $("rulesBtn").style.display = "none";
   const boosting = stanceOf(st) === "boost";
   hp = st.hp; ap = st.ap; dodges = 0;
   const sheet = $("sheet");
@@ -8238,7 +8270,7 @@ function gvToggle(k, v) {
 }
 function drawGround() {
   const u = U, st = gvMigrate(u, CUR.st), G = st.gv;
-  $("sheet").classList.remove("st-noattack", "sqcompact"); updateStanceBtn();
+  $("sheet").classList.remove("st-noattack", "sqcompact"); updateStanceBtn(); $("rulesBtn").style.display = "none";
   const boosting = stanceOf(st) === "boost";
   hp = st.hp; ap = st.ap; dodges = 0;
   const sheet = $("sheet");
@@ -8738,7 +8770,7 @@ function buildSquadFrame() {
   add("fbreath"); add("fbreath b2"); add("fgrid");
   add("fb tl"); add("fb tr"); add("fb bl"); add("fb br");
   add("fstripe", { left: "36%", top: "1cqw" }); add("fstripe", { left: "27%", bottom: "1.2cqw" });
-  add("fdock l"); add("fdock r");
+  add("fdock l"); add("fdock r"); add("fdock c");
   add("fname fshipname"); add("flbl fsub", { left: "69.6%", top: "4.9%" }, "GROUND // INFANTRY");
   const cx = 94.3, cy = 10.6;
   add("fdial o", { left: cx + "%", top: cy + "%" }); add("fdial i", { left: cx + "%", top: cy + "%" }); add("fdial arc full", { left: cx + "%", top: cy + "%" });
@@ -8763,6 +8795,7 @@ function drawSquad() {
   $("dead").style.display = dead ? "flex" : "none";
   $("dead").firstElementChild.textContent = "WIPED OUT";
   const compact = S.tab !== "overmap";
+  $("rulesBtn").style.display = "flex";
   sheet.classList.toggle("sqcompact", compact);
   const box = el("div", "sx sqwrap"); sheet.appendChild(box);
   if (!compact) {
@@ -8850,7 +8883,7 @@ function drawSquad() {
         '<button class="sq3-swap" onclick="sqWeapons(' + i + ')"><b>\u21C4 ' + W.name + '</b><small>' + (W.none ? 'no attack' : [W.dice, W.range, W.hit].filter(v => v && v !== "\u2014").join(' \u00b7 ')) + (extras ? ' \u00b7 ' + extras : '') + '</small></button>' +
       '</div>';
     }).join("") + '</div>' +
-    '<div class="sq3-foot"><button class="sq3-info" onclick="sqRules()">\u24D8 GROUND RULES</button></div>';
+    '';
   } else {
     const myN = qrDice(alive, q.supp), foeN = qrDice(q.foeHp, q.foeSupp);
     const opt = (side, k, lab) => '<button class="qrit' + (q[side] === k ? ' on' : '') + (side === "my" && k !== "none" && q.items[k] < 1 ? ' off' : '') + '" onclick="qrSet(\'' + side + '\',\'' + k + '\')">' + lab + '</button>';
@@ -11138,7 +11171,14 @@ const LIMB_POS_RED = {
 const limbPos = bg => (bg === "red" || bg === "red360") ? LIMB_POS_RED : LIMB_POS_DEFAULT;
 const LIMB_ORDER = ["head", "chest", "rightArm", "leftArm", "rightLeg", "leftLeg"];
 const LIMB_LABEL = { head: "Head", chest: "Chest", rightArm: "Right Arm", leftArm: "Left Arm", rightLeg: "Right Leg", leftLeg: "Left Leg", hull: "Hull", hp: "HP" };
-const SKILL_Y = [24.6, 29.7, 34.7, 39.7, 44.1];
+const SKILL_Y = [19.7, 25.9, 32.1, 38.3, 44.5];
+// cf44: taller weapon rows — each weapon's stored row centre is moved onto the new grid (shield positions are left alone)
+const WEAP_Y_OLD = [68.55, 73.65, 78.7, 83.5, 88.1], WEAP_Y = [61.5, 68.1, 74.7, 81.3, 87.9];
+UNITS.forEach(u => (u.weapons || []).forEach(w => {
+  if (typeof w.y !== "number" || w.y < 60 || w.y > 92) return;
+  let k = 0; WEAP_Y_OLD.forEach((v, j) => { if (Math.abs(v - w.y) < Math.abs(WEAP_Y_OLD[k] - w.y)) k = j; });
+  w.y = WEAP_Y[k];
+}));
 const COL = { skillName: 7.3, skillAP: 25.8, skillCD: 35.5, wName: 7.3, wDmg: 25.8, wAP: 31.1, wRange: 37.7,
               nameX: 67.2, nameY: 11.7, dpX: 67.2, dpY: 17.2, moveX: 80.5, moveY: 38.5 };
 const SHEET_ACCENT = {
@@ -11245,8 +11285,8 @@ function buildFrame() {
   const mi = document.createElement("canvas"); mi.className = "fmech-in " + model; mw.appendChild(mi);
   paintMech(mi, model, sideKey());
   // section titles
-  add("fsec", { left: "22.6%", top: "5.2%" }, "<i></i>ABILITIES<i></i>");
-  add("fsec", { left: "22.6%", top: "51.8%" }, "<i></i>WEAPONS LIST<i></i>");
+  add("fsec", { left: "22.6%", top: "4.3%" }, "<i></i>ABILITIES<i></i>");
+  add("fsec", { left: "22.6%", top: "50.9%" }, "<i></i>WEAPONS LIST<i></i>");
   // tables
   const table = (x0, x1, y0, yh, rows, cols, heads, nums) => {
     const H = rows[rows.length - 1] - y0;
@@ -11257,10 +11297,10 @@ function buildFrame() {
     heads.forEach(([hx, txt]) => add("flbl fth", { left: pc(hx), top: pc((y0 + yh) / 2) }, txt));
     nums.forEach((y, i) => add("flbl fnum", { left: "4.3%", top: pc(y) }, String(i + 1)));
   };
-  table(3.4, 41.85, 18.9, 22.1, [18.9, 22.1, 27.2, 32.3, 37.4, 41.9, 46.4], [5.2, 23.0, 28.8],
+  table(3.4, 41.85, 12.6, 16.6, [12.6, 16.6, 22.8, 29.0, 35.2, 41.4, 47.6], [5.2, 23.0, 28.8],
     [[14.1, "SKILL"], [25.85, "AP"], [35.3, "COOLDOWN"]], SKILL_Y);
-  table(3.4, 41.75, 61.2, 66.0, [61.2, 66.0, 71.1, 76.2, 81.2, 85.8, 90.4], [5.2, 23.0, 28.65, 33.55],
-    [[14.1, "WEAPON NAME"], [25.8, "DMG"], [31.1, "AP"], [37.65, "RANGE"]], [68.55, 73.65, 78.7, 83.5, 88.1]);
+  table(3.4, 41.75, 54.2, 58.2, [54.2, 58.2, 64.8, 71.4, 78.0, 84.6, 91.2], [5.2, 23.0, 28.65, 33.55],
+    [[14.1, "WEAPON NAME"], [25.8, "DMG"], [31.1, "AP"], [37.65, "RANGE"]], WEAP_Y);
   // name panel
   add("fname"); add("flbl fsub", { left: "67.2%", top: "7.0%" }, "MOBILE SUIT //");
   // unit portrait in the name panel (blueprint silhouette until a portrait is added)
@@ -11296,7 +11336,7 @@ function buildFrame() {
   add("flbl fcap", { left: "88.6%", top: "86.3%" }, "\u25C8 " + (ring ? cov + "\u00b0 " : "") + "SHIELD COVERAGE");
   if (ring) [[80.91, 66.32], [93.8, 66.45], [80.97, 80.97], [93.8, 80.98]].forEach(([x, y]) => add("fbub", { left: pc(x), top: pc(y) }));
 }
-const WROW_X = 6.3, WROW_W = 35.4, WROW_H = 4.4, WPIP_X = 43.5, IDLE = 2500, LIMB_OFF = 4.8;
+const WROW_X = 6.3, WROW_W = 35.4, WROW_H = 5.8, WPIP_X = 43.5, IDLE = 2500, LIMB_OFF = 4.8;
 
 let amount = 1;
 const AMOUNTS = [1, 2, 3, 4, 5, 6, 10, 15];
@@ -11778,6 +11818,7 @@ function draw() {
   if (U && isShip(U)) { drawShip(); return; }
   if (U && isGround(U)) { if (isSquad(U)) drawSquad(); else drawGround(); return; }
   $("sheet").classList.remove("shipsheet");
+  $("rulesBtn").style.display = "none";
   $("sheet").classList.toggle("st-noattack", !!CUR && stanceOf(CUR.st) === "boost");
   $("sheet").classList.remove("sqcompact");
   updateStanceBtn();
@@ -11904,7 +11945,7 @@ function draw() {
   if (catapult) buffNotes.push("\u{1F680} CATAPULT LAUNCH \u2014 FREE BOOST, MAY ATTACK");
   if (stanceK === "boost") buffNotes.push("\u00BB BOOST STANCE \u2014 +10cm/AP \u00b7 NO ATTACKS THIS TURN");
   if (stanceK === "boost") {                                   // lay a lock over the weapons table
-    const lk = el("div", "txt stlock", { left: "3.4%", top: "66%", width: "38.35%", height: "24.4%" });
+    const lk = el("div", "txt stlock", { left: "3.4%", top: "58.2%", width: "38.35%", height: "33%" });
     lk.innerHTML = "<span>\u00BB BOOST \u2014 NO ATTACKS THIS TURN</span>";
     sheet.appendChild(lk);
   }
@@ -11941,7 +11982,7 @@ function draw() {
     eb.title = "Optical sensors glowing red \u2014 " + autoLive.name + " is running";
   }
   if (buffNotes.length) {
-    const bs = T(24, 14.4, buffNotes.join("   \u00b7   "), [4, 1.25, 16], "");
+    const bs = T(24, 9.3, buffNotes.join("   \u00b7   "), [4, 1.25, 16], "");
     bs.style.color = "#ede9fe";
     bs.style.fontWeight = "800";
     bs.style.background = "rgba(76,29,149,.92)";
@@ -11971,7 +12012,7 @@ function draw() {
   U.abilities.forEach((a, i) => {
     if (i >= SKILL_Y.length) return;
     const reqUnmet = abilityLocked(a, U.abilities, track);
-    const sn = T(COL.skillName, SKILL_Y[i], a.name, [4, 1.72, 24], "txtL", 15.2);
+    const sn = T(COL.skillName, SKILL_Y[i], a.name, [5, 2.0, 28], "txtL", 15.2);
     shrinkToFit(sn, 0.7);
     sn.style.pointerEvents = "auto"; sn.style.cursor = "pointer";
     if (reqUnmet) sn.style.opacity = ".45";
@@ -11993,7 +12034,7 @@ function draw() {
     const cost = fx.ap !== undefined ? fx.ap : (a.kind === "none" ? labelCost : undefined);
     const apTxt = a.apText ? a.apText : cost === "all" ? "All AP" : cost === 0 ? "Free"
       : (cost ? cost + " AP" : (a.kind === "none" ? "Free" : a.kind === "auto" ? "Auto" : a.kind === "matrix" ? "2 AP" : "\u2014"));
-    const ae = T(COL.skillAP, SKILL_Y[i], apTxt, [4, 1.6, 22], "", 5.3);
+    const ae = T(COL.skillAP, SKILL_Y[i], apTxt, [5, 1.9, 26], "", 5.3);
     shrinkToFit(ae, 0.7);
     if (reqUnmet) ae.style.opacity = ".45";
     skillAP[i] = ae;
@@ -12009,11 +12050,11 @@ function draw() {
       };
       ae.title = ap >= cost ? "Tap to use \u2014 spends " + cost + " AP" : "Not enough AP";
     }
-    if (a.kind === "none") shrinkToFit(T(COL.skillCD, SKILL_Y[i], a.cdText || "\u2014", [4, a.cdText ? 1.35 : 1.6, 22], "", 12), 0.7);
+    if (a.kind === "none") shrinkToFit(T(COL.skillCD, SKILL_Y[i], a.cdText || "\u2014", [5, a.cdText ? 1.55 : 1.9, 26], "", 12), 0.7);
   });
 
   U.weapons.forEach((w, wi) => {
-    const wn = T(COL.wName, w.y, w.name, [4, 1.72, 24], "txtL", 15.2);
+    const wn = T(COL.wName, w.y, w.name, [5, 2.0, 28], "txtL", 15.2);
     const paired = U.abilities.some((a, i) => a.kind === "matrix" && (mxOpt(a, track[i] && track[i].sel) || { weapons: [] }).weapons.indexOf(w.name) >= 0);
     if (paired) { wn.style.color = "#6d28d9"; wn.style.fontWeight = "900"; }
     shrinkToFit(wn, 0.7);
@@ -12028,11 +12069,11 @@ function draw() {
       w.text);
     const bi = w.boost ? U.abilities.findIndex(x => x.name === w.boost.when) : -1;
     const boosted = bi >= 0 && autoOn(U.abilities[bi], U, LIVE);
-    const wd = T(COL.wDmg, w.y, boosted ? w.boost.dmg : w.dmg, [4, 1.6, 22], "");
+    const wd = T(COL.wDmg, w.y, boosted ? w.boost.dmg : w.dmg, [5, 1.9, 26], "");
     if (boosted) { wd.style.color = "#6d28d9"; wd.style.fontWeight = "900"; wd.title = w.boost.note || ""; }
     wd.style.maxWidth = "5.2%"; shrinkToFit(wd, 0.62);        // long damage values stay inside the DMG column
-    weapAP[wi] = T(COL.wAP, w.y, w.ap, [4, 1.6, 22], "");
-    shrinkToFit(T(COL.wRange, w.y, w.range, [4, 1.45, 20], "", 9), 0.8);
+    weapAP[wi] = T(COL.wAP, w.y, w.ap, [5, 1.9, 26], "");
+    shrinkToFit(T(COL.wRange, w.y, w.range, [5, 1.7, 24], "", 9), 0.8);
   });
 
   U.abilities.forEach((a, i) => {
@@ -13184,7 +13225,18 @@ window.openSheetHelp = () => {
   $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Close";
   $("pick").classList.add("on");
 };
-const APP_BUILD = "cf43";
+// cf44: the 16:9 sheet always fits the screen (width follows the height left over by the top bar and timeline)
+function fitSheet() {
+  const s4 = $("s4"), sh = $("sheet");
+  if (!s4 || !sh || !s4.classList.contains("on")) return;
+  const avail = window.innerHeight - $("topbar").offsetHeight - $("tl").offsetHeight;
+  const full = s4.clientWidth || document.documentElement.clientWidth;
+  const w = Math.max(300, Math.min(full, Math.floor(avail * 16 / 9)));
+  if (sh.style.width !== w + "px") sh.style.width = w + "px";
+}
+window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
+window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
+const APP_BUILD = "cf45";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
@@ -13747,6 +13799,7 @@ function eventsHTML(uid, withNames) {
   return '<div class="evl">' + totHTML + evs.map(e => '<div class="ev ' + e.k + '">' + (withNames ? '<b>' + markPipFor(e.u) + unitLabel(e.u) + '</b>' : '') + '<span>' + e.t + '</span></div>').join("") + '</div>';
 }
 function renderTurn() {
+  setTimeout(fitSheet, 0);
   if (turnKeySeen === null && turn) turnKeySeen = turn.round + ":" + turn.phase;
   const you = turn.phase === "you";
   const label = you ? "YOUR TURN" : "ENEMY TURN";
