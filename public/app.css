@@ -3097,3 +3097,31 @@ button.mb-item.fxtog{font:inherit;color:#dfe9f4;background:none;border-top:0;bor
 /* cf90: status tags sit before the name; on narrow screens only their icon shows */
 .objtag b,.fftag b{font-weight:inherit}
 @media (max-width:1000px){ .objtag b,.fftag b{display:none} .objtag,.fftag{padding:1px 4px} }
+/* cf92: Quick Resolve resources panel (first on the tab) */
+.qrres{background:rgba(3,8,14,.85);border:1px solid var(--f-line);padding:.8cqw 1.2cqw;margin-bottom:.8cqw}
+.qrres h4{margin:0 0 .6cqw;font:900 1.25em system-ui,sans-serif;letter-spacing:.16em;color:var(--f-acc)}
+.qrres h4 small{font-weight:700;letter-spacing:.06em;color:var(--muted);margin-left:.6em;font-size:.72em}
+.qrr-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8cqw}
+.qrr-t{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"ic nm ct" "ic pp ct" "sm sm sm";align-items:center;column-gap:.8cqw;row-gap:.2cqw;
+  padding:.6cqw .9cqw;border:2px solid var(--f-acc);background:rgba(255,255,255,.05)}
+.qrr-t .ic{grid-area:ic;font-size:2.6em;line-height:1;color:#fff}
+.qrr-t .nm{grid-area:nm;font:900 1.2em system-ui,sans-serif;letter-spacing:.06em;color:#fff}
+.qrr-t .pp{grid-area:pp;display:flex;gap:.4cqw}
+.qrr-t .pp i{width:1.1em;height:1.1em;border:2px solid var(--f-acc);transform:rotate(45deg);display:block}
+.qrr-t .pp i.on{background:var(--f-acc)}
+.qrr-t .ct{grid-area:ct;font:900 1.35em system-ui,sans-serif;color:#fff;white-space:nowrap}
+.qrr-t small{grid-area:sm;color:var(--muted);font-size:.85em;line-height:1.25}
+.qrr-t.out{border-color:#ef4444;background:rgba(239,68,68,.1)}
+.qrr-t.out .ic,.qrr-t.out .nm{opacity:.6}
+.qrr-t.out .ct{color:#fca5a5}
+.qrr-t.out .pp i{border-color:#ef4444}
+@media (max-height:520px){ .qrr-t small{display:none} .qrr-t .ic{font-size:2em} }
+/* cf93: offline item tracker */
+.qrres h4{display:flex;align-items:center;flex-wrap:wrap;gap:.4em}
+.qrres .qrrefill{margin-left:auto;font-size:.7em;letter-spacing:.08em}
+.qrr-t.tap{cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
+.qrr-t.tap:active{transform:scale(.98)}
+.qrr-t.tap .pp i{width:1.5em;height:1.5em;cursor:pointer}
+.qrr-t .pp i.used{position:relative;border-color:var(--muted);opacity:.7}
+.qrr-t .pp i.used:before,.qrr-t .pp i.used:after{content:"";position:absolute;left:50%;top:50%;width:150%;height:2px;background:#ef4444;transform:translate(-50%,-50%) rotate(45deg)}
+.qrr-t .pp i.used:after{transform:translate(-50%,-50%) rotate(-45deg)}

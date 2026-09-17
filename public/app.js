@@ -1659,8 +1659,9 @@ function drawSquad() {
     }).join("") + '</div>' +
     '';
   } else {
+    h += qrResourcesHTML(S);
     h += ffCardHTML();
-    if (!mpTeamMode()) h += '<div class="ffcta"><b>Firefights are played online</b><span>Join or create a battle session from the main menu (PLAY ONLINE) to challenge enemy squads \u2014 both players pick items on their own device and reveal together.</span></div>';
+    if (!mpTeamMode()) h += '<div class="ffcta"><b>Playing face to face</b><span>Fight the firefight at the table and tap the items above as you use them. For blind picks on each device, start an online session (PLAY ONLINE).</span></div>';
     h += '<div class="qr2">' +
       '<div class="qr2c"><h4>HOW A FIREFIGHT ROUND WORKS</h4><ol>' +
         '<li><b>Pick an item in secret</b> \u2014 Flashbang, Smoke Grenade, Grenade or none \u2014 and lock it in.</li>' +
@@ -1678,6 +1679,59 @@ function drawSquad() {
   if (typeof mpSheetMode === "function") mpSheetMode();
   if (typeof renderFF === "function") renderFF();
 }
+
+// the squad's Quick Resolve items, shown first on the tab (so players know what's left after a fight)
+function qrResourcesHTML(S) {
+  const q = S.qr || {}, it = q.items || { fb: 2, sm: 1, gr: 1 };
+  const MAX = { fb: 2, sm: 1, gr: 1 };
+  const NAMES = { fb: ["Flashbang", "enemy rolls 3 fewer dice \u00b7 forces a re-engagement"], sm: ["Smoke Grenade", "clears your set-aside dice \u00b7 counters a forced re-engagement"], gr: ["Grenade", "1 enemy casualty"] };
+  const offline = !mpTeamMode();            // offline the fight happens at the table: the app just tracks what's used
+  const tile = k => {
+    const n = Math.max(0, it[k] || 0), m = MAX[k];
+    const pips = Array.from({ length: m }, (_, i) => offline
+      ? '<i class="' + (i < n ? 'on' : 'used') + '" role="button" title="' + (i < n ? 'Available' : 'Used \u2014 tap to restore') + '" onclick="event.stopPropagation();qrItemPip(\'' + k + '\',' + i + ')"></i>'
+      : '<i class="' + (i < n ? 'on' : '') + '"></i>').join("");
+    return '<div class="qrr-t' + (n ? '' : ' out') + (offline ? ' tap' : '') + '"' + (offline ? ' role="button" onclick="qrItemUse(\'' + k + '\')"' : '') + '><b class="ic">' + FF_ITEMS[k].i + '</b>' +
+      '<span class="nm">' + NAMES[k][0] + '</span><span class="pp">' + pips + '</span>' +
+      '<span class="ct">' + (n ? n + ' left' : 'none left') + '</span><small>' + (offline ? (n ? 'tap to use one' : 'all used \u2014 tap a crossed mark to restore') : NAMES[k][1]) + '</small></div>';
+  };
+  const f = mpTeamMode() && CUR ? ffForUid(CUR.uid, mpMyTeam()) : null;
+  const sub = offline ? 'tap an item when you use it' : f && f.state !== "queued" ? 'in the current firefight' : 'refill at the start of each new engagement';
+  return '<div class="qrres"><h4>QUICK RESOLVE RESOURCES <small>' + sub + '</small>' +
+    (offline ? '<button class="btn sm qrrefill" onclick="qrItemRefill()">\u21BA Refill all</button>' : '') + '</h4>' +
+    '<div class="qrr-g">' + ["fb", "sm", "gr"].map(tile).join("") + '</div></div>';
+}
+
+// offline item tracking
+const QR_MAX = { fb: 2, sm: 1, gr: 1 };
+function qrItems() {
+  const S = CUR.st.sq; S.qr = S.qr || {};
+  if (!S.qr.items) S.qr.items = { fb: 2, sm: 1, gr: 1 };
+  return S.qr.items;
+}
+window.qrItemUse = k => {
+  if (!CUR || !CUR.st || !CUR.st.sq) return;
+  const it = qrItems();
+  if (!(it[k] > 0)) return;
+  it[k] -= 1;
+  logEv(CUR.uid, FF_ITEMS[k].n + " used (" + it[k] + " left)", "info");
+  save(); draw();
+};
+window.qrItemPip = (k, i) => {
+  if (!CUR || !CUR.st || !CUR.st.sq) return;
+  const it = qrItems();
+  if (i < (it[k] || 0)) { window.qrItemUse(k); return; }          // an available mark: use one
+  it[k] = Math.min(QR_MAX[k], (it[k] || 0) + 1);                   // a crossed mark: restore one
+  logEv(CUR.uid, FF_ITEMS[k].n + " restored (" + it[k] + " left)", "info");
+  save(); draw();
+};
+window.qrItemRefill = () => {
+  if (!CUR || !CUR.st || !CUR.st.sq) return;
+  CUR.st.sq.qr = CUR.st.sq.qr || {};
+  CUR.st.sq.qr.items = { fb: 2, sm: 1, gr: 1 };
+  logEv(CUR.uid, "Items refilled for a new engagement", "info");
+  save(); draw();
+};
 
 // ---------- squads riding in vehicles (Car 1 · Helicopter 1 · Transport Ship 2) ----------
 const cargoVehicles = () => roster.filter(r => { const u = unitById(r.id); return isGround(u) && !isSquad(u) && u.cargo > 0 && !isDead(r); });
@@ -2563,7 +2617,8 @@ function renderFF() {
   // keep the squad sheet's firefight card current
   if (mpTeamMode() && CUR && U && isSquad(U) && $("s4").classList.contains("on") && CUR.st.sq) {
     const cf = ffForUid(CUR.uid, mpMyTeam());
-    const cs = cf ? [cf.id, cf.state, cf.round, cf.seg, cf.a.pid, cf.b.pid].join("|") : "-";
+    const qi = (CUR.st.sq.qr && CUR.st.sq.qr.items) || {};
+    const cs = (cf ? [cf.id, cf.state, cf.round, cf.seg, cf.a.pid, cf.b.pid].join("|") : "-") + "|" + [qi.fb, qi.sm, qi.gr].join(",");
     if (cs !== ffCardSig) { ffCardSig = cs; setTimeout(() => { if (CUR && U && isSquad(U)) draw(); }, 0); }
   }
   const fightKey = (ffActiveFight() || {}).id + ":" + ((ffActiveFight() || {}).round || "");
@@ -7141,7 +7196,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf91";
+const APP_BUILD = "cf93";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
