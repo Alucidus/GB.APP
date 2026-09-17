@@ -2025,6 +2025,102 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 @keyframes reqPulse{0%,100%{box-shadow:0 0 0 rgba(250,204,21,0)}50%{box-shadow:0 0 14px rgba(250,204,21,.45)}}
 @media (prefers-reduced-motion:reduce){.mpwait.gate.req.them{animation:none}}
 .lb-mklead{font-size:11px;padding:0 4px;white-space:nowrap}
+
+/* ================= INFANTRY SQUAD SHEET + QUICK RESOLVE (cf34) ================= */
+#sheet .sx.sqwrap{position:absolute;left:3%;top:21.5%;width:94%;height:66%;z-index:6;color:#e8f1fb;font-size:clamp(7px,1cqw,14px);display:flex;flex-direction:column;gap:.6cqw}
+#frame .sqport img{object-fit:contain !important;transform:scale(1.25)}
+#sheet .sqwrap img{position:static;inset:auto;display:block;object-fit:contain}
+#sheet .sqwrap .sqs-top img{width:3.4cqw;height:4.2cqw;flex:none}
+#sheet .sqwrap .sqpip img{width:100%;height:100%;object-fit:cover}
+.sqtabs{position:absolute;top:-12.5cqw;left:0;display:flex;gap:.5cqw}
+.sqtab{padding:.7cqw 1.4cqw;cursor:pointer;font:900 clamp(8px,1.15cqw,16px) system-ui,sans-serif;letter-spacing:.14em;color:var(--f-mut);
+  background:rgba(4,8,14,.75);border:1px solid var(--f-line);clip-path:polygon(.6cqw 0,100% 0,calc(100% - .6cqw) 100%,0 100%)}
+.sqtab.on{color:#fff;border-color:var(--f-acc);background:linear-gradient(180deg,var(--f-panel),rgba(4,8,14,.9));box-shadow:inset 0 -.25cqw 0 var(--f-acc)}
+.sqnote{font-size:.85em;color:var(--f-mut);background:rgba(0,0,0,.45);padding:.4cqw .8cqw;border-left:2px solid var(--f-acc)}
+.sqgrid.om{display:grid;grid-template-columns:1.25fr 1fr;gap:1cqw;height:100%}
+.sqcard{background:rgba(3,8,14,.72);border:1px solid var(--f-line);padding:1cqw 1.2cqw;display:flex;flex-direction:column;gap:.6cqw;min-height:0;
+  clip-path:polygon(0 0,calc(100% - 1cqw) 0,100% 1cqw,100% 100%,1cqw 100%,0 calc(100% - 1cqw))}
+.sqcard h4{margin:0;display:flex;align-items:baseline;gap:.8cqw;font:900 1.15em system-ui,sans-serif;letter-spacing:.16em;color:var(--f-acc)}
+.sqcard h4 b{color:#fff;font-size:1.3em}
+.sqcard h4 em{font-style:normal;font-size:.7em;color:var(--f-mut);letter-spacing:.08em}
+.sqcard p{margin:0;line-height:1.35;color:#cbd5e1}
+.sqcard p.warn,.sqstats .warn b{color:#fca5a5}
+.sqpips{display:grid;grid-template-columns:repeat(8,1fr);gap:.5cqw}
+.sqpip{aspect-ratio:1;border-radius:50%;padding:0;cursor:pointer;overflow:hidden;background:rgba(100,116,139,.35);border:.2cqw solid #475569;filter:grayscale(1);opacity:.45}
+.sqpip.on{background:rgba(255,255,255,.94);border-color:#22c55e;filter:none;opacity:1}
+.sqpip img{width:100%;height:100%;object-fit:cover;object-position:50% 12%}
+.sqstats{display:grid;grid-template-columns:repeat(4,1fr);gap:.5cqw}
+.sqstats>div{display:flex;flex-direction:column;align-items:center;gap:.15cqw;padding:.4cqw;background:rgba(0,0,0,.4);border:1px solid var(--f-line)}
+.sqstats small{font:800 .75em system-ui,sans-serif;letter-spacing:.16em;color:var(--f-mut)}
+.sqstats b{font:900 1.6em system-ui,sans-serif;color:#fff}
+.sqstats b i{font-style:normal;font-size:.55em;color:var(--f-mut)}
+.sqstats em{font-style:normal;font-size:.7em;color:var(--f-mut)}
+.sqstep{display:inline-flex;align-items:center;gap:.4cqw}
+.sqstep button{width:1.9cqw;height:1.9cqw;min-width:18px;min-height:18px;cursor:pointer;font-weight:900;color:var(--f-acc);background:rgba(0,0,0,.5);border:1px solid var(--f-acc)}
+.sqstep b{min-width:1.6cqw;text-align:center}
+.sqbig{align-self:stretch;margin-top:auto}
+.sqbig.off{opacity:.4;pointer-events:none}
+.sqtbl{width:100%;border-collapse:collapse;font-size:.95em}
+.sqtbl td{padding:.35cqw .5cqw;border-bottom:1px solid var(--f-line)}
+.sqtbl td:first-child{font-weight:800;color:var(--f-acc);white-space:nowrap}
+.sqsold{display:grid;grid-template-columns:repeat(4,1fr);gap:.6cqw;flex:1;min-height:0}
+.sqs{position:relative;background:rgba(3,8,14,.75);border:1px solid var(--f-line);padding:.6cqw .8cqw;display:flex;flex-direction:column;gap:.3cqw;overflow:hidden}
+.sqs.down{opacity:.55;filter:grayscale(.8)}
+.sqs-top{display:flex;gap:.6cqw;align-items:center}
+.sqs-top img{width:3.4cqw;height:4.2cqw;object-fit:contain;flex:none}
+.sqs-top b{display:block;font-size:1.05em;color:#fff}
+.sqs-top em{font-style:normal;font-size:.75em;color:var(--f-mut)}
+.sqrow{display:flex;align-items:center;justify-content:space-between;gap:.4cqw}
+.sqrow small{font:800 .7em system-ui,sans-serif;letter-spacing:.12em;color:var(--f-mut);white-space:nowrap}
+.sqp{display:inline-flex;gap:.25cqw;cursor:pointer}
+.sqp i{width:1.05cqw;height:1.05cqw;min-width:9px;min-height:9px;border-radius:50%;border:1px solid #475569;background:transparent}
+.sqp i.on{background:#22c55e;border-color:#86efac}
+.sqp i.on.kv{background:#38bdf8;border-color:#bae6fd}
+.sqp i.on.ar{background:#e2e8f0;border-color:#fff}
+.sqp i.on.sh{background:#94a3b8;border-color:#cbd5e1}
+.sqp i.on.it{background:#facc15;border-color:#fde68a}
+.sqs p{margin:0;font-size:.72em;line-height:1.3;color:#94a3b8}
+.sqswap{cursor:pointer;font:800 .72em system-ui,sans-serif;padding:.15cqw .5cqw;color:var(--f-acc);background:rgba(0,0,0,.5);border:1px solid var(--f-acc)}
+.sqkia{position:absolute;right:.4cqw;top:.4cqw;font:900 .9em system-ui,sans-serif;letter-spacing:.14em;color:#fff;background:#7f1d1d;padding:0 .5cqw}
+.qr{display:grid;grid-template-columns:1fr 1.15fr 1.15fr;gap:.8cqw;flex:1;min-height:0}
+.qrcol{background:rgba(3,8,14,.75);border:1px solid var(--f-line);padding:.8cqw 1cqw;display:flex;flex-direction:column;gap:.5cqw;min-height:0;overflow:auto}
+.qrhead{display:flex;align-items:center;gap:.5cqw;flex-wrap:wrap;font:900 .95em system-ui,sans-serif;letter-spacing:.16em;color:var(--f-acc)}
+.qrhead small{font-weight:700;letter-spacing:.06em;color:var(--f-mut)}
+.qrr{width:2.2cqw;height:2.2cqw;min-width:20px;min-height:20px;cursor:pointer;font-weight:900;color:var(--f-mut);background:rgba(0,0,0,.5);border:1px solid var(--f-line)}
+.qrr.past{color:#cbd5e1;border-color:var(--f-acc)}
+.qrr.on{color:#0b0f14;background:var(--f-acc);border-color:var(--f-acc)}
+.qrbig{display:flex;align-items:baseline;gap:.6cqw}
+.qrbig small{font:800 .75em system-ui,sans-serif;letter-spacing:.16em;color:var(--f-mut)}
+.qrbig b{font:900 2.6em system-ui,sans-serif;color:#fff}
+.qrbig b i{font-style:normal;font-size:.45em;color:var(--f-mut)}
+.qrbig em{font-style:normal;color:var(--f-acc);font-weight:800}
+.qrline{display:flex;align-items:center;justify-content:space-between;gap:.5cqw}
+.qrdice{text-align:center;padding:.5cqw;font:900 1.15em system-ui,sans-serif;letter-spacing:.16em;color:#fff;background:rgba(0,0,0,.45);border:1px solid var(--f-acc)}
+.qrdice b{font-size:1.6em;color:var(--f-acc)}
+.qrsmall{margin:0;font-size:.75em;line-height:1.35;color:#94a3b8}
+.qrbtns{display:flex;flex-wrap:wrap;gap:.4cqw}
+.qrbtns .btn{flex:1;font-size:.8em;padding:.4cqw .5cqw}
+.qritems{display:flex;flex-direction:column;gap:.3cqw}
+.qrin{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:.3cqw .5cqw;background:rgba(0,0,0,.35);border:1px solid var(--f-line)}
+.qrsel{display:flex;flex-wrap:wrap;align-items:center;gap:.3cqw}
+.qrsel small{width:3cqw;font:800 .75em system-ui,sans-serif;letter-spacing:.14em;color:var(--f-mut)}
+.qrit{cursor:pointer;padding:.3cqw .6cqw;font:800 .8em system-ui,sans-serif;color:#cbd5e1;background:rgba(0,0,0,.45);border:1px solid var(--f-line)}
+.qrit.on{color:#0b0f14;background:#facc15;border-color:#fde047}
+.qrit.off{opacity:.35}
+.qrres{padding:.4cqw .6cqw;background:rgba(250,204,21,.08);border:1px solid #a16207}
+.qrres p{margin:.15cqw 0;font-size:.85em;color:#fde68a}
+.qrres p.cnt{color:#fca5a5;font-weight:800}
+.qrres p.dice{display:flex;flex-wrap:wrap;gap:.2cqw;align-items:center}
+.qrres p.dice i{font-style:normal;width:1.6cqw;height:1.6cqw;min-width:16px;min-height:16px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;color:#0b0f14;background:#e2e8f0;border-radius:.2cqw}
+.qrres p.dice i.d6{background:#22c55e}
+.qrres p.dice i.d1{background:#ef4444;color:#fff}
+.qrres p.dice.them i{outline:1px solid #ef4444}
+.qrtog{cursor:pointer;padding:.1cqw .6cqw;font-weight:900;color:var(--f-mut);background:rgba(0,0,0,.5);border:1px solid var(--f-line)}
+.qrtog.on{color:#0b0f14;background:#22c55e;border-color:#86efac}
+.qrt td:first-child{width:3cqw}
+.vlsep{margin:8px 0 4px;font:900 11px system-ui,sans-serif;letter-spacing:.2em;color:var(--muted)}
+.shipcard.gcard .sc-art.sq img{object-position:85% 50%}
+@media (max-width:900px){.sqsold{grid-template-columns:repeat(2,1fr)}.qr{grid-template-columns:1fr}.sqgrid.om{grid-template-columns:1fr}}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -7416,6 +7512,11 @@ function carrierState(uid) {
     if (Array.isArray(S.docking) && S.docking.some(d => d.uid === uid)) return { ship: r, u, state: "docking" };
     if (Array.isArray(S.launched) && S.launched.some(d => d.uid === uid && d.key === turnKeyNow2())) return { ship: r, u, state: "launched" };
   }
+  for (const r of roster) {
+    const u = unitById(r.id);
+    if (!isGround(u) || !r.st || !r.st.gv || !Array.isArray(r.st.gv.carry)) continue;
+    if (r.st.gv.carry.includes(uid)) return { ship: r, u, state: "aboard" };
+  }
   return null;
 }
 const outOfPlay = uid => { const c = carrierState(uid); return !!c && (c.state === "aboard" || c.state === "docking"); };
@@ -7434,8 +7535,9 @@ function carrierTag(uid) {
 let loadPlan = null, loadSel = null, loadGo = null;
 function confirmWithLoading(after) {
   const go = () => hangarGo(() => { confirmTeam(); if (after) after(); });
-  if (carriersInRoster().length && suitsInRoster().length) openLoadDialog(go);
-  else go();
+  const vehicles = () => (cargoVehicles().length && squadsInRoster().length) ? openVehicleLoad(go) : go();
+  if (carriersInRoster().length && suitsInRoster().length) openLoadDialog(vehicles);
+  else vehicles();
 }
 function openLoadDialog(go) {
   loadGo = go; loadPlan = {};
@@ -7757,7 +7859,7 @@ const isVehicle = u => isGround(u) && u.gtype !== "squad";
 
 function gvFresh(u) {
   return { hp: { hp: u.hp }, dodges: 0, ap: u.ap, track: [], wpn: [], sh: [], shMax: [], shDown: [], pods: null, out: null, lent: [], risk: {},
-    gv: { armor: u.armor, cd: u.gw.map(() => 0), cdFresh: u.gw.map(() => false), ch: u.gw.map(() => 0), hide: false, cargo: 0, objective: false } };
+    gv: { armor: u.armor, cd: u.gw.map(() => 0), cdFresh: u.gw.map(() => false), ch: u.gw.map(() => 0), hide: false, cargo: 0, carry: [], objective: false } };
 }
 function gvMigrate(u, st) {
   const f = gvFresh(u);
@@ -7797,13 +7899,14 @@ function groundCardsHTML() {
     const stat = (k, v) => '<div class="sc-st"><small>' + k + '</small><b>' + v + '</b></div>';
     return '<div class="shipcard gcard ' + fac + (n ? ' has' : '') + (full ? ' full' : '') + '" onclick="addUnit(\'' + u.id + '\');promptMarks(\'' + u.id + '\')">' +
       '<div class="sc-grid"></div><div class="sc-glow"></div>' +
-      '<div class="sc-art"><img src="img/ground/' + fac + '-' + u.gtype + '.webp" alt="" loading="lazy" decoding="async"></div>' +
+      '<div class="sc-art' + (u.gtype === "squad" ? ' sq' : '') + '"><img src="img/ground/' + fac + '-' + (u.gtype === "squad" ? "rifleman" : u.gtype) + '.webp" alt="" loading="lazy" decoding="async"></div>' +
       '<div class="sc-info">' +
         '<div class="sc-class">' + u.cls + (u.overmapOnly ? ' \u00b7 Overmap only' : '') + '</div>' +
         '<div class="sc-name">' + u.short + '</div>' +
-        '<div class="sc-stats">' + stat("HP", u.hp) + (u.armor ? stat("Armor", u.armor) : '') + stat("AP", u.ap) + stat("Move", u.moveCm + "cm") +
+        '<div class="sc-stats">' + stat(u.gtype === "squad" ? "Soldiers" : "HP", u.hp) + (u.armor ? stat("Armor", u.armor) : '') + stat("AP", u.ap) + stat("Move", u.moveCm + "cm") +
           stat("Dodge", u.dodge ? u.dodge + "+" : "none") + (u.cargo ? stat("Squads", u.cargo) : '') + '</div>' +
-        '<div class="sc-weap">' + (u.gw.length ? u.gw.map(w => '<span>' + w.name + '</span>').join("") : '<span class="ab">No weapons</span>') + '</div>' +
+        '<div class="sc-weap">' + (u.gtype === "squad" ? '<span>Coordinated Strike</span><span>Firefight Clash</span><span class="ab">Hide Stance</span>'
+          : u.gw.length ? u.gw.map(w => '<span>' + w.name + '</span>').join("") : '<span class="ab">No weapons</span>') + '</div>' +
       '</div>' +
       '<div class="sc-foot">' +
         '<div class="sc-dp">FREE<small>0 DP</small></div>' +
@@ -7813,11 +7916,6 @@ function groundCardsHTML() {
   };
   return '<div class="gcap">Ground units cost <b>no DP</b>. Vehicles on this side: <b>' + vehicles + ' / ' + GROUND_VEHICLE_CAP + '</b></div>' +
     '<div class="shipgrid">' + units.map(card).join("") +
-      '<div class="shipcard gcard ' + fac + ' soon"><div class="sc-grid"></div>' +
-        '<div class="sc-art"><img src="img/ground/' + fac + '-rifleman.webp" alt="" loading="lazy" decoding="async" style="object-position:85% 50%"></div>' +
-        '<div class="sc-info"><div class="sc-class">Infantry \u00b7 up to 4 squads</div><div class="sc-name">Infantry Squad</div>' +
-        '<div class="sc-weap"><span class="ab">Coming in the next build</span></div></div>' +
-        '<div class="sc-foot"><div class="sc-dp">FREE<small>0 DP</small></div><div class="sc-add off">Next build</div></div></div>' +
     '</div>';
 }
 
@@ -7892,7 +7990,7 @@ function gvTap(k) {
   aggDmg(uid, "gv:" + k, k === "hp" ? "HP" : "Armor", cur - next, next, max);
   if (k === "hp" && cur > 0 && next === 0) {
     logEv(uid, "DESTROYED \u2014 respawns from the " + U.respawn, "bad", "gv0");
-    if (G.cargo > 0) logEv(uid, "Emergency Disembark: roll 1d6 per living soldier aboard \u2014 4+ survives, 1\u20133 perishes", "remind");
+    if (gvCarry(CUR).length) { const vr = CUR; setTimeout(() => openVehicleDisembark(vr), 60); }
   }
   if (k === "armor" && cur > 0 && next === 0) logEv(uid, "Armor stripped \u2014 any weapon can now hurt the HP", "bad");
   gvCommit();
@@ -7980,8 +8078,9 @@ function drawGround() {
     '<p>' + u.targetNote + (T && T[0][1].indexOf("Splash") >= 0 ? ' <i>Splash: ' + SPLASH_TABLE + '</i>' : '') + '</p>');
   // status rows
   const rows = [];
-  if (u.cargo) rows.push({ name: "Squads aboard", sub: "capacity " + u.cargo + " \u00b7 safe & untargetable", ap: "\u2014", cd: G.cargo + " / " + u.cargo, step: true,
-    info: "Carries " + u.cargo + " Infantry Squad" + (u.cargo > 1 ? "s" : "") + ", safe and untargetable while aboard. If destroyed with squads inside: Emergency Disembark \u2014 roll 1d6 per living soldier, 4+ survives, 1\u20133 perishes; survivors are placed at the wreck. Use \u2212/+ to track who is aboard (linked to squads in the next build)." });
+  if (u.cargo) rows.push({ name: "Squads aboard", sub: (gvCarry(CUR).length ? gvCarry(CUR).map(unitLabel).join(", ") : "capacity " + u.cargo + " \u00b7 safe & untargetable"),
+    ap: "+", act: () => gvEmbark(), cd: gvCarry(CUR).length + " / " + u.cargo, step: true,
+    info: "Carries " + u.cargo + " Infantry Squad" + (u.cargo > 1 ? "s" : "") + ", safe and untargetable while aboard. If destroyed with squads inside: Emergency Disembark \u2014 roll 1d6 per living soldier, 4+ survives, 1\u20133 perishes; survivors are placed at the wreck. Tap + to embark a squad, \u21E9 to disembark one." });
   if (u.objective) rows.push({ name: "Objective", sub: "may carry the mission objective", ap: G.objective ? "ON" : "set", cd: G.objective ? "CARRYING" : "\u2014", act: () => gvToggle("objective"), on: G.objective,
     info: "A Tank cannot transport a squad, but may carry the mission objective itself (e.g. the person or item being secured)." });
   rows.push({ name: "Targeting", sub: "untargetable by suits unless one is within " + u.prox + "cm", ap: "\u2014", cd: (u.dodge ? "DODGE " + u.dodge + "+" : "NO DODGE"),
@@ -7999,8 +8098,7 @@ function drawGround() {
     if (R.act) a.onclick = R.act;
     add("div", "sw-cd" + (R.warn ? " warn" : "") + (R.step ? " withbtn" : ""), { left: R.step ? "87.6%" : "88.2%", top: pc(y) }, R.cd);
     if (R.step) {
-      const m = add("div", "sstep", { left: "83.2%", top: pc(y) }, "\u2212"); m.onclick = () => gvToggle("cargo", -1);
-      const p = add("div", "sstep", { left: "93.1%", top: pc(y) }, "+"); p.onclick = () => gvToggle("cargo", 1);
+      const p = add("div", "sstep", { left: "93.1%", top: pc(y) }, "\u21E9"); p.title = "Disembark a squad"; p.onclick = () => gvDisembark();
     }
   });
   // AP / movement / dodge
@@ -8160,6 +8258,531 @@ function updateStanceBtn() {
   b.className = k ? "on st-" + k : "";
   b.innerHTML = k ? STANCES[k].icon + " " + STANCES[k].name.toUpperCase() : "STANCE";
   b.title = k ? STANCES[k].name + " Stance active \u2014 tap to change" : "Declare a stance";
+}
+
+// ================= INFANTRY SQUADS + QUICK RESOLVE (cf34) =================
+// Rulebook 13.6 (squad, soldiers, items) and the Firefight Clash rules. A squad's health IS the number of living soldiers.
+const SQ_ROLES = [
+  { r: "rifleman", name: "Rifleman", n: 3, wpn: "Rifle, 3d6", line: "1 AP \u00b7 60cm \u00b7 3+ \u00b7 1 dmg (2 on a 6)" },
+  { r: "mg", name: "Machine Gunner", n: 1, wpn: "Machine Gun, 8d6", line: "2 AP \u00b7 60cm \u00b7 4+ \u00b7 1 dmg (2 on a 6)", items: { nade: 2 } },
+  { r: "sniper", name: "Sniper", n: 1, wpn: "Sniper Rifle 1d6 \u00b7 Pistol 2d6", line: "Sniper 2 AP, 30cm+, 3+ hit / 5+ crit, 4 / 8 dmg \u00b7 Pistol 1 AP, under 30cm, 3+" },
+  { r: "armor", name: "Armor Unit", n: 1, wpn: "Riot Shield + Rocket Launcher", line: "Shield 3 Armor + 6 HP, mobile cover \u00b7 melee-immune \u00b7 1 AP to swap", items: { rocket: 2 }, shield: true, swap: ["Shield", "Rocket"] },
+  { r: "shield", name: "Shield Unit", n: 1, wpn: "Riot Shield + SMG 3d6", line: "SMG 1 AP \u00b7 60cm \u00b7 4+ \u00b7 not melee-immune \u00b7 1 AP to swap", items: { flash: 2 }, shield: true, swap: ["Shield", "SMG"] },
+  { r: "recon", name: "Recon", n: 1, wpn: "SMG, 3d6", line: "1 AP \u00b7 60cm \u00b7 4+ \u00b7 Knife 1 AP (3+ takedown) \u00b7 Stealth 10cm", items: { smoke: 2 } },
+];
+const SQ_ITEM = {
+  nade:   { name: "Grenade",         icon: "\u2739", note: "20cm throw, 10cm radius, 3 damage to everyone inside (friend or foe). Rolled Dodge 4+." },
+  rocket: { name: "Rocket Launcher", icon: "\u27B6", note: "60cm, 10cm radius, 3 damage to everyone inside. No Dodge. Armour-piercing." },
+  flash:  { name: "Flashbang",       icon: "\u2726", note: "20cm throw, 10cm radius. Each soldier inside turns away (free, exposes back) or arm-blocks (4+)." },
+  smoke:  { name: "Smoke Grenade",   icon: "\u25CC", note: "20cm throw, 15cm radius. Shooting into or through the cloud needs a natural 6." },
+};
+const FIREPOWER = hp => hp >= 7 ? 8 : hp >= 5 ? 7 : hp >= 3 ? 6 : hp >= 1 ? 5 : 0;
+const MARGIN_TABLE = [[0, "No effect"], [1, "1 soldier suppressed"], ["2\u20133", "1 casualty"], [4, "1 casualty + 1 suppressed"], [5, "1 casualty + 2 suppressed"], ["6+", "2 casualties + 2 suppressed"]];
+const MARGIN_FX = m => m <= 0 ? [0, 0] : m === 1 ? [0, 1] : m <= 3 ? [1, 0] : m === 4 ? [1, 1] : m === 5 ? [1, 2] : [2, 2];
+const VOLLEY = n => n >= 7 ? 8 : n + 1;          // all-6s on 2+ dice: enemies destroyed
+const QR_ITEMS = { fb: { name: "Flashbang", icon: "\u2726", max: 2 }, sm: { name: "Smoke Grenade", icon: "\u25CC", max: 1 }, gr: { name: "Grenade", icon: "\u2739", max: 1 } };
+const STRIKE_TARGETS = [["Infantry Squad", "1 casualty (a sniper picking one off)"], ["Ground vehicle", "5 dmg (rockets)"], ["Mobile suit", "1 dmg to all 6 locations"], ["Aircraft", "3 dmg"]];
+
+["federation", "spacenoid"].forEach(fac => {
+  const sk = fac === "federation" ? "fed" : "spa";
+  GROUND_UNITS.push({
+    id: "ground-squad-" + sk, gtype: "squad", name: "Infantry Squad", short: "Infantry Squad", cls: "Infantry Squad",
+    faction: fac, tier: "Ground Infantry", dp: 0, type: "ground", hp: 8, armor: 0, ap: 3, moveCm: 10, dodge: 10, prox: 20,
+    respawn: "base", cargo: 0, targets: null, gw: [], move: "10cm", dodges: 0, kill: "hp", limb: { hp: 8 },
+    abilities: [], weapons: [], shields: [], portrait: "../ground/" + sk + "-rifleman", wire: null, aspect: 1, sk,
+  });
+});
+const isSquad = u => !!(u && u.type === "ground" && u.gtype === "squad");
+
+function sqFresh(u) {
+  const soldiers = [];
+  SQ_ROLES.forEach(R => { for (let i = 0; i < R.n; i++) soldiers.push({ r: R.r, hp: 6, kev: 6 }); });
+  return { hp: { hp: 8 }, dodges: 0, ap: u.ap, track: [], wpn: [], sh: [], shMax: [], shDown: [], pods: null, out: null, lent: [], risk: {},
+    sq: { soldiers, shield: { armor: { a: 3, h: 6 }, shield: { a: 3, h: 6 } }, items: { nade: 2, rocket: 2, flash: 2, smoke: 2 },
+      eq: { armor: 0, shield: 0 }, tab: "overmap",
+      qr: { round: 1, supp: 0, next: 0, items: { fb: 2, sm: 1, gr: 1 }, my: "none", foe: "none", res: null, foeHp: 8, foeSupp: 0, sim: false, roll: null, obj: null } } };
+}
+function sqMigrate(u, st) {
+  const f = sqFresh(u);
+  if (!st.sq || !Array.isArray(st.sq.soldiers) || st.sq.soldiers.length !== 8) st.sq = f.sq;
+  ["shield", "items", "eq", "qr"].forEach(k => { if (!st.sq[k]) st.sq[k] = f.sq[k]; });
+  if (!st.sq.qr.items) st.sq.qr.items = f.sq.qr.items;
+  if (typeof st.ap !== "number") st.ap = u.ap;
+  ["track", "wpn", "sh", "shMax", "shDown", "lent"].forEach(k => { if (!Array.isArray(st[k])) st[k] = []; });
+  st.dodges = 0;
+  sqSyncHP(st);
+  return st;
+}
+const sqAlive = st => st.sq.soldiers.filter(s => s.hp > 0).length;
+function sqSyncHP(st) { if (!st.hp) st.hp = {}; st.hp.hp = sqAlive(st); }
+const sqRole = r => SQ_ROLES.find(x => x.r === r);
+function sqLabel(st, i) {
+  const s = st.sq.soldiers[i], R = sqRole(s.r);
+  if (R.n === 1) return R.name;
+  let k = 0; for (let j = 0; j <= i; j++) if (st.sq.soldiers[j].r === s.r) k++;
+  return R.name + " #" + k;
+}
+function sqCommit() { sqSyncHP(CUR.st); ap = CUR.st.ap; save(); draw(); }
+// a casualty on the squad: pick which soldier falls (players choose — Armor Unit / Recon never come back)
+function sqCasualtyPicker(count, why, done) {
+  const st = CUR.st, uid = CUR.uid;
+  if (count <= 0 || !sqAlive(st)) { if (done) done(); return; }
+  $("pickT").textContent = "Which soldier falls?" + (count > 1 ? " (" + count + " left)" : "");
+  $("pickS").innerHTML = (why ? why + " " : "") + "The controlling player chooses. Armor Unit and Recon are capped at 1 per squad \u2014 once either dies, that role is gone for the rest of the game.";
+  const lst = $("picklist"); lst.innerHTML = "";
+  st.sq.soldiers.forEach((s, i) => {
+    if (s.hp <= 0) return;
+    const d = el("div", "row");
+    d.innerHTML = '<span class="pt shipp gp"><img src="img/ground/' + U.sk + '-' + s.r + '.webp" alt=""></span><span style="min-width:0;flex:1"><div class="nm">' + sqLabel(st, i) + '</div><div class="tr">HP ' + s.hp + '/6 \u00b7 Kevlar ' + s.kev + '/6</div></span>';
+    d.onclick = () => {
+      const before = sqAlive(st);
+      s.hp = 0; sqSyncHP(st);
+      aggDmg(uid, "sq:hp", "Squad Health", before - sqAlive(st), sqAlive(st), 8, "lost");
+      logEv(uid, sqLabel(st, i) + " is down", "bad");
+      if (!sqAlive(st)) logEv(uid, "SQUAD WIPED OUT \u2014 respawns from base", "bad", "gv0");
+      closePicker(); sqCommit();
+      if (count > 1 && sqAlive(st)) setTimeout(() => sqCasualtyPicker(count - 1, why, done), 80); else if (done) done();
+    };
+    lst.appendChild(d);
+  });
+  $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Later";
+  $("pick").classList.add("on");
+}
+function sqRevivePicker() {
+  const st = CUR.st, uid = CUR.uid;
+  const dead = st.sq.soldiers.map((s, i) => ({ s, i })).filter(x => x.s.hp <= 0 && !(sqRole(x.s.r).n === 1 && (x.s.r === "armor" || x.s.r === "recon")));
+  if (!dead.length) { mpToast("No soldier can be restored (Armor Unit and Recon never come back)."); return; }
+  $("pickT").textContent = "Restore a soldier"; $("pickS").innerHTML = "Undo a casualty entered by mistake.";
+  const lst = $("picklist"); lst.innerHTML = "";
+  dead.forEach(({ s, i }) => {
+    const d = el("div", "row");
+    d.innerHTML = '<span class="pt shipp gp"><img src="img/ground/' + U.sk + '-' + s.r + '.webp" alt=""></span><span style="min-width:0;flex:1"><div class="nm">' + sqLabel(st, i) + '</div><div class="tr">back at 6 HP</div></span>';
+    d.onclick = () => { s.hp = 6; closePicker(); logEv(uid, sqLabel(st, i) + " restored", "good"); sqCommit(); };
+    lst.appendChild(d);
+  });
+  $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Cancel";
+  $("pick").classList.add("on");
+}
+window.sqTab = t => { if (!CUR || !isSquad(U)) return; CUR.st.sq.tab = t; save(); draw(); };
+window.sqPip = () => {
+  if (!CUR || !mpSheetCanEdit()) return;
+  if (mode === "repair") { sqRevivePicker(); return; }
+  sqCasualtyPicker(Math.min(amount, sqAlive(CUR.st)), "");
+};
+window.sqSoldier = (i, what, j) => {
+  if (!CUR || !mpSheetCanEdit()) return;
+  const st = CUR.st, s = st.sq.soldiers[i], uid = CUR.uid, rep = mode === "repair";
+  if (what === "hp" || what === "kev") {
+    const was = s[what], before = sqAlive(st);
+    s[what] = rep ? Math.min(6, was + 1) : Math.max(0, was - 1);
+    if (s[what] === was) return;
+    if (what === "hp") {
+      aggDmg(uid, "sq:s" + i, sqLabel(st, i), was - s[what], s[what], 6);
+      if (before !== sqAlive(st)) { logEv(uid, sqLabel(st, i) + (s.hp ? " is back" : " is down"), s.hp ? "good" : "bad"); if (!s.hp) aggDmg(uid, "sq:hp", "Squad Health", 1, sqAlive(st), 8, "lost"); }
+    } else aggDmg(uid, "sq:k" + i, sqLabel(st, i) + " Kevlar", was - s.kev, s.kev, 6);
+  } else if (what === "sha" || what === "shh") {
+    const S = st.sq.shield[s.r], k = what === "sha" ? "a" : "h", max = k === "a" ? 3 : 6, was = S[k];
+    S[k] = rep ? Math.min(max, was + 1) : Math.max(0, was - 1);
+    if (S[k] === was) return;
+    aggDmg(uid, "sq:" + s.r + k, sqLabel(st, i) + " shield " + (k === "a" ? "Armor" : "HP"), was - S[k], S[k], max);
+  } else if (what === "item") {
+    const it = st.sq.items, max = 2;
+    it[j] = rep ? Math.min(max, it[j] + 1) : Math.max(0, it[j] - 1);
+    logEv(uid, SQ_ITEM[j].name + (rep ? " restored" : " used") + " (" + it[j] + " left)", rep ? "info" : "buff");
+  } else if (what === "swap") {
+    if (st.ap < 1 && !rep) { mpToast("Swapping costs 1 AP."); return; }
+    st.sq.eq[s.r] = st.sq.eq[s.r] ? 0 : 1; st.ap -= 1;
+    logEv(uid, sqLabel(st, i) + " swaps to " + sqRole(s.r).swap[st.sq.eq[s.r]] + " (1 AP)", "info");
+  }
+  sqCommit();
+};
+window.sqStrike = () => {
+  if (!CUR || !mpSheetCanEdit()) return;
+  const st = CUR.st;
+  if (stanceOf(st) === "hide") { mpToast("Hide Stance: no attacks this turn."); return; }
+  if (outOfPlay(CUR.uid)) { /* firing out of a vehicle is allowed */ }
+  if (st.ap < 1) { mpToast("Not enough AP."); return; }
+  st.ap -= 1; logEv(CUR.uid, "Coordinated Strike (1 AP)", "info"); sqCommit();
+};
+window.sqAP = v => { if (!CUR || !mpSheetCanEdit()) return; const st = CUR.st; st.ap = Math.max(0, Math.min(8, st.ap + v)); sqCommit(); };
+window.sqRespawn = () => {
+  if (!CUR || !mpSheetCanEdit()) return;
+  if (!confirm("Respawn this squad at full strength from your base?")) return;
+  const tab = CUR.st.sq.tab; CUR.st = sqFresh(U); CUR.st.ap = 0; CUR.st.sq.tab = tab;
+  logEv(CUR.uid, "Squad respawned from base", "good"); save(); openSheet(CUR.uid);
+};
+
+// ---------- Quick Resolve (Firefight Clash) ----------
+function qrDice(hp, supp) { return hp <= 0 ? 0 : hp === 1 ? 1 : Math.max(FIREPOWER(hp) - supp, 2); }
+window.qrSet = (k, v) => {
+  if (!CUR || !mpSheetCanEdit()) return;
+  const q = CUR.st.sq.qr, uid = CUR.uid;
+  if (k === "round") q.round = Math.max(1, Math.min(4, v));
+  else if (k === "supp") q.supp = Math.max(0, Math.min(8, q.supp + v));
+  else if (k === "next") q.next = Math.max(0, Math.min(8, q.next + v));
+  else if (k === "foeHp") q.foeHp = Math.max(0, Math.min(8, q.foeHp + v));
+  else if (k === "foeSupp") q.foeSupp = Math.max(0, Math.min(8, q.foeSupp + v));
+  else if (k === "my" || k === "foe") { q[k] = v; q.res = null; }
+  else if (k === "sim") { q.sim = !q.sim; q.roll = null; logEv(uid, q.sim ? "Firefight: simulated dice ON (both teams agreed)" : "Firefight: back to physical dice", "info"); }
+  else if (k === "item") { const it = q.items; it[v] = mode === "repair" ? Math.min(QR_ITEMS[v].max, it[v] + 1) : Math.max(0, it[v] - 1); }
+  else if (k === "nextRound") {
+    if (q.round >= 4) { mpToast("That was round 4 \u2014 roll the Objective Clash or start a new segment."); return; }
+    q.round += 1; q.supp = q.next; q.next = 0; q.my = "none"; q.foe = "none"; q.res = null; q.roll = null;
+    logEv(uid, "Firefight round " + q.round + (q.supp ? " \u2014 " + q.supp + " of ours suppressed" : ""), "info");
+  } else if (k === "newSeg") {
+    q.round = 1; q.supp = 0; q.next = 0; q.my = "none"; q.foe = "none"; q.res = null; q.roll = null; q.obj = null;
+    if (v === "engagement") { q.items = { fb: 2, sm: 1, gr: 1 }; logEv(uid, "New firefight engagement \u2014 items refilled", "info"); }
+    else logEv(uid, "New 4-round firefight segment", "info");
+  } else if (k === "forced") {
+    if (q.items.fb < 1) { mpToast("No Flashbang left to force a re-engagement."); return; }
+    q.items.fb -= 1; q.round = 1; q.supp = 0; q.next = 0; q.my = "none"; q.foe = "none"; q.res = null; q.roll = null; q.obj = null;
+    logEv(uid, "Forced Re-Engagement \u2014 Flashbang spent, another 4-round segment", "buff");
+  }
+  sqCommit();
+};
+// reveal the two item calls and apply what lands on this squad
+window.qrReveal = () => {
+  if (!CUR || !mpSheetCanEdit()) return;
+  const q = CUR.st.sq.qr, my = q.my, foe = q.foe, uid = CUR.uid, lines = [];
+  if (my !== "none" && q.items[my] < 1) { mpToast("No " + QR_ITEMS[my].name + " left."); return; }
+  if (my !== "none") q.items[my] -= 1;
+  let ourCas = 0;
+  if (my === "fb") lines.push(foe === "sm" ? "Your Flashbang was cancelled by their Smoke." : "Your Flashbang lands \u2014 3 of theirs are suppressed next round.");
+  if (my === "sm") { if (foe === "gr") lines.push("Your Smoke was cancelled by their Grenade \u2014 your suppression stays."); else { lines.push("Your Smoke clears your suppression."); q.supp = 0; } }
+  if (my === "gr") { if (foe === "fb") { lines.push("COUNTERED \u2014 flashed mid-throw, your Grenade drops at your own feet: 1 casualty to you."); ourCas += 1; } else lines.push("Your Grenade lands \u2014 1 guaranteed casualty on them."); }
+  if (foe === "fb") { if (my === "sm") lines.push("Their Flashbang was cancelled by your Smoke."); else { lines.push("Their Flashbang lands \u2014 3 of yours are suppressed next round."); q.next = Math.min(8, q.next + 3); } }
+  if (foe === "sm") lines.push(my === "gr" ? "Their Smoke was cancelled by your Grenade." : "Their Smoke clears their suppression.");
+  if (foe === "gr") { if (my === "fb") lines.push("COUNTERED \u2014 their Grenade blows up on their own squad: 1 casualty to them."); else { lines.push("Their Grenade lands \u2014 1 casualty to you."); ourCas += 1; } }
+  if (my === "none" && foe === "none") lines.push("No items this round.");
+  q.res = lines;
+  logEv(uid, "Items: you " + (my === "none" ? "none" : QR_ITEMS[my].name) + " vs them " + (foe === "none" ? "none" : QR_ITEMS[foe].name), "info");
+  sqCommit();
+  if (typeof qrFx === "function") qrFx(my, foe);
+  if (ourCas) setTimeout(() => sqCasualtyPicker(ourCas, "Item result: " + ourCas + " casualty."), 400);
+};
+// optional simulated dice (both teams agreed)
+window.qrRoll = () => {
+  if (!CUR || !mpSheetCanEdit()) return;
+  const st = CUR.st, q = st.sq.qr, uid = CUR.uid;
+  const myN = qrDice(sqAlive(st), q.supp), foeN = qrDice(q.foeHp, q.foeSupp);
+  const d = n => Array.from({ length: n }, () => 1 + Math.floor(Math.random() * 6));
+  const score = a => a.reduce((m, v) => m + (v === 6 ? 2 : v >= 3 ? 1 : 0), 0);
+  const mine = d(myN), theirs = d(foeN);
+  const ms = score(mine), ts = score(theirs);
+  const volley = a => a.length >= 2 && a.every(v => v === 6);
+  const lms = a => a.length === 1 && a[0] === 6;
+  let text = [], ourCas = 0, ourSupp = 0;
+  if (volley(mine)) text.push("PERFECT VOLLEY \u2014 you destroy " + VOLLEY(mine.length) + " of theirs.");
+  if (volley(theirs)) { text.push("THEIR PERFECT VOLLEY \u2014 you lose " + VOLLEY(theirs.length) + "."); ourCas += VOLLEY(theirs.length); }
+  if (!volley(mine) && !volley(theirs)) {
+    const m = ms - ts;
+    if (m === 0) text.push("Tied " + ms + "\u2013" + ts + " \u2014 no effect.");
+    else if (m > 0) { const [c, s2] = MARGIN_FX(m); text.push("You win by " + m + " \u2014 they take " + (c ? c + " casualt" + (c > 1 ? "ies" : "y") : "no casualties") + (s2 ? " + " + s2 + " suppressed" : "") + "."); }
+    else { const [c, s2] = MARGIN_FX(-m); ourCas += c; ourSupp += s2; text.push("They win by " + (-m) + " \u2014 you take " + (c ? c + " casualt" + (c > 1 ? "ies" : "y") : "no casualties") + (s2 ? " + " + s2 + " suppressed" : "") + "."); }
+  }
+  if (lms(mine)) text.push("LAST MAN STANDING \u2014 your last soldier breaks contact and escapes.");
+  if (lms(theirs)) text.push("Their last soldier breaks contact and escapes.");
+  const ones = mine.filter(v => v === 1).length;
+  if (ones) text.push(ones + " of your dice rolled a 1 \u2014 " + ones + " suppressed next round.");
+  q.next = Math.min(8, q.next + ones + ourSupp);
+  q.roll = { mine, theirs, ms, ts, text };
+  logEv(uid, "Simulated firefight roll: " + ms + " vs " + ts, "info");
+  sqCommit();
+  if (ourCas) setTimeout(() => sqCasualtyPicker(Math.min(ourCas, sqAlive(st)), "Firefight result: " + ourCas + " casualt" + (ourCas > 1 ? "ies" : "y") + "."), 300);
+};
+window.qrObjective = () => {
+  if (!CUR || !mpSheetCanEdit()) return;
+  const st = CUR.st, q = st.sq.qr, mine = sqAlive(st), foe = q.foeHp;
+  const r = () => 1 + Math.floor(Math.random() * 6);
+  let a, b, tries = 0;
+  do { const adv = mine - foe; a = r() + r() + Math.max(0, adv); b = r() + r() + Math.max(0, -adv); tries++; } while (a === b && tries < 20);
+  q.obj = { a, b, win: a > b };
+  logEv(CUR.uid, "Objective Clash: " + a + " vs " + b + " \u2014 " + (a > b ? "your squad secures the objective" : "the enemy secures the objective"), a > b ? "good" : "bad");
+  sqCommit();
+};
+
+// ---------- the squad sheet ----------
+function buildSquadFrame() {
+  const u = U, key = ["squad", u.id, sideKey(), (CUR && CUR.mark) || ""].join("|");
+  const F = $("frame");
+  $("sheet").dataset.side = sideKey();
+  $("sheet").classList.add("shipsheet");
+  if (key === frameKey && F.childElementCount) return;
+  frameKey = key; F.innerHTML = "";
+  const add = (cls, st, html) => { const d = document.createElement("div"); d.className = cls; if (st) Object.assign(d.style, st); if (html !== undefined) d.innerHTML = html; F.appendChild(d); return d; };
+  add("fbreath"); add("fbreath b2"); add("fgrid");
+  add("fb tl"); add("fb tr"); add("fb bl"); add("fb br");
+  add("fstripe", { left: "36%", top: "1cqw" }); add("fstripe", { left: "27%", bottom: "1.2cqw" });
+  add("fdock l"); add("fdock r");
+  add("fname fshipname"); add("flbl fsub", { left: "69.6%", top: "4.9%" }, "GROUND // INFANTRY");
+  const cx = 94.3, cy = 10.6;
+  add("fdial o", { left: cx + "%", top: cy + "%" }); add("fdial i", { left: cx + "%", top: cy + "%" }); add("fdial arc full", { left: cx + "%", top: cy + "%" });
+  const pf = add("fport fshipport sqport", { left: cx + "%", top: cy + "%" });
+  const pim = document.createElement("img"); pim.alt = ""; pim.src = "img/portraits/" + u.portrait + ".webp"; pf.appendChild(pim);
+  const mk = markOf(CUR);
+  if (mk) { const pp = document.createElement("span"); pp.className = "mpip fp"; pp.style.setProperty("--pc", mk.c); pf.appendChild(pp); }
+}
+function drawSquad() {
+  const u = U, st = sqMigrate(u, CUR.st), S = st.sq, q = S.qr, uid = CUR.uid;
+  hp = st.hp; ap = st.ap; dodges = 0;
+  const sheet = $("sheet");
+  sheet.classList.add("shipsheet"); sheet.classList.remove("st-noattack"); updateStanceBtn();
+  [...sheet.querySelectorAll(".sx,.hp,.grp,.tog,.step,.wrow,.txt,.num,.wpip,.sendbtn,.lenttag,.podstate,.arcring,.arcrot,.qa,.aphit,.swapz,.hudwarn,.porthit")].forEach(n => n.remove());
+  renderAmounts();
+  const alive = sqAlive(st), dead = alive === 0, hiding = stanceOf(st) === "hide";
+  const apMax = alive === 1 ? 1 : u.ap;
+  if (st.ap > apMax && turn.phase === "you") st.ap = apMax;
+  $("uname").textContent = u.short;
+  $("umeta").textContent = "Infantry \u00b7 no DP";
+  $("total").textContent = "SQUAD " + alive + "/8";
+  $("dead").style.display = dead ? "flex" : "none";
+  $("dead").firstElementChild.textContent = "WIPED OUT";
+  const box = el("div", "sx sqwrap"); sheet.appendChild(box);
+  const nm = el("div", "sx sname long"); nm.style.left = "69.6%"; nm.style.top = "8.2%"; nm.textContent = "INFANTRY SQUAD"; sheet.appendChild(nm);
+  const c1 = el("div", "sx sclass"); c1.style.left = "69.6%"; c1.style.top = "13.4%"; c1.textContent = (u.faction === "federation" ? "Federation" : "Spacenoid") + " \u00b7 8 soldiers \u00b7 no DP"; sheet.appendChild(c1);
+  const c2 = el("div", "sx sclass"); c2.style.left = "69.6%"; c2.style.top = "16.6%"; c2.textContent = "TARGETABLE WITHIN 20CM \u00b7 DODGE 10+"; sheet.appendChild(c2);
+  const tabs = [["overmap", "OVERMAP"], ["soldiers", "8 SOLDIERS"], ["qr", "QUICK RESOLVE"]];
+  let h = '<div class="sqtabs">' + tabs.map(([k, t]) => '<button class="sqtab' + (S.tab === k ? ' on' : '') + '" onclick="sqTab(\'' + k + '\')">' + t + '</button>').join("") + '</div>';
+  const cs = carrierState(uid);
+  if (cs && cs.state === "aboard") h += '<div class="sqnote">\u2693 Aboard the ' + cs.u.short + ' \u2014 safe and untargetable. Disembark from the vehicle\'s sheet.</div>';
+  if (S.tab === "overmap") {
+    const pips = S.soldiers.map((s, i) => '<button class="sqpip' + (s.hp > 0 ? ' on' : '') + '" onclick="sqPip()" title="' + sqLabel(st, i) + '"><img src="img/ground/' + u.sk + '-' + s.r + '.webp" alt=""></button>').join("");
+    h += '<div class="sqgrid om">' +
+      '<div class="sqcard"><h4>SQUAD HEALTH <b>' + alive + ' / 8</b></h4><div class="sqpips">' + pips + '</div>' +
+        '<p>Tap to record casualties (you choose who falls) \u00b7 Repair mode restores a soldier. At 1 soldier the squad drops to 1 AP.</p>' +
+        '<div class="sqstats">' +
+          '<div><small>AP</small><span class="sqstep"><button onclick="sqAP(-1)">\u2212</button><b>' + st.ap + '<i>/' + apMax + '</i></b><button onclick="sqAP(1)">+</button></span></div>' +
+          '<div class="' + (hiding ? 'warn' : '') + '"><small>MOVE</small><b>' + (hiding ? 5 : 10) + 'cm</b><em>' + (hiding ? 'hiding \u00b7 halved' : 'per AP') + '</em></div>' +
+          '<div><small>DODGE</small><b>10+</b><em>rolled</em></div>' +
+          '<div><small>FIREPOWER</small><b>' + FIREPOWER(alive) + '</b><em>quick resolve</em></div>' +
+        '</div>' +
+        (dead ? '<button class="btn pri ready sqbig" onclick="sqRespawn()">\u21BB Respawn from base</button>' : '') +
+      '</div>' +
+      '<div class="sqcard"><h4>COORDINATED STRIKE <em>the only Overmap attack</em></h4>' +
+        '<p><b>1 AP \u00b7 90cm</b> \u00b7 roll 1d6: <b>2+</b> under 30cm, <b>3+</b> at 30\u201360cm, <b>4+</b> at 60\u201390cm</p>' +
+        '<table class="sqtbl">' + STRIKE_TARGETS.map(([a, b]) => '<tr><td>' + a + '</td><td>' + b + '</td></tr>').join("") + '</table>' +
+        '<p class="warn">Cannot target an enemy squad within 30cm \u2014 that\'s a Firefight Clash instead.</p>' +
+        '<button class="btn pri sqbig' + (hiding || dead || st.ap < 1 ? ' off' : '') + '" onclick="sqStrike()">FIRE \u2014 1 AP</button>' +
+        (hiding ? '<p class="warn">Hide Stance: no attacks this turn \u2014 untargetable by mobile suits.</p>' : '') +
+      '</div>' +
+    '</div>';
+  } else if (S.tab === "soldiers") {
+    h += '<div class="sqsold">' + S.soldiers.map((s, i) => {
+      const R = sqRole(s.r), down = s.hp <= 0;
+      const pipsHP = Array.from({ length: 6 }, (_, k) => '<i class="' + (k < s.hp ? 'on' : '') + '"></i>').join("");
+      const pipsK = Array.from({ length: 6 }, (_, k) => '<i class="' + (k < s.kev ? 'on kv' : '') + '"></i>').join("");
+      let extra = "";
+      if (R.shield) {
+        const SH = S.shield[s.r];
+        extra += '<div class="sqrow"><small>SHIELD</small><span class="sqp" onclick="sqSoldier(' + i + ',\'sha\')">' + Array.from({ length: 3 }, (_, k) => '<i class="' + (k < SH.a ? 'on ar' : '') + '"></i>').join("") + '</span>' +
+          '<span class="sqp" onclick="sqSoldier(' + i + ',\'shh\')">' + Array.from({ length: 6 }, (_, k) => '<i class="' + (k < SH.h ? 'on sh' : '') + '"></i>').join("") + '</span></div>';
+        extra += '<div class="sqrow"><small>HOLDING</small><button class="sqswap" onclick="sqSoldier(' + i + ',\'swap\')">' + R.swap[S.eq[s.r] || 0] + ' \u21C4 ' + R.swap[S.eq[s.r] ? 0 : 1] + ' (1 AP)</button></div>';
+      }
+      if (R.items) Object.keys(R.items).forEach(k => {
+        extra += '<div class="sqrow"><small>' + SQ_ITEM[k].icon + ' ' + SQ_ITEM[k].name.toUpperCase() + '</small><span class="sqp" onclick="sqSoldier(' + i + ',\'item\',\'' + k + '\')" title="' + SQ_ITEM[k].note + '">' +
+          Array.from({ length: 2 }, (_, x) => '<i class="' + (x < S.items[k] ? 'on it' : '') + '"></i>').join("") + '</span></div>';
+      });
+      return '<div class="sqs' + (down ? ' down' : '') + '"><div class="sqs-top"><img src="img/ground/' + u.sk + '-' + s.r + '.webp" alt=""><div><b>' + sqLabel(st, i) + '</b><em>' + R.wpn + '</em></div></div>' +
+        '<div class="sqrow"><small>HP</small><span class="sqp" onclick="sqSoldier(' + i + ',\'hp\')">' + pipsHP + '</span></div>' +
+        '<div class="sqrow"><small>KEVLAR</small><span class="sqp" onclick="sqSoldier(' + i + ',\'kev\')">' + pipsK + '</span></div>' +
+        extra + '<p>' + R.line + '</p>' + (down ? '<div class="sqkia">KIA</div>' : '') + '</div>';
+    }).join("") + '</div>' +
+    '<div class="sqnote">Every soldier: 3 AP \u00b7 10cm/AP \u00b7 no Dodge vs bullets (Cover only) \u00b7 4+ Rolled Dodge vs blasts (not Rockets / Bombing Run). ' +
+      '<b>Kevlar:</b> a regular hit (3\u20135) \u2192 roll 1d6, 4+ takes it off Kevlar instead of HP. Criticals, Sniper, Grenades, Rockets and cannons ignore Kevlar. Tap pips to damage (Repair mode restores). All item charges refresh each new engagement.</div>';
+  } else {
+    const myN = qrDice(alive, q.supp), foeN = qrDice(q.foeHp, q.foeSupp);
+    const opt = (side, k, lab) => '<button class="qrit' + (q[side] === k ? ' on' : '') + (side === "my" && k !== "none" && q.items[k] < 1 ? ' off' : '') + '" onclick="qrSet(\'' + side + '\',\'' + k + '\')">' + lab + '</button>';
+    const items = ["none", "fb", "sm", "gr"];
+    h += '<div class="qr">' +
+      '<div class="qrcol">' +
+        '<div class="qrhead">ROUND ' + [1, 2, 3, 4].map(r => '<button class="qrr' + (q.round === r ? ' on' : '') + (q.round > r ? ' past' : '') + '" onclick="qrSet(\'round\',' + r + ')">' + r + '</button>').join("") + '</div>' +
+        '<div class="qrbig"><small>YOUR SQUAD</small><b>' + alive + '<i>/8</i></b><em>Firepower ' + FIREPOWER(alive) + '</em></div>' +
+        '<div class="qrline"><span>Suppressed this round</span><span class="sqstep"><button onclick="qrSet(\'supp\',-1)">\u2212</button><b>' + q.supp + '</b><button onclick="qrSet(\'supp\',1)">+</button></span></div>' +
+        '<div class="qrline"><span>Suppressed next round</span><span class="sqstep"><button onclick="qrSet(\'next\',-1)">\u2212</button><b>' + q.next + '</b><button onclick="qrSet(\'next\',1)">+</button></span></div>' +
+        '<div class="qrdice">ROLL <b>' + myN + '</b> DICE</div>' +
+        '<p class="qrsmall">1 = suppressed next round \u00b7 2 = miss \u00b7 3\u20135 = 1 success \u00b7 6 = 2 successes. Always at least 2 dice with 2+ soldiers.</p>' +
+        '<div class="qrbtns"><button class="btn" onclick="sqPip()">\u2620 Record casualty</button><button class="btn pri" onclick="qrSet(\'nextRound\')">Next round \u25B8</button></div>' +
+      '</div>' +
+      '<div class="qrcol">' +
+        '<div class="qrhead">SQUAD ITEMS <small>refill each engagement</small></div>' +
+        '<div class="qritems">' + Object.keys(QR_ITEMS).map(k => '<div class="qrin" onclick="qrSet(\'item\',\'' + k + '\')"><span>' + QR_ITEMS[k].icon + ' ' + QR_ITEMS[k].name + '</span><span class="sqp">' +
+          Array.from({ length: QR_ITEMS[k].max }, (_, x) => '<i class="' + (x < q.items[k] ? 'on it' : '') + '"></i>').join("") + '</span></div>').join("") + '</div>' +
+        '<div class="qrhead">THIS ROUND\'S CALL <small>blind \u2014 reveal together</small></div>' +
+        '<div class="qrsel"><small>YOU</small>' + items.map(k => opt("my", k, k === "none" ? "None" : QR_ITEMS[k].icon + " " + QR_ITEMS[k].name.split(" ")[0])).join("") + '</div>' +
+        '<div class="qrsel"><small>THEM</small>' + items.map(k => opt("foe", k, k === "none" ? "None" : QR_ITEMS[k].icon + " " + QR_ITEMS[k].name.split(" ")[0])).join("") + '</div>' +
+        '<button class="btn pri ready sqbig" onclick="qrReveal()">REVEAL \u25B8</button>' +
+        (q.res ? '<div class="qrres">' + q.res.map(t => '<p' + (/COUNTERED/.test(t) ? ' class="cnt"' : '') + '>' + t + '</p>').join("") + '</div>' : '') +
+        '<p class="qrsmall">Flashbang \u2192 3 suppressed next round (Smoke cancels) \u00b7 Smoke \u2192 clears your suppression (Grenade cancels) \u00b7 Grenade \u2192 1 casualty (a Flashbang drops it on the thrower).</p>' +
+      '</div>' +
+      '<div class="qrcol">' +
+        '<div class="qrhead">MARGIN TABLE <small>apply to the losing squad</small></div>' +
+        '<table class="sqtbl qrt">' + MARGIN_TABLE.map(([m, o]) => '<tr><td>' + m + '</td><td>' + o + '</td></tr>').join("") + '</table>' +
+        '<p class="qrsmall"><b>Perfect Volley:</b> every die a 6 on 2+ dice \u2192 skip the table; destroys 2d=3 \u00b7 3d=4 \u00b7 4d=5 \u00b7 5d=6 \u00b7 6d=7 \u00b7 7+d=8. <b>Last Man Standing:</b> 1 die rolling a 6 escapes. <b>Firepower:</b> 8\u20137 \u2192 8 \u00b7 6\u20135 \u2192 7 \u00b7 4\u20133 \u2192 6 \u00b7 2\u20131 \u2192 5.</p>' +
+        '<div class="qrhead">SIMULATED DICE <button class="qrtog' + (q.sim ? ' on' : '') + '" onclick="qrSet(\'sim\')">' + (q.sim ? 'ON' : 'OFF') + '</button></div>' +
+        (q.sim ? '<div class="qrline"><span>Enemy squad</span><span class="sqstep"><button onclick="qrSet(\'foeHp\',-1)">\u2212</button><b>' + q.foeHp + '</b><button onclick="qrSet(\'foeHp\',1)">+</button></span></div>' +
+          '<div class="qrline"><span>Enemy suppressed</span><span class="sqstep"><button onclick="qrSet(\'foeSupp\',-1)">\u2212</button><b>' + q.foeSupp + '</b><button onclick="qrSet(\'foeSupp\',1)">+</button></span></div>' +
+          '<button class="btn pri sqbig" onclick="qrRoll()">\u{1F3B2} ROLL ' + myN + ' vs ' + foeN + '</button>' +
+          (q.roll ? '<div class="qrres"><p class="dice">' + q.roll.mine.map(v => '<i class="d' + v + '">' + v + '</i>').join("") + ' <b>' + q.roll.ms + '</b></p><p class="dice them">' + q.roll.theirs.map(v => '<i class="d' + v + '">' + v + '</i>').join("") + ' <b>' + q.roll.ts + '</b></p>' + q.roll.text.map(t => '<p>' + t + '</p>').join("") + '</div>' : '')
+          : '<p class="qrsmall">Both teams must agree before using simulated dice. With physical dice, just adjust casualties and suppression here.</p>') +
+        '<div class="qrhead">AFTER ROUND 4</div>' +
+        '<div class="qrbtns"><button class="btn" onclick="qrObjective()">Objective Clash (2d6 + HP)</button><button class="btn" onclick="qrSet(\'forced\')">\u2726 Forced Re-Engagement</button></div>' +
+        (q.obj ? '<div class="qrres"><p>' + q.obj.a + ' vs ' + q.obj.b + ' \u2014 <b>' + (q.obj.win ? 'you secure the objective' : 'the enemy secures the objective') + '</b></p></div>' : '') +
+        '<div class="qrbtns"><button class="btn" onclick="qrSet(\'newSeg\',\'segment\')">New 4-round segment</button><button class="btn" onclick="qrSet(\'newSeg\',\'engagement\')">New engagement \u21BB items</button></div>' +
+      '</div>' +
+    '</div>';
+  }
+  box.innerHTML = h;
+  // MOVE (overmap tab only)
+  if (S.tab === "overmap") {
+    const QT = sideKey() === "red"
+      ? ["rgba(48,5,10,.5)", "rgba(48,5,10,.78)", "#ff4d5a", "#ffe4e6", "rgba(255,77,90,.24)", "#3a0509"]
+      : ["rgba(6,30,78,.46)", "rgba(6,30,78,.72)", "#7dd3fc", "#e0f2fe", "rgba(125,211,252,.28)", "#082f49"];
+    let qa = st.qa;
+    if (!qa || !sameHalf(qa)) qa = st.qa = { r: turn.round, p: turn.phase, m: 0, d: 0 };
+    const cm = hiding ? 5 : 10, cant = st.ap < 1 || dead || outOfPlay(uid);
+    const qb = el("div", "sx qa sqa", { left: "49.8%", top: "92.8%" });
+    ["--qa-bg", "--qa-bg-on", "--qa-ac", "--qa-tx", "--qa-glow", "--qa-dk"].forEach((k, j) => qb.style.setProperty(k, QT[j]));
+    const logMoves = () => qaLog(uid, "qa:m", qa.m, "Moved " + qa.m + "\u00d7 (" + (qa.m * cm) + "cm, " + qa.m + " AP)");
+    const mvb = el("div", "qab move" + (cant || turn.phase !== "you" ? " off" : ""));
+    mvb.innerHTML = "<b>MOVE</b><small>" + cm + "cm \u00b7 1 AP</small>";
+    mvb.onclick = e => { e.stopPropagation(); if (cant || !mpSheetCanEdit()) return; qa.m += 1; st.ap -= 1; logMoves(); sqCommit(); };
+    const mu = el("div", "qau" + (qa.m ? "" : " hide"));
+    mu.innerHTML = "<span>\u21B6</span>" + (qa.m ? "<small>\u00d7" + qa.m + "</small>" : "");
+    mu.onclick = e => { e.stopPropagation(); if (!qa.m || !mpSheetCanEdit()) return; qa.m -= 1; st.ap = Math.min(apMax, st.ap + 1); logMoves(); sqCommit(); };
+    qb.append(mvb, mu); sheet.appendChild(qb);
+  }
+  renderTurn();
+  if (typeof mpSheetMode === "function") mpSheetMode();
+}
+
+// ---------- squads riding in vehicles (Car 1 · Helicopter 1 · Transport Ship 2) ----------
+const cargoVehicles = () => roster.filter(r => { const u = unitById(r.id); return isGround(u) && !isSquad(u) && u.cargo > 0 && !isDead(r); });
+const squadsInRoster = () => roster.filter(r => isSquad(unitById(r.id)));
+function gvCarry(r) { const G = r.st && r.st.gv; if (!G) return []; if (!Array.isArray(G.carry)) G.carry = []; return G.carry; }
+let vloadPlan = null, vloadGo = null;
+function openVehicleLoad(go) {
+  vloadGo = go; vloadPlan = {};
+  const sq = new Set(squadsInRoster().map(r => r.uid)), used = new Set();
+  cargoVehicles().forEach(r => { vloadPlan[r.uid] = gvCarry(r).filter(x => sq.has(x) && !used.has(x) && used.add(x)).slice(0, unitById(r.id).cargo); });
+  renderVehicleLoad();
+}
+function renderVehicleLoad() {
+  const vs = cargoVehicles(), sqs = squadsInRoster();
+  const where = uid => { for (const k in vloadPlan) if (vloadPlan[k].includes(uid)) return +k; return null; };
+  $("pickT").textContent = "Load your vehicles";
+  $("pickS").innerHTML = "Optional: put Infantry Squads into Cars (1), Helicopters (1) and Transport Ships (2). Squads aboard are safe and untargetable, and can disembark at any time from the vehicle's sheet. Tap a squad to cycle it through the vehicles.";
+  const lst = $("picklist"); lst.innerHTML = "";
+  vs.forEach(r => {
+    const u = unitById(r.id), d = el("div", "row");
+    d.innerHTML = portraitHTML(u) + '<span style="min-width:0;flex:1"><div class="nm">' + unitLabel(r.uid) + '</div><div class="tr">' + u.cls + ' \u00b7 ' + vloadPlan[r.uid].length + ' / ' + u.cargo + ' aboard' +
+      (vloadPlan[r.uid].length ? ' \u2014 ' + vloadPlan[r.uid].map(unitLabel).join(", ") : '') + '</div></span>';
+    lst.appendChild(d);
+  });
+  const sep = el("div", "vlsep"); sep.textContent = "SQUADS"; lst.appendChild(sep);
+  sqs.forEach(r => {
+    const w = where(r.uid), d = el("div", "row" + (w !== null ? " done" : ""));
+    d.innerHTML = portraitHTML(unitById(r.id)) + '<span style="min-width:0;flex:1"><div class="nm">' + unitLabel(r.uid) + '</div><div class="tr">' + (w !== null ? '\u2693 aboard ' + unitLabel(w) : 'on the board') + '</div></span>';
+    d.onclick = () => {                                   // cycle: board -> vehicle 1 -> vehicle 2 -> ... -> board
+      const order = [null].concat(vs.map(v => v.uid));
+      let k = order.indexOf(w);
+      Object.keys(vloadPlan).forEach(v => vloadPlan[v] = vloadPlan[v].filter(x => x !== r.uid));
+      for (let step = 1; step <= order.length; step++) {
+        const nxt = order[(k + step) % order.length];
+        if (nxt === null) break;
+        if (vloadPlan[nxt].length < unitById(roster.find(x => x.uid === nxt).id).cargo) { vloadPlan[nxt].push(r.uid); break; }
+      }
+      renderVehicleLoad();
+    };
+    lst.appendChild(d);
+  });
+  $("pickExtra").innerHTML = "";
+  const ok = el("button", "btn pri ready"); ok.textContent = "Confirm & deploy \u25B8";
+  ok.onclick = () => {
+    cargoVehicles().forEach(r => { r.st.gv.carry = vloadPlan[r.uid].slice(); r.st.gv.cargo = r.st.gv.carry.length; });
+    save(); closePicker(); const g = vloadGo; vloadGo = null; if (g) g();
+  };
+  $("pickExtra").appendChild(ok);
+  $("pickCancel").textContent = "Back";
+  $("pick").classList.add("on");
+}
+window.gvEmbark = () => {
+  if (!CUR || !isGround(U) || !mpSheetCanEdit()) return;
+  const G = CUR.st.gv, carry = gvCarry(CUR);
+  if (carry.length >= U.cargo) { mpToast("The " + U.short + " is full (" + U.cargo + " squad" + (U.cargo > 1 ? "s" : "") + ")."); return; }
+  const cands = squadsInRoster().filter(r => !isDead(r) && !carrierState(r.uid));
+  $("pickT").textContent = "Embark a squad"; $("pickS").innerHTML = "The squad must be at the vehicle. It becomes safe and untargetable while aboard.";
+  const lst = $("picklist"); lst.innerHTML = cands.length ? "" : '<div class="empty">No squads on the board.</div>';
+  cands.forEach(r => {
+    const d = el("div", "row"); d.innerHTML = portraitHTML(unitById(r.id)) + '<span style="min-width:0;flex:1"><div class="nm">' + unitLabel(r.uid) + '</div><div class="tr">' + sqAlive(r.st) + ' / 8 soldiers</div></span>';
+    d.onclick = () => { closePicker(); carry.push(r.uid); G.cargo = carry.length; logEv(CUR.uid, unitLabel(r.uid) + " embarked", "info"); gvCommit(); };
+    lst.appendChild(d);
+  });
+  $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Cancel"; $("pick").classList.add("on");
+};
+window.gvDisembark = () => {
+  if (!CUR || !isGround(U) || !mpSheetCanEdit()) return;
+  const G = CUR.st.gv, carry = gvCarry(CUR);
+  if (!carry.length) { mpToast("Nobody aboard."); return; }
+  $("pickT").textContent = "Disembark a squad"; $("pickS").innerHTML = "Squads may disembark at any point and continue on their own stats.";
+  const lst = $("picklist"); lst.innerHTML = "";
+  carry.forEach(uid => {
+    const r = roster.find(x => x.uid === uid); if (!r) return;
+    const d = el("div", "row"); d.innerHTML = portraitHTML(unitById(r.id)) + '<span style="min-width:0;flex:1"><div class="nm">' + unitLabel(uid) + '</div><div class="tr">disembark here</div></span>';
+    d.onclick = () => { closePicker(); G.carry = carry.filter(x => x !== uid); G.cargo = G.carry.length; logEv(CUR.uid, unitLabel(uid) + " disembarked", "info"); gvCommit(); };
+    lst.appendChild(d);
+  });
+  $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Cancel"; $("pick").classList.add("on");
+};
+// a vehicle destroyed with squads aboard: 1d6 per living soldier, 4+ survives
+function openVehicleDisembark(vr) {
+  const carry = gvCarry(vr).slice(); if (!carry.length) return;
+  const lost = {}; carry.forEach(uid => lost[uid] = 0);
+  const drawV = () => {
+    $("pickT").textContent = "Emergency Disembark \u2014 " + unitById(vr.id).short;
+    $("pickS").innerHTML = "Roll <b>1d6 per living soldier</b> aboard: <b>4+</b> survives, 1\u20133 perishes. Set how many each squad lost (or roll here), then apply \u2014 you'll pick who fell. Survivors are placed at the wreck.";
+    const lst = $("picklist"); lst.innerHTML = "";
+    carry.forEach(uid => {
+      const r = roster.find(x => x.uid === uid); if (!r) return;
+      const n = sqAlive(r.st), d = el("div", "row");
+      d.innerHTML = portraitHTML(unitById(r.id)) + '<span style="min-width:0;flex:1"><div class="nm">' + unitLabel(uid) + '</div><div class="tr">' + n + ' soldiers aboard</div></span>';
+      const ctl = el("span", "sqstep");
+      const m = el("button"); m.textContent = "\u2212"; m.onclick = () => { lost[uid] = Math.max(0, lost[uid] - 1); drawV(); };
+      const b = el("b"); b.textContent = lost[uid] + " lost";
+      const p = el("button"); p.textContent = "+"; p.onclick = () => { lost[uid] = Math.min(n, lost[uid] + 1); drawV(); };
+      const rl = el("button", "btn sm"); rl.textContent = "\u{1F3B2} roll"; rl.onclick = () => { let k = 0; for (let i = 0; i < n; i++) if (1 + Math.floor(Math.random() * 6) <= 3) k++; lost[uid] = k; drawV(); };
+      ctl.append(m, b, p, rl); d.appendChild(ctl); lst.appendChild(d);
+    });
+    $("pickExtra").innerHTML = "";
+    const go = el("button", "btn pri ready"); go.textContent = "Apply \u25B8";
+    go.onclick = () => {
+      closePicker();
+      vr.st.gv.carry = []; vr.st.gv.cargo = 0;
+      logEv(vr.uid, "Squads aboard disembarked at the wreck", "info");
+      save();
+      const queue = carry.filter(uid => lost[uid] > 0);
+      const next = () => {
+        const uid = queue.shift(); if (uid == null) { renderRoster(); return; }
+        const r = roster.find(x => x.uid === uid);
+        const before = JSON.parse(JSON.stringify(r.st.sq.soldiers));
+        const n = lost[uid];
+        const apply = () => {                             // automatic casualties, riflemen first (adjust on the Soldiers tab)
+          const rr = roster.find(x => x.uid === uid); if (!rr) return;
+          sqMigrate(unitById(rr.id), rr.st);
+          let k = n;
+          ["rifleman", "mg", "sniper", "shield", "armor", "recon"].forEach(role => rr.st.sq.soldiers.forEach(s => { if (k > 0 && s.r === role && s.hp > 0) { s.hp = 0; k--; } }));
+          sqSyncHP(rr.st);
+        };
+        apply();
+        damageUntick(uid);
+        logEv(uid, "Emergency Disembark: " + n + " soldier" + (n > 1 ? "s" : "") + " lost (riflemen first \u2014 adjust on the Soldiers tab)", "bad");
+        if (typeof mpForeign === "function") mpForeign(uid, apply, () => { const rr = roster.find(x => x.uid === uid); if (rr) { rr.st.sq.soldiers = before; sqSyncHP(rr.st); } }, "the disembark losses were");
+        next();
+      };
+      next();
+    };
+    $("pickExtra").appendChild(go); $("pickCancel").textContent = "Later"; $("pick").classList.add("on");
+  };
+  drawV();
 }
 
 SHIP_UNITS.forEach(s => UNITS.push(s));
@@ -8386,7 +9009,7 @@ function available() {
 window.clearSearch = () => { query = ""; const f = $("search"); if (f) f.value = ""; renderRoster(); };
 function freshState(u) {
   if (u && u.type === "warship") return shipFresh(u);
-  if (u && u.type === "ground") return gvFresh(u);
+  if (u && u.type === "ground") return u.gtype === "squad" ? sqFresh(u) : gvFresh(u);
   const hp = {}; LIMB_ORDER.forEach(k => hp[k] = u.limb[k]);
   return {
     hp, dodges: u.dodges, ap: u.ap,
@@ -10111,7 +10734,7 @@ function applyHud() {
 function buildFrame() {
   if (!U) return;
   if (isShip(U)) { buildShipFrame(); return; }
-  if (isGround(U)) { buildGroundFrame(); return; }
+  if (isGround(U)) { if (isSquad(U)) buildSquadFrame(); else buildGroundFrame(); return; }
   $("sheet").classList.remove("shipsheet");
   const cov = ["blue360", "red360", "phenex"].indexOf(U.bg) >= 0 ? "360" : "180";
   const ring = !!U.ring, model = mechModel(U), rolled = isGruntTier(U);
@@ -10203,10 +10826,10 @@ function openSheet(uid) {
   CUR = roster.find(r => r.uid === uid);
   if (!CUR) return;
   { const cs = locked ? carrierState(uid) : null;
-    if (cs && cs.state === "aboard") { mpToast(unitLabel(uid) + " is aboard the " + cs.u.short + " \u2014 launch it from the ship's sheet."); openSheet(cs.ship.uid); return; } }
+    if (cs && cs.state === "aboard") { mpToast(unitLabel(uid) + " is aboard the " + cs.u.short + " \u2014 " + (isShip(cs.u) ? "launch it from the ship's sheet." : "disembark it from the vehicle's sheet.")); openSheet(cs.ship.uid); return; } }
   U = unitById(CUR.id);
   if (isShip(U) || isGround(U)) {                    // warships and ground vehicles have their own sheets
-    const s = isShip(U) ? shipMigrate(U, CUR.st) : gvMigrate(U, CUR.st);
+    const s = isShip(U) ? shipMigrate(U, CUR.st) : isSquad(U) ? sqMigrate(U, CUR.st) : gvMigrate(U, CUR.st);
     hp = s.hp; dodges = 0; ap = s.ap; track = s.track; wpn = s.wpn; sh = s.sh; shDown = s.shDown; shMax = s.shMax;
     out = null; lent = s.lent; pods = null; risk = s.risk; swapMode = false; swapFrom = null; active = null;
     applyHud();
@@ -10552,6 +11175,19 @@ function applyNuke(i) {
     return;
   }
   const dmg = NUKE.suit[i];
+  if (isSquad(U)) {
+    logEv(CUR.uid, tag + " \u2014 every soldier caught in the blast takes " + dmg, "bad");
+    if (dmg >= 6) sqCasualtyPicker(sqAlive(CUR.st), "Nuclear blast: " + dmg + " damage kills every soldier caught inside \u2014 pick each one (tap Later to stop).");
+    else mpToast("Apply " + dmg + " damage to each soldier caught in the blast on the Soldiers tab.");
+    return;
+  }
+  if (isGround(U)) {
+    const was = CUR.st.hp.hp; CUR.st.hp.hp = Math.max(0, was - dmg);
+    aggDmg(CUR.uid, "gv:hp", "HP", was - CUR.st.hp.hp, CUR.st.hp.hp, U.hp);
+    logEv(CUR.uid, tag + " \u2014 " + dmg + " damage", "bad");
+    if (was > 0 && CUR.st.hp.hp === 0) { logEv(CUR.uid, "DESTROYED \u2014 respawns from the " + U.respawn, "bad", "gv0"); if (gvCarry(CUR).length) { const vr = CUR; setTimeout(() => openVehicleDisembark(vr), 60); } }
+    gvCommit(); return;
+  }
   LIMB_ORDER.forEach(k => { hp[k] = Math.max(0, hp[k] - dmg); });
   logEv(CUR.uid, tag + " \u2014 " + dmg + " damage to all 6 locations", "bad");
   draw(); save();
@@ -10653,7 +11289,7 @@ function abilityLocked(a, abilities, trackArr) {
 
 function draw() {
   if (U && isShip(U)) { drawShip(); return; }
-  if (U && isGround(U)) { drawGround(); return; }
+  if (U && isGround(U)) { if (isSquad(U)) drawSquad(); else drawGround(); return; }
   $("sheet").classList.remove("shipsheet");
   $("sheet").classList.toggle("st-noattack", !!CUR && stanceOf(CUR.st) === "boost");
   updateStanceBtn();
@@ -12011,7 +12647,7 @@ function draw() {
   }
 }
 
-const APP_BUILD = "cf33";
+const APP_BUILD = "cf34";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
@@ -12021,7 +12657,10 @@ $("mDmg").onclick = () => { mode = "damage"; document.body.classList.remove("rep
 $("mRep").onclick = () => { mode = "repair"; document.body.classList.add("repair"); $("mRep").className = "on-rep"; $("mDmg").className = ""; };
 function advance(u, st) {
   if (isShip(u)) { shipAdvance(u, st); return; }
-  if (isGround(u)) { gvAdvance(u, st); return; }
+  if (isGround(u)) {
+    if (u.gtype === "squad") { sqMigrate(u, st); st.ap = sqAlive(st) === 1 ? 1 : u.ap; return; }
+    gvAdvance(u, st); return;
+  }
   // modes tick first, so a buff that runs out does not leak into the new turn
   u.abilities.forEach((a, i) => {
     const t = st.track[i];
@@ -12298,6 +12937,11 @@ function mpDefenderCount() {
     const S = (mp.data["unit/" + ot + "/" + x.uid] || {}).st; const sh = S && S.ship;
     ((sh && sh.carry) || []).forEach(v => aboard.add(v));
     ((sh && sh.docking) || []).forEach(d => aboard.add(d.uid));
+  });
+  td.roster.forEach(x => {
+    const u = unitById(x.id); if (!isGround(u)) return;
+    const G = ((mp.data["unit/" + ot + "/" + x.uid] || {}).st || {}).gv;
+    ((G && G.carry) || []).forEach(v => aboard.add(v));
   });
   let n = 0, of = 0;
   td.roster.forEach(x => {

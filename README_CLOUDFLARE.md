@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf33)
+# Gunpla Battle — Cloudflare version (build cf34)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -101,3 +101,4 @@ public/            the app (index.html, images, service worker)
 | cf31 | `public/index.html`, `public/sw.js` | **DONE in the enemy turn = yellow tally** ("damage counted so far"): roster marks, sheet DONE button, turn-box counter and hint; a counted unit that loses health again clears its mark and shows ↻ RE-CHECK until DONE is tapped again; repairs don't clear it; marks reset every turn and sync live |
 | cf32 | `public/index.html`, `public/sw.js` | Enemy-turn sheet button now reads **DAMAGE COUNTED** (two lines, with the tally); hint and messages use the same wording |
 | cf33 | `src/index.js`, `public/index.html`, `public/sw.js` | **End-turn requests**: if the other team hasn't marked every unit that can take damage as DAMAGE COUNTED, End My Turn becomes a request (waiting count + Cancel); it passes automatically once all are counted, or when the defending leader taps **Accept now**. **Pass leadership** (turn box, or 'make leader' in the lobby) |
+| cf34 | `public/index.html`, `public/sw.js` | **Infantry Squads** (up to 4, free): 3-tab sheet — **Overmap** (squad health = living soldiers with a who-falls picker, AP, Hide, Coordinated Strike), **8 Soldiers** (HP / Kevlar / shields / swaps / items / KIA), **Quick Resolve** (rounds, firepower & suppression, item charges, blind call + reveal with the counter triangle, margin / volley tables, optional simulated dice, Objective Clash, Forced Re-Engagement, new segment / engagement). **Squads ride in vehicles** (Car 1, Heli 1, Transport 2): load step at Confirm, embark / disembark, Emergency Disembark when the vehicle is destroyed. Fix: ☢ on vehicles / squads |
