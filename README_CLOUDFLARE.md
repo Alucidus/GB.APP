@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf28)
+# Gunpla Battle — Cloudflare version (build cf30)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -96,3 +96,5 @@ public/            the app (index.html, images, service worker)
 | cf26 | `public/index.html`, `public/sw.js`, **new folder** `public/img/ground/` (32 images) | **Ground units, stage 1**: Ground Units tab with vehicle cards (free, per-type caps + 8-vehicle cap); Tank / Car / Helicopter / Jet / Transport Ship sheets (tinted wireframes, HP + Armor rings, OVERMAP/GROUND weapons with cooldowns and Bombing/Strafe charges, Fire/Air Support target-effect tables, AP / Movement / Dodge, MOVE, Hide Stance, cargo, objective, targeting, respawn) |
 | cf27 | `public/index.html`, `public/sw.js` | Fix: the round portrait badge on ship and ground-vehicle sheets used the faded "no portrait yet" style (30% opacity + scan lines) — pictures now show at full strength (was nearly invisible on Spacenoid sheets) |
 | cf28 | `public/index.html`, `public/sw.js` | Ship and ground-vehicle health bubbles: numbers centred in the white bubble (current value large, "/max" small underneath); three-digit hulls fit |
+| cf29 | `public/index.html`, `public/sw.js` | **STANCE button** on every sheet (beside TABLES): suits Defense / Overwatch / Focus / Boost / Peek & Shoot (+ Stealth for stealth units); warships and all vehicles Boost; one stance at a time, Stealth never combines; effects applied (Boost +10cm & attack lock, Focus no Dodge, durations), stance tags on roster + enemy panel. Tank Fire Support has no cooldown; Tank/Car lose Hide; colour wheel for duplicate ground units |
+| cf30 | `public/index.html`, `public/sw.js` | STANCE button restyled to match TABLES exactly (same outline/fill layers, size, row); TABLES + STANCE now share one dock plate mirroring DONE + ROSTER (equal gap and margins); active stance keeps the same shape in purple; decorative stripes moved clear |

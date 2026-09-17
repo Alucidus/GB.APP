@@ -459,7 +459,7 @@ body.repair .amt .a.on{background:var(--okc);border-color:var(--okc);color:#0415
 #tblbody td{border-bottom:1px solid #1f2b35}
 
 /* sheet overlay buttons: uniform angular buttons, DONE right beside ROSTER */
-#rosterBtn,#tablesBtn,#doneBtn{position:absolute;top:auto;bottom:.8%;transform:none;z-index:40;box-sizing:border-box;
+#rosterBtn,#tablesBtn,#doneBtn,#stanceBtn{position:absolute;top:auto;bottom:.8%;transform:none;z-index:40;box-sizing:border-box;
   width:10.2cqw;height:3.7cqw;min-height:0;padding:0;display:flex;align-items:center;justify-content:center;
   border-radius:0;border:1px solid;font-size:clamp(9px,1.25cqw,17px);font-weight:900;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;
   background:linear-gradient(110deg,rgba(255,255,255,.10),rgba(8,13,19,.94) 60%);box-shadow:inset 0 0 1.4cqw rgba(0,0,0,.6);
@@ -467,7 +467,7 @@ body.repair .amt .a.on{background:var(--okc);border-color:var(--okc);color:#0415
 #rosterBtn{left:auto;right:1.5%}
 #doneBtn{left:auto;right:calc(1.5% + 10.8cqw)}
 #tablesBtn{left:1.5%;right:auto}
-#rosterBtn:active,#tablesBtn:active,#doneBtn:active{transform:translateY(1px);filter:brightness(.88)}
+#rosterBtn:active,#tablesBtn:active,#doneBtn:active,#stanceBtn:active{transform:translateY(1px);filter:brightness(.88)}
 #doneBtn.isdone{background:linear-gradient(110deg,#45e6a1,#23a873);border-color:#b7f7da;color:#03140c;box-shadow:inset 0 0 1.2cqw rgba(255,255,255,.25)}
 
 /* in-sheet chips and buttons get the same cut corners */
@@ -693,11 +693,11 @@ body.hud #sheet .apdrop .num{animation:apdrop .6s ease-out}
 #frame .fdock:before{content:"";position:absolute;left:50%;top:0;width:28%;height:.16cqw;transform:translateX(-50%);background:var(--f-acc);box-shadow:0 0 .6cqw var(--f-glow)}
 #frame .fdock.l{left:3.1%;width:11.8%}
 #frame .fdock.r{left:76.1%;width:20.8%}
-#rosterBtn,#tablesBtn,#doneBtn{width:9.6cqw;height:3.6cqw;bottom:1.3%;border:0 !important;background:none !important;box-shadow:none !important;
+#rosterBtn,#tablesBtn,#doneBtn,#stanceBtn{width:9.6cqw;height:3.6cqw;bottom:1.3%;border:0 !important;background:none !important;box-shadow:none !important;
   clip-path:none !important;isolation:isolate;color:var(--acc,#7dd3fc) !important;text-shadow:0 0 .5cqw var(--acc-glow,rgba(125,211,252,.5))}
-#rosterBtn:before,#tablesBtn:before,#doneBtn:before{content:"";position:absolute;inset:0;z-index:-2;background:var(--acc,#7dd3fc);
+#rosterBtn:before,#tablesBtn:before,#doneBtn:before,#stanceBtn:before{content:"";position:absolute;inset:0;z-index:-2;background:var(--acc,#7dd3fc);
   clip-path:polygon(0 .7cqw,.7cqw 0,calc(100% - 1.1cqw) 0,100% 1.1cqw,100% 100%,1cqw 100%,0 calc(100% - 1cqw))}
-#rosterBtn:after,#tablesBtn:after,#doneBtn:after{content:"";position:absolute;inset:.12cqw;z-index:-1;
+#rosterBtn:after,#tablesBtn:after,#doneBtn:after,#stanceBtn:after{content:"";position:absolute;inset:.12cqw;z-index:-1;
   background:linear-gradient(110deg,var(--acc-btn,#10304a),rgba(6,10,16,.97) 62%);
   clip-path:polygon(0 .64cqw,.64cqw 0,calc(100% - 1.04cqw) 0,100% 1.04cqw,100% 100%,.94cqw 100%,0 calc(100% - .94cqw))}
 #tablesBtn{left:3.4%;right:auto}
@@ -723,9 +723,10 @@ body.hud #sheet .undoA,body.hud #sheet .undoA.hudlite{border-color:var(--acc,#7d
 
 /* ===== bottom dock v58: every button group centred on its own plate, equal margins ===== */
 #frame .fdock{bottom:.35%;height:8.05%}
-#frame .fdock.l{left:3.0%;width:11.2%}
+#frame .fdock.l{left:3.0%;width:21.4%}
 #frame .fdock.r{left:75.6%;width:21.4%}
 #tablesBtn{left:3.8%}
+#stanceBtn{left:calc(3.8% + 10.2cqw);right:auto}
 #rosterBtn{right:3.8%}
 #doneBtn{right:calc(3.8% + 10.2cqw)}
 .swapbar .hint.warn{background:#ff4455;border-color:#ff4455;color:#fff}
@@ -1395,7 +1396,7 @@ body.spa #oppBox .opphdr{border-image:linear-gradient(90deg,#38bdf8,transparent)
 #mpRO{position:absolute;inset:0;z-index:60;display:none;cursor:not-allowed;background:repeating-linear-gradient(-45deg,rgba(0,0,0,.0) 0 18px,rgba(255,255,255,.025) 18px 36px)}
 #mpROtag{position:absolute;left:50%;top:1.2%;transform:translateX(-50%);z-index:61;display:none;pointer-events:none;
   padding:.5cqw 1.6cqw;font:800 1.35cqw system-ui,sans-serif;letter-spacing:.08em;color:#fde68a;background:rgba(0,0,0,.82);border:1px solid #b45309}
-#sheet #rosterBtn,#sheet #tablesBtn{z-index:62}
+#sheet #rosterBtn,#sheet #tablesBtn,#sheet #stanceBtn{z-index:62}
 body.mpro #mDmg,body.mpro #mRep,body.mpro #amtBar,body.mpro #resetU{opacity:.35;pointer-events:none}
 .mpwait{font:800 13px system-ui,sans-serif;letter-spacing:.06em;color:var(--muted);padding:10px 14px;border:1px dashed var(--acc-line)}
 /* lobby */
@@ -1962,6 +1963,39 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 #sheet .sx .gscale.gd{color:#0b0f14;background:#fbbf24}
 #frame .fshiplbl small{font-size:.7em;color:var(--f-mut)}
 #sheet .sx.sname.long{font-size:clamp(7px,1.75cqw,24px);letter-spacing:.06em}
+
+/* ================= STANCES (cf29) ================= */
+#stanceBtn{display:flex;align-items:center;justify-content:center;gap:.3cqw;cursor:pointer;font-size:clamp(9px,1.15cqw,16px)}
+#stanceBtn.on{color:#ede9fe !important;text-shadow:0 0 .6cqw rgba(196,181,253,.8)}
+#stanceBtn.on:before{background:#c4b5fd}
+#stanceBtn.on:after{background:linear-gradient(110deg,rgba(124,58,237,.9),rgba(24,10,48,.97) 62%)}
+#stanceBtn.on.st-stealth{color:#e2e8f0 !important;text-shadow:none}
+#stanceBtn.on.st-stealth:before{background:#94a3b8}
+#stanceBtn.on.st-stealth:after{background:linear-gradient(110deg,rgba(71,85,105,.95),rgba(8,13,19,.97) 62%)}
+#sheet.st-noattack .wrow,#sheet.st-noattack .wpip:not(.undoA){opacity:.32;pointer-events:none;filter:grayscale(.8)}
+#sheet .txt.stlock{transform:none;display:flex;align-items:center;justify-content:center;z-index:12;pointer-events:none;
+  background:repeating-linear-gradient(-45deg,rgba(40,16,80,.72) 0 1.2cqw,rgba(20,8,40,.72) 1.2cqw 2.4cqw);border:1px solid rgba(196,181,253,.6)}
+#sheet .txt.stlock span{font:900 clamp(7px,1.2cqw,17px) system-ui,sans-serif;letter-spacing:.14em;color:#ede9fe;padding:.4cqw 1cqw;
+  background:rgba(91,33,182,.92);border:1px solid #c4b5fd;box-shadow:0 0 1cqw rgba(167,139,250,.6)}
+#sheet .sx.smove.boost{color:#c4b5fd;text-shadow:0 0 .8cqw rgba(167,139,250,.8)}
+.sttag{display:inline-block;margin-left:6px;padding:1px 7px;font:800 10px system-ui,sans-serif;letter-spacing:.08em;vertical-align:middle;white-space:nowrap;
+  color:#ede9fe;background:rgba(91,33,182,.9);border:1px solid #a78bfa}
+.sttag.st-stealth{background:rgba(30,41,59,.95);border-color:#64748b;color:#cbd5e1}
+.sttag.st-defense{background:rgba(3,105,161,.9);border-color:#7dd3fc;color:#e0f2fe}
+.sttag.st-overwatch{background:rgba(146,64,14,.9);border-color:#fbbf24;color:#fef3c7}
+.stgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.stcard{text-align:left;cursor:pointer;padding:12px 14px;color:#e2e8f0;background:linear-gradient(160deg,rgba(30,41,59,.9),rgba(8,12,18,.95));
+  border:1px solid rgba(255,255,255,.14);clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);transition:border-color .15s,transform .1s}
+.stcard:hover{border-color:#a78bfa}
+.stcard:active{transform:scale(.98)}
+.stcard.on{border-color:#c4b5fd;background:linear-gradient(160deg,rgba(91,33,182,.75),rgba(20,8,40,.95));box-shadow:0 0 16px rgba(167,139,250,.4)}
+.stc-top{display:flex;align-items:center;gap:8px}
+.stc-ic{font-size:22px;line-height:1;width:28px;text-align:center}
+.stc-top b{font-size:17px;letter-spacing:.08em;text-transform:uppercase;color:#fff}
+.stc-top em{margin-left:auto;font-style:normal;font:800 10px system-ui,sans-serif;letter-spacing:.12em;padding:2px 7px;color:#0b0f14;background:#a78bfa}
+.stc-when{margin:6px 0 4px;font:800 10px system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#c4b5fd}
+.stcard p{margin:4px 0 0;font-size:12.5px;line-height:1.35;color:#cbd5e1}
+.stcard p.stc-trade{color:#fca5a5}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -2231,7 +2265,7 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
   <div id="sheet"><div id="frame" aria-hidden="true"></div><div id="hudfx" aria-hidden="true"><i class="hs"></i></div><div id="dead"><div>DESTROYED</div></div>
     <div id="rosterBtn" onclick="openPicker()">ROSTER</div>
     <div id="doneBtn" style="display:none"></div>
-    <div id="tablesBtn" onclick="openTables()">TABLES</div></div>
+    <div id="tablesBtn" onclick="openTables()">TABLES</div><div id="stanceBtn" onclick="openStances()">STANCE</div></div>
   <div id="tl"></div>
   <div id="hint">Turns are ended once, for the whole force, from the <b>roster</b> (tap the turn chip). Tap a limb to apply the current mode · tap a counter to wake its −/+ · tap a skill or weapon <b>name</b> to read what it does. Sazabi dies to <b>Head</b>, not Chest.</div>
 </section>
@@ -7072,6 +7106,7 @@ function shipFire(i) {
   if (!CUR || !isShip(U) || !mpSheetCanEdit()) return;
   const st = CUR.st, S = st.ship, w = U.sw[i], uid = CUR.uid;
   if (st.hp.hull === 0) return;
+  if (stanceOf(st) === "boost") { mpToast("Boost Stance: a Boosting warship fires none of its weapons this turn."); return; }
   if ((S.bridge === 0 && !w.indep) || S.sys[i] === 0) { mpToast(w.name + " is offline" + (S.sys[i] > 0 ? " \u2014 no Bridge." : ".")); return; }
   if (S.cd[i] > 0) { mpToast(w.name + " is cooling down (" + S.cd[i] + " turn" + (S.cd[i] > 1 ? "s" : "") + ")."); return; }
   if (w.charges && !(S.ch[i] > 0)) { mpToast("No " + w.name + " charges left."); return; }
@@ -7126,7 +7161,7 @@ function buildShipFrame() {
   const pc = v => v + "%";
   add("fbreath"); add("fbreath b2"); add("fgrid");
   add("fb tl"); add("fb tr"); add("fb bl"); add("fb br");
-  add("fstripe", { left: "36%", top: "1cqw" }); add("fstripe", { left: "4%", bottom: "1.2cqw" });
+  add("fstripe", { left: "36%", top: "1cqw" }); add("fstripe", { left: "27%", bottom: "1.2cqw" });
   add("fdock l"); add("fdock r");
   // the ship wireframe
   const b = u.box, mwid = u.aspect * b.h * 0.5625;
@@ -7178,6 +7213,8 @@ function buildShipFrame() {
 }
 function drawShip() {
   const u = U, st = shipMigrate(u, CUR.st), S = st.ship;
+  $("sheet").classList.remove("st-noattack"); updateStanceBtn();
+  const boosting = stanceOf(st) === "boost";
   hp = st.hp; ap = st.ap; dodges = 0;
   const sheet = $("sheet");
   sheet.classList.add("shipsheet");
@@ -7293,14 +7330,17 @@ function drawShip() {
   stepper(SHIP_HEX[0][0], S.crew, u.crew, "crew");
   stepper(SHIP_HEX[1][0], st.ap, u.ap, "ap");
   const mv = shipMove(u, S);
-  add("div", "smove" + (mv.warn ? " warn" : ""), { left: "49.8%", top: pc(SHIP_HEX[2][0]) }, mv.txt + "<small>" + mv.sub + "</small>");
+  add("div", "smove" + (mv.warn ? " warn" : "") + (boosting ? " boost" : ""), { left: "49.8%", top: pc(SHIP_HEX[2][0]) },
+    (boosting && mv.txt.endsWith("cm") ? (parseFloat(mv.txt) + 10) + "cm" : mv.txt) + "<small>" + (boosting ? "boosted \u00b7 " : "") + mv.sub + "</small>");
   // MOVE: 1 AP per move, like the suit sheets
   const QT = sideKey() === "red"
     ? ["rgba(48,5,10,.5)", "rgba(48,5,10,.78)", "#ff4d5a", "#ffe4e6", "rgba(255,77,90,.24)", "#3a0509"]
     : ["rgba(6,30,78,.46)", "rgba(6,30,78,.72)", "#7dd3fc", "#e0f2fe", "rgba(125,211,252,.28)", "#082f49"];
   let qa = st.qa;
   if (!qa || !sameHalf(qa)) qa = st.qa = { r: turn.round, p: turn.phase, m: 0, d: 0 };
-  const cm = S.thr.filter(v => v === 0).length >= 2 ? 0 : S.thr.some(v => v === 0) ? u.moveCm / 2 : u.moveCm;
+  const cm0 = S.thr.filter(v => v === 0).length >= 2 ? 0 : S.thr.some(v => v === 0) ? u.moveCm / 2 : u.moveCm;
+  const cm = cm0 > 0 && boosting ? cm0 + 10 : cm0;
+  if (boosting) add("div", "hudwarn swarn good", { left: "49.8%", top: "55.5%" }, "\u00BB BOOST \u2014 +10cm/AP \u00b7 NO WEAPONS THIS TURN");
   const cantMove = st.ap < 1 || cm === 0 || dead;
   const box = add("div", "qa sqa", { left: "49.8%", top: pc(SHIP_MOVE_Y) });
   ["--qa-bg", "--qa-bg-on", "--qa-ac", "--qa-tx", "--qa-glow", "--qa-dk"].forEach((k, j) => box.style.setProperty(k, QT[j]));
@@ -7630,7 +7670,7 @@ const GV_TYPES = {
   tank: { cls: "Tank", hp: 18, armor: 6, ap: 4, moveCm: 15, dodge: null, prox: 40, respawn: "base", cargo: 0, objective: true, targets: "fire",
     targetNote: "Fire Support hits friend and foe inside the radius. Aircraft are never affected.",
     gw: [
-      { key: "fire", scale: "OVERMAP", name: "Fire Support", dmg: "per target", ap: 2, range: "60cm \u00b7 10cm AoE", cd: 1,
+      { key: "fire", scale: "OVERMAP", name: "Fire Support", dmg: "per target", ap: 2, range: "60cm \u00b7 10cm AoE", cd: 0,
         note: "The Tank's only Overmap attack. Standard range-based to-hit. Everything inside the 10cm radius is a target, friend or foe. Effect by target: Infantry Squad \u2192 Squad Splash Table (" + SPLASH_TABLE + "); ground vehicle \u2192 6 damage (armour-piercing round); mobile suit \u2192 2 damage to all 6 locations; aircraft \u2192 cannot be targeted." },
       { key: "cannon", scale: "GROUND", name: "Main Cannon", dmg: "6", ap: 2, range: "10cm AoE", cd: 1,
         note: "Detailed Battle Map. 6 damage in a 10cm radius \u2014 kills any soldier outright, no Kevlar save. Rolled Dodge 4+ (1d6). 1 turn cooldown." },
@@ -7725,7 +7765,7 @@ function groundCardsHTML() {
   const card = u => {
     const n = mine.filter(x => x.id === u.id).length, cap = GROUND_CAP[u.gtype], full = n >= cap || vehicles >= GROUND_VEHICLE_CAP;
     const stat = (k, v) => '<div class="sc-st"><small>' + k + '</small><b>' + v + '</b></div>';
-    return '<div class="shipcard gcard ' + fac + (n ? ' has' : '') + (full ? ' full' : '') + '" onclick="addUnit(\'' + u.id + '\')">' +
+    return '<div class="shipcard gcard ' + fac + (n ? ' has' : '') + (full ? ' full' : '') + '" onclick="addUnit(\'' + u.id + '\');promptMarks(\'' + u.id + '\')">' +
       '<div class="sc-grid"></div><div class="sc-glow"></div>' +
       '<div class="sc-art"><img src="img/ground/' + fac + '-' + u.gtype + '.webp" alt="" loading="lazy" decoding="async"></div>' +
       '<div class="sc-info">' +
@@ -7770,7 +7810,7 @@ function buildGroundFrame() {
   const pc = v => v + "%";
   add("fbreath"); add("fbreath b2"); add("fgrid");
   add("fb tl"); add("fb tr"); add("fb bl"); add("fb br");
-  add("fstripe", { left: "36%", top: "1cqw" }); add("fstripe", { left: "4%", bottom: "1.2cqw" });
+  add("fstripe", { left: "36%", top: "1cqw" }); add("fstripe", { left: "27%", bottom: "1.2cqw" });
   add("fdock l"); add("fdock r");
   const b = gvModelBox(u);
   const mw = add("fmech fship", { left: pc(b.cx), top: pc(b.top), height: pc(b.h), width: b.w + "cqw" });
@@ -7831,7 +7871,7 @@ function gvFire(i) {
   if (!CUR || !isGround(U) || !mpSheetCanEdit()) return;
   const st = CUR.st, G = st.gv, w = U.gw[i], uid = CUR.uid;
   if (st.hp.hp === 0) return;
-  if (G.hide) { mpToast("Hide Stance: this unit can't attack this turn."); return; }
+  if (stanceOf(st) === "boost") { mpToast("Boost Stance: no attacks this turn."); return; }
   if (G.cd[i] > 0) { mpToast(w.name + " is cooling down."); return; }
   if (w.charges && G.ch[i] >= w.charges) { mpToast("All " + w.charges + " " + w.name + " charges have been granted."); return; }
   if (st.ap < w.ap) { mpToast("Not enough AP."); return; }
@@ -7857,6 +7897,8 @@ function gvToggle(k, v) {
 }
 function drawGround() {
   const u = U, st = gvMigrate(u, CUR.st), G = st.gv;
+  $("sheet").classList.remove("st-noattack"); updateStanceBtn();
+  const boosting = stanceOf(st) === "boost";
   hp = st.hp; ap = st.ap; dodges = 0;
   const sheet = $("sheet");
   sheet.classList.add("shipsheet");
@@ -7885,12 +7927,12 @@ function drawGround() {
     r.onclick = () => gvTap(k);
   });
   if (u.armor) add("div", "gnote", { left: "34%", top: "45.5%" }, "Armor exists on the Detailed Battle Map only \u2014 the Overmap uses the flat HP.");
-  if (G.hide) add("div", "hudwarn swarn good", { left: "34%", top: "51%" }, "\u25D2 HIDE STANCE \u2014 UNTARGETABLE BY MOBILE SUITS");
+  if (boosting) add("div", "hudwarn swarn good", { left: "34%", top: "51%" }, "\u00BB BOOST \u2014 +10cm/AP \u00b7 NO ATTACKS THIS TURN");
   // weapons
   if (!u.gw.length) add("div", "sw-name", { left: "7.2%", top: pc(SHIP_ROWS_W[0]) }, "<b>No weapons</b><span>delivery platform only</span>");
   u.gw.forEach((w, i) => {
     const y = SHIP_ROWS_W[i], cd = G.cd[i] || 0, used = w.charges ? G.ch[i] : 0;
-    const off = dead || G.hide || (w.charges && used >= w.charges);
+    const off = dead || boosting || (w.charges && used >= w.charges);
     const nm = add("div", "sw-name" + (dead ? " off" : ""), { left: "7.2%", top: pc(y) },
       '<b>' + w.name + '</b><span><em class="gscale ' + (w.scale === "OVERMAP" ? "om" : "gd") + '">' + w.scale + '</em>' +
       (w.charges ? " \u00b7 " + used + "/" + w.charges + " charges granted" : "") + (w.cd ? " \u00b7 " + w.cd + "-turn cooldown" : "") + '</span>');
@@ -7898,7 +7940,7 @@ function drawGround() {
     add("div", "sw-cell", { left: "27.05%", top: pc(y) }, w.dmg);
     add("div", "sw-cell rng", { left: "39.0%", top: pc(y) }, w.range);
     const b = add("div", "sw-ap" + (off ? " off" : cd ? " cd" : ""), { left: "32.35%", top: pc(y) }, off ? "\u2715" : cd ? "CD " + cd : String(w.ap));
-    b.title = G.hide ? "Hide Stance: no attacks" : cd ? "Cooling down" : "Tap to use (" + w.ap + " AP)";
+    b.title = boosting ? "Boost Stance: no attacks this turn" : cd ? "Cooling down" : "Tap to use (" + w.ap + " AP)";
     b.onclick = () => gvFire(i);
   });
   // target effects
@@ -7908,9 +7950,6 @@ function drawGround() {
     '<p>' + u.targetNote + (T && T[0][1].indexOf("Splash") >= 0 ? ' <i>Splash: ' + SPLASH_TABLE + '</i>' : '') + '</p>');
   // status rows
   const rows = [];
-  rows.push({ name: "Hide Stance", sub: "halve move \u00b7 no attacks \u00b7 hidden from suits", ap: G.hide ? "ON" : "free", cd: G.hide ? "THIS TURN" : "\u2014",
-    act: () => gvToggle("hide"), on: G.hide,
-    info: "Free to declare on your own turn. Movement is halved, the unit cannot attack at all, and it is completely untargetable by mobile suits for the turn regardless of proximity. It does NOT protect against other ground units." });
   if (u.cargo) rows.push({ name: "Squads aboard", sub: "capacity " + u.cargo + " \u00b7 safe & untargetable", ap: "\u2014", cd: G.cargo + " / " + u.cargo, step: true,
     info: "Carries " + u.cargo + " Infantry Squad" + (u.cargo > 1 ? "s" : "") + ", safe and untargetable while aboard. If destroyed with squads inside: Emergency Disembark \u2014 roll 1d6 per living soldier, 4+ survives, 1\u20133 perishes; survivors are placed at the wreck. Use \u2212/+ to track who is aboard (linked to squads in the next build)." });
   if (u.objective) rows.push({ name: "Objective", sub: "may carry the mission objective", ap: G.objective ? "ON" : "set", cd: G.objective ? "CARRYING" : "\u2014", act: () => gvToggle("objective"), on: G.objective,
@@ -7942,8 +7981,8 @@ function drawGround() {
     const p = el("div", "step show"); p.textContent = "+"; p.style.borderColor = col; p.style.color = col; p.onclick = () => gvToggle("ap", 1);
     g.append(m, n, p);
   }
-  const cm = G.hide ? u.moveCm / 2 : u.moveCm;
-  add("div", "smove" + (G.hide ? " warn" : ""), { left: "49.8%", top: pc(GV_HEX[1][0]) }, cm + "cm<small>" + (G.hide ? "hidden \u00b7 halved" : "per AP") + "</small>");
+  const cm = boosting ? u.moveCm + 10 : u.moveCm;
+  add("div", "smove" + (boosting ? " boost" : ""), { left: "49.8%", top: pc(GV_HEX[1][0]) }, cm + "cm<small>" + (boosting ? "boosted \u00b7 per AP" : "per AP") + "</small>");
   add("div", "smove", { left: "49.8%", top: pc(GV_HEX[2][0]) }, (u.dodge ? u.dodge + "+" : "NONE") + "<small>" + (u.dodge ? "rolled \u00b7 unlimited" : "HP is its defence") + "</small>");
   // MOVE
   const QT = sideKey() === "red"
@@ -7964,6 +8003,133 @@ function drawGround() {
   box.append(mvb, mu);
   renderTurn();
   if (typeof mpSheetMode === "function") mpSheetMode();
+}
+
+// ================= STANCES (cf29) =================
+// One stance at a time (Section 9). Stealth is its own thing and never combines.
+// Stored on the unit: r.st.stance = { k, r: round declared, key: "round:phase" declared } — so it syncs like any unit change.
+const STANCES = {
+  defense:   { name: "Defense",      icon: "\u{1F6E1}", cost: "FREE",       lasts: "until your next turn",
+               eff: "If an enemy aims a ranged attack at an ally within 30cm, you may intercept it and take the hit instead.",
+               trade: "An interceptor gets no Dodge of any kind. A Natural 20 can't be intercepted." },
+  overwatch: { name: "Overwatch",    icon: "\u{1F441}", cost: "1 AP",       ap: 1, lasts: "until your next turn",
+               eff: "Lock a ranged weapon on a straight line 10cm wide. An enemy moving through it takes a free reaction shot (normal roll, its distance at that moment).",
+               trade: "Only pays off if someone actually crosses the line." },
+  focus:     { name: "Focus",        icon: "\u25CE",    cost: "1 AP",       ap: 1, lasts: "until your next turn",
+               eff: "Called Shots this turn ignore the +5 penalty.",
+               trade: "No Dodge at all (Free or rolled) until your next turn." },
+  boost:     { name: "Boost",        icon: "\u00BB",    cost: "FREE",       lasts: "this turn only",
+               eff: "+10cm per AP of movement this turn.",
+               trade: "No attacks at all this turn." },
+  peek:      { name: "Peek & Shoot", icon: "\u2316",    cost: "WEAPON AP",  lasts: "one shot",
+               eff: "From Cover, fire one shot with a standard weapon (no abilities). If the area is under enemy Overwatch, that unit may fire first at +3 to hit. Then you shoot with no penalty.",
+               trade: "Your target may return fire for free at +3 — only if it was facing you." },
+  stealth:   { name: "Stealth",      icon: "\u25D0",    cost: "TOGGLE",     lasts: "until switched off",
+               eff: "Move a marker instead of the model; it has a detection radius. Stealth-tagged weapons fire from the marker; any other weapon reveals you for the rest of this turn and the whole enemy turn.",
+               trade: "Movement capped at 2 AP per turn. Never combines with another stance." },
+  hide:      { name: "Hide",         icon: "\u25D2",    cost: "FREE",       lasts: "this turn",
+               eff: "Completely untargetable by mobile suits this turn, whatever the distance.",
+               trade: "Movement halved, no attacks. Ground attacks (Coordinated Strike, Tank cannon, Firefight) still hit." },
+};
+function stanceList(u) {
+  if (!u) return [];
+  if (isShip(u)) return ["boost"];
+  if (isGround(u)) return u.gtype === "squad" ? ["hide"] : ["boost"];
+  const L = ["defense", "overwatch", "focus", "boost", "peek"];
+  if ((u.abilities || []).some(a => a.fx && a.fx.stealth)) L.push("stealth");
+  return L;
+}
+function stanceOf(st) {
+  const s = st && st.stance; if (!s || !STANCES[s.k]) return null;
+  if (s.k === "boost" || s.k === "hide") return s.key === turnKeyNow2() ? s.k : null;          // this turn only
+  if (turn.phase === "you" && turn.round > s.r) return null;                                 // until your next turn
+  return s.k;
+}
+function suitStealthIdx(u) { return (u && u.abilities || []).findIndex(a => a.fx && a.fx.stealth && a.kind === "toggle"); }
+function suitStealthOn(u, st) { const i = suitStealthIdx(u); return i >= 0 && st && Array.isArray(st.track) && st.track[i] === 1; }
+function stanceNow(r) {                       // what a roster row / enemy panel should show
+  const u = unitById(r.id); if (!u || !r.st) return null;
+  if (!isShip(u) && !isGround(u) && suitStealthOn(u, r.st)) return "stealth";
+  return stanceOf(r.st);
+}
+function stanceTagHTML(k) { return k ? '<span class="sttag st-' + k + '">' + STANCES[k].icon + ' ' + STANCES[k].name.toUpperCase() + '</span>' : ''; }
+// AP of the open unit, whatever kind it is
+function stanceAP() { return (isShip(U) || isGround(U)) ? CUR.st.ap : ap; }
+function stanceSpend(n) {
+  if (isShip(U) || isGround(U)) { CUR.st.ap = Math.max(0, CUR.st.ap - n); ap = CUR.st.ap; }
+  else ap = Math.max(0, ap - n);
+}
+function stanceCommit() {
+  if (isShip(U)) return shipCommit();
+  if (isGround(U)) return gvCommit();
+  persist(); snaps[CUR.uid] = snapOf(CUR); draw(); save();
+}
+function setStance(k) {
+  if (!CUR || !U || (typeof mpSheetCanEdit === "function" && !mpSheetCanEdit())) return;
+  const D = STANCES[k], st = CUR.st, uid = CUR.uid;
+  if (!stanceList(U).includes(k)) return;
+  if (k === "peek") { closePicker(); showNotice("Peek & Shoot", "Requires the unit to be in Cover. Costs the equipped weapon's normal AP \u2014 spend it on the weapon as usual.\n\n1. If the area is under an enemy's Overwatch, that unit may fire first: its shot needs +3 to hit.\n2. Then you pick any target in your vision and fire one standard-weapon shot (no abilities) \u2014 no penalty.\n3. Return fire: your target may fire back for free at +3, but only if it was facing you. Shooting a target that faces away is safe from return fire."); return; }
+  if (turn.phase !== "you") { mpToast("Stances are declared on your own turn."); return; }
+  const stIdx = isShip(U) || isGround(U) ? -1 : suitStealthIdx(U);
+  const stealthOn = stIdx >= 0 && track[stIdx] === 1;
+  const cur = stanceOf(st);
+  if (k === "stealth") {
+    if (stIdx < 0) return;
+    if (!stealthOn && cur) {                                    // Stealth replaces whatever stance was up
+      if (STANCES[cur].ap && st.stance.key === turnKeyNow2()) ap = ap + STANCES[cur].ap;
+      st.stance = null;
+    }
+    track[stIdx] = stealthOn ? 0 : 1;
+    logEv(uid, stealthOn ? "Stealth Stance off" : "Stealth Stance on \u2014 move the marker, not the model", stealthOn ? "info" : "buff");
+    closePicker(); stanceCommit(); return;
+  }
+  if (stealthOn) { mpToast("Stealth Stance is its own thing \u2014 switch Stealth off first."); return; }
+  if (cur === k) {                                              // tap again: drop it
+    if (D.ap && st.stance.key === turnKeyNow2()) { if (isShip(U) || isGround(U)) { CUR.st.ap += D.ap; ap = CUR.st.ap; } else ap += D.ap; }
+    st.stance = null;
+    unlog(uid, "stance:" + k) || logEv(uid, D.name + " Stance dropped", "info");
+    closePicker(); stanceCommit(); return;
+  }
+  const refund = cur && STANCES[cur].ap && st.stance.key === turnKeyNow2() ? STANCES[cur].ap : 0;
+  if ((D.ap || 0) > stanceAP() + refund) { mpToast("Not enough AP for " + D.name + " (" + D.ap + " AP)."); return; }
+  if (refund) stanceSpend(-refund);
+  if (cur) unlog(uid, "stance:" + cur);
+  if (D.ap) stanceSpend(D.ap);
+  st.stance = { k, r: turn.round, key: turnKeyNow2() };
+  logEv(uid, D.name + " Stance" + (D.ap ? " (" + D.ap + " AP)" : "") + " \u2014 " + D.lasts, "buff", "stance:" + k);
+  closePicker(); stanceCommit();
+}
+window.setStance = setStance;
+window.openStances = () => {
+  if (!CUR || !U) return;
+  const list = stanceList(U), st = CUR.st;
+  const cur = (!isShip(U) && !isGround(U) && suitStealthOn(U, { track })) ? "stealth" : stanceOf(st);
+  $("pickT").textContent = "Stances \u2014 " + (U.short || U.name);
+  $("pickS").innerHTML = "One stance at a time, declared on your own turn. Tap an active stance to drop it." +
+    (turn.phase !== "you" ? " <b>It's the enemy turn</b> \u2014 you can read them, but not declare one now." : "");
+  const lst = $("picklist"); lst.innerHTML = "";
+  const grid = el("div", "stgrid");
+  list.forEach(k => {
+    const D = STANCES[k], on = cur === k;
+    const c = el("button", "stcard st-" + k + (on ? " on" : ""));
+    c.innerHTML = '<div class="stc-top"><span class="stc-ic">' + D.icon + '</span><b>' + D.name + '</b><em>' + D.cost + '</em></div>' +
+      '<div class="stc-when">' + (on ? "\u2713 ACTIVE \u00b7 " : "") + D.lasts + '</div>' +
+      '<p>' + D.eff + '</p><p class="stc-trade">' + D.trade + '</p>';
+    c.onclick = () => setStance(k);
+    grid.appendChild(c);
+  });
+  lst.appendChild(grid);
+  $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Close";
+  $("pick").classList.add("on");
+};
+function updateStanceBtn() {
+  const b = $("stanceBtn"); if (!b) return;
+  if (!CUR || !U) { b.style.display = "none"; return; }
+  b.style.display = "";
+  const k = (!isShip(U) && !isGround(U) && suitStealthOn(U, { track })) ? "stealth" : stanceOf(CUR.st);
+  b.className = k ? "on st-" + k : "";
+  b.innerHTML = k ? STANCES[k].icon + " " + STANCES[k].name.toUpperCase() : "STANCE";
+  b.title = k ? STANCES[k].name + " Stance active \u2014 tap to change" : "Declare a stance";
 }
 
 SHIP_UNITS.forEach(s => UNITS.push(s));
@@ -9582,7 +9748,8 @@ function renderOpp() {
       (dn ? '<span class="tick on" title="Done this turn">\u2713</span>' : '') +
       '<span class="opphp" style="background:' + HEALTH_COL(pct) + '"></span>' +
       portraitHTML(u).replace('</span>', markPipHTML(x) + '</span>') +
-      '<span style="min-width:0"><div class="nm">' + label + (oppAboard.has(x.uid) ? ' <span class="cartag aboard">\u2693 ABOARD</span>' : '') + '</div><div class="tr"><b style="color:' + HEALTH_COL(pct) + '">' + HEALTH_WORD(pct) + '</b> \u00b7 ' + u.tier + '</div></span>' +
+      '<span style="min-width:0"><div class="nm">' + label + (oppAboard.has(x.uid) ? ' <span class="cartag aboard">\u2693 ABOARD</span>' : '') +
+        (ud && ud.st ? ' ' + stanceTagHTML(stanceNow({ id: x.id, st: ud.st })) : '') + '</div><div class="tr"><b style="color:' + HEALTH_COL(pct) + '">' + HEALTH_WORD(pct) + '</b> \u00b7 ' + u.tier + '</div></span>' +
       '<span class="dp">' + u.dp.toLocaleString() + '</span></div>';
   });
   if (setHTMLIfChanged(box, h + '</div>')) splitColumns();
@@ -9596,7 +9763,7 @@ window.oppDetail = uid => {
     const G = st.gv || gvFresh(u).gv, hpv = (st.hp || {}).hp ?? u.hp, p = hpv / u.hp;
     let rows2 = '<div class="od-row"><span class="od-dot" style="background:' + HEALTH_COL(p) + '"></span><span>HP</span><b style="color:' + HEALTH_COL(p) + '">' + HEALTH_WORD(p) + '</b></div>';
     if (u.armor) { const pa = G.armor / u.armor; rows2 += '<div class="od-row"><span class="od-dot" style="background:' + HEALTH_COL(pa) + '"></span><span>Armor (ground battle)</span><b style="color:' + HEALTH_COL(pa) + '">' + (pa <= 0 ? "Stripped" : HEALTH_WORD(pa)) + '</b></div>'; }
-    if (G.hide) rows2 += '<div class="od-row"><span></span><span>Hide Stance</span><b>Hidden from mobile suits</b></div>';
+    { const sk = stanceOf(st); if (sk) rows2 += '<div class="od-row"><span></span><span>Stance</span><b>' + STANCES[sk].name + '</b></div>'; }
     $("popT").textContent = "Enemy \u2014 " + u.short; $("popK").textContent = teamName(ot) + " \u00b7 " + u.cls;
     $("popS").innerHTML = ""; $("popB").innerHTML = '<div class="oppdetail">' + rows2 + '</div><p class="cws" style="margin-top:8px">Exact numbers are hidden for enemy units.</p>';
     $("pop").classList.add("on");
@@ -9737,7 +9904,7 @@ function renderRosterCore() {
         portraitHTML(u, r) +
         '<span style="min-width:0"><div class="nm">' + (u.short || u.name) + (n > 1 ? ' <span style="color:var(--muted)">#' + idx + '</span>' : '') +
           (ctl ? ' <span class="ctltag" title="' + (ctl.me ? 'You have this sheet open' : ctl.name + ' has this sheet open') + '">' + (ctl.me ? '\u270E You' : '\u{1F512} ' + ctl.name) + '</span>' : '') +
-          (cst ? ' ' + carrierTag(r.uid) : '') + '</div>' +
+          (cst ? ' ' + carrierTag(r.uid) : '') + (locked ? ' ' + stanceTagHTML(stanceNow(r)) : '') + '</div>' +
         '<div class="tr">' + (dead ? "DESTROYED" : (LIMB_LABEL[kl] || "Chest") + " " + now + "/" + tot) + ' \u00b7 ' + u.tier +
         (!dead && u.abilities.some(x => x.kind === "auto" && autoOn(x, u, r.st))
           ? ' <b style="color:#fff;background:#b91c1c;border-radius:3px;padding:0 5px;margin-left:4px">' + u.abilities.find(x => x.kind === "auto").name.split(" ")[0].toUpperCase() + '</b>' : '') +
@@ -9913,7 +10080,7 @@ function buildFrame() {
   add("fgrid");                                                           // the HUD grid, above the background and the glow
   // corners and hazard stripes
   add("fb tl"); add("fb tr"); add("fb bl"); add("fb br");
-  add("fstripe", { left: "16.5%", bottom: "1.6cqw" }); add("fstripe", { right: "2.9cqw", top: "1cqw" });
+  add("fstripe", { left: "27%", bottom: "1.6cqw" }); add("fstripe", { right: "2.9cqw", top: "1cqw" });
   add("fdock l"); add("fdock r");                                        // plates the bottom buttons sit on
   // blueprint model behind everything else
   const mh = 76 * 0.5625;                                            // 76% of the sheet height, in container units
@@ -10440,6 +10607,8 @@ function draw() {
   if (U && isShip(U)) { drawShip(); return; }
   if (U && isGround(U)) { drawGround(); return; }
   $("sheet").classList.remove("shipsheet");
+  $("sheet").classList.toggle("st-noattack", !!CUR && stanceOf(CUR.st) === "boost");
+  updateStanceBtn();
   [...$("sheet").querySelectorAll(".sx")].forEach(n => n.remove());
   persist();
   trackChanges();
@@ -10541,6 +10710,8 @@ function draw() {
   else if (legsGone === 1) moveNow = Math.floor(moveNow / 2);
   const catapult = CUR && catapultActive(CUR.uid);
   if (catapult && moveNow > 0) { moveNow += 10; moveBoosted = true; }
+  const stanceK = CUR ? stanceOf(CUR.st) : null;
+  if (stanceK === "boost" && moveNow > 0 && !catapult) { moveNow += 10; moveBoosted = true; }
 
   // a dropped maximum must pull the live value down with it
   if (dodges > dodgeMax) dodges = dodgeMax;
@@ -10559,6 +10730,15 @@ function draw() {
   // active buffs collected into one strip, like the red damage strip below it
   const buffNotes = [];
   if (catapult) buffNotes.push("\u{1F680} CATAPULT LAUNCH \u2014 FREE BOOST, MAY ATTACK");
+  if (stanceK === "boost") buffNotes.push("\u00BB BOOST STANCE \u2014 +10cm/AP \u00b7 NO ATTACKS THIS TURN");
+  if (stanceK === "boost") {                                   // lay a lock over the weapons table
+    const lk = el("div", "txt stlock", { left: "3.4%", top: "66%", width: "38.35%", height: "24.4%" });
+    lk.innerHTML = "<span>\u00BB BOOST \u2014 NO ATTACKS THIS TURN</span>";
+    sheet.appendChild(lk);
+  }
+  if (stanceK === "focus") buffNotes.push("\u25CE FOCUS \u2014 CALLED SHOTS NO +5 \u00b7 NO DODGE UNTIL YOUR NEXT TURN");
+  if (stanceK === "defense") buffNotes.push("\u{1F6E1} DEFENSE \u2014 MAY INTERCEPT FOR AN ALLY WITHIN 30cm (NO DODGE)");
+  if (stanceK === "overwatch") buffNotes.push("\u{1F441} OVERWATCH \u2014 10cm LINE \u00b7 FREE REACTION SHOT");
   if (moveBoosted) buffNotes.push("MOVE " + moveNow + "cm");
   if (apTemp) buffNotes.push("AP " + apMax);
   if (dodgeCountTemp) buffNotes.push("DODGES " + dodgeMax);
@@ -11348,10 +11528,12 @@ function draw() {
     };
 
     // DODGE: one Free Dodge (Rolled Dodges on grunt sheets share the box)
-    const cantDodge = dodges < 1;
+    const focusNoDodge = CUR && stanceOf(CUR.st) === "focus";
+    const cantDodge = dodges < 1 || focusNoDodge;
     const dg = el("div", "qab dodge" + (cantDodge ? " off" : ""));
     dg.innerHTML = "<b>DODGE</b><small>" + dodges + " left</small>";
-    dg.title = cantDodge ? "No " + dodgeWord + " left this turn" : "Spend 1 of your " + dodgeWord;
+    if (focusNoDodge) dg.innerHTML = "<b>DODGE</b><small>Focus: none</small>";
+    dg.title = focusNoDodge ? "Focus Stance: no Dodge until your next turn" : cantDodge ? "No " + dodgeWord + " left this turn" : "Spend 1 of your " + dodgeWord;
     dg.onclick = e => { e.stopPropagation(); if (cantDodge) return; qa.d += 1; dodges -= 1; logDodges(); quiet(); };
     const du = el("div", "qau" + (qa.d ? "" : " hide"));
     du.innerHTML = "<span>\u21B6</span>" + (qa.d ? "<small>\u00d7" + qa.d + "</small>" : ""); du.title = "Undo the last dodge (gives it back) \u2014 " + qa.d + " dodge(s) this turn";
@@ -11781,7 +11963,7 @@ function draw() {
   }
 }
 
-const APP_BUILD = "cf28";
+const APP_BUILD = "cf30";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
