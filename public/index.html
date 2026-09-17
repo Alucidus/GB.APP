@@ -2739,13 +2739,18 @@ body.fed #lbfx .lb-eye.z,body.fed #lbfx .lb-strip.r,body.fed #lbfx .lb-win.zeon,
 body.spa #lbfx .lb-eye.g,body.spa #lbfx .lb-strip.b,body.spa #lbfx .lb-win.fed,body.spa #lbfx .lb-search.a{opacity:.55}
 /* eyes */
 .lb-eye{display:block;border-radius:50%;transform:translate(-50%,-50%);mix-blend-mode:screen}
-.lb-eye.g{top:25%;width:1.6%;height:1.3%;background:radial-gradient(circle,#fff 0,#fef08a 30%,rgba(250,204,21,.6) 50%,rgba(250,204,21,0) 72%);animation:lbEyeG 3.4s ease-in-out infinite}
-.lb-eye.g.l{left:28.2%}.lb-eye.g.r{left:29.7%;animation-delay:.15s}
-@keyframes lbEyeG{0%,100%{opacity:.35;transform:translate(-50%,-50%) scale(.9)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.25)}}
-.lb-eye.z{top:28.5%;left:69.6%;width:2.2%;height:2.4%;background:radial-gradient(circle,#fff 0,#f0abfc 22%,rgba(236,72,153,.75) 45%,rgba(236,72,153,0) 72%);
+.lb-eye.g{width:1.25%;height:1.05%;background:radial-gradient(ellipse,#fff 0,#fef08a 32%,rgba(250,204,21,.55) 55%,rgba(250,204,21,0) 74%);animation:lbEyeG 3.4s ease-in-out infinite}
+.lb-eye.g.l{left:28.55%;top:24.65%}
+.lb-eye.g.r{left:29.75%;top:25%;animation-delay:.15s}
+@keyframes lbEyeG{0%,100%{opacity:.45;transform:translate(-50%,-50%) scale(.9)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.25)}}
+/* Zaku mono-eye: a solid pink core + glow, sweeping inside the visor slot (68.75–71.2%) */
+.lb-eye.z{left:69.9%;top:28%;width:1.9%;height:2.3%;mix-blend-mode:normal;
+  background:radial-gradient(circle,#fff 0,#ffe4f1 12%,#ff4fa3 26%,rgba(236,40,120,.75) 40%,rgba(236,40,120,.25) 58%,rgba(236,40,120,0) 72%);
   animation:lbMono 8s ease-in-out infinite,lbMonoGlow 2.2s ease-in-out infinite}
-@keyframes lbMono{0%,18%,100%{left:69.6%}30%,42%{left:68.8%}58%,72%{left:70.8%}84%{left:69.6%}}
-@keyframes lbMonoGlow{0%,100%{opacity:.75;filter:brightness(1)}50%{opacity:1;filter:brightness(1.4)}}
+.lb-eye.z:after{content:"";position:absolute;left:-60%;right:-60%;top:46%;height:8%;border-radius:50%;
+  background:linear-gradient(90deg,rgba(255,80,160,0),rgba(255,170,210,.7),rgba(255,80,160,0))}
+@keyframes lbMono{0%,18%,100%{translate:0 0}30%,42%{translate:-38% 0}58%,72%{translate:38% 0}84%{translate:0 0}}
+@keyframes lbMonoGlow{0%,100%{opacity:.85;filter:brightness(1)}50%{opacity:1;filter:brightness(1.35)}}
 /* light strips: a pulse chasing upwards */
 .lb-strip{width:.32%;transform:translateX(-50%);overflow:hidden;mix-blend-mode:screen;border-radius:2px}
 .lb-strip i{position:absolute;left:0;right:0;height:22%;opacity:0;animation:lbChase 3.6s linear var(--d,0s) infinite}
@@ -2783,7 +2788,7 @@ body.spa #lbfx .lb-eye.g,body.spa #lbfx .lb-strip.b,body.spa #lbfx .lb-win.fed,b
 @keyframes lbWBoom{0%{opacity:0;transform:translate(-50%,-50%) scale(.2)}20%{opacity:.9}100%{opacity:0;transform:translate(-50%,-50%) scale(1.1)}}
 /* your side powers up */
 #lbfx.pw-fed .lb-eye.g{animation:lbFlare 1.6s ease-out}
-#lbfx.pw-spa .lb-eye.z{animation:lbFlare 1.6s ease-out}
+#lbfx.pw-spa .lb-eye.z{animation:lbMono 8s ease-in-out infinite,lbFlare 1.6s ease-out}
 @keyframes lbFlare{0%{opacity:.4;transform:translate(-50%,-50%) scale(1)}15%{opacity:1;transform:translate(-50%,-50%) scale(4);filter:brightness(2)}100%{opacity:.9;transform:translate(-50%,-50%) scale(1.2)}}
 #lbfx.pw-fed .lb-strip.b i,#lbfx.pw-spa .lb-strip.r i{animation-duration:.9s}
 #lbfx.pw-fed .lb-strip.b,#lbfx.pw-spa .lb-strip.r{width:.6%;opacity:1 !important}
@@ -2817,7 +2822,7 @@ body.spa #lbfx .lb-eye.g,body.spa #lbfx .lb-strip.b,body.spa #lbfx .lb-win.fed,b
 .rs-eye.g{background:radial-gradient(ellipse,#fff 0,#a7f3d0 25%,rgba(52,211,153,.6) 50%,rgba(52,211,153,0) 72%);animation:rsEyeG 3.6s ease-in-out infinite}
 @keyframes rsEyeG{0%,100%{opacity:.35;transform:translate(-50%,-50%) scale(.9)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.35)}}
 .rs-eye.z{background:radial-gradient(circle,#fff 0,#fda4af 22%,rgba(244,63,94,.75) 45%,rgba(244,63,94,0) 72%);animation:rsMono 9s ease-in-out infinite,rsMonoGlow 2.2s ease-in-out infinite}
-@keyframes rsMono{0%,18%,100%{margin-left:0}30%,42%{margin-left:-.7%}58%,72%{margin-left:.7%}84%{margin-left:0}}
+@keyframes rsMono{0%,18%,100%{translate:0 0}30%,42%{translate:-35% 0}58%,72%{translate:35% 0}84%{translate:0 0}}
 @keyframes rsMonoGlow{0%,100%{opacity:.7;filter:brightness(1)}50%{opacity:1;filter:brightness(1.45)}}
 .rs-light{display:block;width:2.4%;height:2.4%;border-radius:50%;transform:translate(-50%,-50%);mix-blend-mode:screen;opacity:.0;
   background:radial-gradient(circle,rgba(255,255,255,.9) 0,rgba(200,225,255,.35) 35%,rgba(200,225,255,0) 70%);animation:rsFlicker 7s steps(1) var(--d,0s) infinite}
@@ -10576,9 +10581,19 @@ let lbT = { spark: 0, win: 0 };
 function lbOn() { const s5 = $("s5"); return !!(s5 && s5.classList.contains("on") && !document.hidden); }
 function lbReduced() { return !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches); }
 function lbLite() { return (navigator.deviceMemory && navigator.deviceMemory <= 2) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2); }
+// where the background picture actually sits (it is anchored differently on narrow screens)
+function bgAnchor(el, pseudo, fx, fy) {
+  try {
+    const pos = getComputedStyle(el, pseudo).backgroundPosition.split(",").pop().trim().split(/\s+/);
+    const pc = v => /%$/.test(v) ? parseFloat(v) / 100 : v === "center" ? 0.5 : v === "top" || v === "left" ? 0 : v === "bottom" || v === "right" ? 1 : null;
+    const x = pc(pos[0]), y = pc(pos[1] !== undefined ? pos[1] : "center");
+    return [x === null ? fx : x, y === null ? fy : y];
+  } catch (e) { return [fx, fy]; }
+}
 function lbLayout() {
   const box = $("lbfx"); if (!box) return;
-  const W = innerWidth, H = innerHeight, s = Math.max(W / LB_IMG.w, H / LB_IMG.h);
+  [LB_IMG.px, LB_IMG.py] = bgAnchor($("s5"), "::after", 0.5, 0.3);
+  const W = document.documentElement.clientWidth || innerWidth, H = document.documentElement.clientHeight || innerHeight, s = Math.max(W / LB_IMG.w, H / LB_IMG.h);   // the visible area (no scrollbar), like the fixed background
   const iw = LB_IMG.w * s, ih = LB_IMG.h * s, k = Math.max(1, s);      // drawn at the picture's own size at most, then scaled
   box.style.left = ((W - iw) * LB_IMG.px) + "px"; box.style.top = ((H - ih) * LB_IMG.py) + "px";
   box.style.width = (iw / k) + "px"; box.style.height = (ih / k) + "px";
@@ -10587,73 +10602,14 @@ function lbLayout() {
 function lbInit() {
   const s5 = $("s5"); if (!s5 || $("lbfx") || lbReduced()) return;
   const box = document.createElement("div"); box.id = "lbfx"; box.setAttribute("aria-hidden", "true");
-  if (lbLite()) box.classList.add("lite");
-  let h = '<div class="lb-search a"></div><div class="lb-search b"></div>' +
-    '<div class="lb-win fed"></div><div class="lb-win zeon"></div>' +
-    '<i class="lb-eye g l"></i><i class="lb-eye g r"></i><i class="lb-eye z"></i>';
-  LB_STRIPS.forEach(([x, t, b, c], k) => {
-    h += '<div class="lb-strip ' + c + '" style="left:' + x + '%;top:' + t + '%;height:' + (b - t) + '%;--d:' + (k * 0.7).toFixed(1) + 's"><i></i><i></i></div>';
-  });
-  h += '<div class="lb-sheen"></div><div class="lb-fog a"></div><div class="lb-fog b"></div><div class="lb-dust"></div><div class="lb-sparks"></div>' +
-    '<i class="lb-beacon l"></i><i class="lb-beacon r"></i>';
-  box.innerHTML = h;
-  const dust = box.querySelector(".lb-dust");
-  for (let k = 0; k < 22; k++) {
-    const d = document.createElement("i");
-    d.style.left = (Math.random() * 100).toFixed(1) + "%"; d.style.top = (20 + Math.random() * 70).toFixed(1) + "%";
-    d.style.setProperty("--dur", (10 + Math.random() * 12).toFixed(1) + "s"); d.style.setProperty("--del", (-Math.random() * 20).toFixed(1) + "s");
-    d.style.setProperty("--dx", ((Math.random() - 0.5) * 8).toFixed(1) + "vw");
-    dust.appendChild(d);
-  }
+  // eyes only: the Gundam's twin eyes and the Zaku's mono-eye (drawn into the blacked-out slot of the picture)
+  box.innerHTML = '<i class="lb-eye g l"></i><i class="lb-eye g r"></i><i class="lb-eye z"></i>';
   s5.appendChild(box);
   lbLayout();
   addEventListener("resize", lbLayout);
   addEventListener("orientationchange", () => setTimeout(lbLayout, 150));
-  const seq = document.createElement("div"); seq.id = "lbseq"; seq.setAttribute("aria-hidden", "true");
-  seq.innerHTML = '<b>LAUNCH SEQUENCE</b><span>ALL PILOTS READY</span>';
-  s5.appendChild(seq);
 }
-function lbSpawn() {
-  clearTimeout(lbT.spark); clearTimeout(lbT.win);
-  if (!lbOn()) return;
-  const box = $("lbfx"); if (!box || box.classList.contains("lite")) return;
-  // welding sparks at the suits' feet and on the gantries
-  const sparks = () => {
-    if (!lbOn()) return;
-    const holder = box.querySelector(".lb-sparks");
-    if (holder && holder.childElementCount < 10) {
-      const [x, y, c] = LB_SPARKS[Math.floor(Math.random() * LB_SPARKS.length)];
-      const n = 2 + Math.floor(Math.random() * 3);
-      for (let k = 0; k < n; k++) setTimeout(() => {
-        const im = document.createElement("img"); im.className = "lb-spark"; im.alt = "";
-        im.src = "img/fx/" + (c === "b" ? (Math.random() < 0.5 ? "star-y" : "star-w") : (Math.random() < 0.5 ? "star-y" : "spark-p")) + ".webp";
-        im.style.left = (x + (Math.random() - 0.5) * 1.5) + "%"; im.style.top = (y + (Math.random() - 0.5) * 1.5) + "%";
-        im.style.width = (1.2 + Math.random() * 1.8).toFixed(2) + "%";
-        holder.appendChild(im); setTimeout(() => im.remove(), 450);
-      }, k * 90);
-    }
-    lbT.spark = setTimeout(sparks, 600 + Math.random() * 1600);
-  };
-  // the battle outside: tiny beams and blasts in the space windows
-  const windows = () => {
-    if (!lbOn()) return;
-    const fedWin = Math.random() < 0.5, [x0, y0, x1, y1] = LB_WINDOWS[fedWin ? "fed" : "zeon"];
-    const holder = box.querySelector(".lb-win." + (fedWin ? "fed" : "zeon"));
-    if (holder && holder.childElementCount < 4) {
-      const im = document.createElement("img"); im.alt = "";
-      const beamShot = Math.random() < 0.55;
-      im.className = beamShot ? "lb-wbeam" : "lb-wboom";
-      // space explosions: starbursts and rings only (the window's own side colour)
-      im.src = "img/fx/" + (beamShot ? (fedWin ? "beam-p" : "beam-y") : (fedWin ? (Math.random() < 0.6 ? "star-y" : "ring-o") : (Math.random() < 0.6 ? "star-p" : "ring-p"))) + ".webp";
-      im.style.left = (10 + Math.random() * 70) + "%"; im.style.top = (15 + Math.random() * 65) + "%";
-      im.style.setProperty("--ang", ((Math.random() < 0.5 ? 0 : 180) + (Math.random() - 0.5) * 30).toFixed(0) + "deg");
-      holder.appendChild(im); setTimeout(() => im.remove(), 900);
-    }
-    lbT.win = setTimeout(windows, 900 + Math.random() * 1800);
-  };
-  lbT.spark = setTimeout(sparks, 500);
-  lbT.win = setTimeout(windows, 800);
-}
+function lbSpawn() { lbLayout(); }
 // your side powers up when you pick it
 function lbPower(t) {
   const box = $("lbfx"); if (!box) return;
@@ -10662,31 +10618,9 @@ function lbPower(t) {
   clearTimeout(box._pw); box._pw = setTimeout(() => box.classList.remove(cls), 2200);
 }
 // everyone ready: beacons + launch sequence tag
-function lbAlarm(on) {
-  const box = $("lbfx"), seq = $("lbseq");
-  if (box) box.classList.toggle("alarm", !!on);
-  if (seq) seq.classList.toggle("on", !!on);
-}
+function lbAlarm(on) {}
 // hangar doors: sparks along the seam and steam as they seal
-function hangarSeamFx() {
-  const H = $("hangar"); if (!H || lbLite()) return;
-  let seam = H.querySelector(".hd-seam");
-  if (!seam) { seam = document.createElement("div"); seam.className = "hd-seam"; H.appendChild(seam); }
-  seam.innerHTML = "";
-  for (let k = 0; k < 7; k++) {
-    const im = document.createElement("img"); im.alt = ""; im.className = "hs-spark";
-    im.src = "img/fx/" + (k % 2 ? "star-y" : "star-w") + ".webp";
-    im.style.top = (8 + k * 13 + Math.random() * 6) + "%";
-    im.style.animationDelay = (0.36 + Math.random() * 0.12).toFixed(2) + "s";
-    seam.appendChild(im);
-  }
-  for (let k = 0; k < 4; k++) {
-    const st = document.createElement("i"); st.className = "hs-steam " + (k % 2 ? "l" : "r");
-    st.style.top = (15 + k * 22) + "%"; st.style.animationDelay = (0.45 + k * 0.05).toFixed(2) + "s";
-    seam.appendChild(st);
-  }
-  clearTimeout(seam._t); seam._t = setTimeout(() => { seam.innerHTML = ""; }, 1500);
-}
+function hangarSeamFx() {}
 document.addEventListener("visibilitychange", () => { if (!document.hidden) lbSpawn(); });
 
 
@@ -10703,8 +10637,8 @@ function rsScreen() { for (const id of ["s2", "s3"]) { const sc = $(id); if (sc 
 function rsSide() { return document.body.classList.contains("spa") ? "spacenoid" : document.body.classList.contains("fed") ? "federation" : null; }
 function rsLayout() {
   const box = $("rsfx"); if (!box) return;
-  const W = innerWidth, H = innerHeight, s = Math.max(W / 1672, H / 941), iw = 1672 * s, ih = 941 * s, k = Math.max(1, s);
-  const tall = W / H <= 0.8, px = tall ? 0.72 : 0.7, py = tall ? 0.5 : 0.4;
+  const W = document.documentElement.clientWidth || innerWidth, H = document.documentElement.clientHeight || innerHeight, s = Math.max(W / 1672, H / 941), iw = 1672 * s, ih = 941 * s, k = Math.max(1, s);
+  const sc = rsScreen(), [px, py] = sc ? bgAnchor(sc, "::after", 0.7, 0.4) : [0.7, 0.4];
   box.style.left = ((W - iw) * px) + "px"; box.style.top = ((H - ih) * py) + "px";
   box.style.width = (iw / k) + "px"; box.style.height = (ih / k) + "px";
   box.style.scale = k > 1 ? String(k) : ""; box.classList.toggle("capped", k > 1);
@@ -10720,38 +10654,12 @@ function rsInit() {
     box.className = side === "federation" ? "fed" : "spa";
     if (lbLite()) box.classList.add("lite");
     let h = '<i class="rs-eye ' + C.eye.kind + '" style="left:' + C.eye.x + '%;top:' + C.eye.y + '%;width:' + C.eye.w + '%;height:' + C.eye.h + '%"></i>';
-    C.lights.forEach(([x, y], k) => { h += '<i class="rs-light" style="left:' + x + '%;top:' + y + '%;--d:' + (k * 1.3).toFixed(1) + 's"></i>'; });
-    C.mist.forEach(([x, y], k) => { h += '<i class="rs-mist" style="left:' + x + '%;top:' + y + '%;--d:' + (-k * 4) + 's"></i>'; });
-    h += '<div class="rs-search"></div><div class="rs-sheen"></div><div class="rs-dust"></div><div class="rs-sparks"></div>';
     box.innerHTML = h;
-    const dust = box.querySelector(".rs-dust");
-    for (let k = 0; k < 16; k++) {
-      const d = document.createElement("i");
-      d.style.left = (45 + Math.random() * 55).toFixed(1) + "%"; d.style.top = (25 + Math.random() * 65).toFixed(1) + "%";
-      d.style.setProperty("--dur", (11 + Math.random() * 12).toFixed(1) + "s"); d.style.setProperty("--del", (-Math.random() * 20).toFixed(1) + "s");
-      d.style.setProperty("--dx", ((Math.random() - 0.5) * 6).toFixed(1) + "vw");
-      dust.appendChild(d);
-    }
     sc.insertBefore(box, sc.firstChild);
   }
   rsLayout();
 }
-function rsSpawn() {
-  clearTimeout(rsT);
-  const box = $("rsfx"); if (!box || box.classList.contains("lite") || !rsScreen() || document.hidden) return;
-  const C = RS_CFG[box.dataset.side], holder = box.querySelector(".rs-sparks");
-  if (holder && holder.childElementCount < 8) {
-    const [x, y] = C.sparks[Math.floor(Math.random() * C.sparks.length)], n = 2 + Math.floor(Math.random() * 3);
-    for (let k = 0; k < n; k++) setTimeout(() => {
-      const im = document.createElement("img"); im.className = "rs-spark"; im.alt = "";
-      im.src = "img/fx/" + (Math.random() < 0.6 ? "star-y" : "star-w") + ".webp";
-      im.style.left = (x + (Math.random() - 0.5) * 1.6) + "%"; im.style.top = (y + (Math.random() - 0.5) * 1.6) + "%";
-      im.style.width = (1.2 + Math.random() * 1.8).toFixed(2) + "%";
-      holder.appendChild(im); setTimeout(() => im.remove(), 450);
-    }, k * 90);
-  }
-  rsT = setTimeout(rsSpawn, 900 + Math.random() * 2200);
-}
+function rsSpawn() {}
 addEventListener("resize", rsLayout);
 addEventListener("orientationchange", () => setTimeout(rsLayout, 150));
 document.addEventListener("visibilitychange", () => { if (!document.hidden) rsSpawn(); });
@@ -14663,7 +14571,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf68";
+const APP_BUILD = "cf69";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
