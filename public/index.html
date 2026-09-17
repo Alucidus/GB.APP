@@ -1744,7 +1744,7 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 .mode.online{--mc:linear-gradient(90deg,#2f86ff 0%,#2f86ff 48%,#ff2e3f 52%,#ff2e3f 100%);--mg:rgba(255,46,63,.5);height:clamp(110px,24vh,200px)}
 .mode.online .mo-in:after{box-shadow:inset 26px 0 30px -18px rgba(47,134,255,.75),inset -26px 0 30px -18px rgba(255,46,63,.75),inset 0 0 14px rgba(0,0,0,.4)}
 .mode.online .mo-in{background:linear-gradient(90deg,rgba(4,8,16,.95) 0%,rgba(4,8,16,.84) 36%,rgba(4,8,16,.35) 62%,rgba(4,8,16,.2) 100%),
-  url(img/lobby-bg.webp) 50% 30%/cover no-repeat,#06080d}
+  url(img/online-card.webp) 50% 30%/cover no-repeat,#06080d}
 .mode.offline{height:clamp(76px,14vh,120px)}
 .mode.offline .mo-in{background:linear-gradient(90deg,rgba(6,10,16,.97),rgba(10,16,24,.9) 60%,rgba(20,28,40,.8))}
 .mo-embs{display:flex;align-items:center;flex:none}
@@ -2744,12 +2744,12 @@ body.spa #lbfx .lb-eye.g,body.spa #lbfx .lb-strip.b,body.spa #lbfx .lb-win.fed,b
 .lb-eye.g.r{left:29.75%;top:25%;animation-delay:.15s}
 @keyframes lbEyeG{0%,100%{opacity:.45;transform:translate(-50%,-50%) scale(.9)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.25)}}
 /* Zaku mono-eye: a solid pink core + glow, sweeping inside the visor slot (68.75–71.2%) */
-.lb-eye.z{left:69.9%;top:28%;width:1.9%;height:2.3%;mix-blend-mode:normal;
+.lb-eye.z{left:69.95%;top:27.96%;width:1.9%;height:2.3%;mix-blend-mode:normal;
   background:radial-gradient(circle,#fff 0,#ffe4f1 12%,#ff4fa3 26%,rgba(236,40,120,.75) 40%,rgba(236,40,120,.25) 58%,rgba(236,40,120,0) 72%);
   animation:lbMono 8s ease-in-out infinite,lbMonoGlow 2.2s ease-in-out infinite}
-.lb-eye.z:after{content:"";position:absolute;left:-60%;right:-60%;top:46%;height:8%;border-radius:50%;
+.lb-eye.z:after{content:"";position:absolute;left:-60%;right:-60%;top:46%;height:8%;border-radius:50%;transform:rotate(-15deg);
   background:linear-gradient(90deg,rgba(255,80,160,0),rgba(255,170,210,.7),rgba(255,80,160,0))}
-@keyframes lbMono{0%,18%,100%{translate:0 0}30%,42%{translate:-38% 0}58%,72%{translate:38% 0}84%{translate:0 0}}
+@keyframes lbMono{0%,18%,100%{translate:0 0}30%,42%{translate:-52% 19%}58%,72%{translate:47% -2.5%}84%{translate:0 0}}
 @keyframes lbMonoGlow{0%,100%{opacity:.85;filter:brightness(1)}50%{opacity:1;filter:brightness(1.35)}}
 /* light strips: a pulse chasing upwards */
 .lb-strip{width:.32%;transform:translateX(-50%);overflow:hidden;mix-blend-mode:screen;border-radius:2px}
@@ -2806,13 +2806,6 @@ body.spa #lbfx .lb-eye.g,body.spa #lbfx .lb-strip.b,body.spa #lbfx .lb-win.fed,b
 #lbseq.on{opacity:1;transform:translate(-50%,0);animation:lbBlink 1.2s ease-in-out infinite}
 @keyframes lbBlink{0%,100%{filter:brightness(1)}50%{filter:brightness(1.35)}}
 #lbfx.lite .lb-dust,#lbfx.lite .lb-sparks,#lbfx.lite .lb-win,#lbfx.lite .lb-fog.b,#lbfx.lite .lb-search{display:none}
-/* hangar doors: seam sparks + steam */
-#hangar .hd-seam{position:absolute;left:50%;top:0;bottom:0;width:0;z-index:5;pointer-events:none}
-.hs-spark{position:absolute;left:0;width:11vmin;opacity:0;transform:translate(-50%,-50%) scale(.2);animation:hsSpark .5s ease-out forwards}
-@keyframes hsSpark{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(0)}30%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.3) rotate(50deg)}}
-.hs-steam{position:absolute;width:30vmin;height:16vmin;border-radius:50%;opacity:0;background:radial-gradient(ellipse,rgba(225,232,240,.6),rgba(225,232,240,0) 70%);animation:hsSteam 1s ease-out forwards}
-.hs-steam.l{right:0;--dx:-14vmin}.hs-steam.r{left:0;--dx:14vmin}
-@keyframes hsSteam{0%{opacity:0;transform:translate(0,-50%) scale(.3)}30%{opacity:.9}100%{opacity:0;transform:translate(var(--dx),-60%) scale(1.3)}}
 
 /* ================= ROSTER / BUDGET HANGAR EFFECTS (cf66) ================= */
 #rsfx{position:fixed;z-index:-1;pointer-events:none;overflow:hidden;
@@ -2857,6 +2850,11 @@ html.autolite #s0 .m-bg.m3 .m3-l,html.autolite #s1 .m-bg.m3 .m3-l,html.autolite 
 html.autolite .m3-embers,html.autolite .m3-fx,html.autolite .embGlow,
 html.autolite #lbfx .lb-dust,html.autolite #lbfx .lb-sparks,html.autolite #lbfx .lb-win,html.autolite #lbfx .lb-fog.b,html.autolite #lbfx .lb-search,
 html.autolite #rsfx .rs-dust,html.autolite #rsfx .rs-sparks,html.autolite #rsfx .rs-search{display:none !important}
+
+/* cf71: effects toggle */
+.mb-item.fxtog .fxstate{color:#7dd3fc}
+.mb-item.fxtog.lite .fxstate{color:#fbbf24}
+.mb-item.fxtog.lite svg{color:#fbbf24;opacity:.8}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -2946,6 +2944,29 @@ html.autolite #rsfx .rs-dust,html.autolite #rsfx .rs-sparks,html.autolite #rsfx 
   .mb-item{padding:6px 12px}
   .mb-item small{display:none}
 }
+
+/* cf71: narrow phones — the four bottom-bar items sit in a tidy 2×2 grid */
+@media (max-width:560px){
+  #s0 .m-bar,#s1 .m-bar{display:grid;grid-template-columns:1fr 1fr;justify-content:stretch;gap:0}
+  #s0 .mb-item,#s1 .mb-item{padding:6px 8px;gap:8px;min-height:34px;justify-content:flex-start;border-left:none !important}
+  #s0 .mb-item:nth-child(odd),#s1 .mb-item:nth-child(odd){border-right:1px solid rgba(143,162,181,.3)}
+  #s0 .mb-item:nth-child(n+3),#s1 .mb-item:nth-child(n+3){border-top:1px solid rgba(143,162,181,.18)}
+  #s0 .mb-item b,#s1 .mb-item b{letter-spacing:.12em;font-size:10px}
+  #s0 .mb-item svg,#s1 .mb-item svg{width:20px;height:20px}
+}
+
+@media (max-width:560px){
+  #s1 .m-bar{grid-template-columns:repeat(3,1fr)}
+  #s1 .mb-item{flex-direction:column;justify-content:center;gap:3px;text-align:center;padding:5px 4px;border-right:none !important;border-top:none !important}
+  #s1 .mb-item + .mb-item{border-left:none}
+  #s1 .mb-item:not(:nth-child(3n+1)){border-left:1px solid rgba(143,162,181,.3) !important}
+  #s1 .mb-item:nth-child(n+4){border-top:1px solid rgba(143,162,181,.18) !important}
+  #s1 .mb-item b{font-size:9px;letter-spacing:.06em}
+}
+
+@media (max-width:560px) and (orientation:portrait){ #s1 .m-logo{height:clamp(80px,22vh,280px)} }
+
+@media (max-height:680px) and (orientation:portrait){ #s0 .m-logo,#s1 .m-logo{height:clamp(64px,16vh,280px)} }
 </style>
 </head>
 <body>
@@ -3021,6 +3042,10 @@ html.autolite #rsfx .rs-dust,html.autolite #rsfx .rs-sparks,html.autolite #rsfx 
       <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="9" y="3" width="14" height="26" rx="2.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M16 9 L16 20 M11.5 15.5 L16 20 L20.5 15.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <div><b>INSTALL APP</b><small>ADD TO HOME SCREEN</small></div>
     </div>
+    <div class="mb-item fxtog" onclick="toggleFx()" role="switch" aria-label="Background effects">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 L18.6 12.4 L28 15 L18.6 17.6 L16 27 L13.4 17.6 L4 15 L13.4 12.4 Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
+      <div><b>EFFECTS: <span class="fxstate">FULL</span></b><small class="fxsub">TAP FOR LITE</small></div>
+    </div>
   </div>
   <div class="m-foot"><span>IT'S NOT JUST A MODEL…</span><span class="m-build">BUILD <b id="buildTag0"></b></span><span>…IT'S A WAR.</span></div>
 </section>
@@ -3079,6 +3104,10 @@ html.autolite #rsfx .rs-dust,html.autolite #rsfx .rs-sparks,html.autolite #rsfx 
     <div class="mb-item" onclick="menuInstall()">
       <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="9" y="3" width="14" height="26" rx="2.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M16 9 L16 20 M11.5 15.5 L16 20 L20.5 15.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <div><b>INSTALL APP</b><small>ADD TO HOME SCREEN</small></div>
+    </div>
+    <div class="mb-item fxtog" onclick="toggleFx()" role="switch" aria-label="Background effects">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 L18.6 12.4 L28 15 L18.6 17.6 L16 27 L13.4 17.6 L4 15 L13.4 12.4 Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
+      <div><b>EFFECTS: <span class="fxstate">FULL</span></b><small class="fxsub">TAP FOR LITE</small></div>
     </div>
   </div>
   <div class="m-foot"><span>IT'S NOT JUST A MODEL…</span><span class="m-build">BUILD <b id="buildTag"></b></span><span>…IT'S A WAR.</span></div>
@@ -10259,6 +10288,7 @@ addEventListener("orientationchange", () => setTimeout(layoutMenu, 150));
 function renderMenu() {
   layoutMenu();
   if (typeof m3Init === "function") { m3Init(); m3Start(); }
+  if (typeof fxApply === "function") fxApply();
   $("fcFed").classList.toggle("sel", menuSide === "federation");
   $("fcSpa").classList.toggle("sel", menuSide === "spacenoid");
   document.querySelector(".m-cards").classList.toggle("picked", !!menuSide);
@@ -10280,6 +10310,7 @@ function renderMenu() {
 function renderLanding() {
   layoutMenu();
   if (typeof m3Init === "function") { m3Init(); m3Start(); }
+  if (typeof fxApply === "function") fxApply();
   const ems = $("moEmbs");
   if (ems && !ems.childElementCount)
     ems.innerHTML = ["#fcFed .fc-emb", "#fcSpa .fc-emb"].map(q => { const e = document.querySelector(q); return e ? e.outerHTML : ""; }).join("");
@@ -10496,7 +10527,7 @@ function m3Start() {
   };
   const boom = () => {
     const root = m3Root();
-    if (!root || root.parentNode.classList.contains("m3lite")) { if (root) M3.boomT = setTimeout(boom, 3000); return; }
+    if (!root || root.parentNode.classList.contains("m3lite") || document.documentElement.classList.contains("autolite")) { if (root) M3.boomT = setTimeout(boom, 3000); return; }
     const fx = root.querySelector(".m3-fx");
     if (fx && fx.childElementCount < 12) {
       const r = Math.random(), fromFed = Math.random() < 0.5;          // Federation fires pink, Zeon fires yellow
@@ -10620,7 +10651,7 @@ function lbPower(t) {
 // everyone ready: beacons + launch sequence tag
 function lbAlarm(on) {}
 // hangar doors: sparks along the seam and steam as they seal
-function hangarSeamFx() {}
+
 document.addEventListener("visibilitychange", () => { if (!document.hidden) lbSpawn(); });
 
 
@@ -10671,6 +10702,28 @@ function perfBigScreen() {
   document.documentElement.classList.toggle("bigscreen", px > 2600000);
 }
 perfBigScreen(); addEventListener("resize", perfBigScreen);
+
+// ---------- effects toggle (bottom bar): FULL / LITE, remembered on this device (cf71) ----------
+function fxPref() { try { return localStorage.getItem("gb.fx"); } catch (e) { return null; } }   // "full" | "lite" | null (automatic)
+function fxApply() {
+  const pref = fxPref(), H = document.documentElement;
+  if (pref === "lite") H.classList.add("autolite");
+  else if (pref === "full") H.classList.remove("autolite");
+  const lite = H.classList.contains("autolite");
+  document.querySelectorAll(".fxtog").forEach(b => {
+    b.classList.toggle("lite", lite);
+    b.setAttribute("aria-checked", lite ? "false" : "true");
+    b.querySelector(".fxstate").textContent = lite ? "LITE" : "FULL";
+    b.querySelector(".fxsub").textContent = lite ? (pref ? "TAP FOR FULL" : "AUTO \u00b7 TAP FOR FULL") : "TAP FOR LITE";
+  });
+}
+window.toggleFx = () => {
+  const lite = document.documentElement.classList.contains("autolite");
+  try { localStorage.setItem("gb.fx", lite ? "full" : "lite"); sessionStorage.removeItem("gb.autolite"); } catch (e) {}
+  fxApply();
+  if (lite && typeof m3Start === "function") m3Start();          // back to full: restart the scene's effects
+  if (typeof mpToast === "function") mpToast(lite ? "Full background effects on." : "Lite effects: background animations off.");
+};
 const PERF = { on: false, bad: 0, since: 0 };
 function perfWatch() {
   if (PERF.on) return; PERF.on = true;
@@ -10685,8 +10738,8 @@ function perfWatch() {
       if (now - t0 > 3000) {
         const avg = sum / n;
         PERF.bad = avg > 28 ? PERF.bad + 1 : 0;           // slower than ~35 fps
-        if (PERF.bad >= 2) {
-          document.documentElement.classList.add("autolite");
+        if (PERF.bad >= 2 && fxPref() !== "full") {
+          document.documentElement.classList.add("autolite"); fxApply();
           try { sessionStorage.setItem("gb.autolite", "1"); } catch (e) {}   // this session only: a fresh start tries full effects again
           if (typeof mpToast === "function") mpToast("Background effects reduced to keep things smooth.");
         }
@@ -10697,7 +10750,8 @@ function perfWatch() {
   };
   requestAnimationFrame(tick);
 }
-try { if (sessionStorage.getItem("gb.autolite") === "1") document.documentElement.classList.add("autolite"); } catch (e) {}
+try { if (sessionStorage.getItem("gb.autolite") === "1" && fxPref() !== "full") document.documentElement.classList.add("autolite"); } catch (e) {}
+fxApply();
 try { if (localStorage.getItem("gb.noautolite") !== "1") perfWatch(); } catch (e) { perfWatch(); }
 
 window.landOnline = () => { if (mp.code) hangarGo(() => openMP()); else playClash(() => openMP()); };
@@ -10717,7 +10771,6 @@ window.hangarGo = (fn, sideHint) => {
   H.className = "run " + (sd === "spacenoid" ? "spa" : "fed");
   void H.offsetWidth;
   H.classList.add("shut");
-  if (typeof hangarSeamFx === "function") hangarSeamFx();
   setTimeout(() => {
     try { fn(); } catch (e) { console.error(e); }
     setTimeout(() => {
@@ -14571,7 +14624,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf69";
+const APP_BUILD = "cf72";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
