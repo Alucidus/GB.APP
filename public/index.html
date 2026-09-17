@@ -2587,29 +2587,29 @@ body.spa .ffside.foe{background:linear-gradient(270deg,rgba(56,189,248,.14),tran
 #s0.m3lite .m3-embers,#s0.m3lite .m3-fx,#s0.m3lite .embGlow,#s1.m3lite .m3-embers,#s1.m3lite .m3-fx,#s1.m3lite .embGlow{display:none}
 .m3-l.base{background-image:url(img/m3-base.webp);animation:m3Breath 32s ease-in-out infinite alternate}
 .m3-l.emb,.m3-l.embGlow{background-image:url(img/m3-emblem.webp)}
-.m3-l.embGlow{opacity:0;filter:blur(.5vmax) brightness(1.8);animation:m3GlowOp 4.5s ease-in-out infinite}
+.m3-l.embGlow{opacity:0;background-image:url(img/m3-emblem-glow.webp) !important;animation:m3GlowOp 4.5s ease-in-out infinite}
 @keyframes m3GlowOp{0%,100%{opacity:0}50%{opacity:.75}}
 .m3-l.farFed{background-image:url(img/m4-far-fed.webp);animation:m3AdvL 23s ease-in-out infinite alternate}
 .m3-l.farZeon{background-image:url(img/m4-far-zeon.webp);animation:m3AdvR 25s ease-in-out infinite alternate}
 .m3-l.nearFed{background-image:url(img/m4-near-fed.webp);animation:m3AdvL2 16s ease-in-out infinite alternate}
 .m3-l.nearZeon{background-image:url(img/m4-near-zeon.webp);animation:m3AdvR2 18s ease-in-out infinite alternate}
-@keyframes m3AdvL2{0%{transform:translate(-2vw,.6vh)}100%{transform:translate(1.8vw,-.8vh)}}
-@keyframes m3AdvR2{0%{transform:translate(2vw,-.5vh)}100%{transform:translate(-1.8vw,.8vh)}}
+@keyframes m3AdvL2{0%{transform:translate(-1.7%,.5%)}100%{transform:translate(1.55%,-.7%)}}
+@keyframes m3AdvR2{0%{transform:translate(1.7%,-.45%)}100%{transform:translate(-1.55%,.7%)}}
 .m3-l.rocks{background-image:url(img/m3-rocks.webp);animation:m3Float 26s ease-in-out infinite alternate}
 .m3-l.fg{background-image:url(img/m3-fg.webp)}
 @keyframes m3Breath{0%{transform:scale(1)}100%{transform:scale(1.06)}}
 @keyframes m3Pulse{0%,100%{filter:brightness(1) drop-shadow(0 0 0 rgba(255,255,255,0));opacity:.92}
   50%{filter:brightness(1.35) drop-shadow(0 0 1.4vmax rgba(190,210,255,.55));opacity:1}}
-@keyframes m3AdvL{0%{transform:translate(-1.4vw,.4vh)}100%{transform:translate(1.2vw,-.5vh)}}
-@keyframes m3AdvR{0%{transform:translate(1.4vw,-.3vh)}100%{transform:translate(-1.2vw,.5vh)}}
-@keyframes m3Float{0%{transform:translate(0,0) rotate(0)}100%{transform:translate(-1.6vw,-1.1vh) rotate(.5deg)}}
+@keyframes m3AdvL{0%{transform:translate(-1.2%,.35%)}100%{transform:translate(1.05%,-.45%)}}
+@keyframes m3AdvR{0%{transform:translate(1.2%,-.25%)}100%{transform:translate(-1.05%,.45%)}}
+@keyframes m3Float{0%{transform:translate(0,0) rotate(0)}100%{transform:translate(-1.4%,-.95%) rotate(.5deg)}}
 .m3-stars{position:absolute;inset:-8%;pointer-events:none}
 .m3-stars:before,.m3-stars:after{content:"";position:absolute;inset:0;background-repeat:repeat}
 .m3-stars:before{background-image:radial-gradient(1.4px 1.4px at 12% 18%,#fff,transparent),radial-gradient(1.2px 1.2px at 32% 8%,#cfe3ff,transparent),
   radial-gradient(1.6px 1.6px at 58% 14%,#fff,transparent),radial-gradient(1.2px 1.2px at 78% 26%,#ffd6da,transparent),radial-gradient(1.4px 1.4px at 90% 6%,#fff,transparent),
-  radial-gradient(1.1px 1.1px at 44% 30%,#fff,transparent);background-size:48vw 40vh;animation:m3Twinkle 3.4s ease-in-out infinite alternate}
+  radial-gradient(1.1px 1.1px at 44% 30%,#fff,transparent);background-size:41% 34%;animation:m3Twinkle 3.4s ease-in-out infinite alternate}
 .m3-stars:after{background-image:radial-gradient(1.3px 1.3px at 22% 12%,#fff,transparent),radial-gradient(1.1px 1.1px at 66% 22%,#e0ecff,transparent),
-  radial-gradient(1.5px 1.5px at 84% 16%,#fff,transparent),radial-gradient(1.1px 1.1px at 6% 34%,#ffe0e4,transparent);background-size:37vw 33vh;animation:m3Twinkle 2.6s ease-in-out -1.3s infinite alternate}
+  radial-gradient(1.5px 1.5px at 84% 16%,#fff,transparent),radial-gradient(1.1px 1.1px at 6% 34%,#ffe0e4,transparent);background-size:32% 28%;animation:m3Twinkle 2.6s ease-in-out -1.3s infinite alternate}
 @keyframes m3Twinkle{0%{opacity:.15}100%{opacity:.9}}
 .m3-fx{position:absolute;inset:-8%;pointer-events:none}
 .m3-boom{position:absolute;width:7vmax;height:7vmax;border-radius:50%;transform:translate(-50%,-50%) scale(0);animation:m3Boom 1.5s ease-out forwards}
@@ -2621,7 +2621,7 @@ body.spa .ffside.foe{background:linear-gradient(270deg,rgba(56,189,248,.14),tran
 .m3-embers i{position:absolute;bottom:-3%;width:var(--sz);height:var(--sz);border-radius:50%;opacity:0;animation:m3Ember var(--dur) linear var(--del) infinite}
 .m3-embers i.b{background:#9ad8ff;box-shadow:0 0 6px 2px rgba(120,190,255,.8)}
 .m3-embers i.r{background:#ffb08a;box-shadow:0 0 6px 2px rgba(255,90,60,.8)}
-@keyframes m3Ember{0%{transform:translate(0,0);opacity:0}12%{opacity:.9}70%{opacity:.6}100%{transform:translate(var(--dx),-62vh);opacity:0}}
+@keyframes m3Ember{0%{transform:translate(0,0);opacity:0}12%{opacity:.9}70%{opacity:.6}100%{transform:translate(calc(var(--m3w,100vw)*var(--dxf,0)),calc(var(--m3h,100vh)*-.62));opacity:0}}
 @media (prefers-reduced-motion:reduce){.m3-l,.m3-stars:before,.m3-stars:after{animation:none !important}.m3-embers,.m3-fx{display:none}}
 /* the clash plays over the live landing scene, then flies through it (front layers rush past first) */
 #clashFx.onm3 .cx-bg{display:none}
@@ -2699,7 +2699,7 @@ body.spa .ffside.foe{background:linear-gradient(270deg,rgba(56,189,248,.14),tran
 .m3-sx.hit{animation-duration:.9s}
 @keyframes m3Sx{0%{opacity:0;transform:translate(-50%,-50%) rotate(var(--rot,0deg)) scale(.2)}12%{opacity:1}
   45%{opacity:.95;transform:translate(-50%,-50%) rotate(var(--rot,0deg)) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) rotate(var(--rot,0deg)) scale(1.18)}}
-.m3-beam{position:absolute;width:16vmax;height:auto;pointer-events:none;transform-origin:100% 50%;opacity:0;
+.m3-beam{position:absolute;width:calc(var(--m3u,1vmax)*16);height:auto;pointer-events:none;transform-origin:100% 50%;opacity:0;
   transform:translate(-100%,-50%) rotate(var(--ang)) translateX(0);animation:m3Beam .55s cubic-bezier(.3,.1,.5,1) forwards}
 @keyframes m3Beam{0%{opacity:0;transform:translate(-100%,-50%) rotate(var(--ang)) translateX(8%)}12%{opacity:1}
   80%{opacity:1}100%{opacity:0;transform:translate(-100%,-50%) rotate(var(--ang)) translateX(calc(var(--len) + 4%))}}
@@ -2754,13 +2754,13 @@ body.spa #lbfx .lb-eye.g,body.spa #lbfx .lb-strip.b,body.spa #lbfx .lb-win.fed,b
 .lb-strip.r i{background:linear-gradient(180deg,rgba(255,80,100,0),rgba(255,120,130,.95),rgba(255,80,100,0));box-shadow:0 0 8px rgba(255,60,80,.9)}
 @keyframes lbChase{0%{top:100%;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:-25%;opacity:0}}
 /* searchlights */
-.lb-search{top:-4%;width:16%;height:92%;transform-origin:50% 0;mix-blend-mode:screen;
+.lb-search{top:-4%;width:16%;height:92%;transform-origin:50% 0;
   clip-path:polygon(44% 0,56% 0,100% 100%,0 100%);animation:lbSweep 15s ease-in-out infinite alternate}
 .lb-search.a{left:24%;background:linear-gradient(180deg,rgba(190,220,255,.2),rgba(190,220,255,0) 85%)}
 .lb-search.b{left:62%;background:linear-gradient(180deg,rgba(255,170,170,.16),rgba(255,170,170,0) 85%);animation-delay:-7s;animation-duration:17s}
 @keyframes lbSweep{0%{transform:rotate(-16deg)}100%{transform:rotate(16deg)}}
 /* floor */
-.lb-sheen{left:0;right:0;top:87%;bottom:0;mix-blend-mode:screen;background:linear-gradient(100deg,transparent 35%,rgba(210,225,255,.12) 47%,rgba(255,190,200,.08) 53%,transparent 65%);background-size:220% 100%;animation:lbSheen 10s linear infinite}
+.lb-sheen{left:0;right:0;top:87%;bottom:0;background:linear-gradient(100deg,transparent 35%,rgba(210,225,255,.12) 47%,rgba(255,190,200,.08) 53%,transparent 65%);background-size:220% 100%;animation:lbSheen 10s linear infinite}
 @keyframes lbSheen{0%{background-position:120% 0}100%{background-position:-120% 0}}
 .lb-fog{left:-25%;right:-25%;top:76%;height:28%;pointer-events:none;
   background:radial-gradient(ellipse 30% 45% at 25% 60%,rgba(170,185,210,.2),transparent 70%),radial-gradient(ellipse 28% 40% at 70% 55%,rgba(170,185,210,.16),transparent 70%)}
@@ -2827,16 +2827,31 @@ body.spa #lbfx .lb-eye.g,body.spa #lbfx .lb-strip.b,body.spa #lbfx .lb-win.fed,b
   background:radial-gradient(ellipse,rgba(170,200,235,.35),rgba(170,200,235,0) 70%);animation:rsMist 14s ease-in-out var(--d,0s) infinite alternate}
 #rsfx.spa .rs-mist{background:radial-gradient(ellipse,rgba(235,170,160,.3),rgba(235,170,160,0) 70%)}
 @keyframes rsMist{0%{transform:translate(-58%,-50%) scale(.9);opacity:.35}100%{transform:translate(-42%,-54%) scale(1.15);opacity:.7}}
-.rs-search{left:62%;top:-4%;width:16%;height:95%;transform-origin:50% 0;mix-blend-mode:screen;clip-path:polygon(44% 0,56% 0,100% 100%,0 100%);
+.rs-search{left:62%;top:-4%;width:16%;height:95%;transform-origin:50% 0;clip-path:polygon(44% 0,56% 0,100% 100%,0 100%);
   background:linear-gradient(180deg,rgba(190,220,255,.16),rgba(190,220,255,0) 85%);animation:lbSweep 16s ease-in-out infinite alternate}
 #rsfx.spa .rs-search{background:linear-gradient(180deg,rgba(255,180,160,.14),rgba(255,180,160,0) 85%)}
-.rs-sheen{left:0;right:0;top:86%;bottom:0;mix-blend-mode:screen;background:linear-gradient(100deg,transparent 35%,rgba(210,225,255,.12) 50%,transparent 65%);background-size:220% 100%;animation:lbSheen 11s linear infinite}
+.rs-sheen{left:0;right:0;top:86%;bottom:0;background:linear-gradient(100deg,transparent 35%,rgba(210,225,255,.12) 50%,transparent 65%);background-size:220% 100%;animation:lbSheen 11s linear infinite}
 #rsfx.spa .rs-sheen{background-image:linear-gradient(100deg,transparent 35%,rgba(255,190,170,.1) 50%,transparent 65%)}
 .rs-dust{inset:0}
 .rs-dust i{position:absolute;width:2px;height:2px;border-radius:50%;background:rgba(230,236,255,.55);opacity:0;animation:lbDust var(--dur) linear var(--del) infinite}
 .rs-sparks{inset:0}
 .rs-spark{position:absolute;transform:translate(-50%,-50%) scale(.3);opacity:0;animation:lbSpark .42s ease-out forwards}
 #rsfx.lite .rs-dust,#rsfx.lite .rs-sparks,#rsfx.lite .rs-search{display:none}
+
+/* cf68: on big screens the menu scene is drawn at up to 1920×1080 and scaled up (the art is 1672px wide) */
+#s0 .m-bg.m3,#s1 .m-bg.m3{transform-origin:0 0}
+#s0 .m-bg.m3.capped,#s1 .m-bg.m3.capped{right:auto;bottom:auto;will-change:scale}
+#lbfx.capped,#rsfx.capped{transform-origin:0 0;will-change:scale}
+
+/* cf68: big screens — the frosted-glass blur is swapped for a slightly more solid panel (blurring an animated background is costly at 1440p / 4K) */
+html.bigscreen .qab,html.bigscreen .qau,html.bigscreen #loadDlg,html.bigscreen .lb2-sides .lb-team,html.bigscreen #mpLobby:not(.lb2wrap),
+html.bigscreen .lb2-ctl .lb-host,html.bigscreen .lb2-vs{-webkit-backdrop-filter:none !important;backdrop-filter:none !important}
+html.bigscreen .lb2-sides .lb-team,html.bigscreen .lb2-ctl .lb-host,html.bigscreen .lb2-vs{background-color:rgba(4,8,14,.84) !important}
+/* automatic lite effects when a device can't keep up */
+html.autolite #s0 .m-bg.m3 .m3-l,html.autolite #s1 .m-bg.m3 .m3-l,html.autolite .m3-stars:before,html.autolite .m3-stars:after{animation:none !important}
+html.autolite .m3-embers,html.autolite .m3-fx,html.autolite .embGlow,
+html.autolite #lbfx .lb-dust,html.autolite #lbfx .lb-sparks,html.autolite #lbfx .lb-win,html.autolite #lbfx .lb-fog.b,html.autolite #lbfx .lb-search,
+html.autolite #rsfx .rs-dust,html.autolite #rsfx .rs-sparks,html.autolite #rsfx .rs-search{display:none !important}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -10389,24 +10404,46 @@ function m3Root() {                                     // the scene on the menu
 }
 function m3On() { return !!m3Root(); }
 function m3Reduced() { return !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches); }
+// the scene is drawn at most 1920×1080 and scaled up on bigger screens (the art is 1672px wide, so no detail is lost)
+function m3Size(root) {
+  const W = innerWidth, H = innerHeight, k = Math.max(1, W / 1920, H / 1080);
+  const cw = W / k, ch = H / k;
+  root.classList.toggle("capped", k > 1);
+  root.style.width = k > 1 ? cw + "px" : ""; root.style.height = k > 1 ? ch + "px" : "";
+  root.style.scale = k > 1 ? String(k) : "";
+  root.style.setProperty("--m3u", (Math.max(cw, ch) / 100) + "px");
+  root.style.setProperty("--m3w", cw + "px"); root.style.setProperty("--m3h", ch + "px");
+  root._cw = cw; root._ch = ch;
+}
+function m3SizeAll() { document.querySelectorAll(".m-bg.m3").forEach(m3Size); }
+addEventListener("resize", m3SizeAll);
 function m3Apply(root, x, y) {
+  if (!root._cw) m3Size(root);
+  const key = x.toFixed(4) + "," + y.toFixed(4);
+  if (root._last === key) return;                     // nothing moved: no style work this frame
+  root._last = key;
   root.querySelectorAll("[data-d]").forEach(el => {
     const d = M3_DEPTH[el.dataset.d] || 0;
-    el.style.translate = (x * d).toFixed(3) + "vw " + (y * d * 0.6).toFixed(3) + "vh";
+    el.style.translate = (x * d * root._cw / 100).toFixed(2) + "px " + (y * d * 0.6 * root._ch / 100).toFixed(2) + "px";
   });
 }
+function m3Kick() { if (!M3.raf && !m3Reduced()) M3.raf = requestAnimationFrame(m3Loop); }
 function m3Loop() {
   M3.raf = 0;
   if (!m3On() || $("s0").classList.contains("m3clash")) return;     // no parallax work while the clash plays
   let tx = M3.tx, ty = M3.ty;
   if (!M3.drag && M3.gyro) { tx = M3.gyro.x; ty = M3.gyro.y; }
   M3.x += (tx - M3.x) * 0.08; M3.y += (ty - M3.y) * 0.08;
+  const settled = Math.abs(tx - M3.x) < 0.0015 && Math.abs(ty - M3.y) < 0.0015;
+  if (settled) { M3.x = tx; M3.y = ty; }
   const root = m3Root(); if (root) m3Apply(root, M3.x, M3.y);
-  M3.raf = requestAnimationFrame(m3Loop);
+  M3.raf = settled ? 0 : requestAnimationFrame(m3Loop);        // sleep until the pointer / finger / tilt moves again
 }
 function m3Start() {
   if (m3Reduced()) return;
-  if (!M3.raf) M3.raf = requestAnimationFrame(m3Loop);
+  m3SizeAll();
+  const r0 = m3Root(); if (r0) r0._last = "";
+  m3Kick();
   clearTimeout(M3.boomT);
   // ships on each side (canvas %), where hits land and beams start
   const FED = [[19, 11], [31, 26], [18, 27], [16, 46]], ZEON = [[80, 25], [72, 44], [80, 8], [68, 24], [64, 6]];
@@ -10415,8 +10452,8 @@ function m3Start() {
   const sprite = (fx, name, x, y, size, cls, life) => {
     const im = document.createElement("img");
     im.className = "m3-sx " + (cls || ""); im.src = "img/fx/" + name + ".webp"; im.alt = ""; im.decoding = "async";
-    im.style.left = x + "%"; im.style.top = y + "%"; im.style.width = size + "vmax";
-    im.style.height = (size * (0.45 + Math.random() * 0.25)).toFixed(2) + "vmax";            // stretched a little, differently each time
+    im.style.left = x + "%"; im.style.top = y + "%"; im.style.width = "calc(var(--m3u) * " + size.toFixed(2) + ")";
+    im.style.height = "calc(var(--m3u) * " + (size * (0.45 + Math.random() * 0.25)).toFixed(2) + ")";   // stretched a little, differently each time
     im.style.setProperty("--rot", (Math.random() * 40 - 20).toFixed(0) + "deg");
     fx.appendChild(im); setTimeout(() => im.remove(), life || 1300);
   };
@@ -10440,14 +10477,14 @@ function m3Start() {
     if (mega) {
       // a long beam stretched from the ship all the way to its target
       bm.className = "m3-mega";
-      bm.style.width = len.toFixed(0) + "px"; bm.style.height = rnd(1.4, 2.6).toFixed(2) + "vmax";
+      bm.style.width = len.toFixed(0) + "px"; bm.style.height = "calc(var(--m3u) * " + rnd(1.4, 2.6).toFixed(2) + ")";
       fx.appendChild(bm); setTimeout(() => bm.remove(), 1000);
       blast(fx, !fromFed, b, rnd(10, 14), 160);
       sprite(fx, fromFed ? "spark-p" : "star-y", a[0], a[1], rnd(3, 5), "muzzle", 700);
     } else {
       // a bolt: random length and thickness, flies across
       bm.className = "m3-beam";
-      bm.style.width = rnd(8, 20).toFixed(1) + "vmax"; bm.style.height = rnd(1, 2.4).toFixed(2) + "vmax";
+      bm.style.width = "calc(var(--m3u) * " + rnd(8, 20).toFixed(1) + ")"; bm.style.height = "calc(var(--m3u) * " + rnd(1, 2.4).toFixed(2) + ")";
       fx.appendChild(bm); setTimeout(() => bm.remove(), 700);
       setTimeout(() => { if (fx.isConnected) sprite(fx, fromFed ? pick(["star-p", "star-p", "ring-p"]) : pick(["star-y", "star-y", "ring-o"]), b[0], b[1], blastSize(), "hit"); }, 430);
     }
@@ -10488,7 +10525,7 @@ function m3Init() {
     e.style.left = (Math.random() * 100).toFixed(1) + "%";
     e.style.setProperty("--dur", (7 + Math.random() * 7).toFixed(1) + "s");
     e.style.setProperty("--del", (-Math.random() * 14).toFixed(1) + "s");
-    e.style.setProperty("--dx", ((Math.random() - 0.5) * 12).toFixed(1) + "vw");
+    e.style.setProperty("--dxf", ((Math.random() - 0.5) * 0.12).toFixed(3));
     e.style.setProperty("--sz", (2 + Math.random() * 3).toFixed(1) + "px");
     e.className = Math.random() < 0.5 ? "b" : "r";
     em.appendChild(e);
@@ -10499,9 +10536,11 @@ function m3Init() {
     if (ev.pointerType === "mouse") {
       M3.tx = -m3Clamp((ev.clientX / innerWidth) * 2 - 1);
       M3.ty = -m3Clamp((ev.clientY / innerHeight) * 2 - 1);
+      m3Kick();
     } else if (M3.drag) {
       M3.tx = m3Clamp((ev.clientX - M3.drag.x) / (innerWidth * 0.45));
       M3.ty = m3Clamp((ev.clientY - M3.drag.y) / (innerHeight * 0.45));
+      m3Kick();
     }
   }, { passive: true });
   s0.addEventListener("pointerdown", ev => {
@@ -10512,14 +10551,15 @@ function m3Init() {
       DeviceOrientationEvent.requestPermission().catch(() => {});
     }
   }, { passive: true });
-  const release = () => { M3.drag = null; M3.tx = 0; M3.ty = 0; };
+  const release = () => { M3.drag = null; M3.tx = 0; M3.ty = 0; m3Kick(); };
   ["pointerup", "pointercancel"].forEach(t => s0.addEventListener(t, ev => { if (ev.pointerType !== "mouse") release(); }, { passive: true }));
-  s0.addEventListener("pointerleave", ev => { if (ev.pointerType === "mouse") { M3.tx = 0; M3.ty = 0; } }, { passive: true });
+  s0.addEventListener("pointerleave", ev => { if (ev.pointerType === "mouse") { M3.tx = 0; M3.ty = 0; m3Kick(); } }, { passive: true });
   });
   window.addEventListener("deviceorientation", ev => {
     if (ev.gamma == null || ev.beta == null) return;
     if (!M3.gyroBase) M3.gyroBase = { b: ev.beta };
     M3.gyro = { x: m3Clamp(-ev.gamma / 25), y: m3Clamp(-(ev.beta - M3.gyroBase.b) / 25) };
+    m3Kick();
   });
   document.addEventListener("visibilitychange", () => { if (!document.hidden) m3Start(); });
 }
@@ -10539,9 +10579,10 @@ function lbLite() { return (navigator.deviceMemory && navigator.deviceMemory <= 
 function lbLayout() {
   const box = $("lbfx"); if (!box) return;
   const W = innerWidth, H = innerHeight, s = Math.max(W / LB_IMG.w, H / LB_IMG.h);
-  const iw = LB_IMG.w * s, ih = LB_IMG.h * s;
+  const iw = LB_IMG.w * s, ih = LB_IMG.h * s, k = Math.max(1, s);      // drawn at the picture's own size at most, then scaled
   box.style.left = ((W - iw) * LB_IMG.px) + "px"; box.style.top = ((H - ih) * LB_IMG.py) + "px";
-  box.style.width = iw + "px"; box.style.height = ih + "px";
+  box.style.width = (iw / k) + "px"; box.style.height = (ih / k) + "px";
+  box.style.scale = k > 1 ? String(k) : ""; box.classList.toggle("capped", k > 1);
 }
 function lbInit() {
   const s5 = $("s5"); if (!s5 || $("lbfx") || lbReduced()) return;
@@ -10662,10 +10703,11 @@ function rsScreen() { for (const id of ["s2", "s3"]) { const sc = $(id); if (sc 
 function rsSide() { return document.body.classList.contains("spa") ? "spacenoid" : document.body.classList.contains("fed") ? "federation" : null; }
 function rsLayout() {
   const box = $("rsfx"); if (!box) return;
-  const W = innerWidth, H = innerHeight, s = Math.max(W / 1672, H / 941), iw = 1672 * s, ih = 941 * s;
+  const W = innerWidth, H = innerHeight, s = Math.max(W / 1672, H / 941), iw = 1672 * s, ih = 941 * s, k = Math.max(1, s);
   const tall = W / H <= 0.8, px = tall ? 0.72 : 0.7, py = tall ? 0.5 : 0.4;
   box.style.left = ((W - iw) * px) + "px"; box.style.top = ((H - ih) * py) + "px";
-  box.style.width = iw + "px"; box.style.height = ih + "px";
+  box.style.width = (iw / k) + "px"; box.style.height = (ih / k) + "px";
+  box.style.scale = k > 1 ? String(k) : ""; box.classList.toggle("capped", k > 1);
 }
 function rsInit() {
   const sc = rsScreen(), side = rsSide();
@@ -10713,6 +10755,42 @@ function rsSpawn() {
 addEventListener("resize", rsLayout);
 addEventListener("orientationchange", () => setTimeout(rsLayout, 150));
 document.addEventListener("visibilitychange", () => { if (!document.hidden) rsSpawn(); });
+
+
+// ---------- performance: big-screen tweaks + automatic lite effects (cf68) ----------
+function perfBigScreen() {
+  const px = innerWidth * innerHeight * Math.pow(window.devicePixelRatio || 1, 2);
+  document.documentElement.classList.toggle("bigscreen", px > 2600000);
+}
+perfBigScreen(); addEventListener("resize", perfBigScreen);
+const PERF = { on: false, bad: 0, since: 0 };
+function perfWatch() {
+  if (PERF.on) return; PERF.on = true;
+  let last = performance.now(), sum = 0, n = 0, t0 = last;
+  const tick = now => {
+    const busy = ["s0", "s1", "s2", "s3", "s5"].some(id => { const e = $(id); return e && e.classList.contains("on"); });
+    const dt = now - last; last = now;
+    if (!busy || document.hidden || document.documentElement.classList.contains("autolite") || $("clashFx") || typeof hangarBusy !== "undefined" && hangarBusy) {
+      sum = 0; n = 0; t0 = now;                          // only judge steady screens
+    } else if (dt < 1000) {
+      sum += dt; n++;
+      if (now - t0 > 3000) {
+        const avg = sum / n;
+        PERF.bad = avg > 28 ? PERF.bad + 1 : 0;           // slower than ~35 fps
+        if (PERF.bad >= 2) {
+          document.documentElement.classList.add("autolite");
+          try { sessionStorage.setItem("gb.autolite", "1"); } catch (e) {}   // this session only: a fresh start tries full effects again
+          if (typeof mpToast === "function") mpToast("Background effects reduced to keep things smooth.");
+        }
+        sum = 0; n = 0; t0 = now;
+      }
+    }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+try { if (sessionStorage.getItem("gb.autolite") === "1") document.documentElement.classList.add("autolite"); } catch (e) {}
+try { if (localStorage.getItem("gb.noautolite") !== "1") perfWatch(); } catch (e) { perfWatch(); }
 
 window.landOnline = () => { if (mp.code) hangarGo(() => openMP()); else playClash(() => openMP()); };
 window.landOffline = () => hangarGo(() => show("s1"));
@@ -14585,7 +14663,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf67";
+const APP_BUILD = "cf68";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
