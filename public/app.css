@@ -3172,3 +3172,16 @@ button.mb-item.fxtog{font:inherit;color:#dfe9f4;background:none;border-top:0;bor
 .ffengbar .pl i.now{border-color:#a78bfa;color:#fff;background:rgba(167,139,250,.25)}
 @media (max-height:560px){ .ffengbar{padding:2px 8px;font-size:11px} .ffsq{padding:4px} }
 .fftag.waiting{background:#475569;color:#e2e8f0}
+/* cf97: engagement queue */
+.ffnext2{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px;border:2px solid #a78bfa;background:rgba(124,58,237,.12);text-align:center}
+.ffnext2>b{font:900 15px system-ui,sans-serif;color:#ede9fe}
+.ffnext2>span{font-size:12px;color:#ddd6fe}
+.sqnote.pinned{border-color:#a78bfa;background:rgba(124,58,237,.12);color:#ede9fe}
+@media (max-height:560px){ .ffnext2{padding:5px} .ffnext2>b{font-size:13px} .ffnext2>span{font-size:11px} }
+/* cf98: engagement breaks */
+.ffbreak{display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px;border:2px solid #38bdf8;background:rgba(56,189,248,.1);text-align:center}
+.ffbreak>b{font:900 15px system-ui,sans-serif;color:#e0f2fe}
+.ffbreak>span{font-size:12px;color:#cbd5e1}
+.ffbreak>span.ok{color:#bbf7d0}
+.ffbreak>span.bad{color:#fecaca}
+@media (max-height:560px){ .ffbreak{padding:5px;gap:3px} .ffbreak>b{font-size:13px} .ffbreak>span{font-size:11px} }
