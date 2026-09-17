@@ -2477,6 +2477,15 @@ ul.hl li{margin:4px 0;font-size:13px;line-height:1.45;color:#cbd5e1}
   0%{opacity:0;transform:translate(-50%,-50%) scale(1.5);filter:blur(10px) brightness(2.2) drop-shadow(0 1vh 2.4vh rgba(0,0,0,0)) drop-shadow(0 0 0 rgba(255,255,255,0))}
   60%{opacity:1;filter:blur(0px) brightness(1.3) drop-shadow(0 1vh 2.4vh rgba(0,0,0,.6)) drop-shadow(0 0 4vh rgba(255,255,255,.5))}
   100%{opacity:1;transform:translate(-50%,-50%) scale(1);filter:blur(0px) brightness(1) drop-shadow(0 1vh 2.4vh rgba(0,0,0,.85)) drop-shadow(0 0 3vh rgba(255,255,255,.18))}}
+
+/* cf52: no screen-edge bars — the scene is 12% larger than the screen and the shake moves only that */
+#clashFx .cx-shake{position:absolute;inset:-6%;will-change:transform}
+#clashFx.hit{animation:none}
+#clashFx.hit .cx-shake{animation:cxShake2 .45s linear}
+@keyframes cxShake2{0%,100%{transform:none}15%{transform:translate(-.8vmax,.4vmax)}30%{transform:translate(.7vmax,-.5vmax)}45%{transform:translate(-.5vmax,-.3vmax)}
+  60%{transform:translate(.4vmax,.35vmax)}75%{transform:translate(-.2vmax,.15vmax)}}
+#clashFx .cx-end{inset:-6%}
+#s0 .m-bg.m2{inset:-6%}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -2598,7 +2607,6 @@ ul.hl li{margin:4px 0;font-size:13px;line-height:1.45;color:#cbd5e1}
     <span>MOBILE SUITS <i>/</i> TABLETOP <i>/</i> THE BATTLEFIELD IS YOURS</span>
   </div>
   <h1 class="m-sr">Gunpla Battle</h1>
-  <button id="muteBtn" class="mutebtn" onclick="toggleMute()" aria-label="Sound">🔊</button>
   <img class="m-logo" id="mLogo" src="img/menu2-logo.webp" alt="Gunpla Battle" decoding="async">
   <div class="m-body">
     <div class="m-head"><i></i><span>CHOOSE HOW TO PLAY</span><i></i></div>
@@ -9504,7 +9512,7 @@ function renderMenu() {
 }
 // ---- landing page ----
 function renderLanding() {
-  layoutMenu(); renderMuteBtn();
+  layoutMenu();
   const ems = $("moEmbs");
   if (ems && !ems.childElementCount)
     ems.innerHTML = ["#fcFed .fc-emb", "#fcSpa .fc-emb"].map(q => { const e = document.querySelector(q); return e ? e.outerHTML : ""; }).join("");
@@ -9597,7 +9605,7 @@ function playClash(after) {
   const fx = document.createElement("div");
   fx.id = "clashFx";
   const lr = $("mLogo") ? $("mLogo").getBoundingClientRect() : null;
-  fx.innerHTML = (lr ? '<img class="cx-logo" src="img/menu2-logo.webp" alt="" style="left:' + lr.left + 'px;top:' + lr.top + 'px;width:' + lr.width + 'px;height:' + lr.height + 'px">' : '') + '<div class="cx-scene"><div class="cx-bg"></div><div class="cx-l"></div><div class="cx-r"></div><div class="cx-glow"></div><div class="cx-ring"></div><div class="cx-clash"></div></div><div class="cx-end"></div>' +
+  fx.innerHTML = (lr ? '<img class="cx-logo" src="img/menu2-logo.webp" alt="" style="left:' + lr.left + 'px;top:' + lr.top + 'px;width:' + lr.width + 'px;height:' + lr.height + 'px">' : '') + '<div class="cx-shake"><div class="cx-scene"><div class="cx-bg"></div><div class="cx-l"></div><div class="cx-r"></div><div class="cx-glow"></div><div class="cx-ring"></div><div class="cx-clash"></div></div></div><div class="cx-end"></div>' +
     '<div class="cx-flash"></div>' + (seen ? '<button class="cx-skip">SKIP \u25B8</button>' : '');
   document.body.appendChild(fx);
   s0.classList.add("clashing");
@@ -9614,8 +9622,7 @@ function playClash(after) {
   };
   if (seen) fx.addEventListener("click", finish);
   requestAnimationFrame(() => fx.classList.add("go"));
-  SFX.whoosh(-0.8, 0); SFX.whoosh(0.8, 0.05);
-  timers.push(setTimeout(() => { fx.classList.add("hit"); SFX.clash(0); }, 760));
+  timers.push(setTimeout(() => fx.classList.add("hit"), 760));
   timers.push(setTimeout(() => fx.classList.add("zoom"), 900));
   timers.push(setTimeout(() => fx.classList.add("white"), 1300));
   timers.push(setTimeout(() => fx.classList.add("logo"), 1750));
@@ -13480,7 +13487,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf51";
+const APP_BUILD = "cf52";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
