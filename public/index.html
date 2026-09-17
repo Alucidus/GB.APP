@@ -2031,7 +2031,7 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 #frame .sqport img{object-fit:contain !important;transform:scale(1.25)}
 #sheet .sqwrap img{position:static;inset:auto;display:block;object-fit:contain}
 #sheet .sqwrap .sqs-top img{width:3.4cqw;height:4.2cqw;flex:none}
-#sheet .sqwrap .sqpip img{width:100%;height:100%;object-fit:cover}
+#sheet .sqwrap .sqpip img{width:100%;height:100%;object-fit:cover;object-position:50% 0;transform:translateY(9%) scale(1.02)}
 .sqtabs{position:absolute;top:-12.5cqw;left:0;display:flex;gap:.5cqw}
 .sqtab{padding:.7cqw 1.4cqw;cursor:pointer;font:900 clamp(8px,1.15cqw,16px) system-ui,sans-serif;letter-spacing:.14em;color:var(--f-mut);
   background:rgba(4,8,14,.75);border:1px solid var(--f-line);clip-path:polygon(.6cqw 0,100% 0,calc(100% - .6cqw) 100%,0 100%)}
@@ -2045,7 +2045,7 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 .sqcard h4 em{font-style:normal;font-size:.7em;color:var(--f-mut);letter-spacing:.08em}
 .sqcard p{margin:0;line-height:1.35;color:#cbd5e1}
 .sqcard p.warn,.sqstats .warn b{color:#fca5a5}
-.sqpips{display:grid;grid-template-columns:repeat(8,1fr);gap:.5cqw}
+.sqpips{display:grid;grid-template-columns:repeat(4,7.4cqw);justify-content:space-around;gap:.6cqw .5cqw}
 .sqpip{aspect-ratio:1;border-radius:50%;padding:0;cursor:pointer;overflow:hidden;background:rgba(100,116,139,.35);border:.2cqw solid #475569;filter:grayscale(1);opacity:.45}
 .sqpip.on{background:rgba(255,255,255,.94);border-color:#22c55e;filter:none;opacity:1}
 .sqpip img{width:100%;height:100%;object-fit:cover;object-position:50% 12%}
@@ -2120,7 +2120,7 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 .qrt td:first-child{width:3cqw}
 .vlsep{margin:8px 0 4px;font:900 11px system-ui,sans-serif;letter-spacing:.2em;color:var(--muted)}
 .shipcard.gcard .sc-art.sq img{object-position:85% 50%}
-@media (max-width:900px){.sqsold{grid-template-columns:repeat(2,1fr)}.qr{grid-template-columns:1fr}.sqgrid.om{grid-template-columns:1fr}}
+@media (max-width:900px){.sqsold{grid-template-columns:repeat(2,1fr)}}
 
 /* ===== cf35: touch-friendly soldier cards + ground limit meter ===== */
 .sqsold2{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:minmax(min-content,1fr);gap:.7cqw;flex:1;min-height:0;overflow:auto;padding-right:.2cqw}
@@ -13036,7 +13036,7 @@ function draw() {
   }
 }
 
-const APP_BUILD = "cf39";
+const APP_BUILD = "cf40";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

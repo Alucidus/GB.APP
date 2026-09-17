@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf39)
+# Gunpla Battle — Cloudflare version (build cf40)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -107,3 +107,4 @@ public/            the app (index.html, images, service worker)
 | cf37 | `public/index.html`, `public/sw.js` | Soldier cards v3: AP bubble (3, refills each turn); MOVE (1 AP) / DODGE (free, blast 4+) / FIRE (current weapon's AP, uses Rocket charges) with counters + undo; ⇄ weapon button = switch (1 AP) + full weapon list with thrown items (1 AP each); per-soldier stance corner (Overwatch 1 AP, Peek & Shoot, Defense 10cm, Recon Stealth); ⓘ GROUND RULES panel (Section 13.6 / 13.7) |
 | cf38 | `public/index.html`, `public/sw.js` | Soldier cards: DODGE button removed (the blast-dodge rule stays in ⓘ GROUND RULES); MOVE and FIRE are now two large buttons |
 | cf39 | `public/index.html`, `public/sw.js` | Soldier cards: "BLAST DODGE 4+" reminder under MOVE / FIRE (tooltip: Rockets and Bombing Runs can't be dodged; bullets never) |
+| cf40 | `public/index.html`, `public/sw.js` | Squad sheet on phones: Overmap and Quick Resolve columns always stay side by side (no stacking that pushed FIRE off-screen); Squad Health portraits in a larger 4 × 2 grid with heads fully visible |
