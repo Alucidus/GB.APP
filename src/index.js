@@ -470,6 +470,7 @@ export class BattleRoom {
       if (M.has(key) || !validUid(op.aUid) || !validUid(op.bUid) || busy(op.aUid) || busy(op.bUid)) { denied.push("ff:invite"); return false; }
       const tk = M.get("turn");
       const queued = op.forced === true && !!tk;          // Forced Re-Engagement: starts on its own when the next turn begins
+      if (!queued && tk && tk.active !== myTeam) { denied.push("ff:not-your-turn"); return false; }   // challenges only on your own turn
       await M.set(key, { id, state: queued ? "queued" : "invite", at: now, mode: null, rollAsk: null, round: 1, seg: 1,
         forced: queued ? "a" : null, startSeq: queued ? tk.seq + 1 : null,
         a: { team: myTeam, uid: op.aUid, pid, label: String(op.aLabel || "").slice(0, 30) },
@@ -582,6 +583,9 @@ export class BattleRoom {
         if (op.forced && M.get("turn")) { g.state = "queued"; g.startSeq = M.get("turn").seq + 1; }   // waits for the next turn
         else g.state = "ready";
         return save();
+      case "counter":                               // the squad being forced back spends a Smoke Grenade: the re-engagement is cancelled
+        if (g.state !== "queued" || !g.forced || side === g.forced) break;
+        g.state = "closed"; g.countered = side; return save();
       case "end":
         await M.del("ffsec/" + id + "/a"); await M.del("ffsec/" + id + "/b");
         g.state = "closed"; return save();

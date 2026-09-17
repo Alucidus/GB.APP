@@ -2093,6 +2093,7 @@ function ffEnemySquads() {
 }
 window.ffChallenge = () => {
   if (!mpTeamMode()) { mpToast("Online firefights need a battle session."); return; }
+  if (mp.data.turn && mp.data.turn.active !== mpMyTeam()) { mpToast("Firefights can only be started on your own turn."); return; }
   if (!CUR || !isSquad(U) || !mpSheetCanEdit()) return;
   if (ffForUid(CUR.uid, mpMyTeam())) { mpToast("This squad is already in a firefight."); return; }
   if (!sqAlive(CUR.st)) { mpToast("This squad has no soldiers left."); return; }
@@ -2143,9 +2144,31 @@ window.ffForce = () => {
   $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Cancel";
   $("pick").classList.add("on");
 };
+// the squad being forced back cancels the re-engagement with a Smoke Grenade
+window.ffCounter = () => {
+  if (!mpTeamMode() || !CUR || !isSquad(U) || !mpSheetCanEdit()) return;
+  const f = ffForUid(CUR.uid, mpMyTeam()), q = CUR.st.sq.qr;
+  if (!f || f.state !== "queued" || f.forced === ffSideOf(f)) return;
+  if (!(q.items && q.items.sm > 0)) { mpToast("No Smoke Grenade left to counter with."); return; }
+  if (!confirm("Spend 1 Smoke Grenade to cancel the Forced Re-Engagement? Your squad gets away.")) return;
+  q.items.sm -= 1;
+  logEv(CUR.uid, "\u25CC Smoke Grenade \u2014 countered the Forced Re-Engagement by " + f[ffOther(ffSideOf(f))].label, "buff");
+  save(); if (typeof sqCommit === "function") sqCommit();
+  ffOp({ op: "counter", id: f.id });
+  mpToast("\u25CC Countered with Smoke \u2014 your squad gets away.");
+};
 function ffTagHTML(f) {
-  return f && f.state === "queued" ? ' <span class="fftag queued">\u2726 RE-ENGAGES NEXT TURN</span>' : ' <span class="fftag">\u2694 FIREFIGHT</span>';
+  return f && f.state === "queued" ? '<span class="fftag queued" title="Re-engages next turn">\u2726<b> RE-ENGAGES NEXT TURN</b></span> '
+    : '<span class="fftag" title="In a firefight">\u2694<b> FIREFIGHT</b></span> ';
 }
+const OBJ_TAG = '<span class="objtag" title="Holds the objective">\u{1F6A9}<b> OBJECTIVE</b></span> ';
+window.ffReviewForced = id => {
+  const f = mp.data["ff/" + id]; if (!f) return;
+  const s = ffSideOf(f), r = roster.find(x => x.uid === f[s].uid); if (!r) return;
+  ffShown["bk:" + id] = 1;
+  if ($("s4").classList.contains("on")) closeSheet();
+  openSheet(r.uid); sqTab("qr"); renderFFInvites();
+};
 window.ffAccept = id => {
   const f = mp.data["ff/" + id]; if (!f || f.state !== "invite") return;
   const r = roster.find(x => x.uid === f.b.uid); if (!r) return;
@@ -2677,6 +2700,9 @@ function renderFFInvites() {
   const t = mpTeamMode() ? mpMyTeam() : null;
   const inv = t ? ffAll().filter(f => f.state === "invite" && f.b.team === t) : [];
   const mineNow = ffMine();
+  const booked = t ? ffAll().filter(f => f.state === "queued" && f.forced && f[ffOther(f.forced)].team === t && !ffShown["bk:" + f.id]) : [];
+  const countered = t ? ffAll().filter(f => f.state === "closed" && f.countered && f[f.forced] && f[f.forced].team === t && !ffShown["ct:" + f.id]) : [];
+  countered.forEach(f => { ffShown["ct:" + f.id] = 1; mpToast("\u25CC The enemy countered your Forced Re-Engagement with Smoke \u2014 their " + f[f.countered].label + " gets away."); });
   const started = t ? ffAll().filter(f => {
     if (!f.fromQueue || !["mode", "ready", "pick", "reveal"].includes(f.state)) return false;
     const sd = ffSideOf(f); if (!sd) return false;
@@ -2685,13 +2711,17 @@ function renderFFInvites() {
   }) : [];
   const declined = t ? ffAll().filter(f => f.state === "declined" && f.a.team === t && f.a.pid === mp.pid && !ffShown["dec:" + f.id]) : [];
   declined.forEach(f => { ffShown["dec:" + f.id] = 1; mpToast("The enemy declined the firefight with your " + f.a.label + "."); });
-  if (!inv.length && !started.length) { if (bar) bar.remove(); return; }
+  if (!inv.length && !started.length && !booked.length) { if (bar) bar.remove(); return; }
   if (!bar) { bar = document.createElement("div"); bar.id = "ffinv"; document.body.appendChild(bar); }
   const html = inv.map(f => '<div class="ffinvrow"><b>\u2694 ' + (mpNameOf(f.a.pid) || "The enemy") + '\u2019s ' + f.a.label + ' challenges your ' + f.b.label + '</b>' +
     '<span><button class="btn sm pri" onclick="ffAccept(\'' + f.id + '\')">Accept</button><button class="btn sm" onclick="ffDecline(\'' + f.id + '\')">Decline</button></span></div>').join("") +
     started.map(f => { const sd = ffSideOf(f), od = ffOther(sd);
       return '<div class="ffinvrow forced"><b>\u2726 Forced Re-Engagement \u2014 your ' + f[sd].label + ' vs their ' + f[od].label + ' has begun</b>' +
-        '<span><button class="btn sm pri" onclick="ffResume(\'' + f.id + '\')">Open the firefight</button></span></div>'; }).join("");
+        '<span><button class="btn sm pri" onclick="ffResume(\'' + f.id + '\')">Open the firefight</button></span></div>'; }).join("") +
+    booked.map(f => { const sd = ffOther(f.forced);
+      return '<div class="ffinvrow forced"><b>\u2726 The enemy\u2019s ' + f[f.forced].label + ' forces your ' + f[sd].label + ' back into a firefight next turn</b>' +
+        '<span><button class="btn sm pri" onclick="ffReviewForced(\'' + f.id + '\')">Counter with Smoke?</button>' +
+        '<button class="btn sm" onclick="ffShown[\'bk:' + f.id + '\']=1;renderFFInvites()">Let it happen</button></span></div>'; }).join("");
   if (bar.innerHTML !== html) bar.innerHTML = html;
 }
 // the firefight card on a squad's Quick Resolve tab (online)
@@ -2699,15 +2729,22 @@ function ffCardHTML() {
   if (!mpTeamMode() || !CUR || !isSquad(U)) return "";
   const f = ffForUid(CUR.uid, mpMyTeam());
   const q0 = CUR.st.sq && CUR.st.sq.qr;
-  if (!f) return '<div class="ffcta"><button class="btn big pri" onclick="ffChallenge()">\u2694 CHALLENGE AN ENEMY SQUAD</button>' +
-    '<span>Online firefight: blind item picks on each device, reveal together, optional rolled dice.</span>' +
+  const myTurn = !mp.data.turn || mp.data.turn.active === mpMyTeam();
+  if (!f) return '<div class="ffcta">' + (myTurn
+      ? '<button class="btn big pri" onclick="ffChallenge()">\u2694 CHALLENGE AN ENEMY SQUAD</button>' +
+        '<span>Online firefight: blind item picks on each device, reveal together, optional rolled dice.</span>'
+      : '<span class="ffhint">\u2694 Firefights can only be started on your own turn.</span>') +
     (q0 && q0.ffId && q0.items && q0.items.fb > 0
       ? '<button class="btn big ffforce" onclick="ffForce()">\u2726 FORCE A RE-ENGAGEMENT <small>1 Flashbang \u00b7 ' + q0.items.fb + ' left</small></button>' +
         '<span>Play it when an enemy squad you just fought tries to move away \u2014 the firefight starts when the next turn begins.</span>' : '') + '</div>';
   if (f.state === "queued") {
-    const s0 = ffSideOf(f), o0 = ffOther(s0), mineForced = f.forced === s0;
+    const s0 = ffSideOf(f), o0 = ffOther(s0), mineForced = f.forced === s0, sm = (q0 && q0.items && q0.items.sm) || 0;
     return '<div class="ffcta live queued"><b>\u2726 Forced Re-Engagement \u2014 ' + (mineForced ? 'your ' + f[s0].label + ' vs their ' + f[o0].label : 'their ' + f[o0].label + ' re-engages your ' + f[s0].label) + '</b>' +
-      '<span>Starts by itself when the next turn begins \u2014 keep playing your other units until then.</span></div>';
+      '<span>Starts by itself when the next turn begins \u2014 keep playing your other units until then.' +
+      (mineForced ? ' The enemy can still cancel it with a Smoke Grenade.' : '') + '</span>' +
+      (mineForced ? '' : sm > 0
+        ? '<button class="btn big ffcounter" onclick="ffCounter()">\u25CC COUNTER WITH SMOKE <small>1 Smoke Grenade \u00b7 ' + sm + ' left \u2014 your squad gets away</small></button>'
+        : '<span class="ffhint">No Smoke Grenade left \u2014 the re-engagement will happen.</span>') + '</div>';
   }
   const s = ffSideOf(f), o = ffOther(s), mineNow = f[s].pid === mp.pid, someone = ffSidePidAlive(f, s);
   return '<div class="ffcta live"><b>\u2694 In a firefight with the enemy ' + f[o].label + '</b><span>' +
@@ -4767,9 +4804,10 @@ function renderOpp() {
       (dn ? '<span class="tick on" title="Done this turn">\u2713</span>' : '') +
       '<span class="opphp" style="background:' + HEALTH_COL(pct) + '"></span>' +
       portraitHTML(u).replace('</span>', markPipHTML(x) + '</span>') +
-      '<span style="min-width:0"><div class="nm">' + label + (oppAboard.has(x.uid) ? ' <span class="cartag aboard">\u2693 ABOARD</span>' : '') +
+      '<span style="min-width:0"><div class="nm">' +
+        (ud && ud.st && ud.st.sq && ud.st.sq.holdsObj && pct > 0 ? OBJ_TAG : '') +
         (ffForUid(x.uid, t) ? ffTagHTML(ffForUid(x.uid, t)) : '') +
-        (ud && ud.st && ud.st.sq && ud.st.sq.holdsObj && pct > 0 ? ' <span class="objtag" title="Holds the objective">\u{1F6A9} OBJECTIVE</span>' : '') +
+        label + (oppAboard.has(x.uid) ? ' <span class="cartag aboard">\u2693 ABOARD</span>' : '') +
         (ud && ud.st ? ' ' + stanceTagHTML(stanceNow({ id: x.id, st: ud.st })) : '') + '</div><div class="tr"><b style="color:' + HEALTH_COL(pct) + '">' + HEALTH_WORD(pct) + '</b> \u00b7 ' + u.tier + '</div></span>' +
       '<span class="dp">' + u.dp.toLocaleString() + '</span></div>';
   });
@@ -4925,12 +4963,14 @@ function renderRosterCore() {
             : (dn ? 'Done this turn \u2014 tap to un-tick' : 'Tap when this unit has finished')) + '" onclick="event.stopPropagation();toggleDone(' + r.uid + ')">' + doneMark() + '</span>' : '') +
         '<span style="width:6px;height:' + (locked ? 40 : 30) + 'px;border-radius:3px;flex:none;background:' + col + '"></span>' +
         portraitHTML(u, r) +
-        '<span style="min-width:0"><div class="nm">' + (u.short || u.name) + (n > 1 ? ' <span style="color:var(--muted)">#' + idx + '</span>' : '') +
+        '<span style="min-width:0"><div class="nm">' +
+          (locked && r.st && r.st.sq && r.st.sq.holdsObj && !dead ? OBJ_TAG : '') +
+          (locked && mpTeamMode() && ffForUid(r.uid, mpMyTeam()) ? ffTagHTML(ffForUid(r.uid, mpMyTeam())) : '') +
+          (u.short || u.name) + (n > 1 ? ' <span style="color:var(--muted)">#' + idx + '</span>' : '') +
           (ctl ? ' <span class="ctltag" title="' + (ctl.me ? 'You have this sheet open' : ctl.name + ' has this sheet open') + '">' + (ctl.me ? '\u270E You' : '\u{1F512} ' + ctl.name) + '</span>' : '') +
           (cst ? ' ' + carrierTag(r.uid) : '') + (locked ? ' ' + stanceTagHTML(stanceNow(r)) : '') +
           (locked && needsRecheck(r) ? ' <span class="rechecktag">\u21BB RE-CHECK</span>' : '') +
-          (locked && mpTeamMode() && ffForUid(r.uid, mpMyTeam()) ? ffTagHTML(ffForUid(r.uid, mpMyTeam())) : '') +
-          (locked && r.st && r.st.sq && r.st.sq.holdsObj && !dead ? ' <span class="objtag" title="Holds the objective">\u{1F6A9} OBJECTIVE</span>' : '') + '</div>' +
+          '</div>' +
         '<div class="tr">' + (dead ? "DESTROYED" : (LIMB_LABEL[kl] || "Chest") + " " + now + "/" + tot) + ' \u00b7 ' + u.tier +
         (!dead && u.abilities.some(x => x.kind === "auto" && autoOn(x, u, r.st))
           ? ' <b style="color:#fff;background:#b91c1c;border-radius:3px;padding:0 5px;margin-left:4px">' + u.abilities.find(x => x.kind === "auto").name.split(" ")[0].toUpperCase() + '</b>' : '') +
@@ -7092,7 +7132,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf88";
+const APP_BUILD = "cf90";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

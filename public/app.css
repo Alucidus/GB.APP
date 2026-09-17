@@ -3091,3 +3091,9 @@ button.mb-item.fxtog{font:inherit;color:#dfe9f4;background:none;border-top:0;bor
 .ffcta .ffforce{margin-top:6px;border-color:#a78bfa;color:#ede9fe;background:rgba(124,58,237,.18)}
 .ffcta .ffforce small{display:block;font-size:11px;color:#ddd6fe;letter-spacing:.04em}
 .ffinvrow.forced{border-color:#a78bfa;background:rgba(76,29,149,.85)}
+/* cf89: smoke counter */
+.ffcta .ffcounter{margin-top:6px;border-color:#94a3b8;color:#f1f5f9;background:rgba(148,163,184,.18)}
+.ffcta .ffcounter small{display:block;font-size:11px;color:#cbd5e1;letter-spacing:.04em}
+/* cf90: status tags sit before the name; on narrow screens only their icon shows */
+.objtag b,.fftag b{font-weight:inherit}
+@media (max-width:1000px){ .objtag b,.fftag b{display:none} .objtag,.fftag{padding:1px 4px} }
