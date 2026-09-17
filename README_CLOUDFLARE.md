@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf42)
+# Gunpla Battle — Cloudflare version (build cf43)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -110,3 +110,4 @@ public/            the app (index.html, images, service worker)
 | cf40 | `public/index.html`, `public/sw.js` | Squad sheet on phones: Overmap and Quick Resolve columns always stay side by side (no stacking that pushed FIRE off-screen); Squad Health portraits in a larger 4 × 2 grid with heads fully visible |
 | cf41 | `public/index.html`, `public/sw.js` | Squad sheet: MOVE now sits under FIRE in the Coordinated Strike card (same size, with undo). 8 Soldiers and Quick Resolve hide the unit info panel and use the freed space for bigger parts; shield units show their five bubbles in two rows (AP · HP · Kevlar / Armor · Shield) so nothing is cut off on phones |
 | cf42 | `public/index.html`, `public/sw.js` | Help sentence under the sheet removed; the HEAD = KILL tag removed; new **?** button beside DONE opens a "how this sheet works" guide for the open unit type (suit / ship / vehicle / squad), including the kill location |
+| cf43 | `public/index.html`, `public/sw.js` | Soldier cards: stat **bars** on the left of the art (AP · HP · Kevlar, + Armor · Shield) replace the bubbles; tap a bar to select it → ▲ ▼ − + ✓ strip (AP ±1; health bars ± the DMG amount); every soldier's art is the same size |

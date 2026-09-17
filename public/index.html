@@ -2304,6 +2304,30 @@ details.gr p{margin:6px 0;font-size:13px;line-height:1.45;color:#cbd5e1}
 #frame .fdock.r{left:71.9%;width:25.1%}
 ul.hl{margin:4px 0;padding-left:18px}
 ul.hl li{margin:4px 0;font-size:13px;line-height:1.45;color:#cbd5e1}
+
+/* ===== cf43: soldier stat bars on the art ===== */
+.sq3 .sq3-art{justify-content:flex-end;padding-right:.4cqw}
+.sq4-bars{position:absolute;left:0;top:2cqw;z-index:3;width:52%;display:flex;flex-direction:column;gap:.35cqw}
+.sbar{display:flex;flex-direction:column;gap:.15cqw;padding:.25cqw .4cqw .3cqw;cursor:pointer;text-align:left;
+  background:rgba(2,6,12,.72);border:1px solid rgba(255,255,255,.12);border-left:.25cqw solid var(--c);-webkit-tap-highlight-color:transparent;transition:box-shadow .12s,transform .12s}
+.sbar-h{display:flex;justify-content:space-between;align-items:baseline;gap:.3cqw}
+.sbar-h b{font:900 clamp(7px,.72cqw,11px) system-ui,sans-serif;letter-spacing:.14em;color:#cbd5e1}
+.sbar-h i{font:900 clamp(9px,.95cqw,14px) system-ui,sans-serif;font-style:normal;color:#fff}
+.sbar-t{display:flex;gap:.15cqw;height:.95cqw;min-height:8px}
+.sbar-t i{flex:1;background:rgba(255,255,255,.12);clip-path:polygon(.2cqw 0,100% 0,calc(100% - .2cqw) 100%,0 100%)}
+.sbar-t i.on{background:var(--c);box-shadow:0 0 .4cqw var(--c)}
+.sbar.sel{border-color:var(--c);box-shadow:0 0 0 .15cqw var(--c),0 0 1cqw var(--c);background:rgba(10,16,28,.92);transform:translateX(.3cqw)}
+.sq4-adj{position:absolute;left:0;right:0;bottom:0;z-index:4;display:grid;grid-template-columns:1fr 1fr 1.3fr 1.3fr 1fr;gap:.25cqw;padding:.35cqw;
+  background:linear-gradient(0deg,rgba(2,6,12,.96),rgba(2,6,12,.85));border-top:1px solid var(--f-acc)}
+.sq4-adj button{min-height:2.9cqw;min-width:0;cursor:pointer;font:900 clamp(11px,1.25cqw,18px) system-ui,sans-serif;color:#e2e8f0;
+  background:rgba(255,255,255,.08);border:1px solid var(--f-line);-webkit-tap-highlight-color:transparent}
+.sq4-adj button:active{filter:brightness(1.4)}
+.sq4-adj .m{color:#fecaca;border-color:#ef4444;background:rgba(239,68,68,.18)}
+.sq4-adj .p{color:#bbf7d0;border-color:#22c55e;background:rgba(34,197,94,.16)}
+.sq4-adj .ok{color:var(--f-acc);border-color:var(--f-acc)}
+.sq3.down .sq4-bars{opacity:.6}
+#sheet.sqcompact .sq3b{min-height:4.4cqw}
+@media (max-width:1000px){.sq4-bars{width:56%;top:2.6cqw}.sbar{padding:.2cqw .35cqw}.sq4-adj button{min-height:28px}}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -8553,8 +8577,8 @@ function sqRevivePicker() {
   $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Cancel";
   $("pick").classList.add("on");
 }
-window.sqPage = k => { if (!CUR || !isSquad(U)) return; CUR.st.sq.page = k; save(); draw(); };
-window.sqTab = t => { if (!CUR || !isSquad(U)) return; CUR.st.sq.tab = t; save(); draw(); };
+window.sqPage = k => { if (!CUR || !isSquad(U)) return; sqSelState = null; CUR.st.sq.page = k; save(); draw(); };
+window.sqTab = t => { if (!CUR || !isSquad(U)) return; sqSelState = null; CUR.st.sq.tab = t; save(); draw(); };
 window.sqPip = () => {
   if (!CUR || !mpSheetCanEdit()) return;
   if (mode === "repair") { sqRevivePicker(); return; }
@@ -8709,7 +8733,7 @@ function buildSquadFrame() {
   $("sheet").dataset.side = sideKey();
   $("sheet").classList.add("shipsheet");
   if (key === frameKey && F.childElementCount) return;
-  frameKey = key; F.innerHTML = "";
+  frameKey = key; F.innerHTML = ""; sqSelState = null;
   const add = (cls, st, html) => { const d = document.createElement("div"); d.className = cls; if (st) Object.assign(d.style, st); if (html !== undefined) d.innerHTML = html; F.appendChild(d); return d; };
   add("fbreath"); add("fbreath b2"); add("fgrid");
   add("fb tl"); add("fb tr"); add("fb bl"); add("fb br");
@@ -8793,8 +8817,19 @@ function drawSquad() {
     h += '<div class="sq3grid">' + PAGES[page].idx.map(i => {
       const s = S.soldiers[i], R = sqRole(s.r), down = s.hp <= 0, W = SW[s.w];
       const sst = s.stealth ? "stealth" : stanceOf({ stance: s.stance });
-      const bubs = bub(s.ap, 3, "ap", "AP", "sqAct(" + i + ",'ap')") + bub(s.hp, 6, "hp", "HP", "sqSoldier(" + i + ",'hp')") + bub(s.kev, 6, "kev", "KEVLAR", "sqSoldier(" + i + ",'kev')") +
-        (R.shield ? bub(S.shield[s.r].a, 3, "ar", "ARMOR", "sqSoldier(" + i + ",'sha')") + bub(S.shield[s.r].h, 6, "sh", "SHIELD", "sqSoldier(" + i + ",'shh')") : "");
+      const selK = sqSelState && sqSelState.i === i ? sqSelState.k : null;
+      const bars = SQ_BARS(s).map(k => {
+        const [lab, max] = SQ_BAR_META[k], v = sqBarVal(S, s, k), p = v / max;
+        const col = k === "ap" ? "#a78bfa" : k === "kev" ? "#38bdf8" : k === "ar" ? "#e2e8f0" : k === "sh" ? "#94a3b8"
+          : v === 0 ? "#64748b" : p <= .34 ? "#ef4444" : p <= .67 ? "#f59e0b" : "#22c55e";
+        return '<button class="sbar' + (selK === k ? ' sel' : '') + '" style="--c:' + col + '" onclick="sqSel(' + i + ',\'' + k + '\')">' +
+          '<span class="sbar-h"><b>' + lab + '</b><i>' + v + '/' + max + '</i></span>' +
+          '<span class="sbar-t">' + Array.from({ length: max }, (_, x) => '<i class="' + (x < v ? 'on' : '') + '"></i>').join("") + '</span></button>';
+      }).join("");
+      const adj = selK ? '<div class="sq4-adj">' +
+        '<button onclick="sqSelMove(-1)" title="Previous bar">\u25B2</button><button onclick="sqSelMove(1)" title="Next bar">\u25BC</button>' +
+        '<button class="m" onclick="sqAdj(-1)">\u2212' + (selK === "ap" ? 1 : amount) + '</button><button class="p" onclick="sqAdj(1)">+' + (selK === "ap" ? 1 : amount) + '</button>' +
+        '<button class="ok" onclick="sqSel(' + i + ',\'' + selK + '\')" title="Done">\u2713</button></div>' : '';
       const mv = sqCnt(s, "mv"), dg = sqCnt(s, "dg"), fr = sqCnt(s, "fr");
       const noFire = W.none || (W.charge && S.items[W.charge] < 1) || s.ap < W.ap;
       const kit = ROLE_KIT[s.r];
@@ -8802,9 +8837,9 @@ function drawSquad() {
       return '<div class="sq3' + (down ? ' down' : '') + '">' +
         '<div class="sq3-art"><span class="sq3-role">' + R.name.toUpperCase() + '</span>' +
           '<button class="sq3-stance' + (sst ? ' on st-' + sst : '') + '" onclick="sqStances(' + i + ')" title="Stance">' + (sst ? SOLDIER_STANCES[sst].icon + '<small>' + SOLDIER_STANCES[sst].name.toUpperCase() + '</small>' : '\u25C8<small>STANCE</small>') + '</button>' +
-          '<img src="img/ground/' + u.sk + '-' + s.r + '.webp" alt="">' + (down ? '<span class="sq3-kia">KIA</span>' : '') + '</div>' +
+          '<div class="sq4-bars">' + bars + '</div>' +
+          '<img src="img/ground/' + u.sk + '-' + s.r + '.webp" alt="">' + (down ? '<span class="sq3-kia">KIA</span>' : '') + adj + '</div>' +
         '<div class="sq3-name"><b>' + sqLabel(st, i) + '</b></div>' +
-        '<div class="sq2-bubs' + (R.shield ? ' five' : ' three') + '">' + bubs + '</div>' +
         '<div class="sq3-btns">' +
           '<button class="sq3b move' + (s.ap < 1 ? ' off' : '') + '" onclick="sqAct(' + i + ',\'move\')"><b>MOVE</b><small>10cm \u00b7 1 AP</small>' + (mv ? '<em>\u00d7' + mv + '</em>' : '') + '</button>' +
           '<button class="sq3b fire' + (noFire ? ' off' : '') + '" onclick="sqAct(' + i + ',\'fire\')"><b>FIRE</b><small>' + (W.none ? 'shield up' : W.react ? 'takedown' : W.ap + ' AP') + '</small>' + (fr ? '<em>\u00d7' + fr + '</em>' : '') + '</button>' +
@@ -9100,6 +9135,44 @@ window.sqAct = (i, what, arg) => {
     s.stance = { k: arg, r: turn.round, key: sKey() };
     logEv(uid, who + " \u2014 " + D.name + (D.ap ? " (1 AP)" : ""), "buff");
     closePicker();
+  }
+  sqCommit();
+};
+// cf43: stat bars on the soldier art — tap a bar to select it, then ▲ ▼ − + to adjust
+let sqSelState = null;
+const SQ_BARS = s => ["ap", "hp", "kev"].concat(sqRole(s.r).shield ? ["ar", "sh"] : []);
+const SQ_BAR_META = { ap: ["AP", 3], hp: ["HP", 6], kev: ["KEVLAR", 6], ar: ["ARMOR", 3], sh: ["SHIELD", 6] };
+function sqBarVal(S, s, k) { return k === "ap" ? s.ap : k === "hp" ? s.hp : k === "kev" ? s.kev : k === "ar" ? S.shield[s.r].a : S.shield[s.r].h; }
+window.sqSel = (i, k) => {
+  if (!CUR || !isSquad(U)) return;
+  sqSelState = sqSelState && sqSelState.i === i && sqSelState.k === k ? null : { i, k };
+  draw();
+};
+window.sqSelMove = d => {
+  if (!sqSelState || !CUR) return;
+  const s = CUR.st.sq.soldiers[sqSelState.i], L = SQ_BARS(s);
+  sqSelState.k = L[(L.indexOf(sqSelState.k) + d + L.length) % L.length];
+  draw();
+};
+window.sqAdj = sign => {
+  if (!sqSelState || !CUR || !isSquad(U) || !mpSheetCanEdit()) return;
+  const st = CUR.st, S = st.sq, i = sqSelState.i, k = sqSelState.k, s = sqSoldierFix(S.soldiers[i]), uid = CUR.uid, who = sqLabel(st, i);
+  const max = SQ_BAR_META[k][1], step = k === "ap" ? 1 : amount;
+  const was = sqBarVal(S, s, k), now = Math.max(0, Math.min(max, was + sign * step));
+  if (now === was) return;
+  const before = sqAlive(st);
+  if (k === "ap") s.ap = now;
+  else if (k === "hp") s.hp = now;
+  else if (k === "kev") s.kev = now;
+  else if (k === "ar") S.shield[s.r].a = now;
+  else S.shield[s.r].h = now;
+  if (k !== "ap") {
+    const lab = k === "hp" ? who : k === "kev" ? who + " Kevlar" : who + " shield " + (k === "ar" ? "Armor" : "HP");
+    aggDmg(uid, "sq:" + k + i, lab, was - now, now, max);
+    if (k === "hp" && before !== sqAlive(st)) {
+      logEv(uid, who + (s.hp ? " is back" : " is down"), s.hp ? "good" : "bad");
+      if (!s.hp) aggDmg(uid, "sq:hp", "Squad Health", 1, sqAlive(st), 8, "lost");
+    }
   }
   sqCommit();
 };
@@ -11489,7 +11562,7 @@ function renderAmounts() {
     b.className = "a" + (n === amount ? " on" : "");
     b.textContent = n;
     b.title = "Each tap on a limb applies " + n;
-    b.onclick = () => { amount = n; renderAmounts(); };
+    b.onclick = () => { amount = n; renderAmounts(); if (typeof sqSelState !== "undefined" && sqSelState && U && isSquad(U)) draw(); };
     bar.appendChild(b);
   });
   const custom = AMOUNTS.indexOf(amount) < 0;
@@ -11530,6 +11603,7 @@ function openAmountInput() {
     if (!(n >= 1)) { mpToast("Type an amount of 1 or more."); return; }
     amount = Math.min(999, n);
     closePicker(); renderAmounts();
+    if (typeof sqSelState !== "undefined" && sqSelState && U && isSquad(U)) draw();
   };
   inp.onkeydown = e => { if (e.key === "Enter") go(); };
   wrap.append(inp, keys);
@@ -13110,7 +13184,7 @@ window.openSheetHelp = () => {
   $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Close";
   $("pick").classList.add("on");
 };
-const APP_BUILD = "cf42";
+const APP_BUILD = "cf43";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
