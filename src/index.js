@@ -40,6 +40,8 @@ const validTeam = t => TEAMS.includes(t);
 const validUid = u => Number.isInteger(u) && u > 0 && u < 1e6;
 const lockOk = k => { const m = /^(federation|spacenoid)\/(\d+)$/.exec(k || ""); return m && validUid(+m[2]) ? m : null; };
 
+// which two squads have fought each other (recorded at their first reveal): ffhist/federation-<uid>/spacenoid-<uid>
+const ffPairKey = (t1, u1, t2, u2) => t1 === "federation" ? "ffhist/federation-" + u1 + "/spacenoid-" + u2 : "ffhist/federation-" + u2 + "/spacenoid-" + u1;
 // physical-dice results agree when one side won and the other lost, or both tied
 const claimsAgree = c => !!c && ((c.a === "won" && c.b === "lost") || (c.a === "lost" && c.b === "won") || (c.a === "tied" && c.b === "tied"));
 
@@ -471,6 +473,7 @@ export class BattleRoom {
       const tk = M.get("turn");
       const queued = op.forced === true && !!tk;          // Forced Re-Engagement: starts on its own when the next turn begins
       if (!queued && tk && tk.active !== myTeam) { denied.push("ff:not-your-turn"); return false; }   // challenges only on your own turn
+      if (queued && !M.has(ffPairKey(myTeam, op.aUid, other, op.bUid))) { denied.push("ff:not-fought"); return false; }   // only a squad you already fought
       await M.set(key, { id, state: queued ? "queued" : "invite", at: now, mode: null, rollAsk: null, round: 1, seg: 1,
         forced: queued ? "a" : null, startSeq: queued ? tk.seq + 1 : null,
         a: { team: myTeam, uid: op.aUid, pid, label: String(op.aLabel || "").slice(0, 30) },
@@ -545,6 +548,8 @@ export class BattleRoom {
           const pa = M.get("ffsec/" + id + "/a") || "none", pb = M.get("ffsec/" + id + "/b") || "none";
           await M.del("ffsec/" + id + "/a"); await M.del("ffsec/" + id + "/b");
           g.reveal = { a: pa, b: pb, round: g.round, at: now }; g.state = "reveal";
+          const hk = ffPairKey(g.a.team, g.a.uid, g.b.team, g.b.uid);
+          if (!M.has(hk)) await M.set(hk, { at: now });                         // these two squads have now fought
           g.claim = { a: null, b: null }; g.done = { a: false, b: false };     // physical dice: who won, and who has applied their losses
           if (g.mode === "rolled") {
             const fp = hp => hp >= 7 ? 8 : hp >= 5 ? 7 : hp >= 3 ? 6 : hp >= 1 ? 5 : 0;

@@ -2118,14 +2118,23 @@ window.ffChallenge = () => {
   $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Cancel";
   $("pick").classList.add("on");
 };
+// enemy squads this squad has already fought (the server records each pair at their first reveal)
+function ffFoughtWith(uid) {
+  const me = mpMyTeam(), ot = otherTeam(me);
+  return ffEnemySquads().filter(e => {
+    const k = me === "federation" ? "ffhist/federation-" + uid + "/spacenoid-" + e.uid : "ffhist/federation-" + e.uid + "/spacenoid-" + uid;
+    return !!mp.data[k];
+  });
+}
 window.ffForce = () => {
   if (!mpTeamMode() || !CUR || !isSquad(U) || !mpSheetCanEdit()) return;
   const q = CUR.st.sq.qr;
   if (ffForUid(CUR.uid, mpMyTeam())) { mpToast("This squad is already in a firefight."); return; }
   if (!(q.items && q.items.fb > 0)) { mpToast("No Flashbang left to force a re-engagement."); return; }
-  const list = ffEnemySquads();
+  const list = ffFoughtWith(CUR.uid);
+  if (!list.length) { mpToast("You can only force a re-engagement with an enemy squad this squad has already fought."); return; }
   $("pickT").textContent = "\u2726 Force a re-engagement";
-  $("pickS").innerHTML = "Spend 1 Flashbang to stop an enemy squad from moving away. The firefight starts by itself when the <b>next turn begins</b> \u2014 no need to accept.";
+  $("pickS").innerHTML = "Spend 1 Flashbang to stop an enemy squad <b>you already fought</b> from moving away. The firefight starts by itself when the <b>next turn begins</b> \u2014 no need to accept.";
   const lst = $("picklist"); lst.innerHTML = list.length ? "" : '<div class="empty">The enemy has no infantry squads.</div>';
   list.forEach(e => {
     const off = e.busy || e.aboard || e.alive <= 0;
@@ -2734,7 +2743,7 @@ function ffCardHTML() {
       ? '<button class="btn big pri" onclick="ffChallenge()">\u2694 CHALLENGE AN ENEMY SQUAD</button>' +
         '<span>Online firefight: blind item picks on each device, reveal together, optional rolled dice.</span>'
       : '<span class="ffhint">\u2694 Firefights can only be started on your own turn.</span>') +
-    (q0 && q0.ffId && q0.items && q0.items.fb > 0
+    (q0 && q0.items && q0.items.fb > 0 && ffFoughtWith(CUR.uid).length
       ? '<button class="btn big ffforce" onclick="ffForce()">\u2726 FORCE A RE-ENGAGEMENT <small>1 Flashbang \u00b7 ' + q0.items.fb + ' left</small></button>' +
         '<span>Play it when an enemy squad you just fought tries to move away \u2014 the firefight starts when the next turn begins.</span>' : '') + '</div>';
   if (f.state === "queued") {
@@ -7132,7 +7141,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf90";
+const APP_BUILD = "cf91";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
