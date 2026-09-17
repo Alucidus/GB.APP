@@ -89,8 +89,9 @@ try {
  await pa.getByRole('button',{name:'Confirm fighter',exact:true}).click();await flush(pa,a);
  await pb.getByRole('button',{name:'Confirm fighter',exact:true}).click();await flush(pb,b);
  await sync(a,{endTurn:{seq:1}});await both();
- assert.equal(room.mem.get('turn').seq,2);assert.equal(room.mem.get('ff/testfight').state,'ready');assert.equal(room.mem.get('ff/testfight').a.uid,3);assert.equal(room.mem.get('ff/testfight').eng.bout,2);
+ assert.equal(room.mem.get('turn').seq,2);assert.equal(room.mem.get('ff/testfight').state,'mode');assert.equal(room.mem.get('ff/testfight').a.uid,3);assert.equal(room.mem.get('ff/testfight').eng.bout,2);
  assert.equal(room.mem.get('unit/spacenoid/2').st.sq.qr.items.fb,1);
+ await ff(a,{op:'mode',pick:'physical'});await ff(b,{op:'modeAnswer',yes:true});await both();
  // Play second bout via protocol, reopen the newly chosen squad, then smoke extraction.
  for(let i=1;i<=4;i++) {
    await ff(a,{op:'ready',hp:8,supp:0});await ff(b,{op:'ready',hp:8,supp:0});await ff(a,{op:'pick',item:'none'});await ff(b,{op:'pick',item:'none'});await ff(a,{op:'claim',result:'tied'});await ff(b,{op:'claim',result:'tied'});

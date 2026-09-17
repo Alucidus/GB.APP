@@ -3261,3 +3261,9 @@ button.mb-item.fxtog{font:inherit;color:#dfe9f4;background:none;border-top:0;bor
 .fflineup .ffpick-objective{font-size:11px;color:#ffc857;line-height:1.4}
 .ffreview-objective{font-weight:800;color:#ffc857;padding:6px 0}
 @media(max-width:600px){.fflineup-row{grid-template-columns:minmax(0,1fr) 18px minmax(0,1fr);gap:6px;padding:9px 7px}.fflineup-number{grid-column:1 / -1}.fflineup-squad{padding-left:5px}.fflineup select{font-size:11px}}
+
+/* cf105 — action reminder while the other side waits for a fighter. */
+.ffinvrow.ffwaiting{border-color:#ffc857;background:linear-gradient(110deg,#403218,#10151e);box-shadow:0 4px 20px #0008}
+.ffinvrow.ffwaiting>span{flex-wrap:wrap;max-width:48%}
+.ffinvrow.ffwaiting>span>small{color:#fde68a;font-size:11px;line-height:1.4}
+@media(max-width:600px){.ffinvrow.ffwaiting{align-items:flex-start;flex-wrap:wrap}.ffinvrow.ffwaiting>span{max-width:100%}.ffinvrow.ffwaiting .btn{min-height:44px}}

@@ -3209,12 +3209,28 @@ function renderFF() {
     '<div class="ffbody">' + body + '</div></div>';
   if (keepScroll) box.querySelector(".ffpanel").scrollTop = keepScroll;
 }
+// One reminder per waiting episode, plus a persistent action banner off the board.
+let ffWaitNotified = new Set();
+function ffWaitingForFighter(f, team) {
+  const sd = f.a?.team === team ? "a" : f.b?.team === team ? "b" : null;
+  return !!(sd && f.state === "end" && f.obj && !f.ext && ffMoreBouts(f) &&
+    f.confirmed?.[ffOther(sd)] && !f.confirmed?.[sd]);
+}
 // invites on the defending team, and a challenger's declined notice
 function renderFFInvites() {
   let bar = $("ffinv");
   const t = mpTeamMode() ? mpMyTeam() : null;
   const inv = t ? ffAll().filter(f => f.state === "invite" && f.b.team === t) : [];
   const mineNow = ffMine();
+  const waiting = t ? ffAll().filter(f => ffWaitingForFighter(f, t)) : [];
+  const pendingIds = new Set(waiting.map(f => f.id));
+  ffWaitNotified.forEach(id => { if (!pendingIds.has(id)) ffWaitNotified.delete(id); });
+  waiting.forEach(f => {
+    if (ffWaitNotified.has(f.id)) return;
+    ffWaitNotified.add(f.id);
+    mpToast(teamName(f[ffOther(ffSideOf(f))].team) + " are waiting for your fighter confirmation for bout " + (f.eng.bout + 1) + ".");
+  });
+  const waitBanners = waiting.filter(f => !mineNow || mineNow.id !== f.id || ffHidden);
   const booked = t ? ffAll().filter(f => f.state === "queued" && f.forced && f[ffOther(f.forced)].team === t && !ffShown["bk:" + f.id]) : [];
   const countered = t ? ffAll().filter(f => f.state === "closed" && f.countered && f[f.forced] && f[f.forced].team === t && !ffShown["ct:" + f.id]) : [];
   countered.forEach(f => { ffShown["ct:" + f.id] = 1; mpToast("\u25CC The enemy countered your Forced Re-Engagement with Smoke \u2014 their " + f[f.countered].label + " gets away."); });
@@ -3226,15 +3242,20 @@ function renderFFInvites() {
   }) : [];
   const declined = t ? ffAll().filter(f => f.state === "declined" && f.a.team === t && f.a.pid === mp.pid && !ffShown["dec:" + f.id]) : [];
   declined.forEach(f => { ffShown["dec:" + f.id] = 1; mpToast("The enemy declined the firefight with your " + f.a.label + "."); });
-  if (!inv.length && !started.length && !booked.length) { if (bar) bar.remove(); return; }
+  if (!inv.length && !started.length && !booked.length && !waitBanners.length) { if (bar) bar.remove(); return; }
   if (!bar) { bar = document.createElement("div"); bar.id = "ffinv"; document.body.appendChild(bar); }
-  const html = inv.map(f => '<div class="ffinvrow"><b>\u2694 ' + (mpNameOf(f.a.pid) || "The enemy") +
+  const html = waitBanners.map(f => {
+    const sd = ffSideOf(f), controller = f[sd].pid;
+    const occupied = controller && controller !== mp.pid && ffSidePidAlive(f, sd);
+    return '<div class="ffinvrow ffwaiting" role="status"><b>' + ffText(teamName(f[ffOther(sd)].team)) + ' are waiting for your fighter<small>Bout ' + (f.eng.bout + 1) + (f.eng.obj ? ' · 🚩 ' + ffText(f.eng.obj) : '') + '</small></b><span>' +
+      (occupied ? '<small>' + ffText(mpNameOf(controller)) + ' is choosing for your team.</small>' : '<button class="btn sm pri" onclick="ffResume(\'' + f.id + '\')">Choose fighter</button>') + '</span></div>';
+  }).join("") + inv.map(f => '<div class="ffinvrow"><b>\u2694 ' + (mpNameOf(f.a.pid) || "The enemy") +
     (f.eng && (f.eng.aList.length > 1 || f.eng.bList.length > 1)
       ? ' challenges you \u2014 ' + f.eng.aList.length + ' vs ' + f.eng.bList.length + (f.eng.obj ? ' for \u{1F6A9} ' + f.eng.obj : '') + '<small>' + f.eng.aList.map(x => x.label).join(", ") + ' vs your ' + f.eng.bList.map(x => x.label).join(", ") + ' \u2014 you choose who meets whom.</small>'
       : '\u2019s ' + f.a.label + ' challenges your ' + f.b.label + (f.eng && f.eng.obj ? ' for \u{1F6A9} ' + f.eng.obj : '')) + '</b>' +
     '<span><button class="btn sm pri" onclick="ffAccept(\'' + f.id + '\')">Review challenge</button><button class="btn sm" onclick="ffDecline(\'' + f.id + '\')">Decline</button></span></div>').join("") +
     started.map(f => { const sd = ffSideOf(f), od = ffOther(sd);
-      return '<div class="ffinvrow forced"><b>\u2726 Forced Re-Engagement \u2014 your ' + f[sd].label + ' vs their ' + f[od].label + ' has begun</b>' +
+      return '<div class="ffinvrow forced"><b>' + (f.forced ? '✦ Forced Re-Engagement' : '⚔ Bout ' + (f.eng?.bout || f.seg)) + ' — your ' + ffText(f[sd].label) + ' vs their ' + ffText(f[od].label) + ' has begun' + (f.state === 'mode' ? '<small>Choose physical or rolled dice for this bout.</small>' : '') + '</b>' +
         '<span><button class="btn sm pri" onclick="ffResume(\'' + f.id + '\')">Open the firefight</button></span></div>'; }).join("") +
     booked.map(f => { const sd = ffOther(f.forced), r = roster.find(x => x.uid === f[sd].uid);
       const it = r && r.st && r.st.sq && r.st.sq.qr && r.st.sq.qr.items, sm = it ? (it.sm || 0) : 1;
@@ -7655,7 +7676,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf104";
+const APP_BUILD = "cf105";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

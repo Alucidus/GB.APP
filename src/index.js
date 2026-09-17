@@ -52,6 +52,7 @@ const breakPending = g => g.state === "end" && (!g.obj || !!g.ext ||
 function startNextBout(g) {
   const pr = g.eng.pairs[g.eng.bout];
   g.eng.bout++; g.seg++; g.round = 1;
+  g.mode = null; g.rollAsk = null; g.modePick = null;
   for (const [sd, n] of [["a", 0], ["b", 1]]) {
     const list = g.eng[sd + "List"];
     g[sd] = { ...g[sd], uid: pr[n], label: (list.find(x => x.uid === pr[n]) || {}).label || "Squad" };
@@ -675,10 +676,11 @@ export class BattleRoom {
       case "segment":                               // another 4-round segment (re-engage / Forced Re-Engagement)
         if (g.state !== "end" || !mine || !g.obj || g.ext || (g.eng && moreBouts(g))) break;
         g.confirmed = { a: false, b: false };
+        g.mode = null; g.rollAsk = null; g.modePick = null;
         g.seg += 1; g.round = 1; g.obj = null; g.ready = { a: null, b: null }; g.lock = { a: false, b: false };
         g.forced = op.forced ? side : null;
         if (op.forced && M.get("turn")) { g.state = "queued"; g.startSeq = M.get("turn").seq + 1; }   // waits for the next turn
-        else g.state = "ready";
+        else g.state = "mode";
         return save();
       case "counter":                               // the squad being forced back spends a Smoke Grenade: the re-engagement is cancelled
         if (g.state !== "queued" || !g.forced || side === g.forced) break;
@@ -695,7 +697,7 @@ export class BattleRoom {
         const tk = M.get("turn");
         if (g.confirmed.a && g.confirmed.b) {
           if (tk) g.startSeq = tk.seq + 1;
-          else { startNextBout(g); g.state = "ready"; }
+          else { startNextBout(g); g.state = "mode"; }
         }
         return save();
       }

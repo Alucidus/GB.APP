@@ -50,8 +50,12 @@ try {
  ok(state().state==='end'&&state().eng.aList.length===1,'non-holder leaves without extraction');
  await ff(a,{op:'engedit',kind:'add',uid:3,label:'Blue 3'});await ff(a,{op:'setnext',uid:3});await ff(a,{op:'nextbout'});await ff(b,{op:'nextbout'});
  await sync(a,{endTurn:{seq:1}});
- ok(state().state==='ready'&&state().eng.bout===2&&state().a.uid===3,'next turn starts selected bout');
+ ok(state().state==='mode'&&state().mode===null&&state().rollAsk===null&&state().eng.bout===2&&state().a.uid===3,'next turn starts selected bout');
  ok(room.mem.get('turn').seq===2,'turn advances once');
+ await ff(a,{op:'ready',hp:8,supp:0},true);
+ await ff(a,{op:'mode',pick:'roll'});await ff(b,{op:'modeAnswer',yes:false});
+ ok(state().state==='mode'&&state().modePick==='physical','second bout offers both modes and waits for agreement');
+ await ff(a,{op:'modeAnswer',yes:true});
  await bout();await ff(a,{op:'objective',win:'mine'});
  // Partial merge keeps the remnant, pairing, and its objective; only empty donors can be removed.
  await ff(a,{op:'engedit',kind:'merge',uids:[3],keepUid:1},true);
@@ -75,7 +79,7 @@ try {
  // Put an already-completed rolled bout in place; normal round loop above exercises transition separately.
  await room.mem.set('ff/'+id,{...state(),state:'end',round:5});await ff(a,{op:'objective',hpMine:8,hpFoe:1});
  ok(state().obj.a!==state().obj.b,'rolled objective resolves tie');
- await ff(a,{op:'segment',forced:true});ok(state().state==='queued','forced 1v1 waits for next turn');
+ await ff(a,{op:'segment',forced:true});ok(state().state==='queued'&&state().mode===null&&state().rollAsk===null&&state().modePick===null,'forced 1v1 resets dice mode and waits for next turn');
  await ff(b,{op:'counter'});ok(state().state==='closed','forced counter');
  // Render real board/disengagement helpers for both perspectives without a DOM dependency.
  const app=await fs.readFile(new URL('../public/app.js',import.meta.url),'utf8');
@@ -160,6 +164,28 @@ try {
 
 
 
+ }
+ // Real notification renderer: repeated syncs, hidden board and team ownership.
+ for (const sd of ['a','b']) {
+   const f=structuredClone(snapshot), other=sd==='a'?'b':'a';
+   f.confirmed={[other]:true};f.id='waiting-test';
+   const bar={innerHTML:'',remove(){this.innerHTML='';}},toasts=[];
+   const ctx=vm.createContext({f,window:{},$:()=>bar,mpTeamMode:()=>true,mpMyTeam:()=>f[sd].team,
+     ffAll:()=>[f],ffMine:()=>null,ffHidden:true,ffShown:{},mp:{pid:f[sd].pid},
+     ffOther:s=>s==='a'?'b':'a',ffSideOf:()=>sd,ffSidePidAlive:()=>true,
+     mpToast:t=>toasts.push(t),teamName:t=>t,mpNameOf:()=> 'Teammate',
+     ffText:s=>String(s).replaceAll('<','&lt;'),ffMoreBouts:g=>g.eng.bout<g.eng.pairs.length});
+   vm.runInContext(app.slice(app.indexOf('let ffWaitNotified'),app.indexOf('// the firefight card on')),ctx);
+   vm.runInContext('renderFFInvites();renderFFInvites()',ctx);
+   ok(toasts.length===1&&bar.innerHTML.includes('Choose fighter')&&bar.innerHTML.includes('Bout 2'),'one toast and actionable next-bout banner for either team');
+   ctx.ffMine=()=>f;ctx.ffHidden=false;vm.runInContext('renderFFInvites()',ctx);
+   ok(!bar.innerHTML&&toasts.length===1,'open board avoids duplicate banner and toast');
+   ctx.ffHidden=true;f[sd].pid='another-controller';vm.runInContext('renderFFInvites()',ctx);
+   ok(bar.innerHTML.includes('Teammate is choosing')&&!bar.innerHTML.includes('Choose fighter'),'active teammate is not displaced');
+   f.confirmed[sd]=true;vm.runInContext('renderFFInvites()',ctx);ok(!bar.innerHTML,'confirmation clears reminder');
+   f.confirmed[sd]=false;vm.runInContext('renderFFInvites()',ctx);ok(toasts.length===2,'new waiting episode can notify again');
+   f.ext={side:other};vm.runInContext('renderFFInvites()',ctx);ok(!bar.innerHTML,'disengagement clears reminder');
+   f.ext=null;f.eng.bout=f.eng.pairs.length;vm.runInContext('renderFFInvites()',ctx);ok(!bar.innerHTML,'no reminder after final bout');
  }
  // Challenge objective markers distinguish same-numbered squads on opposite teams.
  const ownUnit=unit(8).st,enemyUnit=unit(8).st;

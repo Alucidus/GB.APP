@@ -1,10 +1,10 @@
-# Engagement board verification (cf104)
+# Engagement board verification (cf105)
 
 ## Automated checks completed
 
 Run `npm test` (Node 22+; no dependency installation needed for this test).
 
-200 assertions passed against the production BattleRoom using a local HTTP adapter and in-memory Durable Object storage. Two player seats create a battle, challenge, accept, and play four-round physical bouts. Checks cover confirmation/un-confirm, turn gates including the older roster-save path, next-turn start, roster add/withdraw, denied and successful disengagement, waiting-squad item eligibility, objective ownership after merging, plain 1v1, rolled Objective Clash, and forced re-engagement counters.
+219 assertions passed against the production BattleRoom using a local HTTP adapter and in-memory Durable Object storage. Two player seats create a battle, challenge, accept, and play four-round physical bouts. Checks cover confirmation/un-confirm, turn gates including the older roster-save path, next-turn start, roster add/withdraw, denied and successful disengagement, waiting-squad item eligibility, objective ownership after merging, plain 1v1, rolled Objective Clash, and forced re-engagement counters.
 
 Node VM checks call the actual client board and end-state renderer for both teams, checking mutually exclusive screens and private enemy items. They also execute objective bookkeeping and the merge handler, checking ownership transfer, the eight-soldier cap, healthiest survivor, and no item refill.
 
@@ -34,4 +34,6 @@ cf102 also verifies both teams must agree to physical dice: self-confirmation an
 
 cf103 checks no-loss merging: 5+5 becomes 8+2; 7+4 becomes 8+3; 3+4 becomes 7; three squads preserve overflow; full targets are no-ops; partial donors remain in server engagement lists; emptied holders transfer the objective.
 
-cf104 checks invitation pairings, defender adjustments, rejected duplicate/out-of-roster pairs, draft retention and repair, repeat defending squads, and all bout selectors appearing together.
+cf105 checks invitation pairings, defender adjustments, rejected duplicate/out-of-roster pairs, draft retention and repair, repeat defending squads, and all bout selectors appearing together.
+
+cf105 additionally checks per-bout dice agreement and in-app waiting notifications, including duplicate suppression and teammate ownership.

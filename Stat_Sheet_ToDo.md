@@ -2005,3 +2005,12 @@ The initial challenge roster now includes an editable **Bout lineup**. Select th
 The defender opens **Review challenge**, sees every proposed bout together using the same lineup component, adjusts their fighters if needed, and presses **Confirm challenge** once. The former sequential “Who meets their squad?” screen has been removed. Invitations store the proposed pairings; the server validates them and applies the defender’s final pairings in one acceptance.
 
 200 automated assertions pass, covering proposed pairings, defender adjustments, invalid pairings, retained selections, and all matchup rows rendering together. Browser visual verification remains pending. Deploy the full project including `src/index.js`, and refresh every device to cf104. No deployment was performed.
+
+## cf105 — Fighter reminders and dice choice for every bout
+
+When the opposing team confirms its next fighter, your team receives an in-app notification. Away from the engagement board, a persistent **Choose fighter** banner opens the pending selection. Repeated syncs do not repeat the notification; confirming clears it. If another teammate controls the fight, the banner identifies them instead of taking over.
+
+Each new bout, including forced re-engagement, resets the previous dice selection. Choose **physical** or **rolled** again, with the opposing side confirming before play begins. The next-bout start banner now correctly labels ordinary bouts and prompts for dice choice.
+
+219 automated assertions pass, including second-bout mode reset and agreement, forced-bout reset, reminders from both team perspectives, repeat-sync suppression, clearing, and teammate ownership. Browser visual verification remains pending. Deploy the full project including `src/index.js`, and refresh every device to cf105. No deployment was performed. Notifications are in-app; this update does not add background operating-system push notifications.
+
