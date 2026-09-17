@@ -3249,3 +3249,15 @@ button.mb-item.fxtog{font:inherit;color:#dfe9f4;background:none;border-top:0;bor
 
 /* Keep the carried objective readable in both challenge columns, including phones. */
 .ffsq .t .ffpick-objective{display:block;width:fit-content;max-width:100%;margin:4px 0;padding:3px 6px;border-left:2px solid #ffc857;background:rgba(255,200,87,.10);color:#ffc857;font:800 11px/1.4 system-ui,sans-serif;letter-spacing:.02em;overflow-wrap:anywhere;white-space:normal}
+/* cf104: editable matchups live in the challenge roster. */
+.fflineup{margin-top:16px;border-top:1px solid var(--acc-line);padding-top:12px}
+.fflineup h4{margin:0 0 10px;color:var(--acc);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.fflineup-row{display:grid;grid-template-columns:56px minmax(0,1fr) 24px minmax(0,1fr);gap:8px;align-items:center;margin-bottom:9px;padding:10px;background:#ffffff05;border:1px solid var(--line)}
+.fflineup-number,.fflineup-vs{font-size:10px;color:var(--muted);letter-spacing:.06em}
+.fflineup-squad{min-width:0;display:flex;flex-direction:column;gap:5px;padding-left:8px;border-left:2px solid #38bdf8;overflow-wrap:anywhere}
+.fflineup-squad.spa{border-color:#e3283b}
+.fflineup-squad strong{font-size:13px}.fflineup-squad small,.fflineup-squad label,.fflineup>small{font-size:11px;color:var(--muted)}
+.fflineup select{width:100%;min-height:44px;border:1px solid var(--acc-line);border-radius:0;background:#0c131c;color:#eef6ff;padding:7px;font:700 12px system-ui,sans-serif}
+.fflineup .ffpick-objective{font-size:11px;color:#ffc857;line-height:1.4}
+.ffreview-objective{font-weight:800;color:#ffc857;padding:6px 0}
+@media(max-width:600px){.fflineup-row{grid-template-columns:minmax(0,1fr) 18px minmax(0,1fr);gap:6px;padding:9px 7px}.fflineup-number{grid-column:1 / -1}.fflineup-squad{padding-left:5px}.fflineup select{font-size:11px}}

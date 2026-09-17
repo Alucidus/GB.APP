@@ -2185,6 +2185,28 @@ function ffChallengeObjective(uid, team) {
   const held = objHeld(st);
   return held && st?.hp?.hp !== 0 ? '<span class="ffpick-objective">🚩 ' + ffText(held.name || "Objective") + '</span>' : '';
 }
+// The invitation and its review share one editable lineup, never a per-bout wizard.
+function ffLineupHTML(aList, bList, pairs, aTeam, bTeam, review) {
+  const health = (x, team) => {
+    const st = team === mpMyTeam() ? roster.find(r => r.uid === x.uid)?.st : mp.data["unit/" + team + "/" + x.uid]?.st;
+    return st?.sq ? sqAlive(st) : st?.hp?.hp ?? x.alive ?? "?";
+  };
+  return '<div class="fflineup"><h4>Bout lineup</h4>' + aList.map((a, i) => {
+    const uid = pairs[i]?.[1], chosen = bList.find(x => x.uid === uid);
+    return '<div class="fflineup-row"><b class="fflineup-number">BOUT ' + (i + 1) + '</b><div class="fflineup-squad ' + ffSideClass(aTeam) + '"><strong>' + ffText(a.label) + '</strong><small>' + health(a, aTeam) + ' / 8 HP</small>' + ffChallengeObjective(a.uid, aTeam) + '</div><span class="fflineup-vs">VS</span><div class="fflineup-squad ' + ffSideClass(bTeam) + '"><label for="ffPair' + i + '">' + (review ? 'Your fighter' : 'Enemy fighter') + '</label><select id="ffPair' + i + '" onchange="ffPairChange(' + i + ',Number(this.value))">' +
+      bList.map(b => '<option value="' + b.uid + '"' + (b.uid === uid ? ' selected' : '') + (health(b, bTeam) === 0 ? ' disabled' : '') + '>' + ffText(b.label) + ' · ' + health(b, bTeam) + '/8' + '</option>').join('') + '</select>' + (chosen ? ffChallengeObjective(chosen.uid, bTeam) : '') + '</div></div>';
+  }).join('') + '<small>One bout per turn. A squad may fight again in a later bout.</small></div>';
+}
+window.ffPairChange = (i, uid) => {
+  if (!ffSel || !ffSel.pairs?.[i]) return;
+  ffSel.pairs[i][1] = uid;
+  if (ffSel.reviewId) ffReviewRender(); else ffPickRender();
+};
+function ffDraftPairs(P) {
+  const old = P.pairs || [];
+  P.pairs = P.me.map((uid, i) => [uid, P.foe.includes(old.find(pr => pr[0] === uid)?.[1]) ? old.find(pr => pr[0] === uid)[1] : P.foe[i % P.foe.length]]);
+  return P.pairs;
+}
 function ffPickRender() {
   const P = ffSel; if (!P) return;
   const box = (side, x, team) => {
@@ -2197,11 +2219,13 @@ function ffPickRender() {
   };
   const col = (side, list, team, title) => '<div class="ffcol"><h5 class="' + ffSideClass(team) + '">' + title + '</h5>' + list.map(x => box(side, x, team)).join("") + '</div>';
   const n = P.me.length, m = P.foe.length;
+  ffDraftPairs(P);
   $("picklist").innerHTML = '<div class="ffpick2">' +
     col("me", P.mine, mpMyTeam(), "Your side \u00b7 " + teamName(mpMyTeam())) +
     '<div class="ffvsmid">VS</div>' +
     col("foe", P.enemy, otherTeam(mpMyTeam()), "Enemy \u00b7 " + teamName(otherTeam(mpMyTeam()))) + '</div>' +
-    '<label class="ffobjname">\u{1F6A9} What are they fighting over?<input id="ffObjName" maxlength="24" placeholder="e.g. Server room" value="' + (P.obj || "") + '" oninput="ffSel.obj=this.value"></label>';
+    '<label class="ffobjname">\u{1F6A9} What are they fighting over?<input id="ffObjName" maxlength="24" placeholder="e.g. Server room" value="' + ffText(P.obj || "") + '" oninput="ffSel.obj=this.value"></label>' +
+    (n && m ? ffLineupHTML(P.me.map(uid => P.mine.find(x => x.uid === uid)), P.foe.map(uid => P.enemy.find(x => x.uid === uid)), P.pairs, mpMyTeam(), otherTeam(mpMyTeam()), false) : '');
   const go = $("ffGoBtn");
   if (go) {
     go.textContent = n && m ? "\u2694 CHALLENGE \u00b7 " + n + " vs " + m : "Pick at least one squad a side";
@@ -2220,7 +2244,7 @@ window.ffChallenge = () => {
   });
   ffSel = { mine, enemy: ffEnemySquads(), me: [CUR.uid], foe: [], obj: "" };
   $("pickT").textContent = "\u2694 Challenge an enemy squad";
-  $("pickS").innerHTML = "Tap squads on both sides to put them in this engagement. They fight <b>one pair per turn</b> \u2014 the enemy chooses who meets each of your squads.";
+  $("pickS").innerHTML = "Tap squads on both sides to put them in this engagement. They fight <b>one pair per turn</b> \u2014 set the matchups below before sending. The enemy can review and adjust their fighters before accepting.";
   ffPickRender();
   const go = el("button", "btn big pri"); go.id = "ffGoBtn";
   go.onclick = () => {
@@ -2231,7 +2255,7 @@ window.ffChallenge = () => {
     ffOp({ op: "invite", id: ffNewId(),
       aUids: P.me, aLabels: P.me.map(u => lab(P.mine, u)),
       bUids: P.foe, bLabels: P.foe.map(u => lab(P.enemy, u)),
-      obj: (P.obj || "").trim() });
+      obj: (P.obj || "").trim(), pairs: P.pairs });
     mpToast(P.me.length + " vs " + P.foe.length + " challenge sent \u2014 waiting for the enemy to accept.");
     ffSel = null;
   };
@@ -2336,7 +2360,7 @@ window.ffReviewForced = id => {
 };
 window.ffAccept = id => {
   const f = mp.data["ff/" + id]; if (!f || f.state !== "invite") return;
-  if (f.eng && (f.eng.aList.length > 1 || f.eng.bList.length > 1)) { ffMatchups(id); return; }   // several squads: choose who meets whom
+  if (f.eng) { ffReviewChallenge(id); return; }
   ffAcceptGo(id, f.eng ? [[f.eng.aList[0].uid, f.eng.bList[0].uid]] : null, f.b.uid);
 };
 function ffAcceptGo(id, pairs, openUid) {
@@ -2348,26 +2372,26 @@ function ffAcceptGo(id, pairs, openUid) {
   openSheet(r.uid); sqTab("qr");
   ffOp(pairs ? { op: "accept", id, pairs } : { op: "accept", id });
 }
-// the defender answers "who meets their Squad A?" for each attacker in order
-function ffMatchups(id, picked) {
-  const f = mp.data["ff/" + id]; if (!f || !f.eng || f.state !== "invite") return;
-  const chosen = picked || [];
-  const att = f.eng.aList[chosen.length];
-  if (!att) { closePicker(); ffAcceptGo(id, chosen, chosen[0][1]); return; }
-  $("pickT").textContent = "\u2694 Who meets their " + att.label + "?";
-  $("pickS").innerHTML = "Bout " + (chosen.length + 1) + " of " + f.eng.aList.length + " \u2014 pick one of your squads. A squad can be used twice; its second bout happens on a later turn.";
-  const lst = $("picklist"); lst.innerHTML = "";
-  f.eng.bList.forEach(x => {
-    const r = roster.find(y => y.uid === x.uid), alive = r && r.st ? sqAlive(r.st) : 0;
-    const used = chosen.filter(c => c[1] === x.uid).length;
-    const d = el("div", "row" + (alive <= 0 ? " car-aboard" : ""));
-    d.innerHTML = '<span class="pt shipp gp"><img src="img/ground/' + (mpMyTeam() === "federation" ? "fed" : "spa") + '-rifleman.webp" alt=""></span>' +
-      '<span style="min-width:0;flex:1"><div class="nm">' + x.label + '</div><div class="tr">' + (alive <= 0 ? "wiped out" : alive + " / 8 \u00b7 " + HEALTH_WORD(alive / 8)) + (used ? " \u00b7 already fighting bout " + (chosen.findIndex(c => c[1] === x.uid) + 1) : "") + '</div></span>';
-    if (alive > 0) d.onclick = () => ffMatchups(id, chosen.concat([[att.uid, x.uid]]));
-    lst.appendChild(d);
-  });
-  $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Cancel";
-  $("pick").classList.add("on");
+function ffReviewChallenge(id) {
+  const f = mp.data["ff/" + id]; if (!f?.eng || f.state !== "invite") return;
+  ffSel = { reviewId: id, pairs: (f.eng.pairs || f.eng.aList.map((a, i) => [a.uid, f.eng.bList[i % f.eng.bList.length].uid])).map(pr => pr.slice()) };
+  $("pickT").textContent = "Review challenge";
+  $("pickS").textContent = "Review all matchups here. Adjust your fighters, then confirm once to begin.";
+  ffReviewRender();
+  const go = el("button", "btn big pri");go.textContent = "Confirm challenge";
+  go.onclick = () => {
+    const current = mp.data["ff/" + id];
+    if (!current || current.state !== "invite" || ffSel?.reviewId !== id) { closePicker(); return; }
+    const pairs = ffSel.pairs;
+    if (pairs.some(pr => !roster.find(r => r.uid === pr[1]) || sqAlive(roster.find(r => r.uid === pr[1]).st) <= 0)) { mpToast("Choose a living squad for every bout."); return; }
+    closePicker();ffAcceptGo(id, pairs, pairs[0][1]);ffSel = null;
+  };
+  $("pickExtra").innerHTML = "";$("pickExtra").appendChild(go);
+  $("pickCancel").textContent = "Back";$("pick").classList.add("on");
+}
+function ffReviewRender() {
+  const f = ffSel && mp.data["ff/" + ffSel.reviewId];if (!f?.eng) return;
+  $("picklist").innerHTML = '<div class="ffreview-objective">🚩 ' + ffText(f.eng.obj || "Objective") + '</div>' + ffLineupHTML(f.eng.aList, f.eng.bList, ffSel.pairs, f.a.team, f.b.team, true);
 }
 window.ffDecline = id => ffOp({ op: "decline", id });
 window.ffResume = id => {
@@ -2742,7 +2766,7 @@ window.ffEditSquads = () => {
     if (!free.length) { mpToast("No free squads to bring in."); return; }
     ffPickSquadList(f, free, "Bring which squad in?", x => { ffOp({ op: "engedit", id: f.id, kind: "add", uid: x.uid, label: x.label }); mpToast(x.label + " joins the engagement."); });
   });
-  row("\u29C9 Merge survivors", "pool their health into the healthiest squad (max 8)", () => ffMergePick(f), "");
+  row("\u29C9 Merge survivors", "top up the healthiest to 8; leftover soldiers keep their squad", () => ffMergePick(f), "");
   $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Close";
   $("pick").classList.add("on");
 };
@@ -2759,16 +2783,28 @@ function ffPickSquadList(f, list, title, go) {
   $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Cancel";
   $("pick").classList.add("on");
 }
-// merge: pooled health (max 8) into the healthiest squad; the others leave the table
+// Top up the healthiest squad; never discard overflow survivors.
+function ffMergePlan(chosen) {
+  const squads = chosen.map(x => ({ ...x, alive: sqAlive(x.r.st) }))
+    .sort((a, b) => b.alive - a.alive || Number(b.uid === CUR?.uid) - Number(a.uid === CUR?.uid));
+  if (!squads.length) return [];
+  const plan = squads.map(x => ({ ...x, after: x.alive }));
+  let needed = Math.max(0, 8 - plan[0].alive);
+  for (const donor of plan.slice(1)) {
+    const moved = Math.min(needed, donor.alive);
+    donor.after -= moved; plan[0].after += moved; needed -= moved;
+  }
+  return plan;
+}
 function ffMergePick(f) {
   const opts = ffMySquads(f).filter(x => x.alive > 0);
   if (opts.length < 2) { mpToast("You need two squads in the engagement to merge."); return; }
   const chosen = [];
   const draw = () => {
-    const pool = Math.min(8, chosen.reduce((m, x) => m + x.alive, 0));
+    const plan = ffMergePlan(chosen);
     $("pickT").textContent = "\u29C9 Merge survivors";
-    $("pickS").innerHTML = "Tap two or more of your squads. Their health pools into the healthiest one (max 8) and the rest leave the table." +
-      (chosen.length > 1 ? "<br><b>" + chosen.map(x => x.label + " (" + x.alive + ")").join(" + ") + " \u2192 " + pool + " / 8</b>" : "");
+    $("pickS").innerHTML = "Pick squads to top up the healthiest to 8. Leftover soldiers stay in their original squads; only empty squads leave the engagement. Ties favour the squad currently open." +
+      (chosen.length > 1 ? "<br><b>" + plan.map(x => ffText(x.label) + ": " + x.alive + " → " + x.after + "/8").join(" · ") + "</b>" : "");
     const lst = $("picklist"); lst.innerHTML = "";
     opts.forEach(x => {
       const on = chosen.some(c => c.uid === x.uid), d = el("div", "row" + (on ? " done" : ""));
@@ -2778,7 +2814,7 @@ function ffMergePick(f) {
     });
     $("pickExtra").innerHTML = "";
     if (chosen.length > 1) {
-      const go = el("button", "btn big pri"); go.textContent = "Merge into " + chosen.slice().sort((a, b) => b.alive - a.alive)[0].label + " (" + pool + " / 8)";
+      const go = el("button", "btn big pri"); go.textContent = "Top up " + plan[0].label + " (" + plan[0].after + " / 8)";
       go.onclick = () => { closePicker(); ffMergeGo(f, chosen); };
       $("pickExtra").appendChild(go);
     }
@@ -2787,19 +2823,34 @@ function ffMergePick(f) {
   draw();
 }
 function ffMergeGo(f, chosen) {
-  const keep = chosen.slice().sort((a, b) => b.alive - a.alive)[0];
   const latest = ffMine();
-  if (!latest || latest.id !== f.id || latest.state !== "end" || latest.ext) return;
-  const pool = Math.min(8, chosen.reduce((m, x) => m + x.alive, 0));
-  const gone = chosen.filter(x => x.uid !== keep.uid);
-  const st = keep.r.st;
-  st.sq.soldiers.forEach((sol, i) => { sol.hp = i < pool ? Math.max(1, sol.hp || 1) : 0; });
-  sqSyncHP(st);
-  logEv(keep.uid, "\u29C9 Merged with " + gone.map(x => x.label).join(", ") + " \u2014 " + pool + " / 8 soldiers", "buff");
-  gone.forEach(x => { x.r.st.sq.soldiers.forEach(sol => { sol.hp = 0; }); sqSyncHP(x.r.st); logEv(x.uid, "\u29C9 Merged into " + keep.label, "info"); });
+  if (!latest || latest.id !== f.id || latest.state !== "end" || latest.ext ||
+      (mp.ffOps || []).some(op => op.id === f.id && op.op === "engedit")) return;
+  const memberIds = latest.eng[ffSideOf(latest) + "List"].map(x => x.uid);
+  const live = chosen.map(x => ({ ...x, r: roster.find(r => r.uid === x.uid) }));
+  if (live.length < 2 || new Set(live.map(x => x.uid)).size !== live.length ||
+      live.some(x => !x.r || !memberIds.includes(x.uid) || sqAlive(x.r.st) <= 0)) return;
+  const plan = ffMergePlan(live), keep = plan[0];
+  if (keep.after === keep.alive) { mpToast(keep.label + " already has 8 soldiers. No soldiers moved."); return; }
+  const slots = keep.r.st.sq.soldiers.filter(sol => sol.hp <= 0);
+  for (const donor of plan.slice(1)) {
+    const moved = donor.alive - donor.after;
+    if (!moved) continue;
+    const soldiers = donor.r.st.sq.soldiers.filter(sol => sol.hp > 0).slice(-moved);
+    for (const source of soldiers) {
+      const target = slots.shift();
+      // Carry the transferred survivor's wounds and Kevlar without refreshing either bag.
+      target.hp = source.hp; target.kev = source.kev; source.hp = 0;
+    }
+    sqSyncHP(donor.r.st);
+    logEv(donor.uid, "Transferred " + moved + " soldiers to " + keep.label + " — " + donor.after + " / 8 remain", "info");
+  }
+  sqSyncHP(keep.r.st);
+  logEv(keep.uid, "Topped up to " + keep.after + " / 8 soldiers", "buff");
+  const empty = plan.slice(1).filter(x => x.after === 0).map(x => x.uid);
   save(); if (typeof sqCommit === "function" && CUR && chosen.some(c => c.uid === CUR.uid)) sqCommit();
-  ffOp({ op: "engedit", id: f.id, kind: "merge", keepUid: keep.uid, uids: gone.map(x => x.uid) });
-  mpToast("\u29C9 Merged into " + keep.label + " \u2014 " + pool + " / 8 soldiers.");
+  ffOp({ op: "engedit", id: f.id, kind: "merge", keepUid: keep.uid, uids: empty });
+  mpToast(plan.map(x => x.label + ": " + x.after + " / 8").join(" · "));
 }
 window.ffNextBout = () => { const f = ffMine(); if (!f) return; ffOp({ op: "nextbout", id: f.id }); mpToast("\u2694 Next bout lined up \u2014 it starts when the next turn begins."); };
 window.ffNextSquad = () => {
@@ -3053,11 +3104,14 @@ function renderFF() {
   }).join("");
   if (f.state === "invite") body = '<div class="ffmsg"><b>Challenge sent</b><span>Waiting for the ' + teamName(f.b.team) + ' to accept\u2026</span><button class="btn" onclick="ffEnd()">Cancel challenge</button></div>';
   else if (f.state === "mode") {
-    if (!f.rollAsk) body = '<div class="ffmsg"><b>How are you rolling?</b><span>Physical dice: roll at the table and the app tracks items and effects. Roll for me: the app rolls both squads\u2019 dice \u2014 the enemy must agree.</span>' +
-      '<div class="ffrow"><button class="btn big" onclick="ffMode(\'physical\')">\u{1F3B2} Physical dice</button><button class="btn big pri" onclick="ffMode(\'roll\')">\u2699 Roll for me</button></div></div>';
-    else if (f.rollAsk === s) body = '<div class="ffmsg"><b>Asked the enemy to use rolled dice</b><span>Waiting for their answer\u2026</span></div>';
-    else body = '<div class="ffmsg"><b>The enemy wants the app to roll the dice</b><span>Both squads\u2019 dice would be rolled by the app each round.</span>' +
-      '<div class="ffrow"><button class="btn big pri" onclick="ffModeAnswer(true)">Accept rolled dice</button><button class="btn big" onclick="ffModeAnswer(false)">Use physical dice</button></div></div>';
+    const physical = f.modePick === "physical";
+    const modeLabel = physical ? "physical dice" : "rolled dice";
+    if (!f.rollAsk) body = '<div class="ffmsg"><b>How are you rolling?</b><span>Physical dice: roll at the table. Roll for me: the app rolls both squads’ dice. Both teams must agree to the choice.</span>' +
+      '<div class="ffrow"><button class="btn big" onclick="ffMode(\'physical\')">🎲 Physical dice</button><button class="btn big pri" onclick="ffMode(\'roll\')">⚙ Roll for me</button></div></div>';
+    else if (f.rollAsk === s) body = '<div class="ffmsg"><b>Asked the enemy to use ' + modeLabel + '</b><span>Waiting for their confirmation…</span></div>';
+    else body = '<div class="ffmsg"><b>The enemy wants to use ' + modeLabel + '</b><span>' +
+      (physical ? 'Roll at the table; the app tracks the firefight.' : 'The app rolls both squads’ dice each round.') + '</span>' +
+      '<div class="ffrow"><button class="btn big pri" onclick="ffModeAnswer(true)">Confirm ' + modeLabel + '</button><button class="btn big" onclick="ffModeAnswer(false)">Request ' + (physical ? 'rolled dice' : 'physical dice') + '</button></div></div>';
   } else if (f.state === "ready") {
     const iReady = !!f.ready[s];
     body = '<div class="ffmsg"><b>' + (f.seg > 1 ? "Bout " + f.seg + " \u2014 " : "") + "Round " + f.round + ' \u2014 get ready</b><span>' +
@@ -3178,7 +3232,7 @@ function renderFFInvites() {
     (f.eng && (f.eng.aList.length > 1 || f.eng.bList.length > 1)
       ? ' challenges you \u2014 ' + f.eng.aList.length + ' vs ' + f.eng.bList.length + (f.eng.obj ? ' for \u{1F6A9} ' + f.eng.obj : '') + '<small>' + f.eng.aList.map(x => x.label).join(", ") + ' vs your ' + f.eng.bList.map(x => x.label).join(", ") + ' \u2014 you choose who meets whom.</small>'
       : '\u2019s ' + f.a.label + ' challenges your ' + f.b.label + (f.eng && f.eng.obj ? ' for \u{1F6A9} ' + f.eng.obj : '')) + '</b>' +
-    '<span><button class="btn sm pri" onclick="ffAccept(\'' + f.id + '\')">Accept</button><button class="btn sm" onclick="ffDecline(\'' + f.id + '\')">Decline</button></span></div>').join("") +
+    '<span><button class="btn sm pri" onclick="ffAccept(\'' + f.id + '\')">Review challenge</button><button class="btn sm" onclick="ffDecline(\'' + f.id + '\')">Decline</button></span></div>').join("") +
     started.map(f => { const sd = ffSideOf(f), od = ffOther(sd);
       return '<div class="ffinvrow forced"><b>\u2726 Forced Re-Engagement \u2014 your ' + f[sd].label + ' vs their ' + f[od].label + ' has begun</b>' +
         '<span><button class="btn sm pri" onclick="ffResume(\'' + f.id + '\')">Open the firefight</button></span></div>'; }).join("") +
@@ -7601,7 +7655,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf101";
+const APP_BUILD = "cf104";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

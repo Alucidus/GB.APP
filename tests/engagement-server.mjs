@@ -18,8 +18,18 @@ try {
  await sync(b,{player:{team:'spacenoid'},units:{'spacenoid/1':unit(8),'spacenoid/2':unit(8),'spacenoid/3':unit(8)}});
  await sync(a,{settings:{phase:'battle',first:'federation'}});
  await ff(b,{op:'invite',aUids:[1,2],bUids:[1,2]},true);
- await ff(a,{op:'invite',aUids:[1,2],bUids:[1,2],aLabels:['Blue 1','Blue 2'],bLabels:['Red 1','Red 2'],obj:'Car'});
- await ff(b,{op:'accept',pairs:[[1,1],[2,2]]});await ff(a,{op:'mode',pick:'physical'});
+ await ff(a,{op:'invite',aUids:[1,2],bUids:[1,2],pairs:[[1,1],[1,2]]},true);
+ await ff(a,{op:'invite',aUids:[1,2],bUids:[1,2],aLabels:['Blue 1','Blue 2'],bLabels:['Red 1','Red 2'],obj:'Car',pairs:[[1,2],[2,1]]});
+ ok(state().eng.pairs[0][1]===2&&state().eng.pairs[1][1]===1,'invitation carries initial roster matchups');
+ await ff(b,{op:'accept',pairs:[[1,1],[1,2]]},true);
+ await ff(b,{op:'accept',pairs:[[1,1],[2,99]]},true);
+ await ff(b,{op:'accept',pairs:[[1,1],[2,2]]});ok(state().a.uid===1&&state().b.uid===1&&state().eng.pairs[1][1]===2,'defender can adjust all matchups in one acceptance');await ff(a,{op:'mode',pick:'physical'});
+ ok(state().state==='mode'&&state().modePick==='physical','physical waits for the other team');
+ await ff(a,{op:'modeAnswer',yes:true},true);await ff(a,{op:'ready',hp:8,supp:0},true);
+ await ff(b,{op:'modeAnswer',yes:false});ok(state().state==='mode'&&state().modePick==='rolled'&&state().rollAsk==='b','alternative mode needs confirmation');
+ await ff(a,{op:'modeAnswer',yes:false});ok(state().state==='mode'&&state().modePick==='physical','physical counteroffer still waits');
+ await ff(b,{op:'modeAnswer',yes:true});ok(state().state==='ready'&&state().mode==='physical','physical begins only after opponent confirms');
+
  ok((await sync(a,{endTurn:{seq:1}})).denied.includes('end-turn:firefight'),'mid-bout gate');
  await bout();ok(state().state==='end','end of four rounds');
  await ff(a,{op:'nextbout'},true);await ff(a,{op:'engedit',kind:'add',uid:3},true);
@@ -43,7 +53,12 @@ try {
  ok(state().state==='ready'&&state().eng.bout===2&&state().a.uid===3,'next turn starts selected bout');
  ok(room.mem.get('turn').seq===2,'turn advances once');
  await bout();await ff(a,{op:'objective',win:'mine'});
- // Merging transfers holder identity to the surviving squad.
+ // Partial merge keeps the remnant, pairing, and its objective; only empty donors can be removed.
+ await ff(a,{op:'engedit',kind:'merge',uids:[3],keepUid:1},true);
+ const partial=await sync(a,{units:{'federation/1':unit(8),'federation/3':unit(2)},ff:{id,op:'engedit',kind:'merge',uids:[],keepUid:1}});
+ ok(!partial.denied.length&&state().eng.aList.some(x=>x.uid===3),'partial donor stays in engagement');
+ ok(state().holder.uid===3,'objective stays with a living remnant');
+ await sync(a,{units:{'federation/3':unit(0)}});
  await ff(a,{op:'engedit',kind:'merge',uids:[3],keepUid:1});ok(state().holder.uid===1,'holder follows merge survivor');
  await ff(a,{op:'extract',uid:1});await ff(b,{op:'deny',uid:2});await ff(a,{op:'smokeout',uid:1});
  ok(state().state==='end'&&state().ext.smoke&&!state().secured,'smoke leaves another flash response window');
@@ -91,6 +106,10 @@ try {
      renderFFInvites:()=>{},ffActiveFight:()=>null,ffTurnKey:'',setTimeout:()=>{},ffMine:()=>ctx.f,
      ffHidden:false,ffSync:()=>{},ffSideOf:()=>sd,ffSidePidAlive:()=>true,ffLastSig:'',unitLabel:()=> 'Squad',FIREPOWER:()=>8});
    vm.runInContext(app.slice(app.indexOf('function renderFF()'),app.indexOf('// invites on the defending team',app.indexOf('function renderFF()'))),ctx);
+   ctx.f={...structuredClone(snapshot),state:'mode',mode:null,modePick:'physical',rollAsk:sd};vm.runInContext('renderFF()',ctx);
+   ok(box.innerHTML.includes('Waiting for their confirmation'),'requester sees physical wait');
+   ctx.f.rollAsk=sd==='a'?'b':'a';vm.runInContext('renderFF()',ctx);
+   ok(box.innerHTML.includes('Confirm physical dice')&&box.innerHTML.includes('Request rolled dice'),'opponent sees physical question');
    ctx.f=structuredClone(snapshot);ctx.f.obj=null;vm.runInContext('renderFF()',ctx);
    ok(box.innerHTML.includes('class="ffoc"')&&!box.innerHTML.includes('class="ffboard"')&&!box.innerHTML.includes('class="ffsides"'),'clash alone');
    ctx.f=structuredClone(snapshot);vm.runInContext('renderFF()',ctx);
@@ -111,22 +130,57 @@ try {
    const sent=[];ctx.ffOp=op=>sent.push(op);
    ctx.roster[0].st=unit(4).st;ctx.roster[1].st=unit(7).st;ctx.roster[1].st.sq.qr.items.fb=0;
    ctx.chosen=ctx.roster.map((r,i)=>({uid:r.uid,r,alive:i?7:4,label:i?'Healthiest':'Wounded'}));
+   vm.runInContext(app.slice(app.indexOf('function ffMergePlan('),app.indexOf('function ffMergePick(')),ctx);
    vm.runInContext(app.slice(app.indexOf('function ffMergeGo('),app.indexOf('window.ffNextBout',app.indexOf('function ffMergeGo('))),ctx);
    vm.runInContext('ffMergeGo(f,chosen)',ctx);
-   ok(ctx.roster[1].st.hp.hp===8&&ctx.roster[0].st.hp.hp===0,'merge caps healthiest squad at eight');
+   ok(ctx.roster[1].st.hp.hp===8&&ctx.roster[0].st.hp.hp===3,'7 plus 4 becomes 8 plus 3');
    ok(sent[0].keepUid===2&&ctx.roster[1].st.sq.qr.items.fb===0,'merge keeps healthiest identity and spent items');
+   ok(sent[0].uids.length===0,'partial donors not removed');
+   // User's exact case: equal squads, currently open squad wins tie even when picked last.
+   ctx.roster.forEach(r=>{r.st=unit(5).st;});ctx.CUR=ctx.roster[0];
+   ctx.roster[1].st.sq.soldiers[4].hp=2;ctx.roster[1].st.sq.soldiers[4].kev=1;
+   ctx.chosen=ctx.roster.slice().reverse().map(r=>({uid:r.uid,r,label:'Squad '+r.uid}));
+   sent.length=0;vm.runInContext('ffMergeGo(f,chosen)',ctx);
+   ok(ctx.roster[0].st.hp.hp===8&&ctx.roster[1].st.hp.hp===2,'5 plus 5 becomes 8 plus 2');
+   ok(sent[0].keepUid===1&&sent[0].uids.length===0,'current squad is topped up and remnant keeps identity');
+   ok(ctx.roster[0].st.sq.soldiers.some(x=>x.hp===2&&x.kev===1),'transferred soldier retains wounds and Kevlar');
+   // Full target is a no-op; no donor casualties or misleading server removal.
+   sent.length=0;vm.runInContext('ffMergeGo(f,chosen)',ctx);
+   ok(sent.length===0&&ctx.roster[1].st.hp.hp===2,'full squad cannot consume donor soldiers');
+   // Below capacity: only a genuinely emptied donor leaves the engagement.
+   ctx.roster[0].st=unit(3).st;ctx.roster[1].st=unit(4).st;sent.length=0;
+   vm.runInContext('ffMergeGo(f,chosen)',ctx);
+   ok(ctx.roster[0].st.hp.hp===0&&ctx.roster[1].st.hp.hp===7&&sent[0].uids[0]===1,'3 plus 4 becomes 7 and removes only empty donor');
+   // Three squads: preserve the ninth survivor in its original squad.
+   ctx.roster=[1,2,3].map(uid=>({uid,st:unit(3).st}));ctx.CUR=ctx.roster[0];
+   ctx.f.eng[sd+'List']=ctx.roster.map(r=>({uid:r.uid,label:'Squad '+r.uid}));
+   ctx.chosen=ctx.roster.map(r=>({uid:r.uid,r,label:'Squad '+r.uid}));sent.length=0;
+   vm.runInContext('ffMergeGo(f,chosen)',ctx);
+   ok(ctx.roster[0].st.hp.hp===8&&ctx.roster[1].st.hp.hp===0&&ctx.roster[2].st.hp.hp===1,'3 plus 3 plus 3 preserves all nine soldiers');
+
 
 
  }
  // Challenge objective markers distinguish same-numbered squads on opposite teams.
  const ownUnit=unit(8).st,enemyUnit=unit(8).st;
  ownUnit.sq.holdsObj={name:'Car'};enemyUnit.sq.holdsObj={name:'Server <room>'};
- const markerCtx=vm.createContext({roster:[{uid:1,st:ownUnit}],mp:{data:{'unit/spacenoid/1':{st:enemyUnit}}},mpMyTeam:()=> 'federation',objHeld:st=>st?.sq?.holdsObj});
+ const markerCtx=vm.createContext({window:{},ffSideClass:t=>t==='federation'?'fed':'spa',sqAlive:st=>st.hp.hp,roster:[{uid:1,st:ownUnit}],mp:{data:{'unit/spacenoid/1':{st:enemyUnit}}},mpMyTeam:()=> 'federation',objHeld:st=>st?.sq?.holdsObj});
  vm.runInContext(app.slice(app.indexOf('function ffText('),app.indexOf('function ffMoreBouts(')),markerCtx);
  vm.runInContext(app.slice(app.indexOf('function ffChallengeObjective('),app.indexOf('function ffPickRender(')),markerCtx);
  ok(vm.runInContext('ffChallengeObjective(1,"federation")',markerCtx).includes('🚩 Car'),'own picker objective');
  ok(vm.runInContext('ffChallengeObjective(1,"spacenoid")',markerCtx).includes('Server &lt;room&gt;'),'enemy marker escaped and team-specific');
  enemyUnit.hp.hp=0;ok(vm.runInContext('ffChallengeObjective(1,"spacenoid")',markerCtx)==='','dead squad has no marker');
  ownUnit.sq.holdsObj=null;ok(vm.runInContext('ffChallengeObjective(1,"federation")',markerCtx)==='','no false marker');
+ markerCtx.P={me:[1,2],foe:[10,20],pairs:[]};vm.runInContext('ffDraftPairs(P)',markerCtx);
+ ok(JSON.stringify(markerCtx.P.pairs)==='[[1,10],[2,20]]','draft automatically fills matchup rows');
+ markerCtx.P.pairs[0][1]=20;markerCtx.P.me.push(3);vm.runInContext('ffDraftPairs(P)',markerCtx);
+ ok(markerCtx.P.pairs[0][1]===20&&markerCtx.P.pairs.length===3,'adding squad preserves chosen matchups');
+ markerCtx.P.foe=[10];vm.runInContext('ffDraftPairs(P)',markerCtx);
+ ok(markerCtx.P.pairs.every(pr=>pr[1]===10),'removed enemy repaired; outnumbered defender reusable');
+ markerCtx.aList=[{uid:1,label:'Alpha',alive:5},{uid:2,label:'Bravo',alive:8}];markerCtx.bList=[{uid:10,label:'Red A',alive:7}];
+ const lineup=vm.runInContext('ffLineupHTML(aList,bList,[[1,10],[2,10]],"federation","spacenoid",false)',markerCtx);
+ ok((lineup.match(/<select/g)||[]).length===2&&lineup.includes('BOUT 1')&&lineup.includes('BOUT 2'),'all bouts editable together in challenge roster');
+ ok(!app.includes('ffMatchups('),'old sequential picker removed');
+
  console.log('PASS '+checks+' assertions: two-player protocol, real four-round bouts, turn gates, confirmation reversal, disengagement, waiting-squad responses, roster edits, holder merge, queued next bout, plain 1v1, rolled clash, forced counter, both board perspectives and item privacy.');
 } finally {await new Promise(r=>server.close(r));}

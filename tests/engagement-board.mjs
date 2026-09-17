@@ -43,7 +43,7 @@ try {
  // Real challenge / acceptance and four rounds, leaving damage unchanged for tied physical rolls.
  const ff=async(seat,x)=>{const j=await sync(seat,{ff:{id:'testfight',...x}});assert.deepEqual(j.denied||[],[],JSON.stringify(x));return j;};
  await ff(a,{op:'invite',aUids:[1,2],bUids:[1,2],aLabels:['Blue 1','Blue 2'],bLabels:['Red 1','Red 2'],obj:'Car'});
- await ff(b,{op:'accept',pairs:[[1,1],[2,2]]});await ff(a,{op:'mode',pick:'physical'});
+ await ff(b,{op:'accept',pairs:[[1,1],[2,2]]});await ff(a,{op:'mode',pick:'physical'});await ff(b,{op:'modeAnswer',yes:true});
  for(let i=1;i<=4;i++) {
    await ff(a,{op:'ready',hp:8,supp:0});await ff(b,{op:'ready',hp:8,supp:0});
    await ff(a,{op:'pick',item:'none'});await ff(b,{op:'pick',item:'none'});

@@ -510,8 +510,13 @@ export class BattleRoom {
         const tk0 = M.get("turn");
         if (tk0 && tk0.active !== myTeam) { denied.push("ff:not-your-turn"); return false; }   // challenges only on your own turn
         if (aList.some(x => busy(x.uid)) || bList.some(x => busy(x.uid)) || M.has(key)) { denied.push("ff:invite"); return false; }
+        const proposed = op.pairs === undefined ? null : op.pairs;
+        if (proposed !== null && (!Array.isArray(proposed) || proposed.length !== aList.length ||
+            proposed.some((pr, i) => !Array.isArray(pr) || pr.length !== 2 || pr[0] !== aList[i].uid || !bList.some(x => x.uid === pr[1])))) {
+          denied.push("ff:pairs"); return false;
+        }
         await M.set(key, { id, state: "invite", at: now, mode: null, rollAsk: null, round: 1, seg: 1, forced: null, startSeq: null,
-          eng: { aList, bList, obj: String(op.obj || "").slice(0, 24), pairs: null, bout: 1, log: [] },
+          eng: { aList, bList, obj: String(op.obj || "").slice(0, 24), pairs: proposed, bout: 1, log: [] },
           a: { team: myTeam, uid: aList[0].uid, pid, label: aList[0].label },
           b: { team: other, uid: bList[0].uid, pid: null, label: bList[0].label },
           lock: { a: false, b: false }, ready: { a: null, b: null }, hp: { a: null, b: null }, reveal: null, roll: null, obj: null });
@@ -545,9 +550,11 @@ export class BattleRoom {
         if (g.state !== "invite" || side !== "b") break;
         if (g.eng) {                                   // the defender chooses which of their squads meets each attacker
           const aOk = g.eng.aList.map(x => x.uid), bOk = g.eng.bList.map(x => x.uid);
-          const pairs = (Array.isArray(op.pairs) ? op.pairs : []).slice(0, 6)
-            .filter(pr => Array.isArray(pr) && aOk.includes(pr[0]) && bOk.includes(pr[1]));
-          if (pairs.length !== g.eng.aList.length) { denied.push("ff:pairs"); return false; }
+          const pairs = op.pairs === undefined ? g.eng.pairs : op.pairs;
+          if (!Array.isArray(pairs) || pairs.length !== aOk.length ||
+              pairs.some((pr, i) => !Array.isArray(pr) || pr.length !== 2 || pr[0] !== aOk[i] || !bOk.includes(pr[1]))) {
+            denied.push("ff:pairs"); return false;
+          }
           g.eng.pairs = pairs; g.eng.bout = 1;
           const lab = (list, uid) => (list.find(x => x.uid === uid) || {}).label || "Squad";
           g.a = { ...g.a, uid: pairs[0][0], label: lab(g.eng.aList, pairs[0][0]) };
@@ -564,17 +571,23 @@ export class BattleRoom {
       case "pause":
         if (!mine) break;
         g[side].pid = null; return save();
-      case "mode":
-        if (g.state !== "mode" || !mine) break;
-        if (op.pick === "physical") { g.mode = "physical"; g.rollAsk = null; g.state = "ready"; return save(); }
-        if (op.pick === "roll") {
-          if (g.rollAsk && g.rollAsk !== side) { g.mode = "rolled"; g.rollAsk = null; g.state = "ready"; return save(); }   // both asked
-          g.rollAsk = side; return save();
-        }
-        break;
+      case "mode": {
+        if (g.state !== "mode" || !mine || !["physical", "roll"].includes(op.pick)) break;
+        const pick = op.pick === "roll" ? "rolled" : "physical";
+        if (g.rollAsk && g.rollAsk !== side && (g.modePick || "rolled") === pick) {
+          g.mode = pick; g.rollAsk = null; g.modePick = null; g.state = "ready";
+        } else { g.rollAsk = side; g.modePick = pick; }
+        return save();
+      }
       case "modeAnswer":
-        if (g.state !== "mode" || !mine || !g.rollAsk || g.rollAsk === side) break;
-        g.mode = op.yes ? "rolled" : "physical"; g.rollAsk = null; g.state = "ready"; return save();
+        if (g.state !== "mode" || !mine || !g.rollAsk || g.rollAsk === side || typeof op.yes !== "boolean") break;
+        if (op.yes) {
+          g.mode = g.modePick || "rolled"; g.rollAsk = null; g.modePick = null; g.state = "ready";
+        } else {
+          // Proposing the other mode also needs the other team's confirmation.
+          g.modePick = (g.modePick || "rolled") === "physical" ? "rolled" : "physical"; g.rollAsk = side;
+        }
+        return save();
       case "ready": {                               // start of a round (after adjusting casualties)
         if (!mine || (g.state !== "ready" && g.state !== "reveal")) break;
         if (g.state === "reveal" && g.mode === "physical" && g.claim && (g.claim.a || g.claim.b) &&
@@ -728,7 +741,9 @@ export class BattleRoom {
         const list = side === "a" ? g.eng.aList : g.eng.bList;
         if (op.kind === "merge") {
           const rm = (Array.isArray(op.uids) ? op.uids : []).filter(u => list.some(x => x.uid === u));
-          if (!rm.length || !list.some(x => x.uid === op.keepUid && !rm.includes(x.uid))) break;
+          if (!list.some(x => x.uid === op.keepUid && !rm.includes(x.uid))) break;
+          // A top-up may leave every donor alive. Remove only verified empty squads.
+          if (rm.some(uid => M.get("unit/" + myTeam + "/" + uid)?.st?.hp?.hp !== 0)) break;
           if (g.holder?.side === side && rm.includes(g.holder.uid)) g.holder.uid = op.keepUid;
           const keep = list.filter(x => !rm.includes(x.uid));
           if (!keep.length) { g.state = "closed"; g.secured = other; return save(); }   // that side has left the fight
