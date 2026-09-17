@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf47)
+# Gunpla Battle — Cloudflare version (build cf48)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -115,3 +115,4 @@ public/            the app (index.html, images, service worker)
 | cf45 | `public/index.html`, `public/sw.js` | Squad sheet: ⓘ GROUND RULES is now a full-size button centred in the bottom row on its own plate (all three tabs); soldier cards get the freed height |
 | cf46 | `public/index.html`, `public/sw.js` | In-sheet ROSTER picker shows unit status: grouped (Mobile suits / Ships / Ground units), portraits, ⚓ ABOARD · carrier (greyed, "opens the …"), LAUNCHED / DOCKING, stance, ✓ DONE or counted tally, ↻ RE-CHECK, who has the sheet open, OPEN NOW, destroyed |
 | cf47 | `public/index.html`, `public/sw.js` | Fix: launching, docking and decoys only on your own turn (cells show — in the enemy turn); MOVE buttons on suit, ship, vehicle and soldier sheets no longer spend AP during the enemy turn |
+| cf48 | `public/index.html`, `public/sw.js`, **new** `public/img/menu2-bg.webp`, `menu2-gundam.webp`, `menu2-zaku.webp`, `menu2-clash.webp`, `menu2-logo.webp` | **New landing art** in layers (background + separate logo). **PLAY ONLINE clash animation**: the Gundam and Zaku charge in from the sides, blue-red clash with flash, shockwave and shake, white-out into the lobby (~2s); SKIP (or tap) from the second time; synthesized whoosh + clash sound with a 🔊 / 🔇 toggle; reduced-motion devices and returning to a live session use the quick transition |
