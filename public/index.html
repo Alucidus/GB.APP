@@ -2221,10 +2221,10 @@ body.spa .shipcard.spa .sc-class{color:#e2b04a}
 /* ===== cf37: soldier card v3 ===== */
 .k-ap{--c:#a78bfa !important}
 .sq2-bubs.three .sbub{width:4.6cqw;height:4.6cqw}
-.sq2-bubs.five .sbub{width:3.55cqw;height:3.55cqw;min-width:36px;min-height:36px}
-.sq2-bubs.five .sbub-in{inset:.32cqw}
-.sq2-bubs.five .sbub-in b{font-size:clamp(11px,1.25cqw,18px)}
-.sq2-bubs.five .sbub small{font-size:clamp(5px,.52cqw,8px);letter-spacing:.06em}
+.sq2-bubs.five{display:grid;grid-template-columns:repeat(6,1fr);justify-items:center;row-gap:.1cqw}
+.sq2-bubs.five .sbub{grid-column:span 2}
+.sq2-bubs.five .sbub:nth-child(4){grid-column:2 / span 2}
+.sq2-bubs.five .sbub:nth-child(5){grid-column:4 / span 2}
 .sq3-stance{position:absolute;right:0;top:0;z-index:2;display:flex;flex-direction:column;align-items:center;gap:0;padding:.25cqw .5cqw;cursor:pointer;
   font-size:clamp(12px,1.4cqw,20px);line-height:1;color:var(--f-acc);background:rgba(0,0,0,.6);border:1px solid var(--f-acc);
   clip-path:polygon(.4cqw 0,100% 0,100% 100%,0 100%,0 .4cqw);-webkit-tap-highlight-color:transparent}
@@ -2277,6 +2277,21 @@ details.gr p{margin:6px 0;font-size:13px;line-height:1.45;color:#cbd5e1}
 .grt th{text-align:left;padding:4px 6px;color:var(--muted);font-size:10px;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.2)}
 .grt td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.08);color:#e2e8f0}
 @media (max-width:1000px){.sq2-bubs.three .sbub{width:4cqw;height:4cqw;min-width:36px;min-height:36px}.sq3b small,.sq3-swap small{display:none}}
+
+/* ===== cf41: squad sheet — MOVE under FIRE; compact Soldiers / Quick Resolve tabs ===== */
+.sqmoverow{display:flex;gap:.5cqw;align-items:stretch}
+.sqmoverow .sqmove{flex:1;position:relative;margin-top:0}
+.sqmoverow .sqmove em{position:absolute;right:.8cqw;top:50%;transform:translateY(-50%);font-style:normal;font-weight:900;color:#facc15}
+.sqmoverow .squndo{flex:none;width:3.4cqw;min-width:36px;font-size:1.3em;padding:0}
+.sqcard .sqbig + .sqmoverow{margin-top:.5cqw}
+#sheet.sqcompact #frame .fname,#sheet.sqcompact #frame .fsub,#sheet.sqcompact #frame .fdial,#sheet.sqcompact #frame .fport{display:none}
+#sheet.sqcompact .sx.sqwrap{top:9%;height:79%;font-size:clamp(8px,1.12cqw,16px)}
+#sheet.sqcompact .sqtabs{top:-4.4cqw}
+#sheet.sqcompact .sq3 .sbub,#sheet.sqcompact .sq2-bubs.three .sbub{width:5.4cqw;height:5.4cqw;min-width:44px;min-height:44px}
+#sheet.sqcompact .sq2-bubs.five .sbub{width:4.8cqw;height:4.8cqw;min-width:40px;min-height:40px}
+#sheet.sqcompact .sq3b{min-height:4.8cqw}
+#sheet.sqcompact .sq3pg{padding:.5cqw 1cqw}
+#sheet.sqcompact .qrbig b{font-size:3em}
 /* ================= MAIN MENU ================= */
 #s1{padding:0;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#eaf3ff;background:#04060a;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -7494,7 +7509,7 @@ function buildShipFrame() {
 }
 function drawShip() {
   const u = U, st = shipMigrate(u, CUR.st), S = st.ship;
-  $("sheet").classList.remove("st-noattack"); updateStanceBtn();
+  $("sheet").classList.remove("st-noattack", "sqcompact"); updateStanceBtn();
   const boosting = stanceOf(st) === "boost";
   hp = st.hp; ap = st.ap; dodges = 0;
   const sheet = $("sheet");
@@ -8188,7 +8203,7 @@ function gvToggle(k, v) {
 }
 function drawGround() {
   const u = U, st = gvMigrate(u, CUR.st), G = st.gv;
-  $("sheet").classList.remove("st-noattack"); updateStanceBtn();
+  $("sheet").classList.remove("st-noattack", "sqcompact"); updateStanceBtn();
   const boosting = stanceOf(st) === "boost";
   hp = st.hp; ap = st.ap; dodges = 0;
   const sheet = $("sheet");
@@ -8569,6 +8584,16 @@ window.sqStrike = () => {
   if (st.ap < 1) { mpToast("Not enough AP."); return; }
   st.ap -= 1; logEv(CUR.uid, "Coordinated Strike (1 AP)", "info"); sqCommit();
 };
+window.sqMoveSquad = d => {
+  if (!CUR || !isSquad(U) || !mpSheetCanEdit()) return;
+  const st = CUR.st, uid = CUR.uid, alive = sqAlive(st), apMax = alive === 1 ? 1 : U.ap, hiding = stanceOf(st) === "hide", cm = hiding ? 5 : 10;
+  let qa = st.qa;
+  if (!qa || !sameHalf(qa)) qa = st.qa = { r: turn.round, p: turn.phase, m: 0, d: 0 };
+  if (d > 0) { if (st.ap < 1 || !alive || outOfPlay(uid) || turn.phase !== "you") return; qa.m += 1; st.ap -= 1; }
+  else { if (!qa.m) return; qa.m -= 1; st.ap = Math.min(apMax, st.ap + 1); }
+  qaLog(uid, "qa:m", qa.m, "Moved " + qa.m + "\u00d7 (" + (qa.m * cm) + "cm, " + qa.m + " AP)");
+  sqCommit();
+};
 window.sqAP = v => { if (!CUR || !mpSheetCanEdit()) return; const st = CUR.st; st.ap = Math.max(0, Math.min(8, st.ap + v)); sqCommit(); };
 window.sqRespawn = () => {
   if (!CUR || !mpSheetCanEdit()) return;
@@ -8702,10 +8727,14 @@ function drawSquad() {
   $("total").textContent = "SQUAD " + alive + "/8";
   $("dead").style.display = dead ? "flex" : "none";
   $("dead").firstElementChild.textContent = "WIPED OUT";
+  const compact = S.tab !== "overmap";
+  sheet.classList.toggle("sqcompact", compact);
   const box = el("div", "sx sqwrap"); sheet.appendChild(box);
-  const nm = el("div", "sx sname long"); nm.style.left = "69.6%"; nm.style.top = "8.2%"; nm.textContent = "INFANTRY SQUAD"; sheet.appendChild(nm);
-  const c1 = el("div", "sx sclass"); c1.style.left = "69.6%"; c1.style.top = "13.4%"; c1.textContent = (u.faction === "federation" ? "Federation" : "Spacenoid") + " \u00b7 8 soldiers \u00b7 no DP"; sheet.appendChild(c1);
-  const c2 = el("div", "sx sclass"); c2.style.left = "69.6%"; c2.style.top = "16.6%"; c2.textContent = "TARGETABLE WITHIN 20CM \u00b7 DODGE 10+"; sheet.appendChild(c2);
+  if (!compact) {
+    const nm = el("div", "sx sname long"); nm.style.left = "69.6%"; nm.style.top = "8.2%"; nm.textContent = "INFANTRY SQUAD"; sheet.appendChild(nm);
+    const c1 = el("div", "sx sclass"); c1.style.left = "69.6%"; c1.style.top = "13.4%"; c1.textContent = (u.faction === "federation" ? "Federation" : "Spacenoid") + " \u00b7 8 soldiers \u00b7 no DP"; sheet.appendChild(c1);
+    const c2 = el("div", "sx sclass"); c2.style.left = "69.6%"; c2.style.top = "16.6%"; c2.textContent = "TARGETABLE WITHIN 20CM \u00b7 DODGE 10+"; sheet.appendChild(c2);
+  }
   const tabs = [["overmap", "OVERMAP"], ["soldiers", "8 SOLDIERS"], ["qr", "QUICK RESOLVE"]];
   let h = '<div class="sqtabs">' + tabs.map(([k, t]) => '<button class="sqtab' + (S.tab === k ? ' on' : '') + '" onclick="sqTab(\'' + k + '\')">' + t + '</button>').join("") + '</div>';
   const cs = carrierState(uid);
@@ -8728,6 +8757,9 @@ function drawSquad() {
         '<table class="sqtbl">' + STRIKE_TARGETS.map(([a, b]) => '<tr><td>' + a + '</td><td>' + b + '</td></tr>').join("") + '</table>' +
         '<p class="warn">Cannot target an enemy squad within 30cm \u2014 that\'s a Firefight Clash instead.</p>' +
         '<button class="btn pri sqbig' + (hiding || dead || st.ap < 1 ? ' off' : '') + '" onclick="sqStrike()">FIRE \u2014 1 AP</button>' +
+        (() => { const qa0 = st.qa && sameHalf(st.qa) ? st.qa.m : 0, cm = hiding ? 5 : 10, cant = st.ap < 1 || dead || outOfPlay(uid) || turn.phase !== "you";
+          return '<div class="sqmoverow"><button class="btn sqbig sqmove' + (cant ? ' off' : '') + '" onclick="sqMoveSquad(1)">MOVE \u2014 ' + cm + 'cm \u00b7 1 AP' + (qa0 ? '<em>\u00d7' + qa0 + '</em>' : '') + '</button>' +
+            (qa0 ? '<button class="btn squndo" onclick="sqMoveSquad(-1)" title="Undo the last move">\u21B6</button>' : '') + '</div>'; })() +
         (hiding ? '<p class="warn">Hide Stance: no attacks this turn \u2014 untargetable by mobile suits.</p>' : '') +
       '</div>' +
     '</div>';
@@ -8816,25 +8848,6 @@ function drawSquad() {
     '</div>';
   }
   box.innerHTML = h;
-  // MOVE (overmap tab only)
-  if (S.tab === "overmap") {
-    const QT = sideKey() === "red"
-      ? ["rgba(48,5,10,.5)", "rgba(48,5,10,.78)", "#ff4d5a", "#ffe4e6", "rgba(255,77,90,.24)", "#3a0509"]
-      : ["rgba(6,30,78,.46)", "rgba(6,30,78,.72)", "#7dd3fc", "#e0f2fe", "rgba(125,211,252,.28)", "#082f49"];
-    let qa = st.qa;
-    if (!qa || !sameHalf(qa)) qa = st.qa = { r: turn.round, p: turn.phase, m: 0, d: 0 };
-    const cm = hiding ? 5 : 10, cant = st.ap < 1 || dead || outOfPlay(uid);
-    const qb = el("div", "sx qa sqa", { left: "49.8%", top: "92.8%" });
-    ["--qa-bg", "--qa-bg-on", "--qa-ac", "--qa-tx", "--qa-glow", "--qa-dk"].forEach((k, j) => qb.style.setProperty(k, QT[j]));
-    const logMoves = () => qaLog(uid, "qa:m", qa.m, "Moved " + qa.m + "\u00d7 (" + (qa.m * cm) + "cm, " + qa.m + " AP)");
-    const mvb = el("div", "qab move" + (cant || turn.phase !== "you" ? " off" : ""));
-    mvb.innerHTML = "<b>MOVE</b><small>" + cm + "cm \u00b7 1 AP</small>";
-    mvb.onclick = e => { e.stopPropagation(); if (cant || !mpSheetCanEdit()) return; qa.m += 1; st.ap -= 1; logMoves(); sqCommit(); };
-    const mu = el("div", "qau" + (qa.m ? "" : " hide"));
-    mu.innerHTML = "<span>\u21B6</span>" + (qa.m ? "<small>\u00d7" + qa.m + "</small>" : "");
-    mu.onclick = e => { e.stopPropagation(); if (!qa.m || !mpSheetCanEdit()) return; qa.m -= 1; st.ap = Math.min(apMax, st.ap + 1); logMoves(); sqCommit(); };
-    qb.append(mvb, mu); sheet.appendChild(qb);
-  }
   renderTurn();
   if (typeof mpSheetMode === "function") mpSheetMode();
 }
@@ -11681,6 +11694,7 @@ function draw() {
   if (U && isGround(U)) { if (isSquad(U)) drawSquad(); else drawGround(); return; }
   $("sheet").classList.remove("shipsheet");
   $("sheet").classList.toggle("st-noattack", !!CUR && stanceOf(CUR.st) === "boost");
+  $("sheet").classList.remove("sqcompact");
   updateStanceBtn();
   [...$("sheet").querySelectorAll(".sx")].forEach(n => n.remove());
   persist();
@@ -13036,7 +13050,7 @@ function draw() {
   }
 }
 
-const APP_BUILD = "cf40";
+const APP_BUILD = "cf41";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
