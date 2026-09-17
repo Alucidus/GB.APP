@@ -415,6 +415,17 @@ export class BattleRoom {
       const ops = Array.isArray(w.ff) ? w.ff.slice(0, 6) : [w.ff];
       for (const op of ops) { if (op && typeof op === "object" && await this.firefight(op, pid, myTeam, players, now, denied)) push = true; }
     }
+    // 7c. queued Forced Re-Engagements start when their turn begins
+    {
+      const tk = M.get("turn");
+      if (tk) for (const k of M.keys("ff/")) {
+        const g = M.get(k);
+        if (!g || g.state !== "queued" || !(tk.seq >= (g.startSeq || 0))) continue;
+        await M.set(k, { ...g, state: g.mode ? "ready" : "mode", round: 1, ready: { a: null, b: null }, lock: { a: false, b: false },
+          reveal: null, roll: null, obj: null, fromQueue: true, startedAt: now, at: now });
+        push = true;
+      }
+    }
 
     // 8. reply with everything that changed since the caller's last view (never seat tokens or secret picks)
     const known = body.known && typeof body.known === "object" ? body.known : {};
@@ -457,7 +468,10 @@ export class BattleRoom {
     if (op.op === "invite") {
       const other = myTeam === "federation" ? "spacenoid" : "federation";
       if (M.has(key) || !validUid(op.aUid) || !validUid(op.bUid) || busy(op.aUid) || busy(op.bUid)) { denied.push("ff:invite"); return false; }
-      await M.set(key, { id, state: "invite", at: now, mode: null, rollAsk: null, round: 1, seg: 1,
+      const tk = M.get("turn");
+      const queued = op.forced === true && !!tk;          // Forced Re-Engagement: starts on its own when the next turn begins
+      await M.set(key, { id, state: queued ? "queued" : "invite", at: now, mode: null, rollAsk: null, round: 1, seg: 1,
+        forced: queued ? "a" : null, startSeq: queued ? tk.seq + 1 : null,
         a: { team: myTeam, uid: op.aUid, pid, label: String(op.aLabel || "").slice(0, 30) },
         b: { team: other, uid: op.bUid, pid: null, label: String(op.bLabel || "").slice(0, 30) },
         lock: { a: false, b: false }, ready: { a: null, b: null }, hp: { a: null, b: null }, reveal: null, roll: null, obj: null });
@@ -563,8 +577,11 @@ export class BattleRoom {
       }
       case "segment":                               // another 4-round segment (re-engage / Forced Re-Engagement)
         if (g.state !== "end" || !mine) break;
-        g.seg += 1; g.round = 1; g.state = "ready"; g.obj = null; g.ready = { a: null, b: null }; g.lock = { a: false, b: false };
-        g.forced = op.forced ? side : null; return save();
+        g.seg += 1; g.round = 1; g.obj = null; g.ready = { a: null, b: null }; g.lock = { a: false, b: false };
+        g.forced = op.forced ? side : null;
+        if (op.forced && M.get("turn")) { g.state = "queued"; g.startSeq = M.get("turn").seq + 1; }   // waits for the next turn
+        else g.state = "ready";
+        return save();
       case "end":
         await M.del("ffsec/" + id + "/a"); await M.del("ffsec/" + id + "/b");
         g.state = "closed"; return save();

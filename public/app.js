@@ -1578,6 +1578,10 @@ function drawSquad() {
   const cs = carrierState(uid);
   if (cs && cs.state === "aboard") h += '<div class="sqnote">\u2693 Aboard the ' + cs.u.short + ' \u2014 safe and untargetable. Disembark from the vehicle\'s sheet.</div>';
   if (S.tab === "overmap") {
+    h += S.holdsObj
+      ? '<div class="sqnote objnote">\u{1F6A9} <b>Holds the objective</b>' + (S.holdsObj.vs ? ' \u2014 secured against ' + S.holdsObj.vs + (S.holdsObj.turn ? ' (turn ' + S.holdsObj.turn + ')' : '') : '') +
+        '<button class="btn sm" onclick="sqObjective(false)">Clear</button></div>'
+      : '<div class="sqobjlink"><button class="linkbtn" onclick="sqObjective(true)">\u{1F6A9} Mark as holding the objective</button></div>';
     const pips = S.soldiers.map((s, i) => '<button class="sqpip' + (s.hp > 0 ? ' on' : '') + '" onclick="sqPip()" title="' + sqLabel(st, i) + '"><img src="img/ground/' + u.sk + '-' + s.r + '.webp" alt=""></button>').join("");
     h += '<div class="sqgrid om">' +
       '<div class="sqcard"><h4>SQUAD HEALTH <b>' + alive + ' / 8</b></h4><div class="sqpips">' + pips + '</div>' +
@@ -2113,6 +2117,35 @@ window.ffChallenge = () => {
   $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Cancel";
   $("pick").classList.add("on");
 };
+window.ffForce = () => {
+  if (!mpTeamMode() || !CUR || !isSquad(U) || !mpSheetCanEdit()) return;
+  const q = CUR.st.sq.qr;
+  if (ffForUid(CUR.uid, mpMyTeam())) { mpToast("This squad is already in a firefight."); return; }
+  if (!(q.items && q.items.fb > 0)) { mpToast("No Flashbang left to force a re-engagement."); return; }
+  const list = ffEnemySquads();
+  $("pickT").textContent = "\u2726 Force a re-engagement";
+  $("pickS").innerHTML = "Spend 1 Flashbang to stop an enemy squad from moving away. The firefight starts by itself when the <b>next turn begins</b> \u2014 no need to accept.";
+  const lst = $("picklist"); lst.innerHTML = list.length ? "" : '<div class="empty">The enemy has no infantry squads.</div>';
+  list.forEach(e => {
+    const off = e.busy || e.aboard || e.alive <= 0;
+    const d = el("div", "row" + (off ? " car-aboard" : ""));
+    d.innerHTML = '<span class="pt shipp gp"><img src="img/ground/' + (mpMyTeam() === "federation" ? "spa" : "fed") + '-rifleman.webp" alt=""></span>' +
+      '<span style="min-width:0;flex:1"><div class="nm">' + e.label + '</div><div class="tr">' +
+      (e.alive <= 0 ? "wiped out" : e.busy ? "\u2694 already in a firefight" : e.aboard ? "aboard a vehicle" : HEALTH_WORD(e.alive / 8)) + '</div></span>';
+    if (!off) d.onclick = () => {
+      closePicker();
+      q.items.fb -= 1; logEv(CUR.uid, "Forced Re-Engagement on " + e.label + " \u2014 Flashbang spent", "buff"); save();
+      ffOp({ op: "invite", id: ffNewId(), aUid: CUR.uid, bUid: e.uid, aLabel: unitLabel(CUR.uid), bLabel: e.label, forced: true });
+      mpToast("\u2726 Forced Re-Engagement booked \u2014 it starts when the next turn begins.");
+    };
+    lst.appendChild(d);
+  });
+  $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Cancel";
+  $("pick").classList.add("on");
+};
+function ffTagHTML(f) {
+  return f && f.state === "queued" ? ' <span class="fftag queued">\u2726 RE-ENGAGES NEXT TURN</span>' : ' <span class="fftag">\u2694 FIREFIGHT</span>';
+}
 window.ffAccept = id => {
   const f = mp.data["ff/" + id]; if (!f || f.state !== "invite") return;
   const r = roster.find(x => x.uid === f.b.uid); if (!r) return;
@@ -2129,7 +2162,8 @@ window.ffResume = id => {
   const s = ffSideOf(f); if (!s) return;
   const r = roster.find(x => x.uid === f[s].uid); if (!r) return;
   ffHidden = false;
-  if (!CUR || CUR.uid !== r.uid) { if ($("s4").classList.contains("on")) closeSheet(); openSheet(r.uid); sqTab("qr"); }
+  const sheetOpen = $("s4").classList.contains("on");
+  if (!CUR || CUR.uid !== r.uid || !sheetOpen) { if (sheetOpen) closeSheet(); openSheet(r.uid); sqTab("qr"); }
   if (f[s].pid !== mp.pid) ffOp({ op: "join", id });
   renderFF();
 };
@@ -2389,6 +2423,7 @@ window.ffSegment = forced => {
   if (forced) {
     if (!(q.items.fb > 0)) { mpToast("No Flashbang left to force a re-engagement."); return; }
     q.items.fb -= 1; logEv(CUR.uid, "Forced Re-Engagement \u2014 Flashbang spent", "buff"); save();
+    mpToast("\u2726 Forced Re-Engagement booked \u2014 it starts when the next turn begins. Carry on with your other units.");
   }
   ffOp({ op: "segment", id: f.id, forced: !!forced });
 };
@@ -2398,11 +2433,31 @@ window.ffEnd = () => {
   ffOp({ op: "end", id: f.id });
 };
 // ---------- my side's bookkeeping, once per state change ----------
+// manual objective marker (for fights resolved without the app, or when the squad leaves the objective)
+window.sqObjective = on => {
+  if (!CUR || !CUR.st || !CUR.st.sq) return;
+  if (typeof mpSheetCanEdit === "function" && mpTeamMode() && !mpSheetCanEdit()) { mpToast("Only the player controlling this sheet can change that."); return; }
+  CUR.st.sq.holdsObj = on ? { vs: "", turn: turn.round || 0 } : null;
+  logEv(CUR.uid, on ? "\u{1F6A9} Marked as holding the objective" : "No longer holds the objective", "info");
+  save(); if (typeof sqCommit === "function") sqCommit(); else draw();
+};
 function ffSync(f) {
   const s = ffSideOf(f), q = CUR.st.sq.qr;
+  if (q.ffId === f.id && q.ffSeg !== f.seg && f.seg > 1) {   // a new segment (Forced Re-Engagement): items reset
+    q.ffSeg = f.seg; q.items = { fb: 2, sm: 1, gr: 1 }; q.supp = 0; q.suppFlash = 0; q.nextOnes = 0; q.nextMargin = 0; q.nextExtra = 0;
+    logEv(CUR.uid, "Segment " + f.seg + " vs " + f[ffOther(s)].label + " \u2014 items refilled", "info"); save();
+  }
   if (q.ffId !== f.id) {                                   // a new engagement: items refill
-    q.ffId = f.id; q.items = { fb: 2, sm: 1, gr: 1 }; q.round = 1; q.supp = 0; q.suppFlash = 0; q.next = 0; q.nextFlash = 0; q.nextExtra = 0; q.nextOnes = 0; q.nextMargin = 0; q.res = null; q.ffRound = "1:1"; q.ffApplied = "";
+    q.ffId = f.id; q.ffSeg = f.seg; q.items = { fb: 2, sm: 1, gr: 1 }; q.round = 1; q.supp = 0; q.suppFlash = 0; q.next = 0; q.nextFlash = 0; q.nextExtra = 0; q.nextOnes = 0; q.nextMargin = 0; q.res = null; q.ffRound = "1:1"; q.ffApplied = "";
     logEv(CUR.uid, "Firefight vs " + f[ffOther(s)].label + " \u2014 items refilled", "info"); save();
+  }
+  const ok = f.id + ":" + f.seg;
+  if (f.obj && f.obj.seg === f.seg && q.objKey !== ok) {
+    q.objKey = ok;
+    const won = f.obj.win === s, foe = f[ffOther(s)].label;
+    CUR.st.sq.holdsObj = won ? { vs: foe, turn: turn.round || 0 } : null;
+    logEv(CUR.uid, won ? "\u{1F6A9} Secured the objective vs " + foe : "Lost the objective to " + foe, won ? "buff" : "bad");
+    save(); if (typeof sqCommit === "function") sqCommit();
   }
   const rk = f.seg + ":" + f.round;
   if (q.ffRound !== rk && (f.state === "pick" || f.state === "ready")) {   // a new round began: next round's suppression becomes current
@@ -2483,7 +2538,7 @@ function renderFF() {
   if (fightKey !== ffTurnKey) { ffTurnKey = fightKey; setTimeout(() => { if (typeof renderTurn === "function" && turn) renderTurn(); }, 0); }
   const f = ffMine();
   if (!f || ffHidden) { if (box) box.remove(); ffLastSig = ""; renderFFInvites(); return; }
-  if (f.state === "closed" || f.state === "declined") { if (box) box.remove(); ffLastSig = ""; renderFFInvites(); return; }
+  if (f.state === "closed" || f.state === "declined" || f.state === "queued") { if (box) box.remove(); ffLastSig = ""; renderFFInvites(); return; }
   ffSync(f);
   const s = ffSideOf(f), o = ffOther(s), q = CUR.st.sq.qr, alive = sqAlive(CUR.st);
   const enemyUnit = (mp.data["unit/" + f[o].team + "/" + f[o].uid] || {}).st || {};
@@ -2621,20 +2676,39 @@ function renderFFInvites() {
   let bar = $("ffinv");
   const t = mpTeamMode() ? mpMyTeam() : null;
   const inv = t ? ffAll().filter(f => f.state === "invite" && f.b.team === t) : [];
+  const mineNow = ffMine();
+  const started = t ? ffAll().filter(f => {
+    if (!f.fromQueue || !["mode", "ready", "pick", "reveal"].includes(f.state)) return false;
+    const sd = ffSideOf(f); if (!sd) return false;
+    if (mineNow && mineNow.id === f.id) return false;                          // already open here
+    return !f[sd].pid || f[sd].pid === mp.pid || !ffSidePidAlive(f, sd);       // nobody else on my team is running it
+  }) : [];
   const declined = t ? ffAll().filter(f => f.state === "declined" && f.a.team === t && f.a.pid === mp.pid && !ffShown["dec:" + f.id]) : [];
   declined.forEach(f => { ffShown["dec:" + f.id] = 1; mpToast("The enemy declined the firefight with your " + f.a.label + "."); });
-  if (!inv.length) { if (bar) bar.remove(); return; }
+  if (!inv.length && !started.length) { if (bar) bar.remove(); return; }
   if (!bar) { bar = document.createElement("div"); bar.id = "ffinv"; document.body.appendChild(bar); }
   const html = inv.map(f => '<div class="ffinvrow"><b>\u2694 ' + (mpNameOf(f.a.pid) || "The enemy") + '\u2019s ' + f.a.label + ' challenges your ' + f.b.label + '</b>' +
-    '<span><button class="btn sm pri" onclick="ffAccept(\'' + f.id + '\')">Accept</button><button class="btn sm" onclick="ffDecline(\'' + f.id + '\')">Decline</button></span></div>').join("");
+    '<span><button class="btn sm pri" onclick="ffAccept(\'' + f.id + '\')">Accept</button><button class="btn sm" onclick="ffDecline(\'' + f.id + '\')">Decline</button></span></div>').join("") +
+    started.map(f => { const sd = ffSideOf(f), od = ffOther(sd);
+      return '<div class="ffinvrow forced"><b>\u2726 Forced Re-Engagement \u2014 your ' + f[sd].label + ' vs their ' + f[od].label + ' has begun</b>' +
+        '<span><button class="btn sm pri" onclick="ffResume(\'' + f.id + '\')">Open the firefight</button></span></div>'; }).join("");
   if (bar.innerHTML !== html) bar.innerHTML = html;
 }
 // the firefight card on a squad's Quick Resolve tab (online)
 function ffCardHTML() {
   if (!mpTeamMode() || !CUR || !isSquad(U)) return "";
   const f = ffForUid(CUR.uid, mpMyTeam());
+  const q0 = CUR.st.sq && CUR.st.sq.qr;
   if (!f) return '<div class="ffcta"><button class="btn big pri" onclick="ffChallenge()">\u2694 CHALLENGE AN ENEMY SQUAD</button>' +
-    '<span>Online firefight: blind item picks on each device, reveal together, optional rolled dice.</span></div>';
+    '<span>Online firefight: blind item picks on each device, reveal together, optional rolled dice.</span>' +
+    (q0 && q0.ffId && q0.items && q0.items.fb > 0
+      ? '<button class="btn big ffforce" onclick="ffForce()">\u2726 FORCE A RE-ENGAGEMENT <small>1 Flashbang \u00b7 ' + q0.items.fb + ' left</small></button>' +
+        '<span>Play it when an enemy squad you just fought tries to move away \u2014 the firefight starts when the next turn begins.</span>' : '') + '</div>';
+  if (f.state === "queued") {
+    const s0 = ffSideOf(f), o0 = ffOther(s0), mineForced = f.forced === s0;
+    return '<div class="ffcta live queued"><b>\u2726 Forced Re-Engagement \u2014 ' + (mineForced ? 'your ' + f[s0].label + ' vs their ' + f[o0].label : 'their ' + f[o0].label + ' re-engages your ' + f[s0].label) + '</b>' +
+      '<span>Starts by itself when the next turn begins \u2014 keep playing your other units until then.</span></div>';
+  }
   const s = ffSideOf(f), o = ffOther(s), mineNow = f[s].pid === mp.pid, someone = ffSidePidAlive(f, s);
   return '<div class="ffcta live"><b>\u2694 In a firefight with the enemy ' + f[o].label + '</b><span>' +
     (f.state === "invite" ? (s === "a" ? "Waiting for them to accept." : "Accept it from the banner at the top.") : f.state === "end" ? "Segment " + f.seg + " complete" : f.state === "mode" ? "Choosing dice" : "Round " + Math.min(4, f.round) + " of 4 \u00b7 segment " + f.seg) +
@@ -4694,7 +4768,8 @@ function renderOpp() {
       '<span class="opphp" style="background:' + HEALTH_COL(pct) + '"></span>' +
       portraitHTML(u).replace('</span>', markPipHTML(x) + '</span>') +
       '<span style="min-width:0"><div class="nm">' + label + (oppAboard.has(x.uid) ? ' <span class="cartag aboard">\u2693 ABOARD</span>' : '') +
-        (ffForUid(x.uid, t) ? ' <span class="fftag">\u2694 FIREFIGHT</span>' : '') +
+        (ffForUid(x.uid, t) ? ffTagHTML(ffForUid(x.uid, t)) : '') +
+        (ud && ud.st && ud.st.sq && ud.st.sq.holdsObj && pct > 0 ? ' <span class="objtag" title="Holds the objective">\u{1F6A9} OBJECTIVE</span>' : '') +
         (ud && ud.st ? ' ' + stanceTagHTML(stanceNow({ id: x.id, st: ud.st })) : '') + '</div><div class="tr"><b style="color:' + HEALTH_COL(pct) + '">' + HEALTH_WORD(pct) + '</b> \u00b7 ' + u.tier + '</div></span>' +
       '<span class="dp">' + u.dp.toLocaleString() + '</span></div>';
   });
@@ -4854,7 +4929,8 @@ function renderRosterCore() {
           (ctl ? ' <span class="ctltag" title="' + (ctl.me ? 'You have this sheet open' : ctl.name + ' has this sheet open') + '">' + (ctl.me ? '\u270E You' : '\u{1F512} ' + ctl.name) + '</span>' : '') +
           (cst ? ' ' + carrierTag(r.uid) : '') + (locked ? ' ' + stanceTagHTML(stanceNow(r)) : '') +
           (locked && needsRecheck(r) ? ' <span class="rechecktag">\u21BB RE-CHECK</span>' : '') +
-          (locked && mpTeamMode() && ffForUid(r.uid, mpMyTeam()) ? ' <span class="fftag">\u2694 FIREFIGHT</span>' : '') + '</div>' +
+          (locked && mpTeamMode() && ffForUid(r.uid, mpMyTeam()) ? ffTagHTML(ffForUid(r.uid, mpMyTeam())) : '') +
+          (locked && r.st && r.st.sq && r.st.sq.holdsObj && !dead ? ' <span class="objtag" title="Holds the objective">\u{1F6A9} OBJECTIVE</span>' : '') + '</div>' +
         '<div class="tr">' + (dead ? "DESTROYED" : (LIMB_LABEL[kl] || "Chest") + " " + now + "/" + tot) + ' \u00b7 ' + u.tier +
         (!dead && u.abilities.some(x => x.kind === "auto" && autoOn(x, u, r.st))
           ? ' <b style="color:#fff;background:#b91c1c;border-radius:3px;padding:0 5px;margin-left:4px">' + u.abilities.find(x => x.kind === "auto").name.split(" ")[0].toUpperCase() + '</b>' : '') +
@@ -7016,7 +7092,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf85";
+const APP_BUILD = "cf88";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

@@ -3080,3 +3080,14 @@ button.mb-item.fxtog{font:inherit;color:#dfe9f4;background:none;border-top:0;bor
 }
 /* cf84: end-turn locked during a firefight */
 .btn.fightlock{background:rgba(245,158,11,.15);border-color:#f59e0b;color:#fde68a;cursor:not-allowed}
+/* cf86: objective holder */
+.objtag{display:inline-block;padding:1px 6px;font:800 10px system-ui,sans-serif;letter-spacing:.08em;color:#1c1300;background:#facc15;border-radius:3px;vertical-align:middle}
+.sqnote.objnote{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-color:#facc15;background:rgba(250,204,21,.12);color:#fde68a}
+.sqnote.objnote .btn{margin-left:auto}
+.sqobjlink{text-align:right;margin:-2px 0 4px}
+/* cf87: forced re-engagement */
+.fftag.queued{background:#7c3aed;color:#fff}
+.ffcta.queued{border-color:#a78bfa;background:rgba(124,58,237,.12)}
+.ffcta .ffforce{margin-top:6px;border-color:#a78bfa;color:#ede9fe;background:rgba(124,58,237,.18)}
+.ffcta .ffforce small{display:block;font-size:11px;color:#ddd6fe;letter-spacing:.04em}
+.ffinvrow.forced{border-color:#a78bfa;background:rgba(76,29,149,.85)}
