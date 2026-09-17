@@ -2115,7 +2115,12 @@ const ffAll = () => Object.keys(mp.data || {}).filter(k => k.startsWith("ff/")).
 const ffActive = f => f && f.state !== "closed" && f.state !== "declined";
 const ffSideOf = f => f.a.team === mpMyTeam() ? "a" : f.b.team === mpMyTeam() ? "b" : null;
 const ffOther = s => s === "a" ? "b" : "a";
-function ffForUid(uid, team) { return ffAll().find(f => ffActive(f) && ((f.a.uid === uid && f.a.team === team) || (f.b.uid === uid && f.b.team === team))) || null; }
+// the fight this squad belongs to — the pair fighting now, or any squad in the engagement
+function ffForUid(uid, team) {
+  return ffAll().find(f => ffActive(f) && ((f.a.uid === uid && f.a.team === team) || (f.b.uid === uid && f.b.team === team) ||
+    (f.eng && ((f.a.team === team && (f.eng.aList || []).some(x => x.uid === uid)) || (f.b.team === team && (f.eng.bList || []).some(x => x.uid === uid)))))) || null;
+}
+const ffFightingNow = (f, uid, team) => !!f && ((f.a.uid === uid && f.a.team === team) || (f.b.uid === uid && f.b.team === team));
 function ffOp(op) { mp.ffOps = mp.ffOps || []; mp.ffOps.push(op); mpKick(); }
 function ffNewId() { return (Date.now().toString(36) + Math.random().toString(36).slice(2, 6)).slice(-12); }
 function ffSidePidAlive(f, side) {
@@ -2126,6 +2131,7 @@ function ffSidePidAlive(f, side) {
 function ffMine() {
   if (!mpTeamMode() || !CUR || !U || !isSquad(U) || !$("s4").classList.contains("on")) return null;
   const f = ffForUid(CUR.uid, mpMyTeam()); if (!f) return null;
+  if (!ffFightingNow(f, CUR.uid, mpMyTeam())) return null;        // a squad waiting for its bout doesn't open the clash screen
   const s = ffSideOf(f);
   return f[s].pid === mp.pid ? f : null;
 }
@@ -2145,32 +2151,69 @@ function ffEnemySquads() {
     return { uid: x.uid, label: "Infantry Squad" + (squads.length > 1 ? " #" + (k + 1) : ""), alive, aboard: aboard.has(x.uid), busy: !!ffForUid(x.uid, ot) };
   });
 }
+let ffSel = null;
+const ffSideClass = t => t === "federation" ? "fed" : "spa";
+window.ffPickTap = (side, uid) => {
+  if (!ffSel) return;
+  const set = ffSel[side];
+  const k = set.indexOf(uid);
+  if (k >= 0) set.splice(k, 1); else set.push(uid);
+  ffPickRender();
+};
+function ffPickRender() {
+  const P = ffSel; if (!P) return;
+  const box = (side, x, team) => {
+    const on = P[side].includes(x.uid), off = x.busy || x.aboard || x.alive <= 0;
+    return '<div class="ffsq ' + ffSideClass(team) + (on ? ' on' : '') + (off ? ' off' : '') + '"' +
+      (off ? '' : ' onclick="ffPickTap(\'' + side + '\',' + x.uid + ')"') + '>' +
+      '<span class="pt shipp gp"><img src="img/ground/' + (team === "federation" ? "fed" : "spa") + '-rifleman.webp" alt=""></span>' +
+      '<span class="t"><b>' + x.label + '</b><em>' + (x.alive <= 0 ? "wiped out" : x.busy ? "\u2694 in a firefight" : x.aboard ? "aboard a vehicle" : x.alive + " / 8 \u00b7 " + HEALTH_WORD(x.alive / 8)) + '</em></span>' +
+      (on ? '<span class="tick">\u2713</span>' : '') + '</div>';
+  };
+  const col = (side, list, team, title) => '<div class="ffcol"><h5 class="' + ffSideClass(team) + '">' + title + '</h5>' + list.map(x => box(side, x, team)).join("") + '</div>';
+  const n = P.me.length, m = P.foe.length;
+  $("picklist").innerHTML = '<div class="ffpick2">' +
+    col("me", P.mine, mpMyTeam(), "Your side \u00b7 " + teamName(mpMyTeam())) +
+    '<div class="ffvsmid">VS</div>' +
+    col("foe", P.enemy, otherTeam(mpMyTeam()), "Enemy \u00b7 " + teamName(otherTeam(mpMyTeam()))) + '</div>' +
+    '<label class="ffobjname">\u{1F6A9} What are they fighting over?<input id="ffObjName" maxlength="24" placeholder="e.g. Server room" value="' + (P.obj || "") + '" oninput="ffSel.obj=this.value"></label>';
+  const go = $("ffGoBtn");
+  if (go) {
+    go.textContent = n && m ? "\u2694 CHALLENGE \u00b7 " + n + " vs " + m : "Pick at least one squad a side";
+    go.className = "btn big " + (n && m ? "pri" : "off");
+  }
+}
 window.ffChallenge = () => {
   if (!mpTeamMode()) { mpToast("Online firefights need a battle session."); return; }
   if (mp.data.turn && mp.data.turn.active !== mpMyTeam()) { mpToast("Firefights can only be started on your own turn."); return; }
   if (!CUR || !isSquad(U) || !mpSheetCanEdit()) return;
   if (ffForUid(CUR.uid, mpMyTeam())) { mpToast("This squad is already in a firefight."); return; }
   if (!sqAlive(CUR.st)) { mpToast("This squad has no soldiers left."); return; }
-  const list = ffEnemySquads();
-  $("pickT").textContent = "\u2694 Challenge an enemy squad";
-  $("pickS").innerHTML = "Pick the enemy squad your " + unitLabel(CUR.uid) + " is fighting. Any player on their team can accept.";
-  const lst = $("picklist"); lst.innerHTML = list.length ? "" : '<div class="empty">The enemy has no infantry squads.</div>';
-  list.forEach(e => {
-    const off = e.busy || e.aboard || e.alive <= 0;
-    const d = el("div", "row" + (off ? " car-aboard" : ""));
-    d.innerHTML = '<span class="pt shipp gp"><img src="img/ground/' + (mpMyTeam() === "federation" ? "spa" : "fed") + '-rifleman.webp" alt=""></span>' +
-      '<span style="min-width:0;flex:1"><div class="nm">' + e.label + '</div><div class="tr">' +
-      (e.alive <= 0 ? "wiped out" : e.busy ? "\u2694 already in a firefight" : e.aboard ? "aboard a vehicle" : HEALTH_WORD(e.alive / 8)) + '</div></span>';
-    if (!off) d.onclick = () => {
-      closePicker();
-      ffHidden = false;
-      ffOp({ op: "invite", id: ffNewId(), aUid: CUR.uid, bUid: e.uid, aLabel: unitLabel(CUR.uid), bLabel: e.label });
-      mpToast("Challenge sent \u2014 waiting for the enemy to accept.");
-    };
-    lst.appendChild(d);
+  const mine = squadsInRoster().filter(r => !isDead(r)).map(r => {
+    const cs = carrierState(r.uid);
+    return { uid: r.uid, label: unitLabel(r.uid), alive: sqAlive(r.st), busy: !!ffForUid(r.uid, mpMyTeam()), aboard: !!(cs && cs.state === "aboard") };
   });
-  $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Cancel";
+  ffSel = { mine, enemy: ffEnemySquads(), me: [CUR.uid], foe: [], obj: "" };
+  $("pickT").textContent = "\u2694 Challenge an enemy squad";
+  $("pickS").innerHTML = "Tap squads on both sides to put them in this engagement. They fight <b>one pair per turn</b> \u2014 the enemy chooses who meets each of your squads.";
+  ffPickRender();
+  const go = el("button", "btn big pri"); go.id = "ffGoBtn";
+  go.onclick = () => {
+    const P = ffSel; if (!P || !P.me.length || !P.foe.length) return;
+    const lab = (list, uid) => (list.find(x => x.uid === uid) || {}).label || "Squad";
+    closePicker();
+    ffHidden = false;
+    ffOp({ op: "invite", id: ffNewId(),
+      aUids: P.me, aLabels: P.me.map(u => lab(P.mine, u)),
+      bUids: P.foe, bLabels: P.foe.map(u => lab(P.enemy, u)),
+      obj: (P.obj || "").trim() });
+    mpToast(P.me.length + " vs " + P.foe.length + " challenge sent \u2014 waiting for the enemy to accept.");
+    ffSel = null;
+  };
+  $("pickExtra").innerHTML = ""; $("pickExtra").appendChild(go);
+  $("pickCancel").textContent = "Cancel";
   $("pick").classList.add("on");
+  ffPickRender();
 };
 // enemy squads this squad has already fought (the server records each pair at their first reveal)
 function ffFoughtWith(uid) {
@@ -2221,9 +2264,10 @@ window.ffCounter = () => {
   ffOp({ op: "counter", id: f.id });
   mpToast("\u25CC Countered with Smoke \u2014 your squad gets away.");
 };
-function ffTagHTML(f) {
-  return f && f.state === "queued" ? '<span class="fftag queued" title="Re-engages next turn">\u2726<b> RE-ENGAGES NEXT TURN</b></span> '
-    : '<span class="fftag" title="In a firefight">\u2694<b> FIREFIGHT</b></span> ';
+function ffTagHTML(f, uid, team) {
+  if (f && f.state === "queued") return '<span class="fftag queued" title="Re-engages next turn">\u2726<b> RE-ENGAGES NEXT TURN</b></span> ';
+  if (f && f.eng && uid !== undefined && !ffFightingNow(f, uid, team)) return '<span class="fftag waiting" title="In the engagement, waiting for its bout">\u2694<b> WAITING ITS BOUT</b></span> ';
+  return '<span class="fftag" title="In a firefight">\u2694<b> FIREFIGHT</b></span> ';
 }
 const OBJ_TAG = '<span class="objtag" title="Holds the objective">\u{1F6A9}<b> OBJECTIVE</b></span> ';
 // counter straight from the notification (takes the squad's sheet quietly if needed, like ticking a unit done)
@@ -2263,14 +2307,39 @@ window.ffReviewForced = id => {
 };
 window.ffAccept = id => {
   const f = mp.data["ff/" + id]; if (!f || f.state !== "invite") return;
-  const r = roster.find(x => x.uid === f.b.uid); if (!r) return;
+  if (f.eng && (f.eng.aList.length > 1 || f.eng.bList.length > 1)) { ffMatchups(id); return; }   // several squads: choose who meets whom
+  ffAcceptGo(id, f.eng ? [[f.eng.aList[0].uid, f.eng.bList[0].uid]] : null, f.b.uid);
+};
+function ffAcceptGo(id, pairs, openUid) {
+  const r = roster.find(x => x.uid === openUid); if (!r) return;
   const l = mpLockOf(mpMyTeam(), r.uid);
   if (l && l.pid !== mp.pid && mpLockAlive(l)) { mpToast(mpNameOf(l.pid) + " has that squad open \u2014 they can accept instead."); return; }
   ffHidden = false;
   if ($("s4").classList.contains("on")) closeSheet();
   openSheet(r.uid); sqTab("qr");
-  ffOp({ op: "accept", id });
-};
+  ffOp(pairs ? { op: "accept", id, pairs } : { op: "accept", id });
+}
+// the defender answers "who meets their Squad A?" for each attacker in order
+function ffMatchups(id, picked) {
+  const f = mp.data["ff/" + id]; if (!f || !f.eng || f.state !== "invite") return;
+  const chosen = picked || [];
+  const att = f.eng.aList[chosen.length];
+  if (!att) { closePicker(); ffAcceptGo(id, chosen, chosen[0][1]); return; }
+  $("pickT").textContent = "\u2694 Who meets their " + att.label + "?";
+  $("pickS").innerHTML = "Bout " + (chosen.length + 1) + " of " + f.eng.aList.length + " \u2014 pick one of your squads. A squad can be used twice; its second bout happens on a later turn.";
+  const lst = $("picklist"); lst.innerHTML = "";
+  f.eng.bList.forEach(x => {
+    const r = roster.find(y => y.uid === x.uid), alive = r && r.st ? sqAlive(r.st) : 0;
+    const used = chosen.filter(c => c[1] === x.uid).length;
+    const d = el("div", "row" + (alive <= 0 ? " car-aboard" : ""));
+    d.innerHTML = '<span class="pt shipp gp"><img src="img/ground/' + (mpMyTeam() === "federation" ? "fed" : "spa") + '-rifleman.webp" alt=""></span>' +
+      '<span style="min-width:0;flex:1"><div class="nm">' + x.label + '</div><div class="tr">' + (alive <= 0 ? "wiped out" : alive + " / 8 \u00b7 " + HEALTH_WORD(alive / 8)) + (used ? " \u00b7 already fighting bout " + (chosen.findIndex(c => c[1] === x.uid) + 1) : "") + '</div></span>';
+    if (alive > 0) d.onclick = () => ffMatchups(id, chosen.concat([[att.uid, x.uid]]));
+    lst.appendChild(d);
+  });
+  $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Cancel";
+  $("pick").classList.add("on");
+}
 window.ffDecline = id => ffOp({ op: "decline", id });
 window.ffResume = id => {
   const f = mp.data["ff/" + id]; if (!f) return;
@@ -2836,6 +2905,10 @@ function renderFF() {
     '<div class="ffsides"><div class="ffside me"><small>YOU</small><b>' + myLabel + '</b><em>' + alive + ' / 8 \u00b7 FP ' + FIREPOWER(alive) + (q.supp ? ' \u00b7 ' + q.supp + ' dice set aside' : '') + '</em>' +
       '<span class="ffinv">' + ["fb", "sm", "gr"].map(k => FF_ITEMS[k].i + "\u00d7" + q.items[k]).join("  ") + '</span></div>' +
       '<div class="ffside foe"><small>ENEMY</small><b>' + foeLabel + '</b><em>' + enemyAlive + ' / 8</em><span class="ffinv">items hidden</span></div></div>' +
+    (f.eng && f.eng.pairs ? '<div class="ffengbar"><b>\u2694 ENGAGEMENT ' + f.eng.aList.length + ' vs ' + f.eng.bList.length + '</b>' +
+      '<span>Bout ' + f.eng.bout + ' of ' + f.eng.pairs.length + (f.eng.obj ? ' \u00b7 \u{1F6A9} ' + f.eng.obj : '') + '</span>' +
+      '<span class="pl">' + f.eng.pairs.map((pr, i) => { const la = (f.eng.aList.find(x => x.uid === pr[0]) || {}).label, lb = (f.eng.bList.find(x => x.uid === pr[1]) || {}).label;
+        const meFirst = s === "a"; return '<i class="' + (i + 1 === f.eng.bout ? "now" : "") + '">' + (meFirst ? la + ' vs ' + lb : lb + ' vs ' + la) + '</i>'; }).join("") + '</span></div>' : '') +
     (!otherHere ? '<div class="ffpause">\u23F8 The enemy player has stepped away \u2014 a teammate of theirs can resume the firefight.</div>' : '') +
     '<div class="ffbody">' + body + '</div></div>';
   if (keepScroll) box.querySelector(".ffpanel").scrollTop = keepScroll;
@@ -2859,7 +2932,10 @@ function renderFFInvites() {
   declined.forEach(f => { ffShown["dec:" + f.id] = 1; mpToast("The enemy declined the firefight with your " + f.a.label + "."); });
   if (!inv.length && !started.length && !booked.length) { if (bar) bar.remove(); return; }
   if (!bar) { bar = document.createElement("div"); bar.id = "ffinv"; document.body.appendChild(bar); }
-  const html = inv.map(f => '<div class="ffinvrow"><b>\u2694 ' + (mpNameOf(f.a.pid) || "The enemy") + '\u2019s ' + f.a.label + ' challenges your ' + f.b.label + '</b>' +
+  const html = inv.map(f => '<div class="ffinvrow"><b>\u2694 ' + (mpNameOf(f.a.pid) || "The enemy") +
+    (f.eng && (f.eng.aList.length > 1 || f.eng.bList.length > 1)
+      ? ' challenges you \u2014 ' + f.eng.aList.length + ' vs ' + f.eng.bList.length + (f.eng.obj ? ' for \u{1F6A9} ' + f.eng.obj : '') + '<small>' + f.eng.aList.map(x => x.label).join(", ") + ' vs your ' + f.eng.bList.map(x => x.label).join(", ") + ' \u2014 you choose who meets whom.</small>'
+      : '\u2019s ' + f.a.label + ' challenges your ' + f.b.label + (f.eng && f.eng.obj ? ' for \u{1F6A9} ' + f.eng.obj : '')) + '</b>' +
     '<span><button class="btn sm pri" onclick="ffAccept(\'' + f.id + '\')">Accept</button><button class="btn sm" onclick="ffDecline(\'' + f.id + '\')">Decline</button></span></div>').join("") +
     started.map(f => { const sd = ffSideOf(f), od = ffOther(sd);
       return '<div class="ffinvrow forced"><b>\u2726 Forced Re-Engagement \u2014 your ' + f[sd].label + ' vs their ' + f[od].label + ' has begun</b>' +
@@ -2898,7 +2974,7 @@ function ffCardHTML() {
         : '<span class="ffhint">No Smoke Grenade left \u2014 the re-engagement will happen.</span>') + '</div>';
   }
   const s = ffSideOf(f), o = ffOther(s), mineNow = f[s].pid === mp.pid, someone = ffSidePidAlive(f, s);
-  return '<div class="ffcta live"><b>\u2694 In a firefight with the enemy ' + f[o].label + '</b><span>' +
+  return '<div class="ffcta live"><b>\u2694 ' + (f.eng ? 'In a ' + f.eng.aList.length + ' vs ' + f.eng.bList.length + ' engagement' + (f.eng.obj ? ' for \u{1F6A9} ' + f.eng.obj : '') + ' \u2014 ' : 'In a firefight with the enemy ') + (f.eng ? 'now: your ' + f[s].label + ' vs their ' + f[o].label : f[o].label) + '</b><span>' +
     (f.state === "invite" ? (s === "a" ? "Waiting for them to accept." : "Accept it from the banner at the top.") : f.state === "end" ? "Segment " + f.seg + " complete" : f.state === "mode" ? "Choosing dice" : "Round " + Math.min(4, f.round) + " of 4 \u00b7 segment " + f.seg) +
     (someone && !mineNow ? " \u00b7 " + mpNameOf(f[s].pid) + " is running it" : "") + '</span>' +
     (f.state !== "invite" || s === "a" ? '<button class="btn big pri" onclick="ffResume(\'' + f.id + '\')">' + (mineNow ? "Open the firefight" : someone ? "Take over" : "Resume") + '</button>' : '') + '</div>';
@@ -4957,7 +5033,7 @@ function renderOpp() {
       portraitHTML(u).replace('</span>', markPipHTML(x) + '</span>') +
       '<span style="min-width:0"><div class="nm">' +
         (ud && ud.st && ud.st.sq && ud.st.sq.holdsObj && pct > 0 ? OBJ_TAG : '') +
-        (ffForUid(x.uid, t) ? ffTagHTML(ffForUid(x.uid, t)) : '') +
+        (ffForUid(x.uid, t) ? ffTagHTML(ffForUid(x.uid, t), x.uid, t) : '') +
         label + (oppAboard.has(x.uid) ? ' <span class="cartag aboard">\u2693 ABOARD</span>' : '') +
         (ud && ud.st ? ' ' + stanceTagHTML(stanceNow({ id: x.id, st: ud.st })) : '') + '</div><div class="tr"><b style="color:' + HEALTH_COL(pct) + '">' + HEALTH_WORD(pct) + '</b> \u00b7 ' + u.tier + '</div></span>' +
       '<span class="dp">' + u.dp.toLocaleString() + '</span></div>';
@@ -5116,7 +5192,7 @@ function renderRosterCore() {
         portraitHTML(u, r) +
         '<span style="min-width:0"><div class="nm">' +
           (locked && r.st && r.st.sq && r.st.sq.holdsObj && !dead ? OBJ_TAG : '') +
-          (locked && mpTeamMode() && ffForUid(r.uid, mpMyTeam()) ? ffTagHTML(ffForUid(r.uid, mpMyTeam())) : '') +
+          (locked && mpTeamMode() && ffForUid(r.uid, mpMyTeam()) ? ffTagHTML(ffForUid(r.uid, mpMyTeam()), r.uid, mpMyTeam()) : '') +
           (u.short || u.name) + (n > 1 ? ' <span style="color:var(--muted)">#' + idx + '</span>' : '') +
           (ctl ? ' <span class="ctltag" title="' + (ctl.me ? 'You have this sheet open' : ctl.name + ' has this sheet open') + '">' + (ctl.me ? '\u270E You' : '\u{1F512} ' + ctl.name) + '</span>' : '') +
           (cst ? ' ' + carrierTag(r.uid) : '') + (locked ? ' ' + stanceTagHTML(stanceNow(r)) : '') +
@@ -7283,7 +7359,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf95";
+const APP_BUILD = "cf96";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

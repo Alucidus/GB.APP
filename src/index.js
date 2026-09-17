@@ -462,13 +462,30 @@ export class BattleRoom {
     const ACTIVE = s => s && s.state !== "closed" && s.state !== "declined";
     const roll = n => [...crypto.getRandomValues(new Uint8Array(Math.max(0, Math.min(8, n | 0))))].map(x => 1 + (x % 6));
     const d6 = () => 1 + (crypto.getRandomValues(new Uint8Array(1))[0] % 6);
-    const busy = uid => M.keys("ff/").some(k => { const f = M.get(k); return ACTIVE(f) && (f.a.uid === uid || f.b.uid === uid); });
+    const inEng = (f, uid) => (f.eng ? (f.eng.aList || []).concat(f.eng.bList || []).some(x => x.uid === uid) : false);
+    const busy = uid => M.keys("ff/").some(k => { const f = M.get(k); return ACTIVE(f) && (f.a.uid === uid || f.b.uid === uid || inEng(f, uid)); });
+    const cleanList = (uids, labels) => (Array.isArray(uids) ? uids : []).slice(0, 6)
+      .filter((u, i, all) => validUid(u) && all.indexOf(u) === i)
+      .map((u, i) => ({ uid: u, label: String((Array.isArray(labels) ? labels[i] : "") || "Squad").slice(0, 30) }));
     for (const k of M.keys("ff/")) { const o = M.get(k); if (o && !ACTIVE(o) && now - (o.at || 0) > 60000) await M.del(k); }   // tidy finished clashes
     const id = typeof op.id === "string" && /^[a-z0-9]{6,16}$/.test(op.id) ? op.id : null;
     if (!id) { denied.push("ff:id"); return false; }
     const key = "ff/" + id;
     if (op.op === "invite") {
       const other = myTeam === "federation" ? "spacenoid" : "federation";
+      // an engagement: several squads a side, fought one pair at a time
+      const aList = cleanList(op.aUids, op.aLabels), bList = cleanList(op.bUids, op.bLabels);
+      if (aList.length && bList.length) {
+        const tk0 = M.get("turn");
+        if (tk0 && tk0.active !== myTeam) { denied.push("ff:not-your-turn"); return false; }   // challenges only on your own turn
+        if (aList.some(x => busy(x.uid)) || bList.some(x => busy(x.uid)) || M.has(key)) { denied.push("ff:invite"); return false; }
+        await M.set(key, { id, state: "invite", at: now, mode: null, rollAsk: null, round: 1, seg: 1, forced: null, startSeq: null,
+          eng: { aList, bList, obj: String(op.obj || "").slice(0, 24), pairs: null, bout: 1, log: [] },
+          a: { team: myTeam, uid: aList[0].uid, pid, label: aList[0].label },
+          b: { team: other, uid: bList[0].uid, pid: null, label: bList[0].label },
+          lock: { a: false, b: false }, ready: { a: null, b: null }, hp: { a: null, b: null }, reveal: null, roll: null, obj: null });
+        return true;
+      }
       if (M.has(key) || !validUid(op.aUid) || !validUid(op.bUid) || busy(op.aUid) || busy(op.bUid)) { denied.push("ff:invite"); return false; }
       const tk = M.get("turn");
       const queued = op.forced === true && !!tk;          // Forced Re-Engagement: starts on its own when the next turn begins
@@ -490,9 +507,20 @@ export class BattleRoom {
     const mine = g[side].pid === pid;
     const save = async () => { g.at = now; await M.set(key, g); return true; };
     switch (op.op) {
-      case "accept":
+      case "accept": {
         if (g.state !== "invite" || side !== "b") break;
+        if (g.eng) {                                   // the defender chooses which of their squads meets each attacker
+          const aOk = g.eng.aList.map(x => x.uid), bOk = g.eng.bList.map(x => x.uid);
+          const pairs = (Array.isArray(op.pairs) ? op.pairs : []).slice(0, 6)
+            .filter(pr => Array.isArray(pr) && aOk.includes(pr[0]) && bOk.includes(pr[1]));
+          if (pairs.length !== g.eng.aList.length) { denied.push("ff:pairs"); return false; }
+          g.eng.pairs = pairs; g.eng.bout = 1;
+          const lab = (list, uid) => (list.find(x => x.uid === uid) || {}).label || "Squad";
+          g.a = { ...g.a, uid: pairs[0][0], label: lab(g.eng.aList, pairs[0][0]) };
+          g.b = { ...g.b, uid: pairs[0][1], label: lab(g.eng.bList, pairs[0][1]) };
+        }
         g.b.pid = pid; g.state = "mode"; return save();
+      }
       case "decline":
         if (g.state !== "invite" || side !== "b") break;
         g.state = "declined"; return save();
