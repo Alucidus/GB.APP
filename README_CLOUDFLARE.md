@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf31)
+# Gunpla Battle — Cloudflare version (build cf32)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -99,3 +99,4 @@ public/            the app (index.html, images, service worker)
 | cf29 | `public/index.html`, `public/sw.js` | **STANCE button** on every sheet (beside TABLES): suits Defense / Overwatch / Focus / Boost / Peek & Shoot (+ Stealth for stealth units); warships and all vehicles Boost; one stance at a time, Stealth never combines; effects applied (Boost +10cm & attack lock, Focus no Dodge, durations), stance tags on roster + enemy panel. Tank Fire Support has no cooldown; Tank/Car lose Hide; colour wheel for duplicate ground units |
 | cf30 | `public/index.html`, `public/sw.js` | STANCE button restyled to match TABLES exactly (same outline/fill layers, size, row); TABLES + STANCE now share one dock plate mirroring DONE + ROSTER (equal gap and margins); active stance keeps the same shape in purple; decorative stripes moved clear |
 | cf31 | `public/index.html`, `public/sw.js` | **DONE in the enemy turn = yellow tally** ("damage counted so far"): roster marks, sheet DONE button, turn-box counter and hint; a counted unit that loses health again clears its mark and shows ↻ RE-CHECK until DONE is tapped again; repairs don't clear it; marks reset every turn and sync live |
+| cf32 | `public/index.html`, `public/sw.js` | Enemy-turn sheet button now reads **DAMAGE COUNTED** (two lines, with the tally); hint and messages use the same wording |
