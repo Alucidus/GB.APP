@@ -3319,3 +3319,4 @@ button.mb-item.fxtog{font:inherit;color:#dfe9f4;background:none;border-top:0;bor
 /* cf113: the swap warning uses the shared faction-themed in-game picker. */
 .eq-swap-card{border-left-color:#ffc857}
 .eq-swap-card .eq-swap-cost{font-size:20px;font-weight:900;color:#ffc857}
+.m-disclaimer{margin:0;padding:10px max(16px,3vw) max(12px,env(safe-area-inset-bottom));background:rgba(4,6,10,.85);border-top:1px solid #334155;color:#b8c5d6;font:12px/1.5 Inter,"Segoe UI",sans-serif;text-align:center;flex-shrink:0}
