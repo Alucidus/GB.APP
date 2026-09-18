@@ -10,10 +10,12 @@ const MSE = (() => {
     const items = [], byKey = {};
     u.weapons.forEach((w, i) => {
       if (w.name === '—') return;
-      let key = slug(w.name), kind = /Melee/i.test(w.range) ? 'melee' : 'ranged', mount = 'hand', parent = null;
+      let key = w.equipmentId || slug(w.name), kind = /Melee/i.test(w.range) ? 'melee' : 'ranged', mount = 'hand', parent = null;
       let count = /(?:x|×)\s*2|2\s*(?:x|×)|Dual Beam Sabers|or 2 for Advantage/i.test(w.name+' '+w.text) ? 2 : 1;
       if (/phenex/.test(u.id) && /Beam Saber/.test(w.name)) count=2;
       if (w.name==='Beam Tomahawks') count=2;
+      // Explicit physical quantities take precedence over legacy name/text inference.
+      if(Number.isInteger(w.copies)&&w.copies>0)count=w.copies;
       let cost = kind === 'melee' && /^2$/.test(w.ap) ? 2 : 1;
       if (/dagger|schneider/i.test(w.name)) cost = 0;
       if (/Vulcan|CIWS|Funnels|^GDU-|Multi-Phase Cannon|Railguns|^Mega Particle Cannon|^MPC Scatter|RAPTOR/.test(w.name)) mount = 'body';
@@ -31,6 +33,7 @@ const MSE = (() => {
       if (/Songbird/.test(w.name)) mount = 'body';
       if (/Hunter Edges/.test(w.name)) mount = 'legs';
       if (/Palma/.test(w.name)) mount = 'arms';
+      if (w.integratedTonfa || w.integratedClaw) mount = 'arms';
       if (/nightingale/.test(u.id) && w.name === 'Beam Saber') mount = 'body';
       if (/BuCUE/.test(w.name)) { kind = 'melee'; w.range = 'Melee 20cm'; }
       if (/Flash-Edge|Throwable Beam Dagger/.test(w.name)) mount = 'throw';
@@ -50,7 +53,12 @@ const MSE = (() => {
       if (/GN Beam Dagger/.test(w.name)) w.text = w.text.replace('1 AP for one, 2 AP for the pair', '0 AP to equip an individual dagger; the special Dagger Guard combination still costs 2 AP');
       w.equipKey = key;
       if (byKey[key]) { byKey[key].rows.push(i); return; }
-      const item = {key, name:w.name.replace(/ \((Low-Speed|std)\)/,''), kind, mount, parent, count, cost, twoHands, exclusive, bonus, rows:[i]};
+      // Display inventory quantities consistently without changing save keys or profile names.
+      const saber = /^(?:Dual )?(GN )?Beam Sabers?(?:\s*(?:x|×)\s*2)?$/.exec(w.name);
+      const name = saber ? (saber[1] || '')+'Beam Saber' : w.name==='Cold Fusion Saber x2'?'Cold Fusion Saber':w.name.replace(/ \((Low-Speed|std)\)/,'');
+      if (saber) w.label = name + (count > 1 ? ' ×'+count : '');
+      if(w.name==='Cold Fusion Saber x2')w.label=name+' ×'+count;
+      const item = {key, name, label:w.label || name, kind, mount, parent, count, cost, twoHands, exclusive, bonus, rows:[i]};
       items.push(item); byKey[key] = item;
     });
     if (/gundam-pixy/.test(u.id)) items.push({key:'beam-dagger-melee',name:'Beam Dagger (melee)',kind:'melee',mount:'hand',count:1,cost:0,bonus:1,rows:[],damage:'2/4',range:'Melee 10cm'});
@@ -74,6 +82,11 @@ const MSE = (() => {
       if (main) { s.eq.hands[0]=ref(main); if(main.twoHands) s.eq.hands[1]=ref(main); }
     }
     const e=s.eq;
+    // Rozen's former handheld saber was replaced by its integrated claw.
+    if(u.id==='rozen-zulu-yams-132') {
+      e.hands=e.hands.map(r=>r?.startsWith('beam-saber#')?null:r);
+      e.dropped=e.dropped.filter(r=>!r.startsWith('beam-saber#'));
+    }
     // Generated force fields are not physical equipment that can fall off an arm.
     e.shields=e.shields.map((mount,i)=>fieldAbility(u,i)>=0?'body':mount);
     e.shieldDropped=e.shieldDropped.filter(i=>fieldAbility(u,i)<0);
@@ -169,7 +182,7 @@ const MSE = (() => {
     if(id!==null&&!o)return 'Unknown combination';
     if(o){
       if(arms.some(k=>s.hp[k]<=0))return 'Requires both arms';
-      const xs=o.weapons.map(n=>catalog(u).find(x=>x.name===n));
+      const xs=o.weapons.map(n=>catalog(u).find(x=>x.name===n||x.rows.some(i=>u.weapons[i].name===n)));
       const refs=xs.length===1?[ref(xs[0],0),ref(xs[0],1)]:xs.map(x=>ref(x));
       if(refs.some(r=>e.dropped.includes(r)))return 'Recover the missing blade first';
       const cost=free?0:2;if(s.ap<cost)return 'Not enough AP';

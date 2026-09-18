@@ -6484,7 +6484,7 @@ function draw() {
   });
 
   U.weapons.forEach((w, wi) => {
-    const wn = T(COL.wName, w.y, w.name, [5, 2.0, 28], "txtL", 15.2);
+    const wn = T(COL.wName, w.y, w.label || w.name, [5, 2.0, 28], "txtL", 15.2);
     const paired = U.abilities.some((a, i) => a.kind === "matrix" && (mxOpt(a, track[i] && track[i].sel) || { weapons: [] }).weapons.indexOf(w.name) >= 0);
     if (paired) { wn.style.color = "#6d28d9"; wn.style.fontWeight = "900"; }
     shrinkToFit(wn, 0.7);
@@ -6503,7 +6503,7 @@ function draw() {
         wn.textContent='['+tag+'] '+wn.textContent;shrinkToFit(wn,0.7);
       }
     }
-    wn.onclick = () => openPop(w.name, "Weapon",
+    wn.onclick = () => openPop(w.label || w.name, "Weapon",
       (equipInfo ? "<span>Equipment <b>" + ffText(eqStatus(equipInfo,eqLive())) + "</b></span>" : "")
       + (meleeInfo ? "<span>Melee roll <b>" + (meleeInfo.bonus === null ? "Not specified" : "+"+meleeInfo.bonus) + "</b></span>" : "")
       + (MSE.penalty(U,eqLive(),w) ? "<span>Dual wield <b>−3 roll / +3 target</b></span>" : "") +
@@ -6936,6 +6936,7 @@ function draw() {
     const w=U.weapons[i], x=MSE.item(U,w.equipKey), st=eqLive();
     if(eqPending){if(eqPending.key!=='stow'&&x?.mount==='hand')eqChoose(x.key);return;}
     if(x?.mount==='hand' && !MSE.held(U,st,x)){mpToast('Equip this weapon first: tap EQUIP, choose the weapon, then an arm.');return;}
+    if(x?.kind==='melee'&&x.mount!=='hand'){mpToast(MSE.reason(U,st,w)||'Integrated melee: '+w.dmg+' damage · no equip needed');return;}
     if(x?.kind==='melee'||(x?.kind==='hybrid'&&st.eq.mode==='sword')){mpToast('Melee equip cost: '+x.cost+' AP. Use EQUIP to change hands.');return;}
     const why=MSE.reason(U,st,w);
     if(why){mpToast(why);return;}
@@ -7701,7 +7702,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf116";
+const APP_BUILD = "cf119";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

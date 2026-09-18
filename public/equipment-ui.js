@@ -96,7 +96,7 @@ function eqDecorate(sheet) {
       const row=el('button','eq-weapon'+(available?'':' unavailable')+(eqPending.key===item.key?' selected':''),{left:WROW_X+'%',top:(w.y-WROW_H/2)+'%',width:WROW_W+'%',height:WROW_H+'%'});
       const held=eqRowTag(item,eqLive());
       if(held)row.classList.add(held==='R+L'?'eq-both':held==='R'?'eq-right':'eq-left');
-      row.type='button';row.title='Select '+w.name+' · '+item.cost+' AP equip';row.setAttribute('aria-label',row.title);row.setAttribute('aria-pressed',String(eqPending.key===item.key));
+      row.type='button';row.title='Select '+(w.label||w.name)+' · '+item.cost+' AP equip';row.setAttribute('aria-label',row.title);row.setAttribute('aria-pressed',String(eqPending.key===item.key));
       row.onclick=()=>eqChoose(item.key);sheet.appendChild(row);
     });
   }
@@ -111,6 +111,8 @@ function eqDecorate(sheet) {
 }
 function eqStatus(x,s) {
   const w=U.weapons[x.rows[0]],why=w?MSE.reason(U,s,w):'';
+  if(w?.integratedTonfa)return why || 'Forearm melee · no equip needed';
+  if(w?.integratedClaw)return why || 'Integrated claw · no equip needed';
   if(x.mount==='hand') {
     const slots=s.eq.hands.map((r,i)=>MSE.item(U,r)?.key===x.key&&!s.eq.dropped.includes(r)&&s.hp[MSE.arms[i]]>0?['Right','Left'][i]:null).filter(Boolean);
     return slots.length?'Equipped · '+slots.join(' + '):'Stored';
@@ -144,7 +146,7 @@ function openEquipment() {
     if(melee)desc+='<br>Melee roll: <b>'+(x.bonus===null?'not specified in unit rules':'+'+x.bonus)+'</b>';
     if(w&&MSE.penalty(U,s,w))desc+='<br><b>−3 ranged roll (+3 target number)</b>';
     if(x.mount==='hand')desc+='<br>Equip: '+x.cost+' AP per weapon'+(x.count>1?' · '+x.count+' copies':'');
-    const d=section(x.name,desc);
+    const d=section(x.label||x.name,desc);
     if(x.mount==='hand')button(d,'Equip weapon',()=>eqChoose(x.key),e.segment);
     if(x.exclusive&&MSE.held(U,s,x))button(d,'Mode: '+e.mode+' · switch 1 AP',()=>eqAction(st=>{if(st.eq.segment)return 'Finish the melee segment first';if(locked&&st.ap<1)return 'Not enough AP';if(locked)st.ap--;st.eq.mode=st.eq.mode==='rifle'?'sword':'rifle';return '';},'GN Sword mode switched'));
     if(w?.limit){const n=wpn[x.rows[0]]||0;const p=el('p');p.textContent=w.limit.kind==='cooldown'?(n>0?'Cooling down · '+n+' turn steps remaining':'Ready to fire'):n+' charges remaining';d.appendChild(p);}

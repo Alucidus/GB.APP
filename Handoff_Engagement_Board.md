@@ -1,3 +1,68 @@
+# Gunpla Battles — cf119
+
+- Strike Rouge: confirmed Beam Saber ×2, with quantity explicit in the data.
+- Gundam Mk-II: corrected Heat Saber to Beam Saber ×2, using normal 2/4 damage, +3 weapon melee bonus and 1 AP per equip. Internal equipment identity is preserved so older equipped/dropped copies remain tracked.
+- Night Hawk: confirmed two Cold Fusion Sabers with normal Beam Saber behaviour (2/4, +3, 1 AP each, Advantage with both held). The Cold Fusion name and chassis abilities remain. Label uses the consistent ×2 format.
+- Read Nightingale's Hidden Arms: Dual Strike and the rulebook's multi-attack rules. No Nightingale data or special-melee changes, as instructed; auxiliary attacks remain represented by that ability.
+- Kshatriya: extra-arm mechanics explicitly declined. Infinite Justice, Rising Freedom and Turn A remain deferred for rework.
+
+## Resolved: Vidar and Delta Zayin
+
+Vidar currently has one Burst Saber (3/6 damage, +4 weapon melee roll bonus, 2 AP equip) and integrated Hunter Edges. [MAHQ](https://www.mahq.net/asw-g-xx/) describes the saber's detachable explosive blade and stored replacement blades. These are not additional complete swords. User confirmed: keep the current profile, with no blade tracking or explosive-blade ability. No Vidar change made.
+
+Delta Zayin currently has two ordinary sabers plus the custom Adaptive Shield and Wave Rider abilities. [MAHQ](https://www.mahq.net/dz-001/) describes its shield-stored sabers functioning as beam guns in Waverider mode. User confirmed: keep the current rules, with no additional gun mode or shield-loss dependency. No Zayin change made.
+
+The quantity audit is complete. Infinite Justice, Rising Freedom and Turn A remain deferred for their separate reworks. The user's gameplay decisions supersede older outstanding lists.
+
+Validation: 675 automated checks passed (300 equipment, 71 UI smoke, 272 previous quantity checks, 32 new decision checks). The new checks cover both copies, AP, bonuses, damage, Advantage, consistent labels and Mk-II saved identity. No new browser run or deployment in cf119; cf118 browser results remain historical. Build, asset URLs and service-worker cache are cf119.
+
+
+Older entries below are historical.
+
+# Gunpla Battles — cf118
+
+Implements the user's special-equipment decisions following the cf117 quantity pass:
+
+- Banshee Norn, Phenex and Luminous gain integrated Beam Tonfa melee: 2 normal / 4 critical damage, +0 weapon roll bonus, no equip action or equip AP. Available with empty hands, including surprise melee, without activating a form. One intact arm is required. Existing unit/status modifiers remain; the tonfas do not grant dual-saber Advantage. Handheld sabers remain separate.
+- Gundam EX and Wing Zero EW each have Beam Saber ×2. These are approved gameplay quantities.
+- Nu retains its stronger Nu Beam Saber (3/6, +4) and gains a separate Beam Saber ×2 profile (2/4, +3). The two standard copies can be equipped for dual-saber Advantage, paying the normal 1 AP per equip.
+- Rozen Zulu's incorrect handheld saber is replaced by integrated Claw melee (2/4, +0 weapon bonus, no equip action). One intact arm is required. Saved references to the removed saber are cleared without refunding AP or restoring resources.
+- Inventory labels remain consistent, and special pair lookup continues to recognize original weapon profile names beneath the display labels.
+
+Validation: 643 automated equipment/UI/quantity checks and 43 targeted browser checks passed. Browser coverage includes empty-hand integrated melee, arm destruction, Nu's standard pair and retained stronger profile, EX's independent copies, EW's quantity, and Rozen's saved-saber migration. Desktop and phone-landscape sheets inspected. No deployment performed.
+
+## Decisions still open
+
+- Strike Rouge: intended pack and equipment variant.
+- Nightingale: integrated saber/sub-arm arrangement and quantity.
+- Gundam Mk-II: whether Heat Saber remains the intended custom profile.
+- Vidar: replacement Burst Saber blade tracking.
+- Night Hawk: custom Cold Fusion Saber/pair behaviour.
+- Kshatriya: additional sub-arm weapons or alternate gun modes beyond its two main sabers.
+- Delta Zayin: alternate saber gun mode and shield dependence.
+- Infinite Justice, Rising Freedom and Turn A: previously deferred equipment reworks.
+
+GM Sniper II, EX, Nu, Wing Zero EW, Banshee Norn, Phenex, Luminous and Rozen are resolved for this pass. The older cf117 audit remains historical research; the user's decisions here supersede its deferred entries.
+
+
+Older entries below are historical.
+
+# Gunpla Battles — cf117
+
+GM Sniper II follow-up resolved: the user's wiki excerpt confirms two rear-skirt beam sabers. Retain its existing pair and consistent Beam Saber ×2 display label. No further quantity decision is needed for this unit.
+
+Applied the authorized bulk MAHQ saber quantity pass: RX-78-2, Pale Rider, Narrative C, F91, Xi, Astray Red, Strike Freedom, Wing Zero TV, Sinanju, Kshatriya, Delta Zayin and Sazabi now have two physical copies of their existing saber profile. Nine already-correct one/two counts are explicit in the data. All cf116 equipment, colour, Epyon, Luminous and disclaimer fixes remain included.
+
+Physical quantities now take precedence over legacy name inference. Existing weapon keys and saved assignments remain stable. No damage, equip cost, starting loadout or resource refill changes. See [the sourced audit](Saber_Quantity_Audit_cf117.md) for the complete table, source distinctions and deferred exceptions.
+
+Validation: 859 automated assertions and 193 new real-browser quantity assertions passed. Desktop/phone screenshots inspected. Build, asset URLs and cache are cf117. No deployment performed.
+
+Up next: review this build and discuss quantities above two, different saber profiles, mode-dependent access and ambiguous variants from the audit. Then return to the handoff's major-feature roadmap, beginning with the resupply milestone; that feature is not implemented in this build.
+
+Latest package: gunpla-battle-cf-cf117.zip.
+
+Older entries below are historical.
+
 # Gunpla Battles — cf116
 
 - New Epyons start with the standard Beam Sword equipped in the right hand, with full starting AP. Full Output remains off until activated. Existing saved loadouts are preserved.

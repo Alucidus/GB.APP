@@ -38,6 +38,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber",
+    "copies": 1,
     "y": 73.7,
     "dmg": "2/4",
     "ap": "1",
@@ -107,6 +108,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber",
+    "copies": 1,
     "y": 73.7,
     "dmg": "2/4",
     "ap": "1",
@@ -204,6 +206,7 @@ const UNITS=[
    },
    {
     "name": "Dual Beam Sabers",
+    "copies": 2,
     "y": 78.7,
     "dmg": "2/4",
     "ap": "1",
@@ -280,6 +283,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber x2",
+    "copies": 2,
     "y": 78.7,
     "dmg": "2/4",
     "ap": "1",
@@ -421,6 +425,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber",
+    "copies": 2,
     "y": 73.7,
     "dmg": "2/4",
     "ap": "1",
@@ -496,6 +501,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber",
+    "copies": 2,
     "y": 73.7,
     "dmg": "2/4",
     "ap": "1",
@@ -577,14 +583,16 @@ const UNITS=[
     "text": ""
    },
    {
-    "name": "Heat Saber",
+    "name": "Beam Saber",
+    "equipmentId": "heat-saber",
+    "copies": 2,
     "y": 73.7,
     "dmg": "2/4",
     "ap": "1",
     "range": "Melee 15cm",
     "limit": null,
     "text": "",
-    "meleeBonus": 2
+    "meleeBonus": 3
    },
    {
     "name": "Vulcan Pod",
@@ -767,6 +775,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber",
+    "copies": 2,
     "y": 73.7,
     "dmg": "2/4",
     "ap": "1",
@@ -883,6 +892,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber",
+    "copies": 2,
     "y": 83.7,
     "dmg": "2/4",
     "ap": "1",
@@ -948,6 +958,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber x2",
+    "copies": 2,
     "y": 73.7,
     "dmg": "2/4",
     "ap": "1/2",
@@ -1038,6 +1049,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber",
+    "copies": 2,
     "y": 73.7,
     "dmg": "2/4",
     "ap": "1",
@@ -1158,6 +1170,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber",
+    "copies": 2,
     "y": 88,
     "dmg": "2/4",
     "ap": "1",
@@ -1249,6 +1262,16 @@ const UNITS=[
     "range": "90cm",
     "limit": null,
     "text": ""
+   },
+   {
+    "name": "Beam Saber",
+    "copies": 2,
+    "y": 83.5,
+    "dmg": "2/4",
+    "ap": "1",
+    "range": "Melee 15cm",
+    "limit": null,
+    "text": "Two standard sabers, separate from the stronger Nu Beam Saber. Equip one in each hand for dual-saber Advantage (2d20, keep higher), at 2 normal / 4 critical damage and +3 weapon melee roll bonus. Each costs 1 AP to equip. The stronger Nu Beam Saber retains its own profile."
    }
   ],
   "shields": [
@@ -1346,6 +1369,17 @@ const UNITS=[
     "range": "60/40cm",
     "limit": null,
     "text": "\n\nAlso on this row — Revolving Launcher — Micro Hide Bomb: 4 dmg, 2 AP, 40cm."
+   },
+   {
+    "name": "Beam Tonfa",
+    "y": 83.5,
+    "dmg": "2/4",
+    "ap": "0",
+    "range": "Melee 15cm",
+    "meleeBonus": 0,
+    "integratedTonfa": true,
+    "limit": null,
+    "text": "Integrated forearm melee: no equip action or equip AP required. Deals 2 normal / 4 critical damage with +0 weapon melee roll bonus, including when surprised with no melee weapon equipped. Available without activating NT-D or Luminous Crystal Form. Requires at least one intact arm; unavailable if both arms are destroyed. Does not grant dual-saber Advantage. Other existing unit and status modifiers still apply. Handheld Beam Sabers remain separate equipment."
    }
   ],
   "shields": [
@@ -1429,6 +1463,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber",
+    "copies": 2,
     "y": 73.7,
     "dmg": "2/4",
     "ap": "1",
@@ -1546,12 +1581,13 @@ const UNITS=[
    },
    {
     "name": "Cold Fusion Saber x2",
+    "copies": 2,
     "y": 78.7,
     "dmg": "2/4",
-    "ap": "1-2",
+    "ap": "1",
     "range": "Melee 15cm",
     "limit": null,
-    "text": "draw: 1 AP (one) / 2 AP (both)  "
+    "text": "Two copies using normal Beam Saber rules: 2/4 damage, +3 weapon melee roll bonus, 1 AP to equip each. With both equipped, gain Advantage (2d20, keep higher); normal damage. The Cold Fusion name is flavour only."
    },
    {
     "name": "RAPTOR Volley",
@@ -1652,6 +1688,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber",
+    "copies": 2,
     "y": 78.7,
     "dmg": "2/4",
     "ap": "1",
@@ -1721,6 +1758,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber x2",
+    "copies": 2,
     "y": 73.7,
     "dmg": "2/4",
     "ap": "1-2",
@@ -2256,6 +2294,7 @@ const UNITS=[
    },
    {
     "name": "GN Beam Saber x2",
+    "copies": 2,
     "y": 83.7,
     "dmg": "2/4",
     "ap": "1-2",
@@ -2459,6 +2498,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber",
+    "copies": 2,
     "y": 83.7,
     "dmg": "2/4",
     "ap": "1",
@@ -2559,6 +2599,17 @@ const UNITS=[
     "range": "Melee 15cm",
     "limit": null,
     "text": "damage: 2/4 (Normal/Critical)  "
+   },
+   {
+    "name": "Beam Tonfa",
+    "y": 73.65,
+    "dmg": "2/4",
+    "ap": "0",
+    "range": "Melee 15cm",
+    "meleeBonus": 0,
+    "integratedTonfa": true,
+    "limit": null,
+    "text": "Integrated forearm melee: no equip action or equip AP required. Deals 2 normal / 4 critical damage with +0 weapon melee roll bonus, including when surprised with no melee weapon equipped. Available without activating NT-D or Luminous Crystal Form. Requires at least one intact arm; unavailable if both arms are destroyed. Does not grant dual-saber Advantage. Other existing unit and status modifiers still apply. Handheld Beam Sabers remain separate equipment."
    }
   ],
   "shields": [
@@ -2630,6 +2681,17 @@ const UNITS=[
     "range": "Melee 15cm",
     "limit": null,
     "text": "damage: 2/4 (Normal/Critical)  "
+   },
+   {
+    "name": "Beam Tonfa",
+    "y": 78.7,
+    "dmg": "2/4",
+    "ap": "0",
+    "range": "Melee 15cm",
+    "meleeBonus": 0,
+    "integratedTonfa": true,
+    "limit": null,
+    "text": "Integrated forearm melee: no equip action or equip AP required. Deals 2 normal / 4 critical damage with +0 weapon melee roll bonus, including when surprised with no melee weapon equipped. Available without activating NT-D or Luminous Crystal Form. Requires at least one intact arm; unavailable if both arms are destroyed. Does not grant dual-saber Advantage. Other existing unit and status modifiers still apply. Handheld Beam Sabers remain separate equipment."
    }
   ],
   "shields": [
@@ -2855,6 +2917,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber",
+    "copies": 2,
     "y": 73.7,
     "dmg": "2/4",
     "ap": "1",
@@ -2965,6 +3028,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber",
+    "copies": 2,
     "y": 73.7,
     "dmg": "2/4",
     "ap": "1",
@@ -3682,6 +3746,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber x2",
+    "copies": 2,
     "y": 78.7,
     "dmg": "2/4",
     "ap": "1/2",
@@ -3785,13 +3850,15 @@ const UNITS=[
     "text": ""
    },
    {
-    "name": "Beam Saber",
-    "y": 83.7,
+    "name": "Claw",
+    "y": 83.5,
     "dmg": "2/4",
-    "ap": "1",
+    "ap": "0",
     "range": "Melee 15cm",
+    "meleeBonus": 0,
+    "integratedClaw": true,
     "limit": null,
-    "text": ""
+    "text": "Integrated claw melee: no equip action or equip AP required. Deals 2 normal / 4 critical damage with +0 weapon melee roll bonus, including surprise melee. Requires at least one intact arm; unavailable if both arms are destroyed. Does not grant dual-saber Advantage. Other existing unit and status modifiers still apply."
    }
   ],
   "shields": [
@@ -3882,6 +3949,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber x2",
+    "copies": 2,
     "y": 78.7,
     "dmg": "2/4",
     "ap": "1",
@@ -4005,6 +4073,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber",
+    "copies": 2,
     "y": 83.7,
     "dmg": "2/4",
     "ap": "1",
@@ -4087,6 +4156,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber",
+    "copies": 2,
     "y": 78.7,
     "dmg": "2/4",
     "ap": "1",
@@ -4212,6 +4282,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber",
+    "copies": 2,
     "y": 73.7,
     "dmg": "2/4",
     "ap": "1",
@@ -4304,6 +4375,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber",
+    "copies": 2,
     "y": 78.7,
     "dmg": "2/4",
     "ap": "1",

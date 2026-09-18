@@ -27,7 +27,7 @@ assert.ok(fire,'live Fire control exists');fire.click();assert.equal(vm.runInCon
 vm.runInContext('eqUndo()',ctx);assert.equal(vm.runInContext('ap',ctx),1,'cannot undo equipment across a later shot');checks++;
 vm.runInContext('ap=4;draw()',ctx);
 vm.runInContext('eqDockClick()',ctx);
-const melee=get('sheet').children.find(n=>n.classList.contains('eq-weapon')&&n.title?.startsWith('Select Beam Saber ·'));
+const melee=get('sheet').children.find(n=>n.classList.contains('eq-weapon')&&n.title?.startsWith('Select Beam Saber ×2 ·'));
 assert.ok(melee);melee.click();
 assert.equal(vm.runInContext('eqPending.key',ctx),'beam-saber');
 assert.equal(get('pick').classList.contains('on'),false,'direct equip does not open picker');
@@ -43,5 +43,5 @@ vm.runInContext('openEquipment()',ctx);assert.equal(get('pick').classList.contai
 vm.runInContext('closePicker()',ctx);checks+=11;
 vm.runInContext('mpSheetCanEdit=()=>false;eqChoose("beam-saber")',ctx);assert.equal(vm.runInContext('eqPending',ctx),null,'read-only blocks assigning');checks++;
 vm.runInContext(`mpSheetCanEdit=()=>true;U=UNITS.find(u=>u.id.includes('banshee-norn'));CUR={uid:1,id:U.id,st:freshState(U)};roster=[CUR];CUR.st.wsig='Beam Magnum:cooldown|Beam Saber|AA-DE Mega Cannon|AA-DE Melee Mode|Rev. Launcher (BOP/Bomb)';CUR.st.wpn=[2,0,0,0,0];openSheet(1);`,ctx);
-assert.equal(vm.runInContext('wpn[0]',ctx),2,'row removal preserves Magnum cooldown');assert.equal(vm.runInContext('wpn.length',ctx),4);checks+=2;
+assert.equal(vm.runInContext('wpn[0]',ctx),2,'row removal preserves Magnum cooldown');assert.equal(vm.runInContext('wpn.length',ctx),5);checks+=2;
 console.log('PASS '+checks+' UI smoke checks (stub DOM, no visual verification)');

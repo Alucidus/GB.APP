@@ -1,3 +1,9 @@
+# cf117 quantity verification
+
+`npm test` now includes `equipment-counts.mjs`: all 21 verified quantities, distinct copies, AP/resource preservation, saved dropped copies and unchanged special cases. Total: 859 assertions passed.
+
+Run `node tests/saber-counts-browser.mjs` with Playwright available and `CHROMIUM_EXECUTABLE_PATH` pointing to Chrome if needed. Passed 193 assertions across all 12 increased entries at desktop and phone-landscape sizes. This result is specific to the equipment quantity scenario; historical engagement-browser limitations below remain separate.
+
 # Engagement board verification (cf106)
 
 ## Automated checks completed

@@ -94,7 +94,7 @@ The Melee Roll Bonus is added directly to that fighter's d20 roll for every exch
 
 | Weapon | Roll bonus | Normal / critical | Equip AP | Charge |
 |---|---:|---|---|---|
-| Mk-II Heat Saber | +2 | 2/4 | 1 | 15cm |
+| Mk-II Beam Saber ×2 (cf119) | +3 | 2/4 | 1 each | 15cm |
 | Rick Dom Heat Saber | +2 | 2/4 | 1 | 20cm |
 | Gouf Heat Sword | +3 | 2/4 | 1 | 15cm |
 | Nu Beam Saber | +4 | 3/6 | 2 | 20cm |
@@ -168,6 +168,12 @@ Each unit has a set number of Action Points, typically ranging from **2-4** depe
 | Drawing / switching to a different weapon | 1 (or the weapon's own listed cost — see Section 1) |
 
 ### Equipped Weapons and Switching (cf107 designer decisions)
+
+**Quantity decisions (cf119):** Strike Rouge and Gundam Mk-II each carry two standard Beam Sabers. Night Hawk's two Cold Fusion Sabers use the normal Beam Saber rules: 2/4 damage, +3 weapon melee roll bonus, 1 AP per equip and Advantage with both held. Its weapon name and chassis abilities remain. Nightingale's auxiliary sabers are already represented by Hidden Arms: Dual Strike; that special system remains unchanged. Kshatriya gains no extra-arm rules. Infinite Justice, Rising Freedom and Turn A remain deferred for rework.
+
+**Special melee decisions (cf118):** Banshee Norn, Phenex and Luminous have integrated Beam Tonfas, and Rozen Zulu has integrated Claw melee. These deal **2 normal / 4 critical damage with +0 weapon melee roll bonus**, require no equip action or equip AP, and work during surprise melee with empty hands. They require at least one intact arm, do not require form activation, and do not grant dual-saber Advantage. Other unit/status modifiers still apply. Nu retains its stronger Nu Beam Saber and also carries two standard 2/4 sabers for the ordinary dual-saber Advantage option. EX and Wing Zero EW carry two standard sabers each.
+
+**Physical quantities (cf117):** verified saber entries now carry an explicit inventory count of one or two. Each copy is tracked independently; two sabers may occupy separate hands at the existing equip cost per copy. This does not change damage or starting loadouts. Existing saved equipment and dropped copies are preserved when an additional spare becomes available. See [Saber Quantity Audit cf117](Saber_Quantity_Audit_cf117.md) for sources and deferred special cases.
 
 Track weapons by left and right hand. Before play, choose starting equipment without spending AP: normally the main beam/ballistic weapon and an available shield. Equipment persists across turns. Each ordinary weapon equipped or switched costs **1 AP**. A weapon with a listed heavy draw cost retains **2 AP** (including GN Sword, Beam Axe/Tomahawk and Anti-Ship Sword). Each dagger-type weapon costs **0 AP** to equip. Equipping two ordinary sabers costs **2 AP total**, one per saber. Equipped melee weapons do not pay the draw cost again for every exchange. Weapons cannot be switched during an active four-exchange melee segment; switch on your own turn during its pause.
 
