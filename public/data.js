@@ -1968,7 +1968,8 @@ const UNITS=[
     "ap": "0",
     "range": "Melee 0cm",
     "limit": null,
-    "text": "draw: 0 AP — always equipped  "
+    "text": "draw: 0 AP — always equipped  ",
+    "meleeBonus": 0
    }
   ],
   "shields": [],
@@ -2036,7 +2037,8 @@ const UNITS=[
     "ap": "1",
     "range": "Melee 15cm",
     "limit": null,
-    "text": ""
+    "text": "",
+    "meleeBonus": 0
    }
   ],
   "shields": [
@@ -2737,7 +2739,8 @@ const UNITS=[
     "ap": "2",
     "range": "Melee 20cm",
     "limit": null,
-    "text": ""
+    "text": "",
+    "meleeBonus": 4
    },
    {
     "name": "Beam Sword (FULL)",
@@ -2746,7 +2749,8 @@ const UNITS=[
     "ap": "—",
     "range": "Melee 30cm",
     "limit": null,
-    "text": ""
+    "text": "",
+    "meleeBonus": 4
    },
    {
     "name": "Heat Rod (pull)",
@@ -3084,7 +3088,8 @@ const UNITS=[
     "ap": "0",
     "range": "Melee 0cm",
     "limit": null,
-    "text": "draw: 0 AP — always equipped · charge: **0cm**  \n\nAlso on this row — Flash-Edge 2 (blade mode): 2 / 4 dmg, +1 melee roll, 0 AP equip, 10cm charge."
+    "text": "draw: 0 AP — always equipped · charge: **0cm**  \n\nAlso on this row — Flash-Edge 2 (blade mode): 2 / 4 dmg, +1 melee roll, 0 AP equip, 10cm charge.",
+    "meleeBonus": 0
    }
   ],
   "regen": 3,

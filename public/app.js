@@ -6952,8 +6952,8 @@ function draw() {
     const x=MSE.item(U,w.equipKey),held=x&&MSE.held(U,eqLive(),x);
     const needEquip=x?.mount==='hand'&&!held;
     const meleeEquip = MSE.melee(U, w) && (x.kind !== "hybrid" || CUR.st.eq.mode === "sword");
-    if(needEquip){at.classList.remove('cant');at.classList.add('eq-equip-ctl');at.textContent='EQUIP '+x.cost;at.title='Equip '+w.name+' — '+x.cost+' AP; then choose an arm';}
-    else if(meleeEquip){at.classList.remove('cant');at.classList.add('eq-equip-ctl');at.textContent=MSE.reason(U,eqLive(),w)?'OFFLINE':'READY';at.title=x.mount==='hand'?'Equipped melee — tap to assign another arm':'Integrated melee — no switch needed';}
+    if(needEquip){at.classList.remove('cant');at.classList.add('eq-equip-ctl');at.textContent='EQUIP';at.title='Equip '+w.name+' — '+x.cost+' AP; then choose an arm';}
+    else if(meleeEquip){at.classList.remove('cant');at.classList.add('eq-equip-ctl');at.textContent=x.mount==='hand'?'EQUIP':MSE.reason(U,eqLive(),w)?'OFFLINE':'READY';at.title=x.mount==='hand'?'Equipped melee — tap to assign another arm':'Integrated melee — no switch needed';}
     at.onclick = e => { e.stopPropagation(); fireTap(i); };
     if (opts.length > 1 && active === "wap" + i) {
       const ch = el("div", "grp apchoice", { left: COL.wAP + "%", top: w.y + "%" });
@@ -7120,7 +7120,7 @@ function draw() {
       color: v === 0 ? "#fff" : "#0f172a",
       boxShadow: (sh ? "0 0 0 3px " + ring + "77, " : "") + "0 0 10px " + ring + "88" });
     b.textContent = v; b.title = LIMB_LABEL[k];
-    if(eqPending && eqValidArm(k)) { b.classList.add("eq-arm");b.setAttribute("role","button");b.tabIndex=0;b.title="Equip in "+LIMB_LABEL[k];b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();eqPickArm(k);}}; }
+    if(eqPending && eqValidArm(k)) { b.classList.add("eq-arm");b.setAttribute("role","button");b.tabIndex=0;b.title=(eqPending.key==='stow'?"Stow from ":"Equip in ")+LIMB_LABEL[k];b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();eqPickArm(k);}}; }
     b.onclick = () => { if(eqPending){eqPickArm(k);return;} hp[k] = mode === "damage" ? Math.max(0, v - amount) : Math.min(mx, v + amount); wake(id); };
     sheet.appendChild(b);
     if (hudMode) {
@@ -7698,7 +7698,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf108";
+const APP_BUILD = "cf109";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

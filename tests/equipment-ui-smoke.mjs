@@ -27,7 +27,7 @@ assert.ok(fire,'live Fire control exists');fire.click();assert.equal(vm.runInCon
 vm.runInContext('eqUndo()',ctx);assert.equal(vm.runInContext('ap',ctx),1,'cannot undo equipment across a later shot');checks++;
 vm.runInContext('ap=4;draw()',ctx);
 const melee=get('sheet').children.find(n=>n.title?.startsWith('Equip Beam Saber —'));
-assert.equal(melee.textContent,'EQUIP 1');melee.click();
+assert.equal(melee.textContent,'EQUIP');melee.click();
 assert.equal(vm.runInContext('eqPending.key',ctx),'beam-saber');
 assert.equal(get('pick').classList.contains('on'),false,'direct equip does not open picker');
 assert.equal(get('equipBtn').textContent,'CANCEL');
@@ -35,7 +35,7 @@ vm.runInContext("eqPickArm('rightArm')",ctx);
 assert.equal(get('pick').classList.contains('on'),false,'assignment does not reopen picker');
 assert.equal(vm.runInContext('ap',ctx),3);assert.equal(get('equipBtn').textContent,'EQUIP');
 assert.ok(get('sheet').children.some(n=>String(n.textContent).startsWith('[R] Beam Saber')),'right badge rendered');
-assert.ok(get('sheet').children.some(n=>n.className==='eq-limb-label'&&n.textContent.includes('Beam Saber')),'bubble label rendered');
+assert.ok(!get('sheet').children.some(n=>n.className==='eq-limb-label'),'no labels over HP');
 vm.runInContext("eqChoose('beam-rifle');eqDockClick()",ctx);assert.equal(vm.runInContext('eqPending',ctx),null,'cancel exits assignment');
 vm.runInContext('openEquipment()',ctx);assert.equal(get('pick').classList.contains('on'),true,'dock opens full manager');
 vm.runInContext('closePicker()',ctx);checks+=11;

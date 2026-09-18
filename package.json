@@ -6,7 +6,8 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "test": "node tests/engagement-server.mjs && node tests/equipment.mjs && node tests/equipment-ui-smoke.mjs",
-    "test:browser": "node tests/engagement-board.mjs"
+    "test:browser": "node tests/engagement-board.mjs",
+    "test:equipment:browser": "node tests/equipment-browser.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.132.0"

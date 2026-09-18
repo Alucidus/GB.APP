@@ -22,11 +22,17 @@ function eqSummary() {
   const button=$('equipBtn');if(!button)return;
   const enabled=MSE.supported(U);
   button.style.display=enabled?'flex':'none';
+  $('stowBtn').style.display=enabled?'flex':'none';
+  $('stowBtn').textContent=eqPending?.key==='stow'?'CANCEL':'STOW';
   $('sheet').classList.toggle('ms-equipment',enabled);
   if(!enabled||eqPending?.uid!==CUR?.uid)eqPending=null;
   $('sheet').classList.toggle('eq-assign',!!eqPending);
   button.textContent=eqPending?'CANCEL':'EQUIP';
   button.title=eqPending?'Cancel arm assignment':'Weapons, shield mounts, recovery and special combinations';
+}
+function eqStowClick() {
+  if(eqPending){eqPending=null;draw();return;}
+  eqChoose('stow');
 }
 function eqDockClick() { if(eqPending){eqPending=null;draw();}else openEquipment(); }
 function eqRowTag(x,s) {
@@ -37,6 +43,7 @@ function eqRowTag(x,s) {
 function eqValidArm(arm) {
   if(!eqPending||!MSE.arms.includes(arm)||hp[arm]<=0)return false;
   const copy=JSON.parse(JSON.stringify(eqLive()));
+  if(eqPending.key==='stow')return !!copy.eq.hands[MSE.arms.indexOf(arm)] && !copy.eq.segment;
   if(eqPending.key.startsWith('shield:')) {
     const i=Number(eqPending.key.slice(7));
     return !copy.eq.segment&&!copy.eq.shieldDropped.includes(i)&&copy.sh[i]>0&&!copy.eq.shields.includes(arm)&&(!locked||copy.ap>=1);
@@ -45,17 +52,11 @@ function eqValidArm(arm) {
 }
 function eqDecorate(sheet) {
   if(!MSE.supported(U))return;
-  const s=eqLive(),e=MSE.init(U,s);
-  if(eqPending){const prompt=el('div','eq-prompt');prompt.textContent='Choose an arm · '+(MSE.item(U,eqPending.key)?.name||'Shield');prompt.setAttribute('role','status');sheet.appendChild(prompt);}
-  MSE.arms.forEach((arm,i)=>{
-    const pos=LIMB_POS_DEFAULT[arm],r=e.hands[i],x=MSE.item(U,r);
-    const label=el('div','eq-limb-label',{left:pos.x+'%',top:(pos.y+5.4)+'%'});
-    const usable=r&&hp[arm]>0&&!e.dropped.includes(r);
-    const shield=e.shields.findIndex(m=>m===arm);
-    label.textContent=(i===0?'R · ':'L · ')+(x?x.name:'Empty')+(r&&!usable?' · LOST':'');
-    if(shield>=0)label.textContent+=' · SH '+(MSE.shieldReady(U,s,shield)?'✓':'×');
-    label.title=label.textContent;sheet.appendChild(label);
-    if(eqPending&&eqValidArm(arm)){const tag=el('div','eq-arm-prompt',{left:pos.x+'%',top:(pos.y-5.0)+'%'});tag.textContent='EQUIP HERE';sheet.appendChild(tag);}
+  const stow=eqPending?.key==='stow';
+  if(eqPending){const prompt=el('div','eq-prompt');prompt.textContent=stow?'Choose an arm to stow its weapon':'Choose an arm · '+(MSE.item(U,eqPending.key)?.name||'Shield');prompt.setAttribute('role','status');sheet.appendChild(prompt);}
+  MSE.arms.forEach(arm=>{
+    const pos=LIMB_POS_DEFAULT[arm];
+    if(eqPending&&eqValidArm(arm)){const tag=el('div','eq-arm-prompt',{left:pos.x+'%',top:(pos.y-5.0)+'%'});tag.textContent=stow?'STOW HERE':'EQUIP HERE';sheet.appendChild(tag);}
   });
 }
 function eqStatus(x,s) {
@@ -76,10 +77,7 @@ function openEquipment() {
   const section=(title,body)=>{const d=el('div','eq-card');d.innerHTML='<b>'+ffText(title)+'</b><p>'+body+'</p>';list.appendChild(d);return d;};
   const button=(d,label,fn,disabled=false)=>{const b=el('button','btn sm');b.textContent=label;b.disabled=disabled||!eqAllowed();b.onclick=fn;d.appendChild(b);return b;};
   const h=section('Currently equipped',MSE.arms.map((a,i)=>'<span>'+['Right','Left'][i]+': '+ffText(e.hands[i]?MSE.item(U,e.hands[i])?.name||'—':'Empty')+(hp[a]<=0?' · ARM LOST':'')+'</span>').join('<br>'));
-  MSE.arms.forEach((a,i)=>button(h,'Stow '+['right','left'][i],()=>eqAction(st=>{
-    if(st.eq.segment)return 'Finish the melee segment first';
-    const r=st.eq.hands[i];st.eq.hands=st.eq.hands.map((v,j)=>j===i||v===r?null:v);MSE.clearMatrix(U,st);return '';
-  },'Weapon stowed'),!e.hands[i]));
+  MSE.arms.forEach((a,i)=>button(h,'Stow '+['right','left'][i],()=>eqAction(st=>MSE.stow(U,st,a),'Weapon stowed'),!e.hands[i]));
   button(h,e.segment?'End melee segment':'Begin melee segment',()=>eqAction(st=>{
     st.eq.segment=!st.eq.segment;
     if(st.eq.segment)refillMatrix(U,st);
@@ -97,7 +95,7 @@ function openEquipment() {
     if(w&&MSE.penalty(U,s,w))desc+='<br><b>−3 ranged roll (+3 target number)</b>';
     if(x.mount==='hand')desc+='<br>Equip: '+x.cost+' AP per weapon'+(x.count>1?' · '+x.count+' copies':'');
     const d=section(x.name,desc);
-    if(x.mount==='hand')button(d,'Equip · '+(locked?x.cost+' AP':'free setup'),()=>eqChoose(x.key),e.segment);
+    if(x.mount==='hand')button(d,'Equip weapon',()=>eqChoose(x.key),e.segment);
     if(x.exclusive&&MSE.held(U,s,x))button(d,'Mode: '+e.mode+' · switch 1 AP',()=>eqAction(st=>{if(st.eq.segment)return 'Finish the melee segment first';if(locked&&st.ap<1)return 'Not enough AP';if(locked)st.ap--;st.eq.mode=st.eq.mode==='rifle'?'sword':'rifle';return '';},'GN Sword mode switched'));
     if(w?.limit){const n=wpn[x.rows[0]]||0;const p=el('p');p.textContent=w.limit.kind==='cooldown'?(n>0?'Cooling down · '+n+' turn steps remaining':'Ready to fire'):n+' charges remaining';d.appendChild(p);}
   });
@@ -129,6 +127,7 @@ function eqPickArm(arm) {
   if(!MSE.arms.includes(arm)||hp[arm]<=0){mpToast('Tap an intact arm.');return;}
   eqPending=null;
   eqAction(st=>{
+    if(key==='stow')return MSE.stow(U,st,arm);
     if(!key.startsWith('shield:'))return MSE.equip(U,st,key,arm,!locked);
     const i=Number(key.slice(7));
     if(st.eq.segment)return 'Finish the melee segment first';
@@ -138,6 +137,6 @@ function eqPickArm(arm) {
     if(st.eq.shields.includes(arm))return 'Forearm mount occupied';
     if(locked&&st.ap<1)return 'Not enough AP';
     st.eq.shields[i]=arm;if(locked)st.ap--;return '';
-  },'Equipment assigned to '+arm,false,false);
+  },(key==='stow'?'Weapon stowed from ':'Equipment assigned to ')+LIMB_LABEL[arm],false,false);
   draw();
 }

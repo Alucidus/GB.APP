@@ -1,10 +1,44 @@
-# App handoff — cf108
+# App handoff — cf109
 
-Continue from **cf108**, in `gunpla-battle-cf-cf108.zip`. The ZIP has `public/`, `src/`, and `wrangler.toml` directly at its root. Do not rebuild the board from the cf99 plan below.
+Continue from **cf109**, in `gunpla-battle-cf-cf109.zip`. The ZIP has `public/`, `src/`, and `wrangler.toml` directly at its root. Do not rebuild the board from the cf99 plan below.
 
-Next: run `npm test`, then follow `tests/README.md` to install Chromium and run `npm run test:browser`. Review desktop and phone screenshots, fix any visual issues, and play a full two-device game. The Playwright scenario has not yet run because Chromium was unavailable and its download timed out. The live Cloudflare Worker has not been deployed.
+Next: deploy only when requested, then play a full two-device Cloudflare game. Equipment now has real Chromium coverage (65 assertions) for desktop and phone landscape. The earlier engagement browser scenario and live deployment remain separate pending checks. Run `npm test` and `npm run test:equipment:browser`; set CHROMIUM_EXECUTABLE_PATH if using a separately installed Chromium.
 
-The build-bump helper is now included: `python3 bump.py cf109` for the next change.
+The build-bump helper is now included: `python3 bump.py cf110` for the next change.
+
+
+## cf109 — Equip/stow UX and remaining melee decisions
+
+## Equipment controls
+
+- Weapon-row buttons now say **EQUIP**, without a 0/1/2 suffix. Equip costs remain in weapon information and equipment cards.
+- Handheld melee keeps its EQUIP control after assigning the first copy: tap again, then the other arm, for units carrying two copies. Each weapon charges its own existing equip cost.
+- Added **STOW** beside EQUIP, matching TABLES/STANCE styling. Tap STOW, then a cyan-highlighted occupied arm to put its weapon away. No extra menu or AP cost; a two-handed weapon clears both hand references. Forearm shields stay mounted. Cancel returns to the sheet; melee segment and ownership restrictions still apply.
+- Removed weapon text beneath arm bubbles so HP labels remain clear. Equipped rows retain R/L markers and highlighting.
+- Both faction themes use cyan arm-selection outlines. Equipment cards remain scrollable on smaller screens.
+- New units retain their main ranged weapon in the right hand and available shield on its separate mount (two-handed mains occupy both hands). Existing loadouts are preserved.
+
+## Newly agreed melee stats
+
+| Unit / weapon | Roll bonus | Normal / critical | Existing range |
+|---|---:|---|---|
+| Epyon Beam Sword — standard | **+4** | 3/6 | 20cm |
+| Epyon Beam Sword — FULL | **+4** | 5/10 | 30cm |
+| Vidar Hunter Edges | **+0** | 2/4 | Adjacent |
+| Master Gundam Master Cloth | **+0** | 1/2 | 15cm |
+| Destiny Palma Fiocina | **+0** | 2/4 | Adjacent |
+
+Built-in melee has no roll bonus by default; explicit agreed exceptions remain: Darkness Finger +3, Dual Fang Blades +3 and Gouf Heat Rod +2. Epyon retains its 2 AP equip cost and Full Output activation requirement. Existing damage, cooldowns and mode costs remain unchanged. These decisions are also recorded in the rulebook.
+
+Turn A joins Rising Freedom and Infinite Justice as **REWORK NEEDED**, excluded from equipment enforcement. Gundam Hammer remains unresolved. Phenex's saber equipment stays available; its remote DE system is unchanged.
+
+## Verification and reported first-turn issue
+
+508 automated assertions passed (219 engagement, 218 equipment rules, 71 DOM smoke). An additional **65 real Chromium browser assertions** passed at desktop and phone-landscape sizes across both faction themes: first-turn menu, AP firing, successive dual-saber assignment, stow/cancel, unchanged HP labels, shield and AP preservation, and no page errors. Desktop and phone screenshots were inspected.
+
+The user reported that the initial switching/fire problem disappeared and suggested a version mismatch. First-turn controls worked in browser testing; the original transient failure was not reproduced, so a cache/version mismatch remains a possibility rather than a confirmed root cause. No speculative fire-rule change was made. Client assets and service-worker cache are all bumped to cf109; refresh all participating devices after deploying the complete build.
+
+This package has not been deployed. Real Cloudflare multi-device testing remains pending. Campaign/resupply work is unchanged.
 
 
 ## cf108 — Equipment UI and approved melee profiles

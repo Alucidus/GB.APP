@@ -90,7 +90,7 @@ The Melee Roll Bonus is added directly to that fighter's d20 roll for every exch
 
 **Charge Range:** each melee weapon's Charge Range is how far a unit can close the distance and initiate melee in the same action, at no extra AP cost — having the weapon drawn already covers closing that distance (drawing costs 1 AP for most melee weapons, 2 AP for GN Sword, Beam Axe/Tomahawk and Anti-Ship Sword -- see the Draw Cost column in the Melee Weapons table). No separate Movement AP is needed as long as the target is within Charge Range. Beyond that distance, the unit must close the rest of the way with normal Movement first.
 
-### Approved unit melee profiles (cf108)
+### Approved unit melee profiles (cf109)
 
 | Weapon | Roll bonus | Normal / critical | Equip AP | Charge |
 |---|---:|---|---|---|
@@ -106,6 +106,8 @@ The Melee Roll Bonus is added directly to that fighter's d20 roll for every exch
 | Astray BuCUE Head | +3 | 2/4 | 1 | 20cm |
 | Gouf Heat Rod | +2 | 2/4 | No switch | 20cm |
 | Master Darkness Finger | +3 | 2/4 | No switch | 15cm |
+
+**Additional unit decisions (cf109):** Epyon's standard and FULL Beam Sword both add **+4** to melee rolls. Standard retains 3/6 damage, 2 AP equip and 20cm charge; FULL retains 5/10 damage, its Full Output activation requirement and 30cm charge. Hunter Edges (Vidar), Master Cloth (Master Gundam) and Palma Fiocina (Destiny) add **+0**. Their existing damage/ranges remain 2/4 adjacent, 1/2 at 15cm, and 2/4 adjacent respectively. Built-in melee has no roll bonus by default; the explicitly agreed Darkness Finger +3, Dual Fang Blades +3 and Gouf Heat Rod +2 exceptions remain. Turn A, Rising Freedom and Infinite Justice await rework; Turn A's Gundam Hammer is not assigned a new profile.
 
 Banshee Norn has no AA-DE Melee Mode attack. Its Beam Saber, AA-DE cannon and Magnum-linked Beam Jutte defence remain.
 

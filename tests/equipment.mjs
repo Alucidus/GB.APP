@@ -55,4 +55,7 @@ for(const [id,name,bonus] of [['gundam-mk-ii','Heat Saber',2],['rick-dom','Heat 
 {const u=unit('destiny-gundam'),x=M.item(u,'flash-edge-blade');ok(x.cost===0&&x.bonus===1&&x.damage==='2/4'&&x.range==='Melee 10cm','Flash-Edge dagger profile');}
 ok(!unit('banshee-norn').weapons.some(w=>w.name==='AA-DE Melee Mode'),'obsolete Banshee row removed');
 ok(w(unit('astray-red'),'BuCUE Head').dmg==='2/4','BuCUE complete damage profile');
+for(const [id,name,bonus] of [['gundam-epyon','Beam Sword (std)',4],['gundam-epyon','Beam Sword (FULL)',4],['gundam-vidar','Hunter Edges',0],['master-gundam','Master Cloth',0],['destiny-gundam','Palma Fiocina (melee)',0]]) {const u=unit(id),weapon=w(u,name);ok(weapon.meleeBonus===bonus&&M.item(u,weapon.equipKey).bonus===bonus,'cf109 bonus '+name);}
+{const u=unit('gm-sniper-ii'),s=state(u);M.init(u,s);const shield=JSON.stringify(s.eq.shields),ap=s.ap;ok(!M.stow(u,s,'rightArm'),'stow a two-handed weapon');ok(s.eq.hands.every(x=>x===null),'both references clear for one two-handed weapon');ok(s.ap===ap&&JSON.stringify(s.eq.shields)===shield,'stow preserves AP and shields');M.equip(u,s,'beam-saber','rightArm');s.eq.segment=true;ok(M.stow(u,s,'rightArm'),'cannot stow during segment');s.eq.segment=false;s.hp.rightArm=0;ok(M.stow(u,s,'rightArm'),'lost arm cannot stow away recovery requirement');}
+ok(unit('gundam-turn-a').reworkNeeded&&!M.supported(unit('gundam-turn-a')),'Turn A excluded pending rework');
 console.log('PASS '+checks+' equipment assertions');

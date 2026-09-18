@@ -1,7 +1,7 @@
 /* Mobile-suit equipment rules. State uses stable item IDs, never weapon row indices. */
 const MSE = (() => {
   const arms = ['rightArm', 'leftArm'];
-  const excluded = /^(infinite-justice|rising-freedom)/;
+  const excluded = /^(infinite-justice|rising-freedom|gundam-turn-a)/;
   const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const supported = u => !!u && !u.type && !excluded.test(u.id);
   function catalog(u) {
@@ -11,7 +11,7 @@ const MSE = (() => {
     u.weapons.forEach((w, i) => {
       if (w.name === '—') return;
       let key = slug(w.name), kind = /Melee/i.test(w.range) ? 'melee' : 'ranged', mount = 'hand', parent = null;
-      let count = /x2|Dual Beam Sabers|or 2 for Advantage/.test(w.name+' '+w.text) ? 2 : 1;
+      let count = /(?:x|×)\s*2|2\s*(?:x|×)|Dual Beam Sabers|or 2 for Advantage/i.test(w.name+' '+w.text) ? 2 : 1;
       if (/phenex/.test(u.id) && /Beam Saber/.test(w.name)) count=2;
       if (w.name==='Beam Tomahawks') count=2;
       let cost = kind === 'melee' && /^2$/.test(w.ap) ? 2 : 1;
@@ -108,6 +108,13 @@ const MSE = (() => {
     const others=e.hands.filter((r,i)=>r && s.hp[arms[i]]>0 && !e.dropped.includes(r)).map(r=>item(u,r));
     return others.length===2 ? -3 : 0;
   }
+  function stow(u,s,arm) {
+    const e=init(u,s),i=arms.indexOf(arm);
+    if(!e||i<0||s.hp[arm]<=0)return 'Choose an intact arm';
+    if(e.segment)return 'Finish the melee segment first';
+    const r=e.hands[i];if(!r||e.dropped.includes(r))return 'No usable weapon in that arm';
+    e.hands=e.hands.map(v=>v===r?null:v);clearMatrix(u,s);return '';
+  }
   function equip(u,s,key,hand,free=false) {
     const e=init(u,s),x=item(u,key); if(!e||!x||x.mount!=='hand')return 'Cannot equip this system';
     if(e.segment)return 'Finish the melee segment before switching';
@@ -187,8 +194,8 @@ const MSE = (() => {
     if(/Bazooka|Rifle.*Combo|Combined Attack/.test(a.name)&&/sinanju/.test(u.id))return arms.every(k=>s.hp[k]>0)?'':'Requires both arms';
     return '';
   }
-  return {arms,supported,catalog,item,ref,init,held,reason,penalty,equip,recover,melee,shieldReady,abilityReason,clearMatrix,combo,matrix};
+  return {arms,supported,catalog,item,ref,init,held,reason,penalty,equip,stow,recover,melee,shieldReady,abilityReason,clearMatrix,combo,matrix};
 })();
-UNITS.forEach(u=>{if(/^(infinite-justice|rising-freedom)/.test(u.id))u.reworkNeeded=true;MSE.catalog(u);});
+UNITS.forEach(u=>{if(/^(infinite-justice|rising-freedom|gundam-turn-a)/.test(u.id))u.reworkNeeded=true;MSE.catalog(u);});
 TABLES['Melee Weapons']=[['Weapon','Roll Bonus','Normal / Crit','Equip AP','Charge Range'],['Bare Hands / Unarmed','+0','1 / 2','1','Adjacent only'],['Sword','+1','1 / 2','1','10cm'],['Beam Dagger','+1','2 / 4','0','10cm'],['Heat Axe / Heat Hawk','+2','2 / 4','1','15cm'],['Spear / Lance','+2','2 / 4','1','30cm (reach)'],['Beam Saber','+3','2 / 4','1','15cm'],['GN Sword','+4','3 / 6','2','30cm'],['Beam Axe / Beam Tomahawk','+4','3 / 6','2','20cm'],['Anti-Ship Sword','+4','4 / 8','2','30cm']];
 TABLES.Destruction[1][1]='Arm weapons and shield unavailable; recover dropped equipment within 10cm for 1 AP.';
