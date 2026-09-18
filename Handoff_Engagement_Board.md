@@ -1,3 +1,19 @@
+# Gunpla Battles — cf124 current handoff
+
+cf124 fixes shield stowing/equipping, adds live R/L shield HP slots and pickup portraits, and gives carrier repairs a three-slot interface with authoritative manual assignments. Tier 0 bases reuse the layout with one queued slot and selectable priority. Repair cards show unit portraits, current HP and capped next-service forecasts. Confirmed base occupants gain a shared base symbol and dimmed roster row; they remain targetable.
+
+See Release_Notes_cf124.md and Test_Checklist_cf124.md. New carrier bays require slot assignment after boarding; older saves preserve their active selection. No higher-tier rules or deployment are included. User playtest is next.
+
+Infantry now has slim full-width Overmap / 8 Soldiers / Quick Resolve tabs. Retain the original 8 Soldiers scaling and full-page layout; do not add scrolling or enlarge those cards. The user's final adjustment makes the top tabs slightly thicker and the Riflemen & MG / Specialists group buttons slightly thinner. Overmap Fire/Move remain above its scrollable content. The Challenge picker reserves space for squad lists on both touch and mouse-driven short windows, with a single-row footer.
+
+---
+
+# Gunpla Battles — cf123 current handoff
+
+cf123 adds the requested faction-themed CSS base triangle to the complete cf122 build. The corner is 62px with blue or red/gold styling, an in-base accent and no overlap with nearby controls in the checked layouts. Repair behavior is unchanged. See Release_Notes_cf123.md and Test_Checklist_cf123.md. User playtest remains next.
+
+---
+
 # Gunpla Battles — cf122 current handoff
 
 Current deliverable: complete cf122 package. Pickup, off-sheet captured equipment details, landscape spacing, personal Tier-0 bases and Tier-2 carrier repairs are implemented. Read Release_Notes_cf122.md and Release_Notes_cf121.md together for behavior and confirmed timing.

@@ -26,10 +26,13 @@ function openPickup(){
  if(!items.length)list.textContent='No equipment is currently on the ground.';
  items.forEach(v=>{
   const card=el('div','eq-card pickup-item');card.dataset.itemId=v.id;const name=el('b');name.textContent=v.name;
-  const who=el('p'),own=v.team===side&&v.uid===CUR.uid;who.textContent=(own?'YOUR LOST ITEM':v.team===side?'ALLY':'ENEMY')+' · '+(unitById(v.unitId)?.short||v.unitId)+' #'+v.uid;
+  const source=unitById(v.unitId),head=el('div','pickup-heading'),portrait=el('img','pickup-portrait'),identity=el('div');
+  portrait.alt=source?.short||source?.name||v.unitId;portrait.loading='lazy';portrait.src=source?.portrait?'img/portraits/'+source.portrait+'.webp':'icons/icon-192.png';
+  const who=el('p'),own=v.team===side&&v.uid===CUR.uid;who.textContent=(own?'YOUR LOST ITEM':v.team===side?'ALLY':'ENEMY')+' · '+(source?.short||v.unitId)+' #'+v.uid;
+  identity.append(name,who);head.append(portrait,identity);
   const detail=el('p');detail.textContent=v.kind==='shield'?v.hp+'/'+v.max+' shield HP':v.profiles.map((w,i)=>w.dmg+' damage · '+w.range+' · '+w.ap+' AP'+(w.limit?' · '+v.values[i]+(w.limit.kind==='charges'?' charges':' cooldown steps'):'')).join(' / ');
   const b=el('button','btn');b.textContent='Pick up · 1 AP';b.disabled=!eqAllowed()||ap<1||turn.phase!=='you'||hp[U.kill||'chest']<=0||(v.kind==='shield'&&(!(v.hp>0)||v.down===-1))||!!mp.pickupOps?.length;
-  b.onclick=()=>pickupChoose(v);card.append(name,who,detail,b);list.appendChild(card);
+  b.onclick=()=>pickupChoose(v);card.append(head,detail,b);list.appendChild(card);
  });$('pickCancel').textContent='Close';$('pick').classList.add('on');
 }
 
@@ -63,6 +66,7 @@ function openEquippedInfo(arm){
  (U.shields||[]).forEach((cfg,i)=>{
   if(e.shields[i]!==arm||e.shieldDropped.includes(i))return;
   const c=card(cfg.label||'Shield');paragraph(c,sh[i]+' / '+shMax[i]+' HP');
+  button(c,'Stow shield',()=>{eqStowShield(i);openEquippedInfo(arm);},!eqAllowed()||!eqCanStowShield(i)||(locked&&turn.phase!=='you'));
   if(cfg.captured){
    paragraph(c,'Captured shield · physical shield; no regeneration.');
    const change=delta=>{if(!eqAllowed())return;sh[i]=Math.max(0,Math.min(shMax[i],sh[i]+delta));persist();draw();openEquippedInfo(arm);};

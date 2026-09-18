@@ -67,7 +67,7 @@ globalThis.GBPickups=(()=>{
   }else{
    const i=u.shields.length;e.loot=e.loot||[];e.loot.push({id:v.id,kind:'shield',cfg:clone(v.cfg)});
    s.sh[i]=v.hp;s.shMax=s.shMax||u.shields.map(c=>c.hp);s.shMax[i]=v.max;s.shDown=s.shDown||[];s.shDown[i]=v.down;
-   e.shields[i]=E.arms.find(a=>s.hp[a]>0&&!e.shields.includes(a))||null;s.ap--;
+   e.shields[i]=E.arms.find(a=>s.hp[a]>0&&E.shieldAt(definition(base,s),s,a)<0)||null;s.ap--;
   }
   const owner=rows.find(r=>r.team===v.team&&r.uid===v.uid);
   if(!own&&owner?.st.eq?.ground?.[key]===id){owner.st.eq.taken=[...new Set([...(owner.st.eq.taken||[]),key])];owner.st.pickupRevision=(owner.st.pickupRevision||0)+1;}

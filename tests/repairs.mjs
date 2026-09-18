@@ -15,10 +15,21 @@ rows[1].st.hp.leftArm=0;R.process(rows,defs,3,true);eq(rows[1].st.hp.leftArm,0,'
 rows[1].st.hp.chest=0;R.process(rows,defs,4,true);eq(rows[1].st.hp.chest,0,'no revival');
 const saz=defs.find(x=>x.kill==='head');const dead={uid:9,id:saz.id,st:{hp:{...saz.limb,head:0},repair:{owner:'one',entry:'x'}}};R.process([dead],defs,5,true);eq(dead.st.repair.live,undefined,'unit specific kill location');
 const ship={uid:10,id:'rewloola-class-battleship',st:{hp:{hull:20},ship:{carry:[1,2,3,4],docking:[],repairBoardings:{}}}};
+{
+ const carrier=structuredClone(ship);carrier.st.ship.repairSlots=[null,null,null];const rs=[carrier,suit(1),suit(2),suit(3),suit(4)];
+ R.process(rs,defs,1);R.process(rs,defs,2,true);eq(rs[1].st.hp.chest,hp,'empty manual slots do not repair');
+ carrier.st.ship.repairSlots=[2,1,2];R.process(rs,defs,2);eq(carrier.st.ship.repairSlots,[2,1,null],'unique physical assignments');
+ R.process(rs,defs,3,true);eq(rs.slice(1).map(r=>r.st.hp.chest),[hp+4,hp+4,hp,hp],'only assigned units heal');
+ carrier.st.ship.repairSlots=[4,null,null];R.process(rs,defs,3);eq(rs[1].st.repair.live.since,null,'removal cancels unfinished cycle');
+ R.process(rs,defs,4,true);eq(rs[4].st.hp.chest,hp+4,'new selection heals after full cycle');
+ carrier.st.ship.repairSlots=[3,null,null];carrier.st.ship.carry=[1,2,4];R.process(rs,defs,4);eq(carrier.st.ship.repairSlots,[null,null,null],'launched unit releases slot');
+ const ready=suit(8);ready.st.hp={...u.limb};ready.st.sh=[20];ready.st.eq.dropped=[];ready.st.eq.hands=[null,null];carrier.st.ship.carry.push(8);carrier.st.ship.repairSlots=[8,null,null];rs.push(ready);R.process(rs,defs,4);eq(carrier.st.ship.repairSlots,[null,null,null],'ready unit releases slot');
+}
 rows=[ship,...[1,2,3,4].map(i=>suit(i))];R.process(rows,defs,2);R.process(rows,defs,3,true);
 eq(rows.slice(1).map(r=>r.st.hp.chest),[hp+4,hp+4,hp+4,hp],'three carrier slots');eq(rows[1].st.sh,[12],'tier2 shield');
 ship.st.hp.hull=0;R.process(rows,defs,4,true);eq(rows[1].st.repair.live,undefined,'destroyed carrier stops service');
 const beam={...u,regen:true},temp={...u,shields:[{hp:20,when:'field'}]},coat={...u,shields:[{hp:20,label:'Coating'}]};
+{const r=suit(1);r.st.eq.shields=['leftArm','leftArm'];r.st.eq.shieldDropped=[0];R.heal(u,r.st,0);eq(r.st.eq.shields,[null,'leftArm'],'replacement shield stays stored beside a captured shield');}
 for(const def of [beam,temp,coat]){const r=suit(1);R.heal(def,r.st,2);eq(r.st.sh,[0],'nonphysical shield excluded');}
 const {room,server,url}=await startTestServer();
 const post=async b=>(await (await fetch(url+'/api/sync',{method:'POST',body:JSON.stringify(b)})).json());
@@ -36,5 +47,11 @@ try{
  const stale=structuredClone(state());await advance();await advance();eq(state().hp.chest,hp+4,'first carrier repair turn3');
  await sync(a,{units:{'federation/1':{st:stale}}});eq(state().hp.chest,hp+4,'stale write does not undo service');
  await sync(a);eq(state().hp.chest,hp+4,'reconnect no duplicate');
+ const cleared=structuredClone(room.mem.get('unit/federation/2').st),damaged=structuredClone(state());cleared.ship.repairSlots=[null,null,null];damaged.hp.chest=1;damaged.sh[0]=0;
+ await sync(a,{units:{'federation/1':{st:damaged},'federation/2':{st:cleared}}});await advance();await advance();eq(state().hp.chest,1,'shared empty manual bay cannot heal');
+ const assigned=structuredClone(room.mem.get('unit/federation/2').st);assigned.ship.repairSlots=[1,null,null];await sync(a,{units:{'federation/2':{st:assigned}}});
+ eq(state().repair.live.status,'Repairing','server accepts assigned slot');
+ await sync(a,{units:{'federation/2':{st:cleared}}});eq(room.mem.get('unit/federation/2').st.ship.repairSlots,[1,null,null],'stale slot assignment cannot undo current choice');
+ await advance();await advance();eq(state().hp.chest,5,'manual slot heals at next own turn');eq(state().sh[0],12,'manual slot retains Tier 2 shield rate');
  console.log('PASS '+checks+' repair assertions');
 }finally{await new Promise(r=>server.close(r));}

@@ -58,3 +58,9 @@ cf106: offline tracker spending, restoration, zero limit, refill, and online pro
 On desktop and phone, open Weapons / Equip, select a rifle/bazooka/saber and tap each arm HP bubble; verify only equipment/AP changes. Cancel and verify normal damage taps resume. Equip two guns and inspect their −3 notices; integrated weapons must remain unpenalised. Lose an arm with a shield and weapon; recover each for 1 AP, verify their HP/cooldowns remain unchanged and an occupied hand sends the weapon to inventory. Check Phenex's sabers and both remote-DE lending controls. Verify Exia's matrix fills both hands, costs 2 AP, and does not refill parries until Begin melee segment. Switch to another device and inspect saved hand assignments; a read-only teammate must not equip.
 
 Chromium download timed out in this environment; no cf107 visual/browser run has been claimed.
+
+## cf124 current verification
+
+The earlier browser limitations above are historical. Current checks run using installed Chrome, Playwright and the production room's local in-memory adapter. See `Release_Notes_cf124.md` for the complete current validation and limits.
+
+`npm run test:infantry:browser` checks all three infantry tabs at 720×310 and 600×280 mouse viewports and 667×375 and 844×390 touch viewports. It verifies full-width thin tabs, the original full-page soldier layout, unobstructed action centers, both soldier groups, movement/undo, visible challenge squads, last-row selections and matchup controls. `npm run test:mobile` checks the broader phone layout and `npm run test:layout` covers all 66 unit sheets. Use `CODEX_PRIMARY_RUNTIME_NODE_MODULES` for the directory containing Playwright and `CHROMIUM_EXECUTABLE_PATH` for an installed Chromium/Chrome binary.

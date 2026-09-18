@@ -10,13 +10,13 @@ function eqInventoryLabel(x,s,fallback) {
 function eqSwapDialog(arm,key,replaced,signature) {
   closePicker();
   $('mpToast')?.classList.remove('on');
-  const uid=CUR.uid,cost=locked?MSE.item(U,key).cost:0;
-  $('pickT').textContent='Swap equipped weapon?';
+  const uid=CUR.uid,x=key.startsWith('shield:')?{name:U.shields[Number(key.slice(7))].label||'Shield',cost:1}:MSE.item(U,key),cost=locked?x.cost:0;
+  $('pickT').textContent=key.startsWith('shield:')?'Swap equipped shield?':'Swap equipped weapon?';
   $('pickS').textContent='Review the change before spending AP.';
   const list=$('picklist');list.innerHTML='';
   const card=el('div','eq-card eq-swap-card');
   const old=el('p');old.textContent='Return to storage: '+replaced.join(' · ');
-  const next=el('b');next.textContent='Equip '+MSE.item(U,key).name+' · '+LIMB_LABEL[arm];
+  const next=el('b');next.textContent='Equip '+x.name+' · '+LIMB_LABEL[arm];
   const price=el('p','eq-swap-cost');price.textContent=cost+' AP to equip · '+ap+' AP available';
   card.append(old,next,price);list.appendChild(card);
   const go=el('button','btn pri');go.id='eqSwapConfirm';go.textContent='SWAP · '+cost+' AP';
@@ -77,12 +77,29 @@ function eqValidArm(arm, key=eqPending?.key) {
   if(!eqPending||!MSE.arms.includes(arm)||hp[arm]<=0)return false;
   const copy=JSON.parse(JSON.stringify(eqLive()));
   if(key==='')return !copy.eq.segment;
-  if(key==='stow')return !!copy.eq.hands[MSE.arms.indexOf(arm)] && !copy.eq.segment;
+  if(key==='stow')return !MSE.stow(U,copy,arm);
   if(key.startsWith('shield:')) {
     const i=Number(key.slice(7));
-    return !copy.eq.segment&&!copy.eq.shieldDropped.includes(i)&&copy.sh[i]>0&&!copy.eq.shields.includes(arm)&&(!locked||copy.ap>=1);
+    return !MSE.equipShield(U,copy,i,arm,!locked);
   }
   return !MSE.equip(U,copy,key,arm,!locked);
+}
+function eqCanStowShield(i){return !!CUR&&!MSE.stowShield(U,JSON.parse(JSON.stringify(eqLive())),i);}
+function eqStowShield(i){
+  if(!eqAllowed()||(locked&&turn.phase!=='you'))return;
+  eqPending=null;closePicker();active=null;
+  eqAction(st=>MSE.stowShield(U,st,i),'Shield stowed',false,false);
+}
+// Screen slots follow the arms; inventory indices keep each physical shield's HP.
+function eqShieldViews(){
+  if(!MSE.supported(U))return (U.shields||[]).map((cfg,i)=>({cfg,i}));
+  const s=eqLive(),e=MSE.init(U,s),views=(U.shields||[]).flatMap((cfg,i)=>!cfg.captured&&e.shields[i]==='body'?[{cfg,i}]:[]);
+  const showArms=!U.ring||(e.loot||[]).some(x=>x.kind==='shield');
+  if(showArms)MSE.arms.forEach((arm,k)=>{
+    const i=MSE.shieldAt(U,s,arm),cfg={...(U.shields[i]||{}),x:k?94.5:80.4,y:U.ring?57.3:69.8,displayArm:arm};
+    views.push({cfg,i});
+  });
+  return views;
 }
 function eqDecorate(sheet) {
   if(!MSE.supported(U))return;
@@ -90,11 +107,11 @@ function eqDecorate(sheet) {
   if(eqPending){
     const prompt=el('div','eq-prompt'),message=el('span');
     const x=MSE.item(U,eqPending.key);
-    message.textContent=stow?'Choose an arm to stow its weapon':!eqPending.key?'Choose a weapon, then an arm':(x?.name||'Shield');
+    message.textContent=stow?'Tap an arm to stow its weapon, or a shield HP bubble to stow its shield.':!eqPending.key?'Choose a weapon, then an arm':(x?.name||'Shield');
     if(!stow&&eqPending.key){const cost=el('strong','eq-cost');cost.textContent=locked?(x?.cost??1)+' AP to equip':'0 AP · free setup';message.appendChild(cost);const hint=el('span','eq-hint');hint.textContent='Choose an arm · '+ap+' AP available';message.appendChild(hint);}
     prompt.setAttribute('role','status');prompt.setAttribute('aria-live','polite');
     prompt.appendChild(message);
-    if(!stow){const more=el('button','btn sm eq-more');more.textContent='MORE';more.title='Captured weapons, shield mounts, recovery and melee segments';more.onclick=openEquipment;prompt.appendChild(more);}
+    {const more=el('button','btn sm eq-more');more.textContent='MORE';more.title='Captured weapons, shield mounts, recovery and melee segments';more.onclick=openEquipment;prompt.appendChild(more);}
     sheet.appendChild(prompt);
     if(!stow)U.weapons.forEach(w=>{
       if(w.pickupId)return;
@@ -159,9 +176,11 @@ function openEquipment() {
     if(w?.limit){const n=wpn[x.rows[0]]||0;const p=el('p');p.textContent=w.limit.kind==='cooldown'?(n>0?'Cooling down · '+n+' turn steps remaining':'Ready to fire'):n+' charges remaining';d.appendChild(p);}
   });
   (U.shields||[]).forEach((cfg,i)=>{
-    const m=e.shields[i],d=section(cfg.label||'Shield '+(i+1),sh[i]+'/'+shMax[i]+' HP · '+(MSE.shieldReady(U,s,i)?'Available':e.shieldDropped.includes(i)?'Dropped':m?'Unavailable':'Stored')+' · '+(m||'no mount'));
+    const m=e.shields[i],d=section(cfg.label||'Shield '+(i+1),sh[i]+'/'+shMax[i]+' HP · '+(MSE.shieldReady(U,s,i)?'Equipped':e.shieldDropped.includes(i)?'Dropped':m?'Unavailable':'Stored')+' · '+(LIMB_LABEL[m]||m||'no mount'));
+    d.dataset.shieldIndex=i;
     if(m==='body')return;
     button(d,'Choose forearm · '+(locked?'1 AP':'free setup'),()=>eqChoose('shield:'+i),e.segment||e.shieldDropped.includes(i));
+    button(d,'Stow shield',()=>{eqStowShield(i);openEquipment();},!eqCanStowShield(i));
   });
   [...e.dropped.map(r=>({r,shield:false,name:MSE.item(U,r)?.name||r})),...e.shieldDropped.map(r=>({r,shield:true,name:'Shield '+(r+1)}))].forEach(x=>{
     const d=section('Recover '+x.name,'1 AP · confirm the dropped equipment is within 10cm. Empty hand/mount equips immediately; otherwise returns to your usable list.');
@@ -177,7 +196,11 @@ function eqChoose(key) {
   const st=eqLive();MSE.init(U,st);
   if(st.eq.segment){mpToast('Finish the melee segment first.');return;}
   const previous=eqPending;eqPending={uid:CUR.uid,key};
-  if(!MSE.arms.some(arm=>eqValidArm(arm))){eqPending=previous;mpToast('No valid arm: check AP, arm health or recover the weapon first.');return;}
+  if(!MSE.arms.some(arm=>eqValidArm(arm))&&!(key==='stow'&&(U.shields||[]).some((_,i)=>eqCanStowShield(i)))){
+    eqPending=previous;
+    const why=key.startsWith('shield:')?MSE.equipShield(U,JSON.parse(JSON.stringify(st)),Number(key.slice(7)),MSE.arms.find(a=>hp[a]>0)||MSE.arms[0],!locked):'';
+    mpToast(why||'No equipment available: check AP, arm health or recover dropped equipment first.');return;
+  }
   closePicker();active=null;draw();
 }
 function eqPickArm(arm,approvedSignature=null) {
@@ -187,11 +210,12 @@ function eqPickArm(arm,approvedSignature=null) {
   if(!MSE.arms.includes(arm)||hp[arm]<=0){mpToast('Tap an intact arm.');return;}
   if(!eqAllowed())return;
   if(locked&&turn.phase!=='you'){mpToast('Switch equipment on your own turn.');return;}
-  if(key!=='stow'&&!key.startsWith('shield:')){
+  if(key!=='stow'){
     const current=eqLive(),preview=JSON.parse(JSON.stringify(current));
-    const why=MSE.equip(U,preview,key,arm,!locked);
+    const shield=key.startsWith('shield:'),i=shield?Number(key.slice(7)):-1;
+    const why=shield?MSE.equipShield(U,preview,i,arm,!locked):MSE.equip(U,preview,key,arm,!locked);
     if(why){mpToast(why);return;}
-    const replaced=current.eq.hands.map((ref,i)=>ref&&!preview.eq.hands.includes(ref)?(i?'Left':'Right')+' arm: '+(MSE.item(U,ref)?.name||ref):null).filter(Boolean);
+    const replaced=shield?current.eq.shields.map((m,j)=>m&&j!==i&&!current.eq.shieldDropped.includes(j)&&!preview.eq.shields[j]?LIMB_LABEL[m]+': '+(U.shields[j].label||'Shield'):null).filter(Boolean):current.eq.hands.map((ref,i)=>ref&&!preview.eq.hands.includes(ref)?(i?'Left':'Right')+' arm: '+(MSE.item(U,ref)?.name||ref):null).filter(Boolean);
     const signature=JSON.stringify([CUR.uid,key,arm,current.eq,current.ap,current.hp,current.sh,current.track,locked,turn.round,turn.phase]);
     if(replaced.length&&approvedSignature!==signature){eqSwapDialog(arm,key,replaced,signature);return;}
   }
@@ -199,14 +223,7 @@ function eqPickArm(arm,approvedSignature=null) {
   eqAction(st=>{
     if(key==='stow')return MSE.stow(U,st,arm);
     if(!key.startsWith('shield:'))return MSE.equip(U,st,key,arm,!locked);
-    const i=Number(key.slice(7));
-    if(st.eq.segment)return 'Finish the melee segment first';
-    if(st.eq.shieldDropped.includes(i))return 'Recover the shield first';
-    if(!(st.sh[i]>0))return 'Shield offline or destroyed';
-    if(st.eq.shields[i]===arm)return 'Already mounted';
-    if(st.eq.shields.includes(arm))return 'Forearm mount occupied';
-    if(locked&&st.ap<1)return 'Not enough AP';
-    st.eq.shields[i]=arm;if(locked)st.ap--;return '';
+    return MSE.equipShield(U,st,Number(key.slice(7)),arm,!locked);
   },(key==='stow'?'Weapon stowed from ':'Equipment assigned to ')+LIMB_LABEL[arm],false,false);
   draw();
 }

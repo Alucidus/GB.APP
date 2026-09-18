@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf122)
+# Gunpla Battle — Cloudflare version (build cf124)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -15,7 +15,9 @@ public/            the app (index.html, images, service worker)
 .gitignore
 ```
 
-## Current build: cf122
+## Current build: cf124
+
+[Release_Notes_cf124.md](Release_Notes_cf124.md) covers shield stowing and two forearm slots, pickup portraits, repair-slot interfaces, shared base roster status, slim full-width infantry tabs and the short-screen Challenge picker. Start with [Test_Checklist_cf124.md](Test_Checklist_cf124.md). All prior cf123 functionality remains included.
 
 Read [Release_Notes_cf122.md](Release_Notes_cf122.md) for the completed pickup and responsive-layout work, and [Release_Notes_cf121.md](Release_Notes_cf121.md) for personal-base/carrier repairs. Older sections below are historical.
 

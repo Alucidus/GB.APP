@@ -4,6 +4,13 @@ const R=globalThis.GBRepairs;
 export function protectRepairs(data,old,pid,leader,players,team,unitId){
   if(!data.st)return data;
   const st=data.st,prev=old?.st;
+  if(st.ship&&prev?.ship){
+    const revision=prev.ship.repairSlotsRevision||0;
+    if((st.ship.repairSlotsRevision||0)!==revision){
+      if(prev.ship.repairSlots)st.ship.repairSlots=structuredClone(prev.ship.repairSlots);else delete st.ship.repairSlots;
+      st.ship.repairSlotsRevision=revision;
+    }else if(JSON.stringify(st.ship.repairSlots)!==JSON.stringify(prev.ship.repairSlots))st.ship.repairSlotsRevision=revision+1;
+  }
   if(st.ship&&prev?.ship&&(st.ship.repairTransitRevision||0)!==(prev.ship.repairTransitRevision||0)){
     for(const k of ['carry','docking','aboard','repairBoardings','repairTransitRevision'])if(prev.ship[k]!==undefined)st.ship[k]=structuredClone(prev.ship[k]);
   }

@@ -136,6 +136,34 @@ const MSE = (() => {
     const r=e.hands[i];if(!r||e.dropped.includes(r))return 'No usable weapon in that arm';
     e.hands=e.hands.map(v=>v===r?null:v);clearMatrix(u,s);return '';
   }
+  // Dropped shields retain their old mount for recovery history, but do not occupy it.
+  function shieldAt(u,s,arm) {
+    const e=s.eq||init(u,s);
+    return e&&arms.includes(arm)?e.shields.findIndex((m,i)=>m===arm&&!e.shieldDropped.includes(i)):-1;
+  }
+  function stowShield(u,s,i) {
+    const e=init(u,s),arm=e?.shields[i];
+    if(!e||!arms.includes(arm))return 'No forearm shield to stow';
+    if(e.segment)return 'Finish the melee segment first';
+    if(e.shieldDropped.includes(i))return 'Recover the shield first';
+    if(s.hp[arm]<=0)return 'Choose an intact arm';
+    if(s.out?.[i])return 'Shield is lent to another unit';
+    e.shields[i]=null;return '';
+  }
+  function equipShield(u,s,i,arm,free=false) {
+    const e=init(u,s);
+    if(!e||!u.shields?.[i]||e.shields[i]==='body')return 'Cannot move this shield system';
+    if(e.segment)return 'Finish the melee segment first';
+    if(!arms.includes(arm)||!(s.hp[arm]>0))return 'Choose an intact arm';
+    if(e.shieldDropped.includes(i))return 'Recover the shield first';
+    if(!(s.sh[i]>0)||s.shDown?.[i])return 'Shield offline or destroyed';
+    if(s.out?.[i])return 'Shield is lent to another unit';
+    if(e.shields[i]===arm)return 'Already mounted';
+    const cost=free?0:1;if(s.ap<cost)return 'Not enough AP';
+    const previous=shieldAt(u,s,arm);
+    if(previous>=0){const why=stowShield(u,s,previous);if(why)return why;}
+    e.shields[i]=arm;s.ap-=cost;return '';
+  }
   function equip(u,s,key,hand,free=false) {
     const e=init(u,s),x=item(u,key); if(!e||!x||x.mount!=='hand')return 'Cannot equip this system';
     if(e.segment)return 'Finish the melee segment before switching';
@@ -166,14 +194,15 @@ const MSE = (() => {
     if(isShield) {
       if(!(s.sh[r]>0)||s.shDown?.[r]===-1)return 'Destroyed shields cannot be recovered';
       e.shields[r]=null;
-      e.shields[r]=arms.find(k=>s.hp[k]>0&&!e.shields.includes(k))||null;
+      e.shields[r]=arms.find(k=>s.hp[k]>0&&shieldAt(u,s,k)<0)||null;
     } else {
       const x=item(u,r); if(!x)return 'Unknown weapon';
       e.hands=e.hands.map(v=>v===r?null:v);
       const i=arms.findIndex((k,i)=>s.hp[k]>0&&!e.hands[i]);
       if(i>=0 && !x.twoHands && (!x.exclusive || e.hands.every(v=>!v)) && !e.hands.some(v=>item(u,v)?.exclusive||item(u,v)?.twoHands))e.hands[i]=r;
     }
-    list.splice(list.indexOf(r),1);s.ap--;return '';
+    const current=isShield?e.shieldDropped:e.dropped;
+    current.splice(current.indexOf(r),1);s.ap--;return '';
   }
   function matrix(u,s,i,id,free=false) {
     const e=init(u,s),a=u.abilities[i],prev=s.track[i]||{p:0,spent:0};
@@ -216,7 +245,7 @@ const MSE = (() => {
     if(/Bazooka|Rifle.*Combo|Combined Attack/.test(a.name)&&/sinanju/.test(u.id))return arms.every(k=>s.hp[k]>0)?'':'Requires both arms';
     return '';
   }
-  return {arms,supported,catalog,item,ref,init,held,reason,penalty,equip,stow,recover,melee,shieldReady,abilityReason,clearMatrix,combo,matrix};
+  return {arms,supported,catalog,item,ref,init,held,reason,penalty,equip,stow,shieldAt,stowShield,equipShield,recover,melee,shieldReady,abilityReason,clearMatrix,combo,matrix};
 })();
 globalThis.GBEquipment=MSE;
 globalThis.GBRepairUnits.forEach(u=>{if(/^(infinite-justice|rising-freedom|gundam-turn-a)/.test(u.id))u.reworkNeeded=true;MSE.catalog(u);});

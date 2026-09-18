@@ -97,14 +97,14 @@ function shipFresh(u) {
   return { hp: { hull: u.hull }, dodges: 0, ap: u.ap, track: [], wpn: [], sh: [], shMax: [], shDown: [], pods: null, out: null, lent: [], risk: {},
     ship: { bridge: u.bridge, thr: u.thr.slice(), sys: u.sw.map(() => SHIP_WEAPON_HP), crew: u.crew,
       cd: u.sw.map(() => 0), cdFresh: u.sw.map(() => false), ch: u.sw.map(w => w.charges || null), rep: {},
-      aboard: 0, carry: [], launched: [], docking: [], bridgeHit: 0, decoy: { ch: u.decoy ? 1 : 0, left: 0 } } };
+      aboard: 0, carry: [], launched: [], docking: [], repairSlots:[null,null,null], repairSlotsRevision:0, bridgeHit: 0, decoy: { ch: u.decoy ? 1 : 0, left: 0 } } };
 }
 function shipMigrate(u, st) {
   const f = shipFresh(u);
   if (!st.hp || typeof st.hp.hull !== "number") st.hp = f.hp;
   if (!st.ship || typeof st.ship !== "object") st.ship = f.ship;
   const S = st.ship;
-  Object.keys(f.ship).forEach(k => { if (S[k] === undefined) S[k] = f.ship[k]; });
+  Object.keys(f.ship).forEach(k => { if (S[k] === undefined&&k!=='repairSlots') S[k] = f.ship[k]; });
   if (!Array.isArray(S.sys) || S.sys.length !== u.sw.length) S.sys = f.ship.sys;
   if (!Array.isArray(S.cd) || S.cd.length !== u.sw.length) S.cd = f.ship.cd;
   if (!Array.isArray(S.cdFresh) || S.cdFresh.length !== u.sw.length) S.cdFresh = f.ship.cdFresh;
@@ -703,7 +703,7 @@ function openDockPicker() {
   if (!cands.length) lst.innerHTML = '<div class="empty">No suits on the board can dock. (A suit launched this turn can\'t dock until your next turn.)</div>';
   cands.forEach(r => {
     const su = unitById(r.id), d = el("div", "row");
-    d.innerHTML = portraitHTML(su) + '<span style="min-width:0;flex:1"><div class="nm">' + unitLabel(r.uid) + '</div><div class="tr">' + su.tier + '</div></span>';
+    d.innerHTML = portraitHTML(su) + '<span style="min-width:0;flex:1"><div class="nm">' + unitLabel(r.uid) + baseTagHTML(r) + '</div><div class="tr">' + su.tier + '</div></span>';
     d.onclick = () => {
       closePicker();
       st.ap -= 1;
@@ -1564,6 +1564,9 @@ function buildSquadFrame() {
 function drawSquad() {
   const u = U, st = sqMigrate(u, CUR.st), S = st.sq, q = S.qr, uid = CUR.uid;
   if (sqTabLocal[uid]) S.tab = sqTabLocal[uid];
+  const viewKey = [uid, S.tab, S.page || 0].join(':');
+  const oldBox = $("sheet").querySelector('.sqwrap');
+  const scrollTop = oldBox?.dataset.view === viewKey ? oldBox.querySelector('.sq-content')?.scrollTop || 0 : 0;
   hp = st.hp; ap = st.ap; dodges = 0;
   const sheet = $("sheet");
   sheet.classList.add("shipsheet"); sheet.classList.remove("st-noattack"); updateStanceBtn();
@@ -1580,14 +1583,10 @@ function drawSquad() {
   const compact = S.tab !== "overmap";
   $("rulesBtn").style.display = "flex";
   sheet.classList.toggle("sqcompact", compact);
-  const box = el("div", "sx sqwrap"); sheet.appendChild(box);
-  if (!compact) {
-    const nm = el("div", "sx sname long"); nm.style.left = "69.6%"; nm.style.top = "8.2%"; nm.textContent = "INFANTRY SQUAD"; sheet.appendChild(nm);
-    const c1 = el("div", "sx sclass"); c1.style.left = "69.6%"; c1.style.top = "13.4%"; c1.textContent = (u.faction === "federation" ? "Federation" : "Spacenoid") + " \u00b7 8 soldiers \u00b7 no DP"; sheet.appendChild(c1);
-    const c2 = el("div", "sx sclass"); c2.style.left = "69.6%"; c2.style.top = "16.6%"; c2.textContent = "TARGETABLE WITHIN 20CM \u00b7 DODGE 10+"; sheet.appendChild(c2);
-  }
+  const scrollContent = S.tab !== "soldiers";
+  const box = el("div", "sx sqwrap" + (scrollContent ? "" : " sq-soldiers")); box.dataset.view = viewKey; sheet.appendChild(box);
   const tabs = [["overmap", "OVERMAP"], ["soldiers", "8 SOLDIERS"], ["qr", "QUICK RESOLVE"]];
-  let h = '<div class="sqtabs">' + tabs.map(([k, t]) => '<button class="sqtab' + (S.tab === k ? ' on' : '') + '" onclick="sqTab(\'' + k + '\')">' + t + '</button>').join("") + '</div>';
+  let h = '<div class="sqtabs">' + tabs.map(([k, t]) => '<button class="sqtab' + (S.tab === k ? ' on' : '') + '" onclick="sqTab(\'' + k + '\')">' + t + '</button>').join("") + '</div>' + (scrollContent ? '<div class="sq-content">' : '');
   if (S.tab !== "qr" && mpTeamMode() && ffForUid(uid, mpMyTeam())) h += ffCardHTML();
   const cs = carrierState(uid);
   const pinned = typeof ffPinned === "function" ? ffPinned(uid) : null;
@@ -1602,7 +1601,7 @@ function drawSquad() {
       : '<div class="sqobjlink"><button class="linkbtn" onclick="sqObjective(true)">\u{1F6A9} Mark as holding the objective</button></div>';
     const pips = S.soldiers.map((s, i) => '<button class="sqpip' + (s.hp > 0 ? ' on' : '') + '" onclick="sqPip()" title="' + sqLabel(st, i) + '"><img src="img/ground/' + u.sk + '-' + s.r + '.webp" alt=""></button>').join("");
     h += '<div class="sqgrid om">' +
-      '<div class="sqcard"><h4>SQUAD HEALTH <b>' + alive + ' / 8</b></h4><div class="sqpips">' + pips + '</div>' +
+      '<div class="sqcard"><h4><img class="sq-overmap-icon" src="img/portraits/'+u.portrait+'.webp" alt="">SQUAD HEALTH <b>' + alive + ' / 8</b></h4><div class="sqpips">' + pips + '</div>' +
         '<p>Tap to record casualties (you choose who falls) \u00b7 Repair mode restores a soldier. At 1 soldier the squad drops to 1 AP.</p>' +
         '<div class="sqstats">' +
           '<div><small>AP</small><span class="sqstep"><button onclick="sqAP(-1)">\u2212</button><b>' + st.ap + '<i>/' + apMax + '</i></b><button onclick="sqAP(1)">+</button></span></div>' +
@@ -1693,7 +1692,9 @@ function drawSquad() {
     '</div>';
     }
   }
-  box.innerHTML = h;
+  box.innerHTML = h + (scrollContent ? '</div>' : '');
+  const actions=box.querySelector('.sq-actions');if(actions)box.querySelector('.sqtabs').after(actions);
+  if (scrollContent) box.querySelector('.sq-content').scrollTop = scrollTop;
   renderTurn();
   if (typeof mpSheetMode === "function") mpSheetMode();
   if (typeof renderFF === "function") renderFF();
@@ -2232,7 +2233,7 @@ function ffPickRender() {
     (n && m ? ffLineupHTML(P.me.map(uid => P.mine.find(x => x.uid === uid)), P.foe.map(uid => P.enemy.find(x => x.uid === uid)), P.pairs, mpMyTeam(), otherTeam(mpMyTeam()), false) : '');
   const go = $("ffGoBtn");
   if (go) {
-    go.textContent = n && m ? "\u2694 CHALLENGE \u00b7 " + n + " vs " + m : "Pick at least one squad a side";
+    go.textContent = n && m ? "\u2694 CHALLENGE \u00b7 " + n + " vs " + m : "SELECT BOTH SIDES";
     go.className = "btn big " + (n && m ? "pri" : "off");
   }
 }
@@ -2248,7 +2249,7 @@ window.ffChallenge = () => {
   });
   ffSel = { mine, enemy: ffEnemySquads(), me: [CUR.uid], foe: [], obj: "" };
   $("pickT").textContent = "\u2694 Challenge an enemy squad";
-  $("pickS").innerHTML = "Tap squads on both sides to put them in this engagement. They fight <b>one pair per turn</b> \u2014 set the matchups below before sending. The enemy can review and adjust their fighters before accepting.";
+  $("pickS").innerHTML = "Select squads on both sides, then review matchups below. <b>One pair fights each turn.</b>";
   ffPickRender();
   const go = el("button", "btn big pri"); go.id = "ffGoBtn";
   go.onclick = () => {
@@ -4674,6 +4675,9 @@ function mpApplyUnit(r, force) {
       for(const k of ['carry','docking','aboard','repairBoardings','repairTransitRevision'])if(rs.ship[k]!==undefined)r.st.ship[k]=structuredClone(rs.ship[k]);
       suppliesChanged=true;
     }
+    if(rs?.ship&&r.st.ship&&(rs.ship.repairSlotsRevision||0)!==(r.st.ship.repairSlotsRevision||0)){
+      r.st.ship.repairSlots=structuredClone(rs.ship.repairSlots);r.st.ship.repairSlotsRevision=rs.ship.repairSlotsRevision;suppliesChanged=true;
+    }
     if(remote&&local){
       const before=JSON.stringify([local.items,local.resupply]);
       local.items=JSON.parse(JSON.stringify(remote.items));local.supplyVersion=2;
@@ -4877,6 +4881,8 @@ function mpApply() {
   mpSheetMode();
   renderOppIfVisible();
   const ls = mpLockSig();
+  repairRosterRefresh();
+  repairBayRefresh();
   if (ls !== mp.lockSig) { mp.lockSig = ls; if ($("s3").classList.contains("on")) renderRoster(); }
 }
 function mpEnterTeam() {
@@ -5389,7 +5395,7 @@ function renderOpp() {
       '<span style="min-width:0"><div class="nm">' +
         (ud && ud.st && pct > 0 && objHeld(ud.st) ? objTagHTML(objHeld(ud.st).name) : '') +
         (ffForUid(x.uid, t) ? ffTagHTML(ffForUid(x.uid, t), x.uid, t) : '') +
-        label + (oppAboard.has(x.uid) ? ' <span class="cartag aboard">\u2693 ABOARD</span>' : '') +
+        label + baseTagHTML({...x,st:ud?.st},ot) + (oppAboard.has(x.uid) ? ' <span class="cartag aboard">\u2693 ABOARD</span>' : '') +
         (ud && ud.st ? ' ' + stanceTagHTML(stanceNow({ id: x.id, st: ud.st })) : '') + '</div><div class="tr"><b style="color:' + HEALTH_COL(pct) + '">' + HEALTH_WORD(pct) + '</b> \u00b7 ' + u.tier + '</div></span>' +
       '<span class="dp">' + u.dp.toLocaleString() + '</span></div>';
   });
@@ -5550,6 +5556,7 @@ function renderRosterCore() {
           (locked && !dead && objHeld(r.st) ? objTagHTML(objHeld(r.st).name) : '') +
           (locked && mpTeamMode() && ffForUid(r.uid, mpMyTeam()) ? ffTagHTML(ffForUid(r.uid, mpMyTeam()), r.uid, mpMyTeam()) : '') +
           (u.short || u.name) + (n > 1 ? ' <span style="color:var(--muted)">#' + idx + '</span>' : '') +
+          baseTagHTML(r) +
           (ctl ? ' <span class="ctltag" title="' + (ctl.me ? 'You have this sheet open' : ctl.name + ' has this sheet open') + '">' + (ctl.me ? '\u270E You' : '\u{1F512} ' + ctl.name) + '</span>' : '') +
           (cst ? ' ' + carrierTag(r.uid) : '') + (locked ? ' ' + stanceTagHTML(stanceNow(r)) : '') +
           (locked && needsRecheck(r) ? ' <span class="rechecktag">\u21BB RE-CHECK</span>' : '') +
@@ -5951,6 +5958,7 @@ window.openPicker = (mode, slot) => {
       d.innerHTML = '<span style="width:6px;height:36px;border-radius:3px;flex:none;background:' + col + '"></span>' +
         portraitHTML(un) +
         '<span style="min-width:0;flex:1"><div class="nm">' + markPipHTML(r, 'inl') + (un.short || un.name) + (n > 1 ? ' <span style="color:var(--muted)">#' + idx + '</span>' : '') +
+          baseTagHTML(r) +
           (isCur ? ' <span class="pktag cur">OPEN NOW</span>' : '') +
           (ctl && !isCur ? ' <span class="ctltag">' + (ctl.me ? '\u270E You' : '\u{1F512} ' + ctl.name) + '</span>' : '') + '</div>' +
           '<div class="tr">' + (dead ? "DESTROYED" : (LIMB_LABEL[kl] || "Chest") + " " + now + "/" + tot) + ' \u00b7 ' + (un.tier || "") + '</div>' +
@@ -7282,9 +7290,16 @@ function draw() {
   mkStat("dg", 80.5, 47.9, dodges, dodgeMax, dodgeCountTemp ? "#a78bfa" : "#22c55e", v => dodges = v, false);
 
   // shDown[i]:  0 = fine | -2 = at zero, awaiting your call | -1 = destroyed for good | n>0 = regenerating
-  (U.shields || []).forEach((cfg, i) => {
-    if(cfg.captured)return;
+  const shieldViews=eqShieldViews(),armShields=shieldViews.filter(v=>v.cfg.displayArm);
+  // Ring units keep their native quadrant bubbles; forearm slots use the summary row.
+  for(const label of $('frame').querySelectorAll('.fstat'))if(Math.abs(parseFloat(label.style.top)-57.3)<.1)label.style.visibility=U.ring&&armShields.length?'hidden':'';
+  shieldViews.forEach(({cfg,i}) => {
     const equipment=MSE.init(U,eqLive());
+    const armMark=cfg.displayArm?'<span class="shield-arm-mark">'+(cfg.displayArm==='rightArm'?'R':'L')+'</span>':'';
+    if(i<0){
+      const g=el('div','grp shield-slot',{left:cfg.x+'%',top:cfg.y+'%'}),b=el('button','num');g.dataset.shieldArm=cfg.displayArm;
+      b.type='button';b.innerHTML=armMark+'—';b.title=LIMB_LABEL[cfg.displayArm]+' shield slot · empty';b.onclick=openEquipment;g.appendChild(b);sheet.appendChild(g);return;
+    }
     if(equipment && (equipment.shieldDropped.includes(i)||!equipment.shields[i])){
       const lost=equipment.shieldDropped.includes(i),g=el('div','grp',{left:cfg.x+'%',top:cfg.y+'%'}),b=el('button','num');
       b.type='button';b.textContent=lost?'DROPPED':'STORED';b.title=lost?'Pick up this shield within 10cm for 1 AP':'Choose a forearm in Equip';b.onclick=lost?openPickup:openEquipment;g.appendChild(b);sheet.appendChild(g);return;
@@ -7322,18 +7337,26 @@ function draw() {
     if (MSE.supported(U) && !MSE.shieldReady(U,eqLive(),i) && sh[i] > 0) {
       const tag=el("div","lenttag",{left:cfg.x+"%",top:(cfg.y-3)+"%"});tag.textContent="UNAVAILABLE · EQUIP";tag.onclick=openEquipment;sheet.appendChild(tag);
     }
+    if(eqPending?.key==='stow'&&eqCanStowShield(i)){
+      const g=el('div','grp eq-shield-stow '+(equipment.shields[i]==='rightArm'?'eq-right':'eq-left'),{left:cfg.x+'%',top:cfg.y+'%'});
+      const b=el('button','num');b.type='button';b.dataset.shieldIndex=i;
+      b.innerHTML=armMark+sh[i]+'<small>/'+shMx(i)+'</small>';b.title='Stow '+(cfg.label||'shield')+' from '+LIMB_LABEL[equipment.shields[i]];
+      g.dataset.shieldIndex=i;g.dataset.shieldArm=cfg.displayArm||'';
+      b.setAttribute('aria-label',b.title);b.onclick=()=>eqStowShield(i);g.appendChild(b);sheet.appendChild(g);return;
+    }
     const v = sh[i], d = shDown[i] || 0, id = "sh" + i, shw = active === id;
     const asking = d === -2, dead = d === -1, regen = d > 0;
     const pr = shMx(i) ? v / shMx(i) : 1;
     const col = dead ? "#7f1d1d" : regen ? "#a855f7" : asking ? "#f59e0b"
       : v === 0 ? "#64748b" : pr <= .34 ? "#ef4444" : pr <= .67 ? "#f59e0b" : "#22c55e";
     const g = el("div", "grp", { left: cfg.x + "%", top: cfg.y + "%" });
+    g.dataset.shieldIndex=i;g.dataset.shieldArm=cfg.displayArm||'';
 
     if (asking) {
       // a beam shield just hit 0 -- was it a Natural 20 Block?
       const lab = el("div", "num", { borderColor: col, background: "rgba(120,53,15,.95)",
         color: "#fde68a", cursor: "default", minWidth: "1.6em" });
-      lab.textContent = "0"; lab.title = "Shield down — choose what happened";
+      lab.innerHTML = armMark+'0'; lab.title = "Shield down — choose what happened";
       const rb = el("div", "step show", { borderColor: "#a855f7", color: "#a855f7" });
       rb.textContent = "↻"; rb.title = "Normal — offline " + U.regen + " turns, then restores";
       rb.onclick = e => { e.stopPropagation(); shDown[i] = U.regen; draw(); };
@@ -7357,10 +7380,11 @@ function draw() {
         : v === 0 ? "rgba(100,116,139,.92)" : "rgba(255,255,255,.96)",
       color: (dead || regen || v === 0) ? "#f5f3ff" : "#0f172a",
       boxShadow: shw ? "0 0 0 2px " + col + "66" : "none" });
-    n.innerHTML = dead ? "✕" : regen ? ("↻" + d) : (v + "<small>/" + shMx(i) + "</small>");
+    n.innerHTML = armMark+(dead ? "✕" : regen ? ("↻" + d) : (v + "<small>/" + shMx(i) + "</small>"));
     n.title = dead ? "Destroyed permanently — Natural 20 Block"
       : regen ? ("Offline — restores in " + d + " turn(s)")
       : ((cfg.label ? cfg.label + (cfg.coverage ? " (" + cfg.coverage + "\u00b0)" : "") + " \u2014 " : U.shields.length > 1 ? "Shield " + (i + 1) + " — " : "Shield ") + v + "/" + shMx(i));
+    if(cfg.displayArm)n.title=LIMB_LABEL[cfg.displayArm]+' · '+n.title;
     n.onclick = () => wake(id);
     const p = el("div", "step" + (shw ? " show" : ""), { borderColor: col, color: col });
     p.textContent = "+";
@@ -7380,7 +7404,7 @@ function draw() {
         else if (q.left < SR.left + 3) w.style.left = (parseFloat(w.style.left) + (SR.left - q.left + 4) / SR.width * 100) + "%";
       }
     }
-    if (U.lendable && Array.isArray(out) && i < U.lendable.count) {
+    if (!cfg.captured && U.lendable && Array.isArray(out) && i < U.lendable.count) {
       const sb = el("div", "sendbtn", { position: "absolute", transform: "translate(-50%,-50%)",
         left: cfg.x + "%", top: (cfg.y > 75 ? cfg.y - 5.0 : cfg.y + (U.ring && U.shields.length === 2 ? 5.0 : 6.2)) + "%", zIndex: 8, borderRadius: "4px", padding: "1px 5px",
         fontSize: "clamp(5px,1.25cqw,16px)", fontWeight: "700", cursor: "pointer",
@@ -7638,9 +7662,10 @@ function draw() {
   });
   fitCD();                                   // pod rows are drawn late
   // a combined total when there is more than one
-  if ((U.shields || []).filter(c=>!c.captured).length > 1) {
+  const armSummary=armShields.length&&!U.ring&&!shieldViews.some(v=>v.cfg.displayArm===undefined&&v.cfg.x===80.5&&v.cfg.y===57.3);
+  if (armSummary||(!armShields.length&&(U.shields || []).filter(c=>!c.captured).length > 1)) {
     // a shield that has been lent away is not protecting this unit, so it leaves the total
-    const isAway = j => !!(U.shields[j]?.captured || CUR.st.eq?.shieldDropped?.includes(j) || (CUR.st.eq&&!CUR.st.eq.shields[j]) || (U.lendable && out && out[j] !== null && out[j] !== undefined));
+    const isAway = j => !!((armSummary&&!armShields.some(v=>v.i===j)) || (!armSummary&&U.shields[j]?.captured) || CUR.st.eq?.shieldDropped?.includes(j) || (CUR.st.eq&&!CUR.st.eq.shields[j]) || (U.lendable && out && out[j] !== null && out[j] !== undefined));
     const tot = sh.reduce((a, b, j) => a + (isAway(j) ? 0 : b), 0);
     const t = el("div", "num", { position: "absolute", transform: "translate(-50%,-50%)",
       left: "80.5%", top: "57.3%", cursor: "default",
@@ -7653,14 +7678,14 @@ function draw() {
     t.style.borderColor = liveMax === 0 ? "#64748b" : (tot === 0 ? "#64748b" : "#22c55e");
     t.style.background = liveMax === 0 ? "rgba(100,116,139,.92)" : t.style.background;
     t.style.color = liveMax === 0 ? "#e2e8f0" : t.style.color;
-    t.title = homeCount === U.shields.length
+    t.title = armSummary?'Total HP of equipped forearm shields · use the R/L bubbles below':homeCount === U.shields.length
       ? ("total across all " + U.shields.length + " shields")
       : (homeCount === 0 ? "every shield is lent out \u2014 no protection" 
          : ("total across the " + homeCount + " shield(s) still aboard"));
     sheet.appendChild(t);
     // a small caption beside the stack so the split is obvious
     const first = U.shields[0];
-    if (first && first.x > 88 && U.shields.length > 2) {
+    if (!armSummary && first && first.x > 88 && U.shields.length > 2) {
       const cap = el("div", "txt", { left: (first.x - 10.5) + "%", top: first.y + "%",
         fontSize: "clamp(5px,1.15cqw,15px)", fontWeight: "800", color: accentOf(sideKey()), whiteSpace: "nowrap" });
       cap.textContent = U.shields.length + "\u00d7";
@@ -7772,7 +7797,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf122";
+const APP_BUILD = "cf124";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
@@ -8281,7 +8306,7 @@ function phaseTap() {
   const lst = $("picklist"); lst.innerHTML = "";
   left.forEach(r => {
     const u = unitById(r.id), d = el("div", "row");
-    d.innerHTML = '<span class="tick"></span><span style="min-width:0;flex:1"><div class="nm">' + markPipHTML(r, "inl") + unitLabel(r.uid) + '</div>' +
+    d.innerHTML = '<span class="tick"></span><span style="min-width:0;flex:1"><div class="nm">' + markPipHTML(r, "inl") + unitLabel(r.uid) + baseTagHTML(r) + '</div>' +
       '<div class="tr">' + u.tier + ' \u00b7 tap to open its sheet</div></span>';
     d.onclick = () => { closePicker(); openSheet(r.uid); };
     lst.appendChild(d);

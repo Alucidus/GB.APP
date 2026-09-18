@@ -23,6 +23,19 @@ source=row(1,unit('gm-sniper-ii'));source.st.hp.rightArm=0;field={items:{},seq:0
 // Fresh base replacements must not delete the original ground item.
 source=row(1,gundam);source.st.hp.rightArm=0;field={items:{},seq:0};P.scan(field,[source],defs);const original=Object.values(field.items)[0];source.st.eq.hands=[null,null];source.st.eq.dropped=[];source.st.eq.taken=[];P.scan(field,[source],defs);eq(field.items[original.id].status,'ground','replacement leaves old physical drop');
 const {room,server,url}=await startTestServer();const post=async b=>(await(await fetch(url+'/api/sync',{method:'POST',body:JSON.stringify(b)})).json());
+// A repaired arm is free even while its old shield remains on the battlefield.
+{
+ const a=row(1,gundam),b=row(2,gundam,'spacenoid'),list=[a,b],f={items:{},seq:0};
+ a.st.hp.leftArm=0;b.st.hp.chest=0;P.scan(f,list,defs);a.st.hp.leftArm=7;a.st.hp.rightArm=0;
+ const drop=Object.values(f.items).find(v=>v.uid===2&&v.kind==='shield');
+ eq(P.claim(f,list,defs,'federation',1,drop.id),'');const u=P.definition(gundam,a.st);
+ eq(a.st.eq.shields[1],'leftArm','old dropped mount does not block captured shield');
+ eq(E.shieldAt(u,a.st,'leftArm'),1);eq(E.stowShield(u,a.st,0),'Recover the shield first','stow cannot reclaim old drop');
+ const before=a.st.ap;eq(E.stowShield(u,a.st,1),'');eq(a.st.ap,before,'shield stow costs no AP');
+ a.st.ap=0;eq(E.equipShield(u,a.st,1,'leftArm'),'Not enough AP');eq(a.st.eq.shields[1],null);
+ a.st.ap=3;eq(E.equipShield(u,a.st,1,'rightArm'),'Choose an intact arm');eq(E.equipShield(u,a.st,1,'leftArm'),'');eq(a.st.ap,2);
+ a.st.eq.segment=true;eq(E.stowShield(u,a.st,1),'Finish the melee segment first');
+}
 // Captured gear stays off the native sheet, preserves resources, and can drop again.
 source=row(10,unit('banshee'),'spacenoid');target=row(20,unit('f91-gundam'));rows=[source,target];field={items:{},seq:0};
 source.st.wpn[0]=2;source.st.hp.rightArm=0;P.scan(field,rows,defs);
