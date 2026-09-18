@@ -1,3 +1,7 @@
+# Current status — cf120
+
+Completed: equipment quantity decisions, infantry Quick Resolve 2/2/2 and transport resupply. See Release_Notes_cf120.md for timing, migration and validation. Next milestone: personal-base and carrier repair services after user review. Historical entries below may describe older states.
+
 # Mobile Suit Battles — To-Do List
 
 ## cf110 update

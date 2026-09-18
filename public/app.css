@@ -3322,3 +3322,7 @@ button.mb-item.fxtog{font:inherit;color:#dfe9f4;background:none;border-top:0;bor
 .eq-swap-card{border-left-color:#ffc857}
 .eq-swap-card .eq-swap-cost{font-size:20px;font-weight:900;color:#ffc857}
 .m-disclaimer{margin:0;padding:10px max(16px,3vw) max(12px,env(safe-area-inset-bottom));background:rgba(4,6,10,.85);border-top:1px solid #334155;color:#b8c5d6;font:12px/1.5 Inter,"Segoe UI",sans-serif;text-align:center;flex-shrink:0}
+
+.qr-service{margin:8px auto;padding:10px 14px;max-width:900px;border:1px solid var(--muted);border-radius:8px;background:var(--panel,#10151d);font-size:13px;line-height:1.5}.qr-service>b{letter-spacing:.06em}.qr-service p{margin:6px 0}
+#resupplyStatus{display:flow-root}
+@media(max-height:560px){.qr-service{margin:3px auto;padding:4px 10px;font-size:12px;line-height:1.3}.qr-service p{margin:3px 0}.qr-service p br{display:none}.qr-service p strong{margin-right:8px}}

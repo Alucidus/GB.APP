@@ -14,6 +14,7 @@
 // Write rules are unchanged: player (that player) · settings (host) · team (leader) · unit (lock holder, or the
 // leader while nobody else holds it) · lock (claim if free or stale) · inbox (any teammate, once; cleared by holder).
 
+import {protectSupply,serviceSupplies,spendSupply} from './resupply.js';
 const TTL_MS = 24 * 60 * 60 * 1000;
 const CODE_LEN = 5;
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -274,6 +275,7 @@ export class BattleRoom {
     if (!this.live()) return R(410, { ok: false, error: "This session has ended or expired.", ended: true });
     if (!this.tokenOk(body.pid, body.token)) return R(403, { ok: false, error: "This device's seat is no longer valid." });
     const M = this.mem, meta = M.get("meta");
+    const previousTurn = M.get('turn');
     const pid = body.pid, now = Date.now();
     const isHost = meta.hostPid === pid;
     const w = body.writes && typeof body.writes === "object" ? body.writes : {};
@@ -409,7 +411,7 @@ export class BattleRoom {
         const holder = locks[k] && locks[k].pid;
         if (!(holder === pid || (amLeader && (!holder || !alive(holder))))) { denied.push("unit:" + k); continue; }
         if (JSON.stringify(data).length > MAX_BYTES) { denied.push("unit-size:" + k); continue; }
-        await M.set("unit/" + k, data); push = true;
+        await M.set("unit/" + k, protectSupply(data,M.get('unit/'+k))); push = true;
       }
     }
     // 5. deliveries this device applied are cleared while it still holds the lock
@@ -441,6 +443,7 @@ export class BattleRoom {
       push = true;
     }
 
+    if(await serviceSupplies(M,previousTurn))push=true;
     // 7b. online Firefight (Quick Resolve over the link)
     if (w.ff && myTeam) {
       const ops = Array.isArray(w.ff) ? w.ff.slice(0, 6) : [w.ff];
@@ -528,6 +531,7 @@ export class BattleRoom {
       const queued = op.forced === true && !!tk;          // Forced Re-Engagement: starts on its own when the next turn begins
       if (!queued && tk && tk.active !== myTeam) { denied.push("ff:not-your-turn"); return false; }   // challenges only on your own turn
       if (queued && !M.has(ffPairKey(myTeam, op.aUid, other, op.bUid))) { denied.push("ff:not-fought"); return false; }   // only a squad you already fought
+      if(queued && !await spendSupply(M,myTeam,op.aUid,'fb')){denied.push('ff:no-item');return false;}
       await M.set(key, { id, state: queued ? "queued" : "invite", at: now, mode: null, rollAsk: null, round: 1, seg: 1,
         forced: queued ? "a" : null, startSeq: queued ? tk.seq + 1 : null,
         a: { team: myTeam, uid: op.aUid, pid, label: String(op.aLabel || "").slice(0, 30) },
@@ -643,10 +647,18 @@ export class BattleRoom {
         g.ready[side] = null; return save();
       case "pick":
         if (g.state !== "pick" || !mine || !ITEMS.includes(op.item)) break;
+        if(g.lock[side])break;
+        if(op.item!=='none'){
+          const q=M.get('unit/'+myTeam+'/'+g[side].uid)?.st?.sq?.qr;
+          if(!q||q.resupply||!(q.items?.[op.item]>0))break;
+        }
         await M.set("ffsec/" + id + "/" + side, op.item);
         g.lock[side] = true;
         if (g.lock.a && g.lock.b) {
           const pa = M.get("ffsec/" + id + "/a") || "none", pb = M.get("ffsec/" + id + "/b") || "none";
+          // Validate both inventories before spending either; picks are reserved until reveal.
+          if([['a',pa],['b',pb]].some(([sd,it])=>{const st=M.get('unit/'+g[sd].team+'/'+g[sd].uid)?.st;return it!=='none'&&(!(st?.hp?.hp>0)||st.sq?.qr?.resupply||!(st.sq?.qr?.items?.[it]>0));}))break;
+          await spendSupply(M,g.a.team,g.a.uid,pa);await spendSupply(M,g.b.team,g.b.uid,pb);
           await M.del("ffsec/" + id + "/a"); await M.del("ffsec/" + id + "/b");
           g.reveal = { a: pa, b: pb, round: g.round, at: now }; g.state = "reveal";
           const hk = ffPairKey(g.a.team, g.a.uid, g.b.team, g.b.uid);
@@ -675,6 +687,7 @@ export class BattleRoom {
       }
       case "segment":                               // another 4-round segment (re-engage / Forced Re-Engagement)
         if (g.state !== "end" || !mine || !g.obj || g.ext || (g.eng && moreBouts(g))) break;
+        if(op.forced){const uid=op.uid||g[side].uid;if(g.eng&&!g.eng[side+'List'].some(x=>x.uid===uid))break;if(!await spendSupply(M,myTeam,uid,'fb'))break;}
         g.confirmed = { a: false, b: false };
         g.mode = null; g.rollAsk = null; g.modePick = null;
         g.seg += 1; g.round = 1; g.obj = null; g.ready = { a: null, b: null }; g.lock = { a: false, b: false };
@@ -684,6 +697,7 @@ export class BattleRoom {
         return save();
       case "counter":                               // the squad being forced back spends a Smoke Grenade: the re-engagement is cancelled
         if (g.state !== "queued" || !g.forced || side === g.forced) break;
+        if(!await spendSupply(M,myTeam,g[side].uid,'sm'))break;
         g.state = "closed"; g.countered = side; return save();
       case "unconfirm":
         if (g.state !== "end" || !mine || !g.eng || g.ext) break;
@@ -723,10 +737,12 @@ export class BattleRoom {
       case "deny":
         if (g.state !== "end" || !mine || !g.ext || g.ext.side === side || (g.ext.deny && !g.ext.smoke) ||
             !g.eng[side + "List"].some(x => x.uid === op.uid)) break;
+        if(!await spendSupply(M,myTeam,op.uid,'fb'))break;
         g.ext.deny = { uid: op.uid }; g.ext.smoke = false; g.ext.flashes = (g.ext.flashes || 0) + 1; return save();
       case "smokeout":
         if (g.state !== "end" || !mine || !g.ext || g.ext.side !== side || !g.ext.deny || g.ext.smoke ||
             !g.eng[side + "List"].some(x => x.uid === op.uid)) break;
+        if(!await spendSupply(M,myTeam,op.uid,'sm'))break;
         g.ext.smoke = true; g.ext.smokes = (g.ext.smokes || 0) + 1; return save();
       case "letgo":
         if (g.state !== "end" || !mine || !g.ext || g.ext.side === side || (g.ext.deny && !g.ext.smoke)) break;

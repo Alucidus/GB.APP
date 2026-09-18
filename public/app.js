@@ -1296,7 +1296,7 @@ const FIREPOWER = hp => hp >= 7 ? 8 : hp >= 5 ? 7 : hp >= 3 ? 6 : hp >= 1 ? 5 : 
 const MARGIN_TABLE = [[0, "No effect"], [1, "1 soldier suppressed"], ["2\u20133", "1 casualty"], [4, "1 casualty + 1 suppressed"], [5, "1 casualty + 2 suppressed"], ["6+", "2 casualties + 2 suppressed"]];
 const MARGIN_FX = m => m <= 0 ? [0, 0] : m === 1 ? [0, 1] : m <= 3 ? [1, 0] : m === 4 ? [1, 1] : m === 5 ? [1, 2] : [2, 2];
 const VOLLEY = n => n >= 2 && n <= 5 ? n + 1 : 0;   // Perfect Volley: a squad rolling 2–5 dice, every die a 6 (incl. suppressed squads down to 2 dice)
-const QR_ITEMS = { fb: { name: "Flashbang", icon: "\u2726", max: 2 }, sm: { name: "Smoke Grenade", icon: "\u25CC", max: 1 }, gr: { name: "Grenade", icon: "\u2739", max: 1 } };
+const QR_ITEMS = { fb: { name: "Flashbang", icon: "\u2726", max: 2 }, sm: { name: "Smoke Grenade", icon: "\u25CC", max: 2 }, gr: { name: "Grenade", icon: "\u2739", max: 2 } };
 const STRIKE_TARGETS = [["Infantry Squad", "1 casualty (a sniper picking one off)"], ["Ground vehicle", "5 dmg (rockets)"], ["Mobile suit", "1 dmg to all 6 locations"], ["Aircraft", "3 dmg"]];
 
 ["federation", "spacenoid"].forEach(fac => {
@@ -1316,13 +1316,14 @@ function sqFresh(u) {
   return { hp: { hp: 8 }, dodges: 0, ap: u.ap, track: [], wpn: [], sh: [], shMax: [], shDown: [], pods: null, out: null, lent: [], risk: {},
     sq: { soldiers, shield: { armor: { a: 3, h: 6 }, shield: { a: 3, h: 6 } }, items: { nade: 2, rocket: 2, flash: 2, smoke: 2 },
       eq: { armor: 0, shield: 0 }, tab: "overmap",
-      qr: { round: 1, supp: 0, next: 0, items: { fb: 2, sm: 1, gr: 1 }, my: "none", foe: "none", res: null, foeHp: 8, foeSupp: 0, sim: false, roll: null, obj: null } } };
+      qr: { supplyVersion: 2, round: 1, supp: 0, next: 0, items: { fb: 2, sm: 2, gr: 2 }, my: "none", foe: "none", res: null, foeHp: 8, foeSupp: 0, sim: false, roll: null, obj: null } } };
 }
 function sqMigrate(u, st) {
   const f = sqFresh(u);
   if (!st.sq || !Array.isArray(st.sq.soldiers) || st.sq.soldiers.length !== 8) st.sq = f.sq;
+  if(!st.sq.qr)st.sq.qr={items:{fb:0,sm:0,gr:0}};
   ["shield", "items", "eq", "qr"].forEach(k => { if (!st.sq[k]) st.sq[k] = f.sq[k]; });
-  if (!st.sq.qr.items) st.sq.qr.items = f.sq.qr.items;
+  GBSupplies.normalize(st.sq.qr);
   st.sq.soldiers.forEach(x => sqSoldierFix(x));
   if (typeof st.ap !== "number") st.ap = u.ap;
   ["track", "wpn", "sh", "shMax", "shDown", "lent"].forEach(k => { if (!Array.isArray(st[k])) st[k] = []; });
@@ -1453,6 +1454,7 @@ function qrDice(hp, supp) { return hp <= 0 ? 0 : hp === 1 ? 1 : Math.max(FIREPOW
 window.qrSet = (k, v) => {
   if (!CUR || !mpSheetCanEdit()) return;
   const q = CUR.st.sq.qr, uid = CUR.uid;
+  if (mpTeamMode()) return;
   if (k === "round") q.round = Math.max(1, Math.min(4, v));
   else if (k === "supp") q.supp = Math.max(0, Math.min(8, q.supp + v));
   else if (k === "next") q.next = Math.max(0, Math.min(8, q.next + v));
@@ -1467,7 +1469,7 @@ window.qrSet = (k, v) => {
     logEv(uid, "Firefight round " + q.round + (q.supp ? " \u2014 " + q.supp + " of ours suppressed" : ""), "info");
   } else if (k === "newSeg") {
     q.round = 1; q.supp = 0; q.next = 0; q.my = "none"; q.foe = "none"; q.res = null; q.roll = null; q.obj = null;
-    if (v === "engagement") { q.items = { fb: 2, sm: 1, gr: 1 }; logEv(uid, "New firefight engagement \u2014 items refilled", "info"); }
+    if (v === "engagement") { logEv(uid, "New firefight engagement — remaining items retained", "info"); }
     else logEv(uid, "New 4-round firefight bout", "info");
   } else if (k === "forced") {
     if (q.items.fb < 1) { mpToast("No Flashbang left to force a re-engagement."); return; }
@@ -1698,8 +1700,8 @@ function drawSquad() {
 
 // the squad's Quick Resolve items, shown first on the tab (so players know what's left after a fight)
 function qrResourcesHTML(S) {
-  const q = S.qr || {}, it = q.items || { fb: 2, sm: 1, gr: 1 };
-  const MAX = { fb: 2, sm: 1, gr: 1 };
+  const q = GBSupplies.normalize(S.qr || (S.qr={})), it = q.items;
+  const MAX = { fb: 2, sm: 2, gr: 2 };
   const NAMES = { fb: ["Flashbang", "enemy rolls 3 fewer dice \u00b7 forces a re-engagement"], sm: ["Smoke Grenade", "clears your set-aside dice \u00b7 counters a forced re-engagement"], gr: ["Grenade", "1 enemy casualty"] };
   const offline = !mpTeamMode();            // offline the fight happens at the table: the app just tracks what's used
   const tile = k => {
@@ -1715,14 +1717,14 @@ function qrResourcesHTML(S) {
   const sub = offline ? 'tap an item when you use it' : 'no refills \u2014 resupply by riding a vehicle';
   return '<div class="qrres"><h4>QUICK RESOLVE RESOURCES <small>' + sub + '</small>' +
     (offline ? '<button class="btn sm qrrefill" onclick="qrItemRefill()" title="Squads resupply by riding a vehicle">\u21BA Resupplied</button>' : '') + '</h4>' +
-    '<div class="qrr-g">' + ["fb", "sm", "gr"].map(tile).join("") + '</div></div>';
+    '<div class="qrr-g">' + ["fb", "sm", "gr"].map(tile).join("") + '</div><p class="qrsmall">2 of each per squad. Board on turn 1 → stay aboard through turn 2 → refill at the start of turn 3.</p></div>';
 }
 
 // offline item tracking
-const QR_MAX = { fb: 2, sm: 1, gr: 1 };
+const QR_MAX = { fb: 2, sm: 2, gr: 2 };
 function qrItems() {
   const S = CUR.st.sq; S.qr = S.qr || {};
-  if (!S.qr.items) S.qr.items = { fb: 2, sm: 1, gr: 1 };
+  GBSupplies.normalize(S.qr);
   return S.qr.items;
 }
 window.qrItemUse = k => {
@@ -1744,7 +1746,7 @@ window.qrItemPip = (k, i) => {
 window.qrItemRefill = () => {
   if (mpTeamMode() || !CUR || !CUR.st || !CUR.st.sq) return;
   CUR.st.sq.qr = CUR.st.sq.qr || {};
-  CUR.st.sq.qr.items = { fb: 2, sm: 1, gr: 1 };
+  CUR.st.sq.qr.items = { fb: 2, sm: 2, gr: 2 };
   logEv(CUR.uid, "Quick Resolve items resupplied", "info");
   save(); draw();
 };
@@ -1808,7 +1810,7 @@ window.gvEmbark = () => {
   const lst = $("picklist"); lst.innerHTML = cands.length ? "" : '<div class="empty">No squads on the board.</div>';
   cands.forEach(r => {
     const d = el("div", "row"); d.innerHTML = portraitHTML(unitById(r.id)) + '<span style="min-width:0;flex:1"><div class="nm">' + objTagFor(r.uid) + unitLabel(r.uid) + '</div><div class="tr">' + sqAlive(r.st) + ' / 8 soldiers</div></span>';
-    d.onclick = () => { closePicker(); carry.push(r.uid); G.cargo = carry.length; logEv(CUR.uid, unitLabel(r.uid) + " embarked", "info"); gvCommit(); };
+    d.onclick = () => { closePicker(); carry.push(r.uid); qrBoardingChanged(CUR,r.uid); G.cargo = carry.length; logEv(CUR.uid, unitLabel(r.uid) + " embarked", "info"); gvCommit(); };
     lst.appendChild(d);
   });
   $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Cancel"; $("pick").classList.add("on");
@@ -1822,7 +1824,7 @@ window.gvDisembark = () => {
   carry.forEach(uid => {
     const r = roster.find(x => x.uid === uid); if (!r) return;
     const d = el("div", "row"); d.innerHTML = portraitHTML(unitById(r.id)) + '<span style="min-width:0;flex:1"><div class="nm">' + objTagFor(uid) + unitLabel(uid) + '</div><div class="tr">disembark here</div></span>';
-    d.onclick = () => { closePicker(); G.carry = carry.filter(x => x !== uid); G.cargo = G.carry.length; logEv(CUR.uid, unitLabel(uid) + " disembarked", "info"); gvCommit(); };
+    d.onclick = () => { closePicker(); G.carry = carry.filter(x => x !== uid); qrBoardingChanged(CUR,uid); G.cargo = G.carry.length; logEv(CUR.uid, unitLabel(uid) + " disembarked", "info"); gvCommit(); };
     lst.appendChild(d);
   });
   $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Cancel"; $("pick").classList.add("on");
@@ -2291,7 +2293,7 @@ window.ffForce = () => {
       (e.alive <= 0 ? "wiped out" : e.busy ? "\u2694 already in a firefight" : e.aboard ? "aboard a vehicle" : HEALTH_WORD(e.alive / 8)) + '</div></span>';
     if (!off) d.onclick = () => {
       closePicker();
-      q.items.fb -= 1; logEv(CUR.uid, "Forced Re-Engagement on " + e.label + " \u2014 Flashbang spent", "buff"); save();
+      logEv(CUR.uid, "Forced Re-Engagement on " + e.label + " \u2014 Flashbang spent", "buff"); save();
       ffOp({ op: "invite", id: ffNewId(), aUid: CUR.uid, bUid: e.uid, aLabel: unitLabel(CUR.uid), bLabel: e.label, forced: true });
       mpToast("\u2726 Forced Re-Engagement booked \u2014 it starts when the next turn begins.");
     };
@@ -2308,7 +2310,6 @@ window.ffCounter = () => {
   if (!f || f.state !== "queued" || f.forced === ffSideOf(f)) return;
   if (!(q.items && q.items.sm > 0)) { mpToast("No Smoke Grenade left to counter with."); return; }
   if (!confirm("Spend 1 Smoke Grenade to cancel the Forced Re-Engagement? Your squad gets away.")) return;
-  q.items.sm -= 1;
   logEv(CUR.uid, "\u25CC Smoke Grenade \u2014 countered the Forced Re-Engagement by " + f[ffOther(ffSideOf(f))].label, "buff");
   save(); if (typeof sqCommit === "function") sqCommit();
   ffOp({ op: "counter", id: f.id });
@@ -2332,14 +2333,14 @@ window.ffBannerCounter = id => {
   const t = mpMyTeam(), k = lockKey(t, r.uid), l = mpLockOf(t, r.uid);
   if (!mp.held.has(k) && l && l.pid !== mp.pid && mpLockAlive(l)) { mpToast(mpNameOf(l.pid) + " has that squad open \u2014 they can counter from its sheet."); return; }
   const S = r.st.sq; S.qr = S.qr || {};
-  if (!S.qr.items) S.qr.items = { fb: 2, sm: 1, gr: 1 };
+  GBSupplies.normalize(S.qr);
   if (!(S.qr.items.sm > 0)) { mpToast("No Smoke Grenade left to counter with."); renderFFInvites(); return; }
   if (!confirm("Spend 1 Smoke Grenade to cancel the Forced Re-Engagement? Your " + f[s].label + " gets away.")) return;
   const apply = () => {
     const f2 = mp.data["ff/" + id];
     if (!f2 || f2.state !== "queued") { mpToast("That re-engagement is no longer waiting."); return; }
     if (!(S.qr.items.sm > 0)) { mpToast("No Smoke Grenade left to counter with."); return; }
-    S.qr.items.sm -= 1;
+    // Room consumes the Smoke on successful counter.
     logEv(r.uid, "\u25CC Smoke Grenade \u2014 countered the Forced Re-Engagement by " + f2[f2.forced].label, "buff");
     save();
     ffOp({ op: "counter", id });
@@ -2696,7 +2697,7 @@ window.ffSegment = forced => {
   } else if (forced) {
     const q = CUR.st.sq.qr;
     if (!(q.items.fb > 0)) { mpToast("No Flashbang left to force a re-engagement."); return; }
-    q.items.fb--; logEv(CUR.uid, "Forced Re-Engagement — Flashbang spent", "buff"); save(); queue();
+    logEv(CUR.uid, "Forced Re-Engagement — Flashbang spent", "buff"); save(); queue();
   } else queue();
 };
 // squads of mine in this engagement, with what they have left
@@ -2716,7 +2717,7 @@ function ffSpendPick(f, kind, title, sub, go) {
         !(current.eng[ffSideOf(current) + "List"] || []).some(y => y.uid === x.uid) ||
         (mp.ffOps || []).some(op => op.id === f.id && ["deny", "smokeout", "segment"].includes(op.op)) ||
         sqAlive(x.r.st) <= 0 || !(x.r.st.sq.qr.items[kind] > 0)) return;
-    const st = x.r.st; st.sq.qr.items[kind] = Math.max(0, (st.sq.qr.items[kind] || 0) - 1);
+    // Room validates and spends from this squad only when the action succeeds.
     logEv(x.uid, FF_ITEMS[kind].i + " " + FF_ITEMS[kind].n + " spent \u2014 " + title.toLowerCase(), "buff");
     save(); if (typeof sqCommit === "function" && CUR && CUR.uid === x.uid) sqCommit();
     go(x);
@@ -2931,7 +2932,7 @@ function ffApply(f) {
   q.ffApplied = key;
   const my = f.reveal[s], foe = f.reveal[o], lines = [];
   let cas = 0, fx = [];
-  if (my !== "none" && q.items[my] > 0) q.items[my] -= 1;
+  if (!mpTeamMode() && my !== "none" && q.items[my] > 0) q.items[my] -= 1;
   const chips = [];
   const say = (tone, chip, line) => { chips.push({ t: tone, s: chip }); lines.push(line); };
   q.flashNow = 0;
@@ -3322,6 +3323,8 @@ function show(id) {
 }
 
 function save() {
+  qrStampTransportChanges();
+  qrReconcileRoster();
   try {
     stashTeam();                       // fold the live team back into teams[side]
     localStorage.setItem(SAVE, JSON.stringify({ side: side, teams: teams }));
@@ -4644,7 +4647,17 @@ function mpApplyUnit(r, force) {
   if (!d) { if (mp.base.units[r.uid] === undefined) mp.base.units[r.uid] = mpUnitJSON(r); return false; }
   const etag = mp.etags[key];
   if (!force && mp.seen[key] === etag && mp.base.units[r.uid] !== undefined) return false;
-  if (!force && mp.held.has(lockKey(t, r.uid)) && mp.base.units[r.uid] !== undefined) { mp.seen[key] = etag; return false; }
+  if (!force && mp.held.has(lockKey(t, r.uid)) && mp.base.units[r.uid] !== undefined) {
+    const remote=d.st?.sq?.qr,local=r.st.sq?.qr;
+    let suppliesChanged=false;
+    if(remote&&local){
+      const before=JSON.stringify([local.items,local.resupply]);
+      local.items=JSON.parse(JSON.stringify(remote.items));local.supplyVersion=2;
+      if(remote.resupply)local.resupply=JSON.parse(JSON.stringify(remote.resupply));else delete local.resupply;
+      suppliesChanged=before!==JSON.stringify([local.items,local.resupply]);
+    }
+    mp.seen[key] = etag; return suppliesChanged;
+  }
   if (d.st) deepFill(r.st, d.st);
   // done flag + this unit's events
   turn.done = (turn.done || []).filter(x => x !== r.uid);
@@ -6241,6 +6254,9 @@ function abilityLocked(a, abilities, trackArr) {
 }
 
 function draw() {
+  qrReconcileRoster();
+  const service=$("resupplyStatus");
+  if(service)service.innerHTML=CUR&&U?.cargo&&isGround(U)?qrServiceHTML(CUR):"";
   if (U && isShip(U)) { drawShip(); return; }
   if (U && isGround(U)) { if (isSquad(U)) drawSquad(); else drawGround(); return; }
   $("sheet").classList.remove("shipsheet");
@@ -7695,14 +7711,14 @@ window.openSheetHelp = () => {
 function fitSheet() {
   const s4 = $("s4"), sh = $("sheet");
   if (!s4 || !sh || !s4.classList.contains("on")) return;
-  const avail = window.innerHeight - $("topbar").offsetHeight - $("tl").offsetHeight;
+  const avail = window.innerHeight - $("topbar").offsetHeight - $("tl").offsetHeight - ($("resupplyStatus")?.offsetHeight || 0);
   const full = s4.clientWidth || document.documentElement.clientWidth;
   const w = Math.max(300, Math.min(full, Math.floor(avail * 16 / 9)));
   if (sh.style.width !== w + "px") sh.style.width = w + "px";
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf119";
+const APP_BUILD = "cf120";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
@@ -8123,29 +8139,16 @@ function startMyTurn() {
   startMyTurnCore();
 }
 function startMyTurnCore() {
+  if(turn.phase==="you"&&turn.started)return;
   if (typeof mp !== "undefined" && mp.data && mp.data.turn) mp.autoSeq = mp.data.turn.seq;   // a manual start counts too
   beforePhase();
   turn.done = [];                                   // enemy-turn tallies don't carry into your own turn
   turn.round += 1; turn.phase = "you"; turn.started = true;
+  qrReconcileRoster(true);
   roster.forEach(r => {
     const u = unitById(r.id), was = JSON.parse(JSON.stringify(r.st));
     advance(u, r.st);
     const st = r.st, uid = r.uid;
-    // squads resupply by riding a vehicle: aboard through a whole turn = a full set of items again
-    if (isSquad(u) && st.sq) {
-      st.sq.qr = st.sq.qr || {};
-      const q = st.sq.qr, cs = carrierState(uid), aboard = cs && cs.state === "aboard";
-      if (!aboard) delete q.abRound;
-      else if (q.abRound == null) q.abRound = turn.round;                       // just boarded: the clock starts
-      else if (turn.round > q.abRound) {
-        const it = q.items || (q.items = { fb: 2, sm: 1, gr: 1 });
-        if (it.fb < 2 || it.sm < 1 || it.gr < 1) {
-          q.items = { fb: 2, sm: 1, gr: 1 };
-          logEv(uid, "\u2693 Resupplied aboard the " + (cs.u.short || cs.u.name) + " \u2014 2 Flashbangs \u00b7 1 Smoke \u00b7 1 Grenade", "buff");
-        }
-        q.abRound = turn.round;
-      }
-    }
     u.abilities.forEach((a, i) => {
       const A = was.track[i], B = st.track[i];
       if (a.kind === "mode" && A && B) {

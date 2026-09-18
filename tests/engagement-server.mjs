@@ -11,7 +11,7 @@ const a=await post({action:'create',name:'Alice'}),b=await post({action:'join',c
 let id='testfight';
 const ff=async(seat,op,deny=false)=>{const j=await sync(seat,{ff:{id,...op}});ok(deny?j.denied.length>0:j.denied.length===0,JSON.stringify({op,denied:j.denied}));return j;};
 const state=()=>room.mem.get('ff/'+id);
-const unit=hp=>({st:{hp:{hp},sq:{soldiers:Array.from({length:8},(_,i)=>({hp:i<hp?6:0})),qr:{items:{fb:2,sm:1,gr:1}}}}});
+const unit=hp=>({st:{hp:{hp},sq:{soldiers:Array.from({length:8},(_,i)=>({hp:i<hp?6:0})),qr:{items:{fb:2,sm:2,gr:2}}}}});
 async function bout(){for(let i=0;i<4;i++){await ff(a,{op:'ready',hp:8,supp:0});await ff(b,{op:'ready',hp:8,supp:0});await ff(a,{op:'pick',item:'none'});await ff(b,{op:'pick',item:'none'});await ff(a,{op:'claim',result:'tied'});await ff(b,{op:'claim',result:'tied'});}await ff(a,{op:'ready',hp:8,supp:0});await ff(b,{op:'ready',hp:8,supp:0});}
 try {
  await sync(a,{player:{team:'federation'},units:{'federation/1':unit(4),'federation/2':unit(7),'federation/3':unit(6)}});
@@ -74,6 +74,7 @@ try {
  await ff(b,{op:'letgo'});
  ok(state().state==='closed'&&state().secured==='a','escape completes after opponent lets go');
  // Plain 1v1 and rolled objective; forcing the next bout remains queued.
+ await room.mem.set('unit/federation/3',unit(8)); // New independent scenario uses a living squad.
  id='singleff';await ff(b,{op:'invite',aUid:3,bUid:3,aLabel:'Red 3',bLabel:'Blue 3'});await ff(a,{op:'accept'});
  await ff(a,{op:'mode',pick:'roll'});await ff(b,{op:'mode',pick:'roll'});
  // Put an already-completed rolled bout in place; normal round loop above exercises transition separately.

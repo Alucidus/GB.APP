@@ -1,3 +1,7 @@
+# cf120 verification
+
+Run npm test for 926 automated assertions. Run node tests/resupply-browser.mjs for 31 targeted browser assertions, and npm run test:browser for the two-player engagement scenario. Both browser scenarios passed using installed Chrome with CHROMIUM_EXECUTABLE_PATH configured. Inspect Release_Notes_cf120.md for exact scope and limitations. Earlier entries below are historical.
+
 # cf117 quantity verification
 
 `npm test` now includes `equipment-counts.mjs`: all 21 verified quantities, distinct copies, AP/resource preservation, saved dropped copies and unchanged special cases. Total: 859 assertions passed.

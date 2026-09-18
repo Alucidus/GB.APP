@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
+import {fileURLToPath} from 'node:url';
 import {createRequire} from 'node:module';
 import fs from 'node:fs/promises';
 import {startTestServer} from './local-room.mjs';
 const require=createRequire(import.meta.url);
 const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES ? process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES+'/playwright' : 'playwright');
 const {room,server,url}=await startTestServer();
-const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_EXECUTABLE_PATH||undefined});
 const errors=[];
 const pages=[];
 const post=async b => {const r=await fetch(url+'/api/sync',{method:'POST',body:JSON.stringify(b)});const j=await r.json();assert.equal(j.ok,true,JSON.stringify(j));return j;};
@@ -13,7 +14,7 @@ const a=await post({action:'create',name:'Alice'}),b=await post({action:'join',c
 const sync=async (seat,writes={}) => post({action:'sync',...seat,known:{},writes});
 async function refresh(page,seat) {
  const j=await sync(seat);
- await page.evaluate(j=>{mp.data=j.changes;mp.etags=j.etags;mp.leaders=j.leaders;mp.hostPid=j.hostPid;ffLastSig='';renderFF();},j);
+ await page.evaluate(j=>{mp.data=j.changes;mp.etags=j.etags;mp.leaders=j.leaders;mp.hostPid=j.hostPid;roster.forEach(r=>mpApplyUnit(r,true));ffLastSig='';renderFF();},j);
 }
 async function flush(page,seat) {
  const writes=await page.evaluate(()=>{const ops=mp.ffOps||[];mp.ffOps=[];const units={};roster.forEach(r=>units[side+'/'+r.uid]={st:r.st});return {ff:ops,units};});
@@ -24,7 +25,7 @@ try {
  await sync(a,{player:{team:'federation'}});await sync(b,{player:{team:'spacenoid'}});
  await sync(a,{settings:{phase:'battle',first:'federation'}});
  for(const [i,seat,team] of [[0,a,'federation'],[1,b,'spacenoid']]) {
-   const ctx=await browser.newContext({viewport:i?{width:390,height:844}:{width:1280,height:850},serviceWorkers:'block'});
+   const ctx=await browser.newContext({viewport:i?{width:844,height:390}:{width:1280,height:850},serviceWorkers:'block'});
    const page=await ctx.newPage();pages.push(page);page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
    await page.goto(url);await page.waitForFunction(()=>typeof sqFresh==='function');
    const j=await sync(seat);
@@ -60,7 +61,7 @@ try {
  assert.equal(await pa.locator('.ffoc').count(),0);assert.equal(await pa.locator('.ffboard-card').count(),4);
  assert.equal(await pb.locator('.ffboard-items img').count(),6);assert.equal(await pb.locator('.ffboard-team.federation .ffboard-items').count(),0);
  await fs.mkdir(new URL('./screenshots/',import.meta.url),{recursive:true});
- await pa.screenshot({path:new URL('./screenshots/board-desktop.png',import.meta.url).pathname});await pb.screenshot({path:new URL('./screenshots/board-phone.png',import.meta.url).pathname});
+ await pa.screenshot({path:fileURLToPath(new URL('./screenshots/board-desktop.png',import.meta.url))});await pb.screenshot({path:fileURLToPath(new URL('./screenshots/board-phone.png',import.meta.url))});
  for(const p of pages) assert.equal(await p.evaluate(()=>document.querySelector('.ffpanel').scrollWidth>document.querySelector('.ffpanel').clientWidth),false);
  // Two confirmations, reversible even after both confirm; stale roster fallback cannot end early.
  await pa.getByRole('button',{name:'Confirm fighter',exact:true}).click();await flush(pa,a);await both();
@@ -109,7 +110,7 @@ try {
  await pb.getByRole('button',{name:'Let them go',exact:true}).click();await flush(pb,b);await both();
  assert.equal(room.mem.get('ff/testfight').secured,'a');assert.equal(room.mem.get('ff/testfight').state,'closed');
  assert.match(await pb.locator('#ffx').innerText(),/They extracted with 🚩 Car/);
- assert.equal(await pa.evaluate(()=>roster.find(r=>r.uid===1).st.sq.qr.items.sm),0);
+ assert.equal(await pa.evaluate(()=>roster.find(r=>r.uid===1).st.sq.qr.items.sm),1);
  assert.equal(await pa.locator('.ffboard').count(),0);
  assert.deepEqual(errors,[]);
  console.log('PASS: two browser devices; four-round clash; board privacy; confirmations/un-confirm; explicit and fallback turn gates; waiting-squad Flashbang; failed extraction reset; non-holder departure; roster add; selection; next-turn start; no refill; objective transfer; final-bout More; smoke extraction.');

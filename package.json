@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "test": "node tests/engagement-server.mjs && node tests/equipment.mjs && node tests/equipment-ui-smoke.mjs && node tests/equipment-counts.mjs && node tests/decisions-cf119.mjs",
+    "test": "node tests/engagement-server.mjs && node tests/equipment.mjs && node tests/equipment-ui-smoke.mjs && node tests/equipment-counts.mjs && node tests/decisions-cf119.mjs && node tests/resupply-server.mjs",
     "test:browser": "node tests/engagement-board.mjs",
     "test:equipment:browser": "node tests/equipment-browser.mjs"
   },
