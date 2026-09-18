@@ -1,3 +1,7 @@
+# cf125 verification
+
+See [Release_Notes_cf125.md](../Release_Notes_cf125.md) for current results and limitations. Browser tests cover unit-first ship repair assignment, infantry loading, shield-bubble equipping, Inventory naming, base ownership/entry/healing, stable damage redraws and destroyed-overlay layering. New commands include `npm run test:loading:browser`, `npm run test:damage:browser` and `npm run test:destroyed:browser`. Browser tests use Playwright with installed Chrome through CHROMIUM_EXECUTABLE_PATH. Earlier results below are historical.
+
 # cf120 verification
 
 Run npm test for 926 automated assertions. Run node tests/resupply-browser.mjs for 31 targeted browser assertions, and npm run test:browser for the two-player engagement scenario. Both browser scenarios passed using installed Chrome with CHROMIUM_EXECUTABLE_PATH configured. Inspect Release_Notes_cf120.md for exact scope and limitations. Earlier entries below are historical.

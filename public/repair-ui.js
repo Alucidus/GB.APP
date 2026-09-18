@@ -72,7 +72,7 @@ function repairHealthSummary(r){
   return 'Unit HP '+hp+'/'+max+(r.st.sh?.length?' · Shield HP '+r.st.sh.join(' / '):'');
 }
 let repairBaseLastSig='';
-function repairBaseSignature(){return JSON.stringify([CUR?.uid,CUR?.st.repair?.owner,roster.map(r=>[r.uid,r.st.hp,r.st.sh,r.st.repair,r.st.eq?.dropped,r.st.eq?.shieldDropped])]);}
+function repairBaseSignature(){return JSON.stringify([CUR?.uid,CUR?.st.repair?.owner,roster.map(r=>[r.uid,r.st.hp,r.st.sh,r.st.repair,r.st.eq?.dropped,r.st.eq?.shieldDropped]),mpTeamMode()?[Object.entries(mpPlayers()).filter(([,p])=>p.team===mpMyTeam()).map(([id,p])=>[id,p.name]),mp.leaders[mpMyTeam()],mp.hostPid,mpSheetCanEdit()]:null]);}
 function repairBaseAssign(uid){
   const owner=CUR?.st.repair?.owner,r=roster.find(r=>r.uid===uid);
   if(!r?.st.repair?.entry||r.st.repair.owner!==owner||(mpTeamMode()&&owner!==mp.pid)||isDead(r))return;
@@ -97,38 +97,66 @@ function openRepairBase(){
   const list=$('picklist');list.innerHTML='';$('pickExtra').innerHTML='';
   const note=el('div','eq-card');note.textContent='Owner: '+repairOwnerName(a.owner||repairMe())+' · '+repairStatus(CUR);list.appendChild(note);
   if(mpTeamMode()&&mpAmLeader()){
-    const label=el('label');label.textContent='Unit owner ';const select=el('select');select.className='repair-owner';
-    Object.entries(mpPlayers()).filter(([,p])=>p.team===mpMyTeam()).forEach(([id,p])=>{const o=document.createElement('option');o.value=id;o.textContent=p.name;o.selected=id===a.owner;select.appendChild(o);});
-    select.disabled=!!a.entry||!mpSheetCanEdit();select.onchange=()=>{a.owner=select.value;repairCommit();openRepairBase();};label.appendChild(select);list.appendChild(label);
+    const section=el('div','repair-owners'),heading=el('h4'),help=el('p'),players=el('div','lb-list repair-owner-list');
+    heading.textContent='UNIT OWNER';help.textContent=a.entry?'Leave base before changing this unit’s owner.':'Choose the player whose personal base this unit uses.';
+    players.setAttribute('role','group');players.setAttribute('aria-label','Unit owner');
+    Object.entries(mpPlayers()).filter(([,p])=>p.team===mpMyTeam()).forEach(([id,p])=>{
+      const selected=id===a.owner,row=el('button','lb-p'+(id===mp.pid?' me':'')),name=el('span','lb-n');
+      row.type='button';row.dataset.ownerId=id;row.setAttribute('aria-pressed',String(selected));row.disabled=!!a.entry||!mpSheetCanEdit();
+      if(mp.leaders[mpMyTeam()]===id){const crown=el('i');crown.textContent='👑';crown.title='Team leader';name.appendChild(crown);}
+      const label=el('span');label.textContent=p.name;name.appendChild(label);
+      if(id===mp.pid){const you=el('em');you.textContent=' (you)';name.appendChild(you);}
+      row.appendChild(name);
+      if(id===mp.hostPid){const host=el('span','lb-tag');host.textContent='HOST';row.appendChild(host);}
+      if(selected){const mark=el('span','repair-owner-selected');mark.textContent='✓ OWNER';row.appendChild(mark);}
+      row.onclick=()=>{
+        if(CUR?.uid!==uid||!mpAmLeader()||!mpSheetCanEdit()||CUR.st.repair?.entry||mpPlayers()[id]?.team!==mpMyTeam()||CUR.st.repair?.owner===id)return;
+        CUR.st.repair.owner=id;repairCommit();openRepairBase();
+      };
+      players.appendChild(row);
+    });
+    section.append(heading,help,players);list.appendChild(section);
   }
   const own=!mpTeamMode()||a.owner===mp.pid;
   const rows=roster.filter(r=>r.st.repair?.owner===a.owner&&r.st.repair?.entry).sort((x,y)=>(x.st.repair.priority||0)-(y.st.repair.priority||0)||x.uid-y.uid);
-  const current=rows.find(r=>r.st.repair?.live?.status==='Repairing'),bay=el('div','repair-base-bay'),grid=el('div','repair-slots single'),slot=el('div','repair-slot selected'),title=el('div','repair-slot-select');
-  title.textContent='SLOT 1'+(current?' · '+unitLabel(current.uid):' · EMPTY');slot.appendChild(title);grid.appendChild(slot);bay.appendChild(grid);list.appendChild(bay);
-  if(current){const img=el('img','pickup-portrait');img.src='img/portraits/'+unitById(current.id).portrait+'.webp';img.alt=unitLabel(current.uid);const health=el('p');health.textContent=repairHealthSummary(current);slot.append(img,health);bay.appendChild(repairUnitCard(current,0));}
-  else{const note=el('p');note.textContent='No eligible unit currently needs this repair slot.';slot.appendChild(note);}
-  const header=el('h3');header.textContent='UNITS IN BASE · '+rows.length;bay.appendChild(header);const help=el('p');help.textContent='The next waiting unit takes the free slot. Select a unit below to repair it first. Leaving base cancels its unfinished cycle.';bay.appendChild(help);
-  if(!rows.length){const note=el('p');note.textContent='Confirm entry into base territory to join this roster.';bay.appendChild(note);}
+  const needsBase=r=>!isDead(r)&&GBRepairs.needs(GBPickups.definition(unitById(r.id),r.st),r.st);
+  const current=rows.find(r=>r.st.repair?.live?.status==='Repairing'),candidates=rows.filter(needsBase),bay=el('div','repair-base-bay'),grid=el('div','repair-slots single'),slot=el('div','repair-slot selected'),title=el('button','repair-slot-select');
+  title.type='button';title.setAttribute('aria-label','Choose unit for base repair slot 1');title.setAttribute('aria-pressed','true');
+  title.textContent='SLOT 1'+(!a.entry?' · ENTER BASE':current?' · '+unitLabel(current.uid)+' · CHANGE UNIT':candidates.length?' · CHOOSE UNIT':' · EMPTY');slot.appendChild(title);grid.appendChild(slot);bay.appendChild(grid);list.appendChild(bay);
+  if(current)slot.classList.add('base-active');
+  if(current){const img=el('img','pickup-portrait');img.src='img/portraits/'+unitById(current.id).portrait+'.webp';img.alt=unitLabel(current.uid);const health=el('p');health.textContent=repairHealthSummary(current);slot.append(img,health);}
+  else{const note=el('p','repair-base-empty');note.textContent=!rows.length?'Tap slot 1 to confirm base territory and enter. Repairs apply at the start of your next own turn.':!candidates.length?'No repairable damage remains. Units at full HP, or with only destroyed locations, do not need a repair slot.':'Choose a damaged unit below. The room will confirm its repair slot after syncing.';slot.appendChild(note);}
+  const header=el('h3');header.textContent='UNITS IN BASE · '+rows.length;bay.appendChild(header);const help=el('p');help.textContent=!rows.length?'Units appear here after their owner confirms base entry.':own?'Select Assign to slot 1 beside a damaged unit. The next waiting unit takes a free slot automatically. Leaving base cancels its unfinished cycle.':'Only '+repairOwnerName(a.owner)+' can choose which unit uses this base slot.';bay.appendChild(help);
+  title.onclick=()=>{header.scrollIntoView({block:'start'});bay.querySelector('.repair-candidate button:not(:disabled)')?.focus({preventScroll:true});};
+  const owners=list.querySelector('.repair-owners');if(owners)bay.insertBefore(owners,header);
   rows.forEach(r=>{
     const row=el('div','repair-candidate'),img=el('img','pickup-portrait'),info=el('div'),name=el('b'),health=el('p'),status=el('p'),b=el('button','btn sm');row.dataset.repairUid=r.uid;
     img.src='img/portraits/'+unitById(r.id).portrait+'.webp';img.alt=unitLabel(r.uid);name.textContent=unitLabel(r.uid);health.textContent=repairHealthSummary(r);status.textContent=repairStatus(r);info.append(name,health,status);
-    b.textContent=current?.uid===r.uid?'In slot 1':'Assign to slot 1';b.disabled=!own||!mpSheetCanEdit()||current?.uid===r.uid||!GBRepairs.needs(GBPickups.definition(unitById(r.id),r.st),r.st);b.onclick=()=>repairBaseAssign(r.uid);row.append(img,info,b);bay.appendChild(row);
+    const needs=needsBase(r);if(!needs)status.textContent=isDead(r)?'Destroyed · cannot repair':'No repairable damage · destroyed locations cannot be restored';
+    b.textContent=current?.uid===r.uid?'In slot 1':needs?'Assign to slot 1':'No repairs needed';b.disabled=!own||!mpSheetCanEdit()||current?.uid===r.uid||!needs;b.onclick=()=>repairBaseAssign(r.uid);row.append(img,info,b);bay.appendChild(row);
   });
+  if(current)bay.appendChild(repairUnitCard(current,0));
   if(!a.entry)bay.appendChild(repairUnitCard(CUR,0));
   const action=el('button','btn pri');action.id='repairBaseAction';action.textContent=a.entry?'Leave base':'Enter base territory';
   action.disabled=!own||!mpSheetCanEdit()||isDead(CUR)||!!carrierState(uid);
   action.onclick=()=>{
     const leaving=!!a.entry;
-    repairDialog(leaving?'Leave base?':'Enter base territory?',leaving?'Leaving cancels this unit’s unfinished repair cycle.':'Confirm this unit is physically inside your personal base territory. Remain there until your next turn starts to receive repairs, if a slot is available.',()=>{
-      const r=roster.find(r=>r.uid===uid);if(!r||CUR?.uid!==uid||!mpSheetCanEdit()||carrierState(uid)||isDead(r))return;
-      if(leaving)delete r.st.repair.entry;else r.st.repair.entry=Date.now().toString(36)+'-'+uid;
+    const replace=!leaving&&current&&current.uid!==uid&&needsBase(CUR);
+    repairDialog(leaving?'Leave base?':'Enter base · Slot 1?',leaving?'Leaving cancels this unit’s unfinished repair cycle.':'Confirm this unit is physically inside your personal base territory. It enters now; repairs apply at the start of your next own turn.'+(replace?' '+unitLabel(current.uid)+' will return to the base roster and lose its unfinished repair cycle.':''),()=>{
+      const r=roster.find(r=>r.uid===uid);if(!r||CUR?.uid!==uid||!mpSheetCanEdit()||(mpTeamMode()&&r.st.repair?.owner!==mp.pid)||carrierState(uid)||isDead(r))return;
+      if(leaving)delete r.st.repair.entry;else{
+        r.st.repair.entry=Date.now().toString(36)+'-'+uid;
+        if(needsBase(r))r.st.repair.priority=Math.min(0,...roster.filter(x=>x.st.repair?.owner===a.owner).map(x=>x.st.repair.priority||0))-1;
+      }
       logEv(uid,leaving?'Left personal base':'Entered personal base territory','info');repairCommit();
     });
   };
-  repairBaseLastSig=repairBaseSignature();$('pickExtra').appendChild(action);$('pickCancel').textContent='Close';$('pick').classList.add('on');
+  if(a.entry)$('pickExtra').appendChild(action);
+  else{title.id='repairBaseAction';title.setAttribute('aria-label','Enter base and use repair slot 1');title.disabled=action.disabled;title.onclick=action.onclick;}
+  repairBaseLastSig=repairBaseSignature();$('pickCancel').textContent='Close';$('pick').classList.add('on');
 }
 let repairBaySelection=null,repairBayLastSig='';
-function repairBaySignature(){return JSON.stringify([CUR?.uid,CUR?.st.ship?.repairSlots,roster.filter(r=>CUR?.st.ship?.carry?.includes(r.uid)||CUR?.st.ship?.docking?.some(d=>d.uid===r.uid)).map(r=>[r.uid,r.st.hp,r.st.sh,r.st.repair,r.st.eq?.dropped,r.st.eq?.shieldDropped])]);}
+function repairBaySignature(){return JSON.stringify([CUR?.uid,mpSheetCanEdit(),CUR?.st.hp.hull,CUR?.st.ship?.repairSlots,roster.filter(r=>CUR?.st.ship?.carry?.includes(r.uid)||CUR?.st.ship?.docking?.some(d=>d.uid===r.uid)).map(r=>[r.uid,r.st.hp,r.st.sh,r.st.repair,r.st.eq?.dropped,r.st.eq?.shieldDropped])]);}
 function repairBayRefresh(){
   if($('pick').classList.contains('on')&&$('picklist').querySelector('.repair-base-bay')&&repairBaseLastSig!==repairBaseSignature()){
     const scroll=$('picklist').scrollTop;openRepairBase();$('picklist').scrollTop=scroll;
@@ -138,13 +166,13 @@ function repairBayRefresh(){
   }
 }
 function repairSlotAssign(slot,uid){
-  const ship=CUR;if(!ship?.st.ship||!mpSheetCanEdit()||!(ship.st.hp.hull>0))return;
+  const ship=CUR;if(!ship?.st.ship||!mpSheetCanEdit()||!(ship.st.hp.hull>0)||!Number.isInteger(slot)||slot<0||slot>=3)return;
   const r=roster.find(r=>r.uid===uid);
   if(uid!=null&&(!r||!ship.st.ship.carry.includes(uid)||isDead(r)||!GBRepairs.needs(GBPickups.definition(unitById(r.id),r.st),r.st)))return;
   const old=(ship.st.ship.repairSlots||[])[slot];if(old===uid)return;
   const apply=()=>{
     if(CUR!==ship||!mpSheetCanEdit())return;
-    if((ship.st.ship.repairSlots?.[slot]??null)!==(old??null)||(uid!=null&&(!ship.st.ship.carry.includes(uid)||isDead(r)))){openRepairBay();return;}
+    if(!(ship.st.hp.hull>0)||(ship.st.ship.repairSlots?.[slot]??null)!==(old??null)||(uid!=null&&(!ship.st.ship.carry.includes(uid)||isDead(r)||!GBRepairs.needs(GBPickups.definition(unitById(r.id),r.st),r.st)))){openRepairBay();return;}
     const slots=Array.from({length:3},(_,i)=>ship.st.ship.repairSlots?.[i]??null).map(v=>v===uid?null:v);slots[slot]=uid;
     ship.st.ship.repairSlots=slots;repairBaySelection=null;
     logEv(ship.uid,uid==null?'Repair slot '+(slot+1)+' cleared':unitLabel(uid)+' assigned to repair slot '+(slot+1),'info');
@@ -155,35 +183,43 @@ function repairSlotAssign(slot,uid){
 function openRepairBay(){
   if(!CUR?.st.ship||!GBRepairs.ships[CUR.id])return;
   repairRefresh();const ship=CUR,list=$('picklist');
-  $('pickT').textContent=U.short+' · Repair bay';$('pickS').textContent='3 repair slots · Choose a slot, then a boarded unit. Each service restores up to 4 HP per intact location and 12 HP per physical shield. Dock turn 1 → aboard turn 2 → first repair turn 3.';
+  $('pickT').textContent=U.short+' · Repair bay';$('pickS').textContent='3 repair slots · Select a boarded unit, then tap a highlighted slot. Each service restores up to 4 HP per intact location and 12 HP per physical shield. Dock turn 1 → aboard turn 2 → first repair turn 3.';
   list.innerHTML='';$('pickExtra').innerHTML='';
   const slots=Array.from({length:3},(_,i)=>ship.st.ship.repairSlots?.[i]??null),canEdit=mpSheetCanEdit()&&ship.st.hp.hull>0;
-  if(repairBaySelection?.uid!==ship.uid)repairBaySelection={uid:ship.uid,slot:slots.findIndex(v=>v==null)};
-  const selected=repairBaySelection.slot,bay=el('div','repair-bay'),grid=el('div','repair-slots');bay.appendChild(grid);list.appendChild(bay);
+  if(repairBaySelection?.uid!==ship.uid)repairBaySelection={uid:ship.uid,unit:null,slot:-1};
+  let chosen=roster.find(r=>r.uid===repairBaySelection.unit);
+  if(chosen&&(!canEdit||!ship.st.ship.carry.includes(chosen.uid)||isDead(chosen)||!GBRepairs.needs(GBPickups.definition(unitById(chosen.id),chosen.st),chosen.st))){repairBaySelection.unit=null;chosen=null;}
+  const selected=repairBaySelection.slot,bay=el('div','repair-bay'),grid=el('div','repair-slots'),prompt=el('div','repair-selection');prompt.setAttribute('role','status');prompt.setAttribute('aria-live','polite');
+  const instruction=el('b');instruction.textContent=chosen?'Selected: '+unitLabel(chosen.uid)+' · Tap a highlighted slot':'1 · Select a boarded unit below.  2 · Tap a repair slot.';prompt.appendChild(instruction);
+  if(chosen){prompt.classList.add('active');const cancel=el('button','btn sm');cancel.textContent='Cancel selection';cancel.onclick=()=>{repairBaySelection.unit=null;openRepairBay();};prompt.appendChild(cancel);}
+  bay.append(prompt,grid);list.appendChild(bay);
   const summary=repairHealthSummary;
   slots.forEach((uid,i)=>{
-    const r=roster.find(r=>r.uid===uid),card=el('div','repair-slot'+(selected===i?' selected':''));card.dataset.repairSlot=i;
-    const choose=el('button','repair-slot-select');choose.type='button';choose.setAttribute('aria-pressed',String(selected===i));choose.textContent='SLOT '+(i+1)+(r?' · '+unitLabel(uid):' · EMPTY');choose.onclick=()=>{repairBaySelection={uid:ship.uid,slot:i};openRepairBay();};card.appendChild(choose);
+    const r=roster.find(r=>r.uid===uid),target=!!chosen&&chosen.uid!==uid,card=el('div','repair-slot'+(selected===i?' selected':'')+(target?' assign-target':''));card.dataset.repairSlot=i;
+    const choose=el('button','repair-slot-select');choose.type='button';choose.setAttribute('aria-pressed',String(selected===i));choose.textContent='SLOT '+(i+1)+(target?(r?' · REPLACE':' · ASSIGN'):r?' · '+unitLabel(uid):' · EMPTY');choose.disabled=!!chosen&&!target;
+    choose.onclick=()=>{if(target){repairSlotAssign(i,chosen.uid);return;}repairBaySelection.slot=i;openRepairBay();};card.appendChild(choose);
     if(r){
       const u=unitById(r.id),img=el('img','pickup-portrait');img.src='img/portraits/'+u.portrait+'.webp';img.alt=u.short||u.name;card.appendChild(img);
-      const hp=el('p');hp.textContent=summary(r);card.appendChild(hp);
+      const hp=el('p');hp.textContent=(target?unitLabel(uid)+' · ':'')+summary(r);card.appendChild(hp);
       const status=el('p');status.textContent=r.st.repair?.live?.status==='Repairing'?'Repairs next own turn':'Assigned · service starts after sync';card.appendChild(status);
       const detail=repairUnitCard(r,2),preview=el('p','repair-slot-preview');preview.textContent=[...detail.querySelectorAll('.repair-preview li')].map(n=>n.textContent).join(' · ');card.appendChild(preview);
       const clear=el('button','btn sm');clear.textContent='Clear slot';clear.disabled=!canEdit;clear.onclick=()=>repairSlotAssign(i,null);card.appendChild(clear);
-    }else{const p=el('p');p.textContent='Select a boarded unit below to start a repair cycle.';card.appendChild(p);}
+    }else{const p=el('p');p.textContent=chosen?'Tap to assign '+unitLabel(chosen.uid)+'.':'Select a boarded unit below to start a repair cycle.';card.appendChild(p);}
     grid.appendChild(card);
   });
-  if(selected>=0&&slots[selected]!=null){const r=roster.find(r=>r.uid===slots[selected]);if(r)bay.appendChild(repairUnitCard(r,2));}
   const header=el('h3');header.textContent='BOARDED UNITS · '+ship.st.ship.carry.length+'/'+U.hangar+' hangar spaces';bay.appendChild(header);
-  const help=el('p');help.textContent=selected>=0?'Choose a unit for slot '+(selected+1)+'. Completed units automatically free their repair slot.':'Select a slot above to assign or replace a unit. Completed units stay aboard.';bay.appendChild(help);
+  const help=el('p');help.textContent=chosen?'The selected unit is highlighted. Tap it again to deselect, or tap a highlighted slot above.':'Tap a unit to select it. Selection does not assign it until you tap a slot. Completed units automatically free their slot and stay aboard.';bay.appendChild(help);
   const boarded=el('div','repair-boarded');bay.appendChild(boarded);
   if(!ship.st.ship.carry.length)boarded.textContent='No units fully aboard yet.';
   ship.st.ship.carry.map(uid=>roster.find(r=>r.uid===uid)).filter(Boolean).forEach(r=>{
     const u=GBPickups.definition(unitById(r.id),r.st),row=el('div','repair-candidate'),img=el('img','pickup-portrait'),info=el('div'),name=el('b'),hp=el('p'),state=el('p');row.dataset.repairUid=r.uid;
     img.src='img/portraits/'+u.portrait+'.webp';img.alt=u.short||u.name;name.textContent=unitLabel(r.uid);hp.textContent=summary(r);
     const index=slots.indexOf(r.uid),needs=GBRepairs.needs(u,r.st);state.textContent=index>=0?'In repair slot '+(index+1):needs?'Aboard · awaiting slot assignment':'Ready · no eligible repairs needed';info.append(name,hp,state);
-    const b=el('button','btn sm');b.textContent=selected>=0?'Assign to slot '+(selected+1):'Choose a slot';b.disabled=!canEdit||selected<0||isDead(r)||!needs||index===selected;b.onclick=()=>repairSlotAssign(selected,r.uid);row.append(img,info,b);boarded.appendChild(row);
+    const isSelected=chosen?.uid===r.uid,b=el('button','repair-unit-select'),mark=el('span','repair-select-label');b.type='button';b.disabled=!canEdit||isDead(r)||!needs;b.setAttribute('aria-pressed',String(isSelected));mark.textContent=isSelected?'✓ SELECTED':isDead(r)?'Destroyed':needs?'Select unit':'No repairs needed';
+    if(isSelected)row.classList.add('selected');
+    b.onclick=()=>{repairBaySelection.unit=isSelected?null:r.uid;repairBaySelection.slot=-1;openRepairBay();if(!isSelected)$('picklist').querySelector('.repair-selection')?.scrollIntoView({block:'start'});};b.append(img,info,mark);row.appendChild(b);boarded.appendChild(row);
   });
+  const detail=chosen||roster.find(r=>selected>=0&&r.uid===slots[selected]);if(detail)bay.appendChild(repairUnitCard(detail,2));
   if(ship.st.ship.docking.length){const h=el('h3');h.textContent='DOCKING · not aboard yet';bay.appendChild(h);ship.st.ship.docking.map(d=>roster.find(r=>r.uid===d.uid)).filter(Boolean).forEach(r=>bay.appendChild(repairUnitCard(r,2)));}
   repairBayLastSig=repairBaySignature();
   $('pickCancel').textContent='Close';$('pick').classList.add('on');

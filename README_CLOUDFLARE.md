@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf124)
+# Gunpla Battle — Cloudflare version (build cf125)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -15,7 +15,11 @@ public/            the app (index.html, images, service worker)
 .gitignore
 ```
 
-## Current build: cf124
+## Current build: cf125
+
+[Release_Notes_cf125.md](Release_Notes_cf125.md) covers unit-first selection for ship repairs and infantry loading, shield HP bubble equipping, Inventory naming, base entry/player ownership, stable damage redraws and full-width destroyed-overlay layering. Start with [Test_Checklist_cf125.md](Test_Checklist_cf125.md). [UI_Interaction_Preferences.md](UI_Interaction_Preferences.md) records the user's preferred interactions; [Character_Creator_Asset_Handoff.md](Character_Creator_Asset_Handoff.md) records deferred PSD/hangar work. All cf124 functionality below remains included.
+
+## Previous build: cf124
 
 [Release_Notes_cf124.md](Release_Notes_cf124.md) covers shield stowing and two forearm slots, pickup portraits, repair-slot interfaces, shared base roster status, slim full-width infantry tabs and the short-screen Challenge picker. Start with [Test_Checklist_cf124.md](Test_Checklist_cf124.md). All prior cf123 functionality remains included.
 

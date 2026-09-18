@@ -1757,47 +1757,50 @@ window.qrItemRefill = () => {
 const cargoVehicles = () => roster.filter(r => { const u = unitById(r.id); return isGround(u) && !isSquad(u) && u.cargo > 0 && !isDead(r); });
 const squadsInRoster = () => roster.filter(r => isSquad(unitById(r.id)));
 function gvCarry(r) { const G = r.st && r.st.gv; if (!G) return []; if (!Array.isArray(G.carry)) G.carry = []; return G.carry; }
-let vloadPlan = null, vloadGo = null;
+let vloadPlan = null, vloadGo = null, vloadSelected = null;
 function openVehicleLoad(go) {
-  vloadGo = go; vloadPlan = {};
+  vloadGo = go; vloadPlan = {};vloadSelected=null;
   const sq = new Set(squadsInRoster().map(r => r.uid)), used = new Set();
   cargoVehicles().forEach(r => { vloadPlan[r.uid] = gvCarry(r).filter(x => sq.has(x) && !used.has(x) && used.add(x)).slice(0, unitById(r.id).cargo); });
   renderVehicleLoad();
 }
 function renderVehicleLoad() {
-  const vs = cargoVehicles(), sqs = squadsInRoster();
+  const vs = cargoVehicles(), sqs = squadsInRoster(),canEdit=!mpTeamMode()||mpAmLeader();
+  const validSquads=new Set(sqs.map(r=>r.uid)),used=new Set(),next={};
+  vs.forEach(r=>{next[r.uid]=(vloadPlan[r.uid]||[]).filter(uid=>validSquads.has(uid)&&!used.has(uid)&&used.add(uid)).slice(0,unitById(r.id).cargo);});vloadPlan=next;
+  if(!validSquads.has(vloadSelected)||!canEdit)vloadSelected=null;
   const where = uid => { for (const k in vloadPlan) if (vloadPlan[k].includes(uid)) return +k; return null; };
   $("pickT").textContent = "Load your vehicles";
-  $("pickS").innerHTML = "Optional: put Infantry Squads into Cars (1), Helicopters (1) and Transport Ships (2). Squads aboard are safe and untargetable, and can disembark at any time from the vehicle's sheet. Tap a squad to cycle it through the vehicles.";
+  $("pickS").textContent = "Select a squad, then a highlighted destination. Confirm & deploy saves your choices.";
   const lst = $("picklist"); lst.innerHTML = "";
-  vs.forEach(r => {
-    const u = unitById(r.id), d = el("div", "row");
-    d.innerHTML = portraitHTML(u) + '<span style="min-width:0;flex:1"><div class="nm">' + unitLabel(r.uid) + '</div><div class="tr">' + u.cls + ' \u00b7 ' + vloadPlan[r.uid].length + ' / ' + u.cargo + ' aboard' +
-      (vloadPlan[r.uid].length ? ' \u2014 ' + vloadPlan[r.uid].map(unitLabel).join(", ") : '') + '</div></span>';
-    lst.appendChild(d);
-  });
-  const sep = el("div", "vlsep"); sep.textContent = "SQUADS"; lst.appendChild(sep);
+  const wrap=el('div','vload'),prompt=el('div','repair-selection'),instruction=el('b'),columns=el('div','vload-columns'),squads=el('div','vload-panel'),destinations=el('div','vload-panel');
+  prompt.setAttribute('role','status');prompt.setAttribute('aria-live','polite');instruction.textContent=vloadSelected!==null?unitLabel(vloadSelected)+' selected · Tap a destination':'1 · Select a squad.  2 · Choose where it starts.';prompt.appendChild(instruction);
+  if(vloadSelected!==null){prompt.classList.add('active');const cancel=el('button','btn sm');cancel.textContent='Cancel selection';cancel.onclick=()=>{vloadSelected=null;renderVehicleLoad();};prompt.appendChild(cancel);}
+  const squadHeading=el('h3'),destinationHeading=el('h3');squadHeading.textContent='1 · SQUADS';destinationHeading.textContent='2 · DESTINATION';squads.appendChild(squadHeading);destinations.appendChild(destinationHeading);columns.append(squads,destinations);wrap.append(prompt,columns);lst.appendChild(wrap);
   sqs.forEach(r => {
-    const w = where(r.uid), d = el("div", "row" + (w !== null ? " done" : ""));
-    d.innerHTML = portraitHTML(unitById(r.id)) + '<span style="min-width:0;flex:1"><div class="nm">' + objTagFor(r.uid) + unitLabel(r.uid) + '</div><div class="tr">' + (w !== null ? '\u2693 aboard ' + unitLabel(w) : 'on the board') + '</div></span>';
-    d.onclick = () => {                                   // cycle: board -> vehicle 1 -> vehicle 2 -> ... -> board
-      const order = [null].concat(vs.map(v => v.uid));
-      let k = order.indexOf(w);
-      Object.keys(vloadPlan).forEach(v => vloadPlan[v] = vloadPlan[v].filter(x => x !== r.uid));
-      for (let step = 1; step <= order.length; step++) {
-        const nxt = order[(k + step) % order.length];
-        if (nxt === null) break;
-        if (vloadPlan[nxt].length < unitById(roster.find(x => x.uid === nxt).id).cargo) { vloadPlan[nxt].push(r.uid); break; }
-      }
-      renderVehicleLoad();
-    };
-    lst.appendChild(d);
+    const w = where(r.uid),selected=vloadSelected===r.uid,d=el('button','row vload-choice'+(selected?' selected':''));d.type='button';d.dataset.loadSquad=r.uid;d.disabled=!canEdit;d.setAttribute('aria-pressed',String(selected));
+    d.innerHTML=portraitHTML(unitById(r.id))+'<span class="vload-info"><span class="nm">'+objTagFor(r.uid)+ffText(unitLabel(r.uid))+'</span><span class="tr">'+(w!==null?'Aboard '+ffText(unitLabel(w)):'On the board')+'</span>'+(selected?'<span class="vload-tag">✓ SELECTED</span>':'')+'</span>';
+    d.onclick=()=>{if(!mpGuardLeader('plan squad loading'))return;vloadSelected=selected?null:r.uid;renderVehicleLoad();};squads.appendChild(d);
+  });
+  const assign=destination=>{
+    if(vloadSelected===null||!mpGuardLeader('plan squad loading')||!squadsInRoster().some(r=>r.uid===vloadSelected))return;
+    const vehicle=cargoVehicles().find(r=>r.uid===destination);
+    if(destination!==null&&(!vehicle||(vloadPlan[destination]||[]).filter(uid=>uid!==vloadSelected).length>=unitById(vehicle.id).cargo)){renderVehicleLoad();return;}
+    Object.keys(vloadPlan).forEach(key=>vloadPlan[key]=vloadPlan[key].filter(uid=>uid!==vloadSelected));if(destination!==null)vloadPlan[destination].push(vloadSelected);
+    vloadSelected=null;renderVehicleLoad();
+  };
+  const board=el('button','row vload-choice'+(vloadSelected!==null?' assign-target':''));board.type='button';board.dataset.loadDestination='board';board.disabled=vloadSelected===null||!canEdit;board.innerHTML='<span class="vload-info"><span class="nm">On the board</span><span class="tr">Start outside a vehicle</span></span>';board.onclick=()=>assign(null);destinations.appendChild(board);
+  vs.forEach(r=>{
+    const u=unitById(r.id),current=vloadSelected!==null&&where(vloadSelected)===r.uid,full=vloadPlan[r.uid].length>=u.cargo,target=vloadSelected!==null&&!current&&!full,d=el('button','row vload-choice'+(target?' assign-target':'')+(current?' current':''));d.type='button';d.dataset.loadDestination=r.uid;d.disabled=!canEdit||!target;
+    d.innerHTML=portraitHTML(u)+'<span class="vload-info"><span class="nm">'+ffText(unitLabel(r.uid))+'</span><span class="tr">'+vloadPlan[r.uid].length+' / '+u.cargo+' aboard'+(vloadPlan[r.uid].length?' · '+vloadPlan[r.uid].map(uid=>ffText(unitLabel(uid))).join(', '):'')+'</span><span class="vload-tag">'+(current?'CURRENT DESTINATION':full?'FULL':target?'LOAD HERE':'Space available')+'</span></span>';d.onclick=()=>assign(r.uid);destinations.appendChild(d);
   });
   $("pickExtra").innerHTML = "";
-  const ok = el("button", "btn pri ready"); ok.textContent = "Confirm & deploy \u25B8";
+  const ok = el("button", "btn pri ready"); ok.textContent = "Confirm & deploy \u25B8";ok.disabled=!canEdit;
   ok.onclick = () => {
+    if(!mpGuardLeader('confirm squad loading'))return;
+    renderVehicleLoad();
     cargoVehicles().forEach(r => { r.st.gv.carry = vloadPlan[r.uid].slice(); r.st.gv.cargo = r.st.gv.carry.length; });
-    save(); closePicker(); const g = vloadGo; vloadGo = null; if (g) g();
+    save(); closePicker(); const g = vloadGo; vloadGo = null;vloadSelected=null; if (g) g();
   };
   $("pickExtra").appendChild(ok);
   $("pickCancel").textContent = "Back";
@@ -6292,7 +6295,17 @@ function abilityLocked(a, abilities, trackArr) {
   return !((abilities[rq] || {}).kind === "mode" ? !!(rs && rs.on) : rs === 1);
 }
 
+let sheetDrawDepth = 0;
 function draw() {
+  sheetDrawDepth++;
+  try { drawSheetContents(); }
+  finally {
+    sheetDrawDepth--;
+    // Finish the whole sheet's layout before the browser can paint newly rebuilt controls.
+    if (!sheetDrawDepth) fitSheet();
+  }
+}
+function drawSheetContents() {
   pickupRefresh();
   repairRefresh();repairDrawUI();
   qrReconcileRoster();
@@ -7190,9 +7203,9 @@ function draw() {
       color: v === 0 ? "#fff" : "#0f172a",
       boxShadow: (sh ? "0 0 0 3px " + ring + "77, " : "") + "0 0 10px " + ring + "88" });
     b.textContent = v; b.title = LIMB_LABEL[k];
-    if(eqPending&&MSE.supported(U)&&MSE.arms.includes(k))b.classList.add(k==='rightArm'?'eq-right':'eq-left');
-    if(eqPending && eqValidArm(k)) { b.classList.add("eq-arm");b.setAttribute("role","button");b.tabIndex=0;b.title=(eqPending.key==='stow'?"Stow from ":"Equip in ")+LIMB_LABEL[k];b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();eqPickArm(k);}}; }
-    b.onclick = () => { if(eqPending){eqPickArm(k);return;} hp[k] = mode === "damage" ? Math.max(0, v - amount) : Math.min(mx, v + amount); wake(id); };
+    if(eqPending&&!eqSelectingShield()&&MSE.supported(U)&&MSE.arms.includes(k))b.classList.add(k==='rightArm'?'eq-right':'eq-left');
+    if(eqPending && !eqSelectingShield() && eqValidArm(k)) { b.classList.add("eq-arm");b.setAttribute("role","button");b.tabIndex=0;b.title=(eqPending.key==='stow'?"Stow from ":"Equip in ")+LIMB_LABEL[k];b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();eqPickArm(k);}}; }
+    b.onclick = () => { if(eqPending){if(!eqSelectingShield())eqPickArm(k);return;} hp[k] = mode === "damage" ? Math.max(0, v - amount) : Math.min(mx, v + amount); wake(id); };
     sheet.appendChild(b);
     if (hudMode) {
       if (v === 0) {
@@ -7296,13 +7309,20 @@ function draw() {
   shieldViews.forEach(({cfg,i}) => {
     const equipment=MSE.init(U,eqLive());
     const armMark=cfg.displayArm?'<span class="shield-arm-mark">'+(cfg.displayArm==='rightArm'?'R':'L')+'</span>':'';
+    if(cfg.displayArm&&eqSelectingShield()){
+      const arm=cfg.displayArm,valid=eqValidArm(arm),g=el('div','grp eq-shield-equip '+(arm==='rightArm'?'eq-right':'eq-left')+(valid?'':' unavailable'),{left:cfg.x+'%',top:cfg.y+'%'}),b=el('button','num');
+      g.dataset.shieldArm=arm;if(i>=0)g.dataset.shieldIndex=i;
+      b.type='button';b.disabled=!valid;b.innerHTML=armMark+(i<0?'—':sh[i]+'<small>/'+shMx(i)+'</small>');
+      b.title='Equip '+(U.shields[Number(eqPending.key.slice(7))]?.label||'shield')+' in '+(arm==='rightArm'?'right':'left')+' shield slot';
+      b.setAttribute('aria-label',b.title);b.onclick=()=>eqPickArm(arm);g.appendChild(b);sheet.appendChild(g);return;
+    }
     if(i<0){
       const g=el('div','grp shield-slot',{left:cfg.x+'%',top:cfg.y+'%'}),b=el('button','num');g.dataset.shieldArm=cfg.displayArm;
       b.type='button';b.innerHTML=armMark+'—';b.title=LIMB_LABEL[cfg.displayArm]+' shield slot · empty';b.onclick=openEquipment;g.appendChild(b);sheet.appendChild(g);return;
     }
     if(equipment && (equipment.shieldDropped.includes(i)||!equipment.shields[i])){
       const lost=equipment.shieldDropped.includes(i),g=el('div','grp',{left:cfg.x+'%',top:cfg.y+'%'}),b=el('button','num');
-      b.type='button';b.textContent=lost?'DROPPED':'STORED';b.title=lost?'Pick up this shield within 10cm for 1 AP':'Choose a forearm in Equip';b.onclick=lost?openPickup:openEquipment;g.appendChild(b);sheet.appendChild(g);return;
+      b.type='button';b.textContent=lost?'DROPPED':'STORED';b.title=lost?'Pick up this shield within 10cm for 1 AP':'Choose this shield in Equip, then tap a shield HP bubble';b.onclick=lost?openPickup:openEquipment;g.appendChild(b);sheet.appendChild(g);return;
     }
     // a shield that only exists while an ability is running
     if (cfg.when) {
@@ -7797,7 +7817,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf124";
+const APP_BUILD = "cf125";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
@@ -8395,7 +8415,6 @@ function eventsHTML(uid, withNames) {
   return '<div class="evl">' + totHTML + evs.map(e => '<div class="ev ' + e.k + '">' + (withNames ? '<b>' + markPipFor(e.u) + unitLabel(e.u) + '</b>' : '') + '<span>' + e.t + '</span></div>').join("") + '</div>';
 }
 function renderTurn() {
-  setTimeout(fitSheet, 0);
   if (turnKeySeen === null && turn) turnKeySeen = turn.round + ":" + turn.phase;
   const you = turn.phase === "you";
   const label = you ? "YOUR TURN" : "ENEMY TURN";
@@ -8469,6 +8488,7 @@ function renderTurn() {
       eventsHTML(null, true);
     setHTMLIfChanged(tb, h);
   }
+  if (!sheetDrawDepth) fitSheet();
 }
 $("phaseChip").onclick = () => closeSheet();
 let doneBusy = false;

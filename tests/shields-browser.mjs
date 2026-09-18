@@ -30,11 +30,16 @@ try{
   same(await page.evaluate(()=>CUR.st.eq.shields),[null,'rightArm','leftArm',null],'two shields equip; third enters storage');
   same(await page.locator('[data-shield-arm="rightArm"] .num').innerText(),'R5/12');
   same(await page.locator('[data-shield-arm="leftArm"] .num').innerText(),'L8/12');
-  await page.locator('#equipBtn').tap();await page.locator('.eq-more').tap();
-  await page.locator('.eq-card[data-shield-index="3"]').getByRole('button',{name:'Choose forearm · 1 AP',exact:true}).tap();
-  await page.locator('.hp.eq-arm[title="Equip in Right Arm"]').tap();same(await page.locator('#pickT').textContent(),'Swap equipped shield?');
+  await page.locator('#equipBtn').tap();same(await page.locator('.eq-more').textContent(),'INVENTORY');await page.locator('.eq-more').tap();
+  assert.match(await page.locator('#pickT').innerText(),/^Inventory/i);checks++;
+  await page.locator('.eq-card[data-shield-index="3"]').getByRole('button',{name:'Equip shield · 1 AP',exact:true}).tap();
+  same(await page.locator('.hp.eq-arm').count(),0,'shield selection highlights HP bubbles, not arms');same(await page.locator('.eq-shield-equip button:enabled').count(),2);
+  assert.match(await page.locator('.eq-hint').innerText(),/Tap an R\/L shield HP bubble/);checks++;
+  assert.ok(await page.locator('.eq-prompt').evaluate(n=>n.scrollWidth<=n.clientWidth+1),'Inventory label fits equipment prompt');checks++;
+  await page.screenshot({path:'tests/screenshots/shields-equip-cf125-'+viewport.width+'.png'});
+  await page.locator('.eq-shield-equip[data-shield-arm="rightArm"] button').tap();same(await page.locator('#pickT').textContent(),'Swap equipped shield?');
   await page.locator('#pickCancel').tap();same(await page.evaluate(()=>CUR.st.eq.shields),[null,'rightArm','leftArm',null]);
-  await page.locator('.hp.eq-arm[title="Equip in Right Arm"]').tap();await page.locator('#eqSwapConfirm').tap();
+  await page.locator('.eq-shield-equip[data-shield-arm="rightArm"] button').tap();await page.locator('#eqSwapConfirm').tap();
   same(await page.evaluate(()=>({mounts:CUR.st.eq.shields,ap,sh,hands:CUR.st.eq.hands})),{mounts:[null,null,'leftArm','rightArm'],ap:0,sh:[12,5,8,7],hands:hand});
   // The live bubble edits the selected physical shield, never the old native shield.
   await page.locator('[data-shield-arm="rightArm"] .num').tap();await page.locator('[data-shield-arm="rightArm"] .step').first().tap();
@@ -51,6 +56,13 @@ try{
   // Shield-only stowing still works after both weapons are put away.
   await page.evaluate(()=>{MSE.stow(U,eqLive(),'rightArm');persist();draw();});
   await page.locator('#stowBtn').tap();await page.locator('.eq-shield-stow[data-shield-index="2"] button').tap();same(await page.evaluate(()=>CUR.st.eq.shields.every(m=>!m)),true);
+  // Empty shield slots are equip targets; a lost arm is not. Hand controls cannot equip shields or deal damage during selection.
+  await page.evaluate(()=>{ap=2;hp.rightArm=0;persist();draw();});
+  await page.locator('#equipBtn').tap();await page.locator('.eq-more').tap();await page.locator('.eq-card[data-shield-index="3"]').getByRole('button',{name:'Equip shield · 1 AP',exact:true}).tap();
+  same(await page.locator('.eq-shield-equip[data-shield-arm="rightArm"] button').isDisabled(),true);same(await page.locator('.eq-shield-equip[data-shield-arm="leftArm"] button').innerText(),'L—');
+  same(await page.locator('.eq-limb-label.eq-left').isDisabled(),true);
+  const selectedState=await page.evaluate(()=>JSON.stringify([hp,ap,CUR.st.eq]));await page.locator('.hp[title="Left Arm"]').dispatchEvent('click');same(await page.evaluate(()=>JSON.stringify([hp,ap,CUR.st.eq])),selectedState);
+  await page.locator('.eq-shield-equip[data-shield-arm="leftArm"] button').tap();same(await page.evaluate(()=>({mount:CUR.st.eq.shields[3],hp:sh[3],ap})),{mount:'leftArm',hp:6,ap:1});same(await page.locator('#pick').evaluate(n=>n.classList.contains('on')),false,'empty shield slot requires no swap warning');
   // Native ring systems, beam generators and shieldless suits keep separate slots.
   for(const id of ['f91-gundam-f91','unicorn-gundam-03-phenex-rx-0-n','kshatriya-nz-666','unicorn-gundam-luminous-crystal-body','asw-g-xx-gundam-vidar']){
    await page.evaluate(id=>{

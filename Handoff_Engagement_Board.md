@@ -1,3 +1,19 @@
+# Gunpla Battles — cf125 current handoff
+
+Ship repair assignment and infantry deployment loading now use the user's preferred **select unit → highlight → select destination** interaction. No default repair slot or tap-to-cycle infantry destinations. Ship replacements retain confirmation, and infantry loading stays a draft until Confirm & deploy. See [UI_Interaction_Preferences.md](UI_Interaction_Preferences.md) for the explicit design preferences to follow in future work.
+
+Shield equipping now targets the R/L shield HP bubbles, matching Stow. The More button and its equipment panel are named Inventory. Empty bubbles can receive shields; lost arms are unavailable and swaps retain the in-game warning. The physical shield's HP remains separate from the hand weapon and Phenex's borrowed shield.
+
+Base ownership uses a lobby-style teammate list. Tap the base's Slot 1 to confirm physical territory and enter immediately; no queued-entry stage. A damaged entrant takes the slot, with an explicit displacement warning if occupied. The active slot is green; the roster follows with portraits and health. Enter own turn 1 → first base repair at own turn 2. Carrier timing stays dock 1 → aboard 2 → repair 3 if assigned on 2. Existing permission, healing and shared roster-symbol rules remain.
+
+The common sheet redraw now applies layout before painting, fixing the reproduced damage-tap jump across suits, ships, vehicles and soldiers. Mobile-suit destruction covers the full widened frame and paints above L/R hand labels, “?” and all bottom buttons. All cf124 work, including final infantry tab/group sizing and original soldier-page scaling, remains included.
+
+See Release_Notes_cf125.md and Test_Checklist_cf125.md for scope, checks and limitations. No deployment; user playtest is next.
+
+The user supplied a female character PSD and a hangar foreground for later creator work. Prepare eye/brow masks for color options and reuse the menu battle scene behind the see-through hangar window when that milestone begins. Source paths and the explicit deferral are recorded in [Character_Creator_Asset_Handoff.md](Character_Creator_Asset_Handoff.md); these assets are not included in the deployment ZIP.
+
+---
+
 # Gunpla Battles — cf124 current handoff
 
 cf124 fixes shield stowing/equipping, adds live R/L shield HP slots and pickup portraits, and gives carrier repairs a three-slot interface with authoritative manual assignments. Tier 0 bases reuse the layout with one queued slot and selectable priority. Repair cards show unit portraits, current HP and capped next-service forecasts. Confirmed base occupants gain a shared base symbol and dimmed roster row; they remain targetable.

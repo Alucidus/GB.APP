@@ -30,8 +30,8 @@ try{
  assert.equal(await pa.locator('[data-shield-arm="rightArm"] .num').innerText(),'R6/12');
  await pa.locator('#stowBtn').tap();await pa.locator('.eq-shield-stow[data-shield-index="1"] button').tap();
  await sync(a,{units:{'federation/1':{st:await pa.evaluate(()=>CUR.st)}}});assert.equal(room.mem.get('unit/federation/1').st.eq.shields[1],null);
- await pa.locator('#equipBtn').tap();await pa.locator('.eq-more').tap();await pa.locator('.eq-card[data-shield-index="1"]').getByRole('button',{name:'Choose forearm · 1 AP',exact:true}).tap();
- await pa.locator('.hp.eq-arm[title="Equip in Left Arm"]').tap();await pa.locator('#eqSwapConfirm').tap();
+ await pa.locator('#equipBtn').tap();await pa.locator('.eq-more').tap();await pa.locator('.eq-card[data-shield-index="1"]').getByRole('button',{name:'Equip shield · 1 AP',exact:true}).tap();
+ await pa.locator('.eq-shield-equip[data-shield-arm="leftArm"] button').tap();await pa.locator('#eqSwapConfirm').tap();
  await sync(a,{units:{'federation/1':{st:await pa.evaluate(()=>CUR.st)}}});await refresh(pa,a,true);await pa.evaluate(()=>draw());
  assert.deepEqual(room.mem.get('unit/federation/1').st.eq.shields,[null,'leftArm']);assert.equal(room.mem.get('unit/federation/1').st.sh[1],6);assert.equal(await pa.evaluate(()=>ap),1);
  assert.equal(await pa.locator('[data-shield-arm="leftArm"] .num').innerText(),'L6/12');
