@@ -58,4 +58,40 @@ ok(w(unit('astray-red'),'BuCUE Head').dmg==='2/4','BuCUE complete damage profile
 for(const [id,name,bonus] of [['gundam-epyon','Beam Sword (std)',4],['gundam-epyon','Beam Sword (FULL)',4],['gundam-vidar','Hunter Edges',0],['master-gundam','Master Cloth',0],['destiny-gundam','Palma Fiocina (melee)',0]]) {const u=unit(id),weapon=w(u,name);ok(weapon.meleeBonus===bonus&&M.item(u,weapon.equipKey).bonus===bonus,'cf109 bonus '+name);}
 {const u=unit('gm-sniper-ii'),s=state(u);M.init(u,s);const shield=JSON.stringify(s.eq.shields),ap=s.ap;ok(!M.stow(u,s,'rightArm'),'stow a two-handed weapon');ok(s.eq.hands.every(x=>x===null),'both references clear for one two-handed weapon');ok(s.ap===ap&&JSON.stringify(s.eq.shields)===shield,'stow preserves AP and shields');M.equip(u,s,'beam-saber','rightArm');s.eq.segment=true;ok(M.stow(u,s,'rightArm'),'cannot stow during segment');s.eq.segment=false;s.hp.rightArm=0;ok(M.stow(u,s,'rightArm'),'lost arm cannot stow away recovery requirement');}
 ok(unit('gundam-turn-a').reworkNeeded&&!M.supported(unit('gundam-turn-a')),'Turn A excluded pending rework');
+{
+ const u=unit('gundam-epyon'),s=state(u),output=u.abilities.findIndex(a=>a.name==='Full Output');
+ M.init(u,s);
+ ok(s.eq.hands[0]==='beam-sword#0'&&s.eq.hands[1]===null,'Epyon starts with sword in right hand');
+ ok(s.ap===20,'starting sword costs no AP');
+ ok(!M.reason(u,s,w(u,'(std)')),'standard sword ready at spawn');
+ ok(M.reason(u,s,w(u,'(FULL)'))==='Activate Full Output','FULL remains locked at spawn');
+ ok(!M.abilityReason(u,s,u.abilities[output]),'Full Output can be activated with starting sword');
+ ok(M.item(u,'beam-sword').cost===2,'heavy sword keeps 2 AP equip cost');
+ s.track[output]=1;ok(!M.reason(u,s,w(u,'(FULL)')),'FULL available after activation');
+ M.stow(u,s,'rightArm');const stored=JSON.stringify(s);M.init(u,s);
+ ok(JSON.stringify(s)===stored,'loading a stowed Epyon does not auto-equip or replenish');
+ ok(M.reason(u,s,w(u,'(std)'))==='Equip first','stowed sword still requires equipping');
+ M.equip(u,s,'beam-sword','leftArm');M.init(u,s);
+ ok(s.eq.hands[0]===null&&s.eq.hands[1]==='beam-sword#0','saved left-hand choice is preserved');
+ s.hp.leftArm=0;M.init(u,s);ok(s.eq.dropped.includes('beam-sword#0'),'arm loss still drops sword');
+ M.init(u,s);ok(s.eq.hands[0]===null&&M.reason(u,s,w(u,'(std)'))==='Equip first','reload does not bypass sword recovery');
+}
+{
+ const u=unit('luminous-crystal'),s=state(u);M.init(u,s);
+ ok(s.eq.hands.every(x=>x===null),'Luminous existing empty-hand start preserved');
+ ok(s.eq.shields[0]==='body'&&!M.shieldReady(u,s),'inactive generated field cannot be equipped');
+ ok(u.abilities.every(a=>!M.abilityReason(u,s,a)),'Luminous powers do not require saber');
+ s.track[0]={on:true,ch:2,left:3};ok(M.shieldReady(u,s),'active generated field ready');
+ s.hp.leftArm=0;M.init(u,s);ok(M.shieldReady(u,s)&&s.eq.shieldDropped.length===0,'field not dropped with arm');
+ s.sh[0]=7;s.eq.shields[0]='leftArm';s.eq.shieldDropped=[0];const ap=s.ap,track=JSON.stringify(s.track);
+ M.init(u,s);ok(s.eq.shields[0]==='body'&&s.eq.shieldDropped.length===0,'old field mount corrected');
+ ok(s.sh[0]===7&&s.ap===ap&&JSON.stringify(s.track)===track,'migration never restores HP, AP or charges');
+ s.track[0].on=false;ok(!M.shieldReady(u,s),'field ends with its ability');
+}
+for(const u of units.filter(u=>M.supported(u))){
+ const s=state(u);M.init(u,s);
+ for(const x of M.catalog(u).filter(x=>x.mount!=='hand'&&x.mount!=='attachment')){
+  for(const i of x.rows)ok(!/Equip first/.test(M.reason(u,s,u.weapons[i])),'integrated/mounted system not hand gated: '+u.id+' '+x.name);
+ }
+}
 console.log('PASS '+checks+' equipment assertions');

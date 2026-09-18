@@ -67,6 +67,11 @@ try {
    assert.equal(await page.evaluate(()=>new Set(CUR.st.eq.hands).size),2);
    assert.equal(await page.evaluate(()=>MSE.combo(U,CUR.st).includes('Advantage')),true);checks+=3;
    assert.ok(await page.locator('.eq-weapon.eq-both[title*="Beam Saber"]').count());checks++;
+   await page.locator('#equipBtn').click();
+   assert.equal(await page.locator('.eq-weapon').count(),0);
+   assert.equal(await page.locator('.eq-row.eq-both').count(),1,'both-hand highlight remains on normal sheet');
+   assert.equal(await page.locator('.eq-row.eq-both').evaluate(n=>getComputedStyle(n).borderLeftColor),'rgb(217, 160, 123)');checks+=3;
+   if(process.env.EQUIPMENT_SCREENSHOT)await page.screenshot({path:process.env.EQUIPMENT_SCREENSHOT+'-'+side+'-normal-held-'+viewport.width+'.png'});
    assert.equal(await page.evaluate(()=>JSON.stringify(hp)),initialHP);checks++;
    await page.locator('#stowBtn').click();
    assert.equal(await page.locator('.eq-arm').count(),2);checks++;
@@ -99,8 +104,27 @@ try {
    await page.locator('#stowBtn').click();await page.locator('.hp.eq-arm').click();
    assert.equal(await page.evaluate(()=>ap),before-2);
    assert.equal(await page.evaluate(()=>JSON.stringify([CUR.st.eq.shields,sh])),shield);checks+=2;
+   // Epyon starts in standard mode with its sword, without spending equipment AP.
+   await open('oz-13ms-gundam-epyon',side);
+   assert.equal(await page.evaluate(()=>CUR.st.eq.hands[0]),'beam-sword#0');
+   assert.equal(await page.evaluate(()=>ap),4);
+   assert.equal(await page.evaluate(()=>track[0]),0);
+   assert.equal(await page.evaluate(()=>MSE.reason(U,CUR.st,U.weapons[0])), '');
+   assert.equal(await page.evaluate(()=>MSE.reason(U,CUR.st,U.weapons[1])), 'Activate Full Output');
+   assert.equal(await page.locator('.eq-row.eq-right').count(),2,'both sword profiles share held equipment');
+   assert.equal(await page.locator('.eq-row.eq-right').first().evaluate(n=>getComputedStyle(n).borderLeftColor),'rgb(217, 160, 123)');checks+=7;
+   if(process.env.EQUIPMENT_SCREENSHOT)await page.screenshot({path:process.env.EQUIPMENT_SCREENSHOT+'-'+side+'-epyon-'+viewport.width+'.png'});
+   await page.locator('.tog[data-act="0"]').click();
+   assert.equal(await page.evaluate(()=>track[0]),1);
+   assert.equal(await page.evaluate(()=>ap),3);
+   assert.equal(await page.evaluate(()=>MSE.reason(U,eqLive(),U.weapons[1])), '');checks+=3;
+   await page.locator('.aphit[title="Tap to fire — spends 1 AP"]').first().click();
+   assert.equal(await page.evaluate(()=>ap),2,'mounted weapons work without equipping a hand weapon');checks++;
+   await page.evaluate(()=>{persist();eqPending=null;openSheet(1);});
+   assert.equal(await page.evaluate(()=>CUR.st.eq.hands[0]),'beam-sword#0');
+   assert.equal(await page.evaluate(()=>ap),2,'reopening does not refill AP');checks+=2;
   }
-  if(process.env.EQUIPMENT_SCREENSHOT){await page.locator('#equipBtn').click();await page.locator('.eq-weapon[title*="Beam Saber"]').click();await page.screenshot({path:process.env.EQUIPMENT_SCREENSHOT+'-'+viewport.width+'.png'});}
+  if(process.env.EQUIPMENT_SCREENSHOT){await page.locator('#equipBtn').click();await page.locator('.eq-weapon[title*="Beam Sword"]').first().click();await page.screenshot({path:process.env.EQUIPMENT_SCREENSHOT+'-'+viewport.width+'.png'});}
   await page.close();
  }
  assert.deepEqual(errors,[]);checks++;

@@ -61,15 +61,22 @@ const MSE = (() => {
   }
   const item = (u, ref) => catalog(u).find(x => ref === x.key || ref?.startsWith(x.key+'#'));
   const ref = (x, n=0) => x.key+'#'+n;
+  const fieldAbility = (u,i) => u.shields?.[i]?.when
+    ? u.abilities.findIndex(a=>a.name.startsWith(u.shields[i].when)&&a.fx?.grantsShield) : -1;
   function init(u, s) {
     if (!supported(u)) return null;
     const cats = catalog(u);
     if (!s.eq || s.eq.v !== 1) {
-      const main = cats.find(x => x.mount === 'hand' && (x.kind === 'ranged' || x.kind === 'hybrid'));
+      const main = u.id === 'oz-13ms-gundam-epyon'
+        ? cats.find(x => x.key === 'beam-sword')
+        : cats.find(x => x.mount === 'hand' && (x.kind === 'ranged' || x.kind === 'hybrid'));
       s.eq = {v:1,hands:[null,null],dropped:[],shields:(u.shields||[]).map((x,i) => /Coating/.test(x.label||'') || u.ring || /^zaku-ii/.test(u.id) ? 'body' : arms[i === 0 ? 1 : 0]),shieldDropped:[],mode:'rifle',segment:false};
       if (main) { s.eq.hands[0]=ref(main); if(main.twoHands) s.eq.hands[1]=ref(main); }
     }
     const e=s.eq;
+    // Generated force fields are not physical equipment that can fall off an arm.
+    e.shields=e.shields.map((mount,i)=>fieldAbility(u,i)>=0?'body':mount);
+    e.shieldDropped=e.shieldDropped.filter(i=>fieldAbility(u,i)<0);
     // Keep the original reference on its lost arm until recovery; repairs/undo restore it naturally.
     e.dropped=e.dropped.filter(r=>!e.hands.includes(r)||e.hands.some((v,i)=>v===r&&s.hp?.[arms[i]]<=0));
     e.shieldDropped=e.shieldDropped.filter(i=>!e.shields[i]||s.hp?.[e.shields[i]]<=0);
@@ -79,7 +86,7 @@ const MSE = (() => {
     return e;
   }
   function held(u,s,x) { if(!x)return false; const e=init(u,s); return e ? e.hands.some((r,i)=>item(u,r)?.key===x.key && s.hp[arms[i]]>0 && !e.dropped.includes(r)) : false; }
-  function shieldReady(u,s,i=0) { const e=init(u,s); if(!e)return true; const m=e.shields[i];return !!m && !e.shieldDropped.includes(i) && (m==='body'||s.hp[m]>0) && s.sh?.[i]>0 && !(s.shDown?.[i]) && !(s.out?.[i]); }
+  function shieldReady(u,s,i=0) { const e=init(u,s); if(!e)return true; const ai=fieldAbility(u,i);if(ai>=0&&!(s.track?.[ai]?.on||s.track?.[ai]===1))return false;const m=e.shields[i];return !!m && !e.shieldDropped.includes(i) && (m==='body'||s.hp[m]>0) && s.sh?.[i]>0 && !(s.shDown?.[i]) && !(s.out?.[i]); }
   function reason(u,s,w) {
     if(!supported(u))return '';
     const e=init(u,s),x=item(u,w.equipKey); if(!x)return '';

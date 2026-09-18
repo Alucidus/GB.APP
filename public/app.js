@@ -6498,6 +6498,7 @@ function draw() {
       const tag=eqRowTag(equipInfo,eqLive());
       if(tag) {
         const row=el('div','eq-row',{left:WROW_X+'%',top:(w.y-WROW_H/2)+'%',width:WROW_W+'%',height:WROW_H+'%'});
+        if(equipInfo.mount==='hand')row.classList.add(tag==='R+L'?'eq-both':tag==='R'?'eq-right':'eq-left');
         if(MSE.reason(U,eqLive(),w))row.classList.add('unavailable');sheet.appendChild(row);
         wn.textContent='['+tag+'] '+wn.textContent;shrinkToFit(wn,0.7);
       }
@@ -7700,7 +7701,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf115";
+const APP_BUILD = "cf116";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
