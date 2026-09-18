@@ -3267,3 +3267,15 @@ button.mb-item.fxtog{font:inherit;color:#dfe9f4;background:none;border-top:0;bor
 .ffinvrow.ffwaiting>span{flex-wrap:wrap;max-width:48%}
 .ffinvrow.ffwaiting>span>small{color:#fde68a;font-size:11px;line-height:1.4}
 @media(max-width:600px){.ffinvrow.ffwaiting{align-items:flex-start;flex-wrap:wrap}.ffinvrow.ffwaiting>span{max-width:100%}.ffinvrow.ffwaiting .btn{min-height:44px}}
+
+/* Mobile-suit equipment follows the existing faction palette and picker. */
+#equipmentSummary:not([hidden]){display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:10px 14px;margin:0 auto;max-width:1200px;background:var(--panel,#111b2a);border-bottom:1px solid var(--line,#334155);font-size:13px;color:var(--text,#e2e8f0)}
+#equipmentSummary span{flex:1;min-width:180px}
+#equipmentSummary strong{color:var(--accent,#fbbf24)}
+.eq-card{padding:14px;margin:8px 0;border:1px solid var(--line,#334155);border-left:3px solid var(--accent,#60a5fa);background:var(--panel,#111b2a);color:var(--text,#e2e8f0);clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%)}
+.eq-card p{margin:7px 0;line-height:1.5;font-size:13px;color:inherit}
+.eq-card .btn{margin:4px 6px 0 0;min-height:38px}
+.eq-card button:disabled{opacity:.4;cursor:not-allowed}
+#sheet.eq-assign>*{pointer-events:none!important}
+#sheet.eq-assign .eq-arm{pointer-events:auto!important;outline:4px solid #fbbf24;outline-offset:5px;cursor:pointer;z-index:30;box-shadow:0 0 24px #fbbf24!important}
+@media(max-width:600px){#equipmentSummary:not([hidden]){font-size:12px;padding:8px;gap:7px}.eq-card{padding:11px}.eq-card .btn{font-size:12px}}

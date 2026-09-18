@@ -78,9 +78,9 @@
 |---|---|---|---|---|---|---|---|
 | Bare Hands / Unarmed | Melee | 1 | 2 | 1 | +0 | 0cm (must already be adjacent) | Initiates a Melee Clash (see Section 7) |
 | Sword | Melee | 1 | 2 | 1 | +1 | 10cm | Initiates a Melee Clash (see Section 7) |
-| Beam Dagger | Melee | 2 | 4 | 1 | +1 | 10cm | Initiates a Melee Clash (see Section 7) |
+| Beam Dagger | Melee | 2 | 4 | 0 | +1 | 10cm | Initiates a Melee Clash (see Section 7) |
 | Heat Axe / Heat Hawk | Melee | 2 | 4 | 1 | +2 | 15cm | Initiates a Melee Clash (see Section 7) |
-| Spear / Lance | Melee | 2 | 4 | 1 | +2 | 20cm | Reach weapon; initiates a Melee Clash (see Section 7) |
+| Spear / Lance | Melee | 2 | 4 | 1 | +2 | 30cm | Reach weapon; initiates a Melee Clash (see Section 7) |
 | Beam Saber | Melee | 2 | 4 | 1 | +3 | 15cm | Initiates a Melee Clash (see Section 7) |
 | GN Sword | Melee | 3 | 6 | 2 | +4 | 30cm | Heavier signature blade (Gundam 00-tier units); initiates a Melee Clash (see Section 7) |
 | Beam Axe / Beam Tomahawk (Sazabi, Sinanju-tier) | Melee | 3 | 6 | 2 | +4 | 20cm | Heavier signature melee weapon on Flagship-tier Zeon units and similar; initiates a Melee Clash (see Section 7) |
@@ -146,10 +146,19 @@ Each unit has a set number of Action Points, typically ranging from **2-4** depe
 | System Override (Crystal Body) | Matches whatever weapon is being stolen |
 | Drawing / switching to a different weapon | 1 (or the weapon's own listed cost — see Section 1) |
 
-### Dual-Wield (Ranged + Melee)
+### Equipped Weapons and Switching (cf107 designer decisions)
+
+Track weapons by left and right hand. Before play, choose starting equipment without spending AP: normally the main beam/ballistic weapon and an available shield. Equipment persists across turns. Each ordinary weapon equipped or switched costs **1 AP**. A weapon with a listed heavy draw cost retains **2 AP** (including GN Sword, Beam Axe/Tomahawk and Anti-Ship Sword). Each dagger-type weapon costs **0 AP** to equip. Equipping two ordinary sabers costs **2 AP total**, one per saber. Equipped melee weapons do not pay the draw cost again for every exchange. Weapons cannot be switched during an active four-exchange melee segment; switch on your own turn during its pause.
+
+**Forearm shields use separate mounts**, not hand slots: a rifle and saber, two guns, or two melee weapons may be held while a forearm shield remains mounted. Body/quadrant shields retain their own arrangement. A shield's mounted weapons need no separate switch while it is mounted and usable; destroying or losing that shield disables those weapons. Phenex's Armed Armor DE lending, remote operation and existing shield controls remain unchanged; its Beam Sabers use the hand-equipment rules.
+
+**Integrated systems** do not require drawing or switching and are unaffected by dual-wield accuracy penalties. Their own AP, cooldowns, charges and mount-destruction restrictions still apply. There is no general ammunition system. Unequipping and re-equipping never resets cooldowns or replenishes explicit charges.
+
+### Dual-Wield (Ranged + Melee, or Two Ranged Weapons)
 Any ranged weapon usable one-handed — Beam Rifles, Magnums, Bazookas, one side of a Twin Buster Rifle-style dual weapon, etc. — may be equipped and fired in the same turn as a melee weapon. **Snipers are the sole exception**, requiring both hands to stabilize the weapon and remaining ineligible for Dual-Wield entirely.
 
 - **The ranged weapon takes a flat +3 to its roll needed to hit** while Dual-Wielding, reflecting the accuracy lost firing one-handed. This stacks with any other applicable modifier — a Called Shot while Dual-Wielding needs the usual +5 Called Shot penalty plus this +3, for +8 total over the base range number.
+- **Two ordinary handheld ranged weapons may also be equipped together. Each takes −3 to its attack roll (equivalently +3 to its target number).** Purpose-built dual systems such as Wing Zero's Twin Buster Rifle retain their documented attacks without this penalty. Integrated weapons do not receive it.
 - **The melee weapon is entirely unaffected** — resolved normally through the standard Melee Clash system (Section 7.1), which doesn't concern itself with one-handed versus two-handed use.
 - **Both weapons keep their own independent AP costs.** Dual-Wield doesn't create a discounted combined action — it simply permits using both a ranged and melee weapon in the same turn without needing to spend AP switching between them.
 
@@ -338,7 +347,7 @@ This system applies **going forward** for new units — existing units built bef
 ### Destruction Effects
 When a location's Health reaches 0:
 
-- **Arm destroyed** — any weapon mounted on/held by that arm is disabled for the rest of the game. If dual-wielding, the other arm still functions normally.
+- **Arm destroyed** — weapons and a forearm shield on that arm become unavailable; the other arm still functions normally. Recoverable equipment can be picked up for 1 AP under Section 7.4. A weapon or shield does not become usable again merely by selecting it in the equipment list.
 - **One Leg destroyed** — the unit's Movement is halved (round down) for the rest of the game.
 - **Both Legs destroyed** — the unit is fully immobilized; it can no longer spend AP on movement at all.
 - **Head destroyed** — sensors are knocked out: **-2 to all dice rolls** for the rest of the game (attacks, dodges, blocks). **For Gundam-tier units specifically**, this also **permanently removes all Free Dodges** for the rest of the game, including any temporary dodge bonuses granted by abilities (e.g., Extended NT-D) — with the head gone, there's no sensor system left to support them.
@@ -426,7 +435,7 @@ Each exchange, both fighters roll a d20 simultaneously and compare the differenc
 
 **Multi-Attack Units (e.g. Nightingale's Hidden Arms: Dual Strike):** a unit with an ability granting more than one exchange die (rolling 2d20, 3d20, etc. instead of the standard 1) resolves against a single-roll opponent as follows — **compare the opponent's roll against the multi-attacker's dice from highest to lowest, stopping as soon as the opponent wins or ties one of them.** If the opponent beats or ties the multi-attacker's highest die, that's the only comparison made — the lower die(s) are never checked at all, since the opponent has already successfully answered the strongest attack. Only if the opponent's roll loses to the highest die does it then get compared against the next-highest, and so on — meaning a defender who is truly overwhelmed can end up facing multiple separate Hit/Critical outcomes from the same single roll of their own, one for each of the attacker's dice that beats them in sequence.
 
-**Dual Beam Sabers (universal rule — applies to any unit canonically carrying two):** a unit that canonically wields two Beam Sabers may spend **2 AP instead of the normal 1** to draw both for that exchange. Doing so means rolling **2d20 and taking the higher result** as the single exchange die — genuine Advantage, not a second separate attack. Damage stays at the standard Beam Saber rate (2/4, Normal/Critical) — this option trades AP economy for consistency (a much better chance of a good roll), not for extra damage. A unit can still choose to spend the normal 1 AP and use just one Saber at standard odds if the extra AP is needed elsewhere that turn.
+**Dual Beam Sabers (universal rule — applies to any unit canonically carrying two):** a unit that canonically wields two Beam Sabers may spend **2 AP instead of the normal 1** to equip both. Their Advantage applies while both remain equipped and usable. Doing so means rolling **2d20 and taking the higher result** as the single exchange die — genuine Advantage, not a second separate attack. Damage stays at the standard Beam Saber rate (2/4, Normal/Critical) — this option trades AP economy for consistency (a much better chance of a good roll), not for extra damage. A unit can still choose to spend the normal 1 AP and use just one Saber at standard odds if the extra AP is needed elsewhere that turn.
 
 **On a 7+ result, the winner chooses:**
 - **Critical Attack** — deals the winner's equipped weapon's **Critical Attack** damage (Section 1) to Chest or Head (the only locations reachable on a Critical). The clash continues.
@@ -485,6 +494,9 @@ Since every other unit gets a normal turn during the pause between 4-exchange se
 ## 7.4 Battlefield Weapon Pickup
 
 Any unit within **10cm** of a fallen (destroyed) enemy or ally unit, **or a unit that has lost a limb**, may spend **1 AP** to pick up one weapon left on the ground from that unit — a weapon that was mounted on the lost limb specifically, or any weapon carried by a fully destroyed unit. The picked-up weapon uses its **original stats exactly as documented** (range, damage, AP cost) — it does not scale to the new user's own tier or bonuses.
+
+
+**Recovering your own equipment:** a unit can recover the weapon or forearm shield lost with its own arm for **1 AP**, within the same 10cm pickup range. If the surviving hand or forearm mount is empty and can legally use it, pickup equips it immediately, with no extra draw charge. If occupied, pickup returns the item to the usable equipment list and keeps the currently equipped item in place. Equipping the recovered item later uses its normal equip cost (ordinary 1 AP, heavy 2 AP, dagger 0 AP). Picking up a dagger still costs 1 AP. Shields keep their remaining HP; picking up a destroyed shield does not repair it. Weapon cooldowns and remaining charges travel with the weapon unchanged.
 
 **Adds to arsenal, doesn't replace:** a picked-up weapon is an additional option, not a swap for one of the picker's existing weapons — though the standard 5-weapon-slot limit on a unit's sheet still applies as a hard cap.
 
@@ -722,7 +734,7 @@ Since melee weapons now carry distinct roll bonuses, damage, and Charge Range (S
 | Sword | +1 | 1/2 | 10cm | +15 |
 | Beam Dagger | +1 | 2/4 | 10cm | +30 |
 | Heat Axe / Heat Hawk | +2 | 2/4 | 15cm | +40 |
-| Spear / Lance | +2 | 2/4 | 20cm | +45 |
+| Spear / Lance | +2 | 2/4 | 30cm | +45 |
 | Beam Saber | +3 | 2/4 | 15cm | +55 |
 | GN Sword | +4 | 3/6 | 30cm | +100 |
 | Beam Axe / Beam Tomahawk | +4 | 3/6 | 20cm | +100 |

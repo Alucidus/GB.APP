@@ -1675,8 +1675,8 @@ function drawSquad() {
     '';
   } else {
     h += qrResourcesHTML(S);
+    if (mpTeamMode()) {
     h += ffCardHTML();
-    if (!mpTeamMode()) h += '<div class="ffcta"><b>Playing face to face</b><span>Fight the firefight at the table and tap the items above as you use them. For blind picks on each device, start an online session (PLAY ONLINE).</span></div>';
     h += '<div class="qr2">' +
       '<div class="qr2c"><h4>HOW A FIREFIGHT ROUND WORKS</h4><ol>' +
         '<li><b>Pick an item in secret</b> \u2014 Flashbang, Smoke Grenade, Grenade or none \u2014 and lock it in.</li>' +
@@ -1688,6 +1688,7 @@ function drawSquad() {
         '<table class="sqtbl qrt">' + MARGIN_TABLE.map(([m, o]) => '<tr><td>' + m + '</td><td>' + o + '</td></tr>').join("") + '</table>' +
         '<p class="qrsmall"><b>Firepower:</b> 8\u20137 soldiers \u2192 8 dice \u00b7 6\u20135 \u2192 7 \u00b7 4\u20133 \u2192 6 \u00b7 2\u20131 \u2192 5. <b>Perfect Volley:</b> a squad rolling 2\u20135 dice that rolls all 6s skips the table and destroys 2d=3 \u00b7 3d=4 \u00b7 4d=5 \u00b7 5d=6 \u2014 this includes a suppressed squad down to 2 dice. Six or more dice cannot volley. <b>Last Man Standing:</b> a lone die rolling a 6 escapes.</p></div>' +
     '</div>';
+    }
   }
   box.innerHTML = h;
   renderTurn();
@@ -1725,7 +1726,7 @@ function qrItems() {
   return S.qr.items;
 }
 window.qrItemUse = k => {
-  if (!CUR || !CUR.st || !CUR.st.sq) return;
+  if (mpTeamMode() || !CUR || !CUR.st || !CUR.st.sq) return;
   const it = qrItems();
   if (!(it[k] > 0)) return;
   it[k] -= 1;
@@ -1733,7 +1734,7 @@ window.qrItemUse = k => {
   save(); draw();
 };
 window.qrItemPip = (k, i) => {
-  if (!CUR || !CUR.st || !CUR.st.sq) return;
+  if (mpTeamMode() || !CUR || !CUR.st || !CUR.st.sq) return;
   const it = qrItems();
   if (i < (it[k] || 0)) { window.qrItemUse(k); return; }          // an available mark: use one
   it[k] = Math.min(QR_MAX[k], (it[k] || 0) + 1);                   // a crossed mark: restore one
@@ -1741,10 +1742,10 @@ window.qrItemPip = (k, i) => {
   save(); draw();
 };
 window.qrItemRefill = () => {
-  if (!CUR || !CUR.st || !CUR.st.sq) return;
+  if (mpTeamMode() || !CUR || !CUR.st || !CUR.st.sq) return;
   CUR.st.sq.qr = CUR.st.sq.qr || {};
   CUR.st.sq.qr.items = { fb: 2, sm: 1, gr: 1 };
-  logEv(CUR.uid, "Items refilled for a new engagement", "info");
+  logEv(CUR.uid, "Quick Resolve items resupplied", "info");
   save(); draw();
 };
 
@@ -5385,6 +5386,7 @@ window.oppDetail = uid => {
   }
   let rows = LIMB_ORDER.map(k => { const p = hpNow[k] / u.limb[k];
     return '<div class="od-row"><span class="od-dot" style="background:' + HEALTH_COL(p) + '"></span><span>' + LIMB_LABEL[k] + (k === (u.kill || "chest") ? ' <em>(kill location)</em>' : '') + '</span><b style="color:' + HEALTH_COL(p) + '">' + HEALTH_WORD(p) + '</b></div>'; }).join("");
+  if (MSE.supported(u) && st.eq) rows += st.eq.hands.map((r,i)=>'<div class="od-row"><span></span><span>'+['Right hand','Left hand'][i]+'</span><b>'+ffText(r ? MSE.item(u,r)?.name||'Unknown weapon' : 'Empty')+((r && (hpNow[MSE.arms[i]]<=0 || st.eq.dropped.includes(r)))?' (unavailable)':'')+'</b></div>').join('');
   if (st.sh && st.sh.length) rows += '<div class="od-row"><span class="od-dot" style="background:' + (st.sh.some(v => v > 0) ? "#38bdf8" : "#64748b") + '"></span><span>Shields</span><b>' + (st.sh.every(v => v > 0) ? "Up" : st.sh.some(v => v > 0) ? "Partly down" : "Down") + '</b></div>';
   if (td.locked && td.turn && td.turn.phase === "you") rows += '<div class="od-row"><span></span><span>This turn</span><b>' + (ud && ud.done === td.turn.round + ":you" ? "\u2713 Done" : "Not done yet") + '</b></div>';
   $("popT").textContent = "Enemy \u2014 " + (u.short || u.name); $("popK").textContent = teamName(ot);
@@ -5774,6 +5776,7 @@ function openSheet(uid) {
   { const cs = locked ? carrierState(uid) : null;
     if (cs && cs.state === "aboard") { mpToast(unitLabel(uid) + " is aboard the " + cs.u.short + " \u2014 " + (isShip(cs.u) ? "launch it from the ship's sheet." : "disembark it from the vehicle's sheet.")); openSheet(cs.ship.uid); return; } }
   U = unitById(CUR.id);
+  if ($("equipmentSummary")) $("equipmentSummary").hidden = !MSE.supported(U);
   if (isShip(U) || isGround(U)) {                    // warships and ground vehicles have their own sheets
     const s = isShip(U) ? shipMigrate(U, CUR.st) : isSquad(U) ? sqMigrate(U, CUR.st) : gvMigrate(U, CUR.st);
     hp = s.hp; dodges = 0; ap = s.ap; track = s.track; wpn = s.wpn; sh = s.sh; shDown = s.shDown; shMax = s.shMax;
@@ -5868,7 +5871,7 @@ function persist() {
   CUR.st.risk = risk;
   save();
 }
-function closeSheet() { persist(); if (mpTeamMode()) mpLeaveSheet(); renderRoster(); show("s3"); if (typeof renderFF === "function") renderFF(); }
+function closeSheet() { eqPending=null; persist(); if (mpTeamMode()) mpLeaveSheet(); renderRoster(); show("s3"); if (typeof renderFF === "function") renderFF(); }
 
 function wake(id) { if (swapMode && U && U.ring && /^l_/.test(id)) { draw(); return; } active = id; clearTimeout(timer); timer = setTimeout(() => { active = null; draw(); }, IDLE); draw(); }
 function el(t, c, s) { const e = document.createElement(t); if (c) e.className = c; if (s) Object.assign(e.style, s); return e; }
@@ -6190,39 +6193,23 @@ function refillDual(u, st, when) {
 function refillMatrix(u, st) {
   u.abilities.forEach((a, i) => {
     const t = st.track && st.track[i];
-    if (a.kind === "matrix" && t && t.sel) { const o = mxOpt(a, t.sel); t.p = o ? o.parries : 0; }
+    if (a.kind === "matrix" && t && t.sel) { const o = mxOpt(a, t.sel); t.p = o ? o.parries : 0; t.spent=0; }
   });
 }
 window.openMatrix = i => {
-  const a = U.abilities[i], cur = track[i] && track[i].sel;
-  $("pickT").textContent = a.name + " \u2014 pick a pair";
-  const cost = (a.fx && a.fx.ap) || 0;
-  $("pickS").innerHTML = "Pick the pair " + (U.short || U.name) + " is holding. Drawing a pair costs <b>" + cost + " AP</b> \u2014 you have <b>" + ap + "</b>." +
-    (ap < cost ? " <span style='color:#fca5a5'>Not enough AP to draw a new pair.</span>" : "") + " Changing pair refills its parries.";
-  const lst = $("picklist"); lst.innerHTML = "";
-  const add = (id, name, desc) => {
-    const d = el("div", "row");
-    d.innerHTML = '<span style="min-width:0;flex:1"><div class="nm">' + name + '</div><div class="tr" style="white-space:normal">' + desc + '</div></span>' +
-      (cur === id ? '<span class="qty">\u2713</span>' : (id !== null && cost ? '<span class="dp" style="font-size:13px">' + cost + ' AP</span>' : ''));
-    const short = id !== null && id !== cur && ap < cost;
-    if (short) { d.style.opacity = ".45"; d.style.cursor = "not-allowed"; }
-    d.onclick = () => {
-      if (id === cur) { closePicker(); return; }
-      if (short) return;                                   // cannot afford to draw it
-      const o = mxOpt(a, id), prev = track[i] || { sel: null, p: 0 };
-      if (id === null) { track[i] = { sel: null, p: 0 }; }   // putting the blades away is free
-      else {
-        ap -= cost;
-        track[i] = { sel: id, p: o ? o.parries : 0,
-                     u: { r: turn.round, p: turn.phase, ap: cost, prevSel: prev.sel || null, prevP: prev.p || 0 } };
-      }
-      closePicker(); active = null; draw();
-    };
-    lst.appendChild(d);
-  };
-  (a.options || []).forEach(o => add(o.id, o.name, o.desc));
-  add(null, "No pair", "Single weapon at its listed stats \u2014 no parries");
-  $("pick").classList.add("on");
+  if(!eqAllowed())return;
+  const a=U.abilities[i];
+  $("pickT").textContent=a.name;
+  $("pickS").textContent="Special pairs cost 2 AP. Spent parries only refresh when you begin a new melee segment.";
+  $("picklist").innerHTML="";
+  [...a.options,{id:null,name:"No pair",desc:"Stow the current pair."}].forEach(o=>{
+    const d=el("div","eq-card");const title=el("b");title.textContent=o.name;const p=el("p");p.textContent=o.desc;
+    const b=el("button","btn sm");b.textContent=track[i]?.sel===o.id?"Selected":o.id===null?"Stow":locked?"Equip pair · 2 AP":"Equip pair · free setup";
+    b.disabled=track[i]?.sel===o.id||CUR.st.eq.segment;
+    b.onclick=()=>eqAction(st=>MSE.matrix(U,st,i,o.id,!locked),"Equipment: "+o.name);
+    d.append(title,p,b);$("picklist").appendChild(d);
+  });
+  $("pickExtra").innerHTML="";$("pickCancel").textContent="Close";$("pick").classList.add("on");
 };
 
 // the always-visible undo arrow shown beside anything switched on this half-turn
@@ -6262,6 +6249,8 @@ function draw() {
   $("sheet").classList.remove("sqcompact");
   updateStanceBtn();
   [...$("sheet").querySelectorAll(".sx")].forEach(n => n.remove());
+  MSE.init(U, eqLive());
+  eqSummary();
   persist();
   trackChanges();
   const LIVE = { sh: sh, shDown: shDown };   // this unit's shields, safe from the local names below
@@ -6270,7 +6259,7 @@ function draw() {
   [...sheet.querySelectorAll(".hp,.grp,.tog,.step,.wrow,.txt,.num,.wpip,.sendbtn,.lenttag,.podstate,.arcring,.arcrot,.qa,.aphit,.swapz,.hudwarn,.porthit")].forEach(n => n.remove());
   renderAmounts();
   $("uname").textContent = U.short || U.name;
-  $("umeta").textContent = U.tier + " · " + U.dp + " DP";
+  $("umeta").textContent = U.tier + " · " + U.dp + " DP" + (U.reworkNeeded ? " · REWORK NEEDED" : "");
   const now = LIMB_ORDER.reduce((s, k) => s + hp[k], 0);
   const max = LIMB_ORDER.reduce((s, k) => s + U.limb[k], 0);
   $("total").textContent = "HP " + now + "/" + max;
@@ -6460,6 +6449,8 @@ function draw() {
         padding: "0 0.3em", fontWeight: "800" });
       sn.title = a.name + " is ACTIVE \u2014 stays on until the shield is repaired";
     }
+    const eqWhy = MSE.abilityReason(U,eqLive(),a);
+    if(eqWhy) { sn.style.opacity=".45"; sn.title=eqWhy; }
     sn.onclick = () => openPop(a.name, a.kind === "mode" ? "Form \u00b7 " + a.duration + (a.duration === 1 ? " turn" : " turns") + " \u2014 each lasts through the enemy's turn"
       : a.tracks === "pool" ? "Armour pool \u00b7 " + a.max
       : a.tracks === "charges" ? "Ability \u00b7 " + a.max + " charges"
@@ -6467,7 +6458,7 @@ function draw() {
       : a.popKind ? a.popKind
       : a.kind === "dualmode" ? "Two modes \u00b7 " + ((a.fx && a.fx.ap) || 0) + " AP to switch \u00b7 tap the mode button"
       : a.kind === "matrix" ? "Weapon pairs \u00b7 tap SELECT to choose"
-      : a.kind === "pod" ? "Remote pod \u00b7 " + ((U.pods || {}).hp || "") + " HP \u00b7 tap its state to cycle" : "Passive", "", a.text);
+      : a.kind === "pod" ? "Remote pod \u00b7 " + ((U.pods || {}).hp || "") + " HP \u00b7 tap its state to cycle" : "Passive", eqWhy ? "<span>"+ffText(eqWhy)+"</span>" : "", a.text);
     const fx = a.fx || {};
     const labelCost = a.apText && /AP/.test(a.apText) && apOptions(a.apText).length === 1 ? apOptions(a.apText)[0] : undefined;
     const cost = fx.ap !== undefined ? fx.ap : (a.kind === "none" ? labelCost : undefined);
@@ -6482,7 +6473,7 @@ function draw() {
       ae.classList.add("aptap");
       if (ap < cost) ae.classList.add("cant");
       ae.onclick = () => {
-        if (ap < cost) return;
+        if (ap < cost || MSE.abilityReason(U,eqLive(),a)) return;
         const L = actLog();
         L.st.push({ t: "s", i: i, ap: cost });
         ap -= cost; logAct("s", i); quietAct();
@@ -6499,8 +6490,15 @@ function draw() {
     shrinkToFit(wn, 0.7);
     wn.style.pointerEvents = "auto"; wn.style.cursor = "pointer";
     // Spray and Pray lives in the skill rows (see the weapon's popup)
+    const meleeInfo = MSE.melee(U,w);
+    const equipInfo = MSE.supported(U) ? MSE.item(U,w.equipKey) : null;
+    if (meleeInfo) { wn.textContent += meleeInfo.bonus === null ? " · +?" : " · +" + meleeInfo.bonus; shrinkToFit(wn, 0.7); }
+    if (equipInfo) wn.title = eqStatus(equipInfo, eqLive());
     wn.onclick = () => openPop(w.name, "Weapon",
-      "<span>Damage <b>" + (w.dmg || "\u2014") + "</b></span><span>AP <b>" + (w.ap || "\u2014")
+      (equipInfo ? "<span>Equipment <b>" + ffText(eqStatus(equipInfo,eqLive())) + "</b></span>" : "")
+      + (meleeInfo ? "<span>Melee roll <b>" + (meleeInfo.bonus === null ? "Not specified" : "+"+meleeInfo.bonus) + "</b></span>" : "")
+      + (MSE.penalty(U,eqLive(),w) ? "<span>Dual wield <b>−3 roll / +3 target</b></span>" : "") +
+      "<span>Damage <b>" + (w.dmg || "\u2014") + "</b></span><span>" + (meleeInfo ? "Equip AP" : "AP") + " <b>" + (meleeInfo ? meleeInfo.cost : (w.ap || "\u2014"))
       + "</b></span><span>Range <b>" + (w.range || "\u2014") + "</b></span>"
       + (w.limit ? "<span>Limit <b>" + (w.limit.kind === "cooldown"
           ? w.limit.turns + "-turn cooldown" : w.limit.max + " charges") + "</b></span>" : "")
@@ -6609,23 +6607,23 @@ function draw() {
         const col = t.p === 0 ? "#64748b" : "#16a34a";
         const m = el("div", "step" + (shw ? " show" : ""), { borderColor: col, color: col });
         m.textContent = "\u2212"; m.title = "Spend a parry";
-        m.onclick = e => { e.stopPropagation(); t.p = Math.max(0, t.p - 1); wake(id); };
+        m.onclick = e => { e.stopPropagation(); if(t.p>0){ t.p--; t.spent=(t.spent||0)+1; } wake(id); };
         const n = el("div", "num", { borderColor: col, cursor: "pointer",
           background: t.p === 0 ? "rgba(100,116,139,.92)" : "rgba(220,252,231,.97)",
           color: t.p === 0 ? "#e2e8f0" : "#14532d", boxShadow: shw ? "0 0 0 2px " + col + "66" : "none" });
         n.innerHTML = t.p + "<small>/" + o.parries + "</small>";
-        n.title = "Parries left this segment \u2014 tap for \u2212/+. Refills when a turn ends or starts.";
+        n.title = "Parries left this segment \u2014 tap for \u2212/+. Refills when Begin melee segment is pressed in Weapons / Equip.";
         n.onclick = () => wake(id);
         const p = el("div", "step" + (shw ? " show" : ""), { borderColor: col, color: col });
         p.textContent = "+"; p.title = "Give a parry back";
-        p.onclick = e => { e.stopPropagation(); t.p = Math.min(o.parries, t.p + 1); wake(id); };
+        p.onclick = e => { e.stopPropagation(); if(t.p<o.parries){ t.p++; t.spent=Math.max(0,(t.spent||0)-1); } wake(id); };
         g.append(m, n, p);
       } else if (o && o.tag) {
         const n = el("div", "num", { borderColor: "#a78bfa", cursor: "default", background: "rgba(255,255,255,.96)", color: "#4c1d95" });
         n.textContent = o.tag;
         g.appendChild(n);
       }
-      if (o && sameHalf(t.u)) {
+      if (o && sameHalf(t.u) && !MSE.supported(U)) {
         g.appendChild(undoArrow(() => {
           const u0 = t.u;
           ap = Math.min(apMax, ap + (u0.ap || 0));
@@ -6901,7 +6899,8 @@ function draw() {
     if (!ae || !ctl || a.kind === "none" || ae.textContent === "\u2014") return;   // no cost shown: use the buttons
     ae.classList.add("aptap");
     const c = a.fx && typeof a.fx.ap === "number" ? a.fx.ap : 0;
-    const used = a.kind === "counter" && track[i] === 0;
+    const used = (a.kind === "counter" && track[i] === 0) || !!MSE.abilityReason(U,eqLive(),a);
+    if(MSE.abilityReason(U,eqLive(),a)) { ctl.classList.add("cant"); (ctl.parentNode || ctl).addEventListener("click", e=>{e.stopImmediatePropagation();mpToast(MSE.abilityReason(U,eqLive(),a));},true); }
     if (used || abilityLocked(a, U.abilities, track) || (c && ap < c && !(a.kind === "toggle" && track[i] === 1))) ae.classList.add("cant");
     ae.title = "Tap to use (same as the button beside it)";
     ae.onclick = e => { e.stopPropagation(); const t = sheet.querySelector('[data-act="' + i + '"]'); if (t) t.click(); };
@@ -6913,10 +6912,11 @@ function draw() {
     U.weapons.forEach((w, j) => { if (w.limit && w.limit.group === gp) wpn[j] = v; }); };
 
   // fire a weapon: spend its AP and start its cooldown / use a charge
-  const canFire = i => { const lim = U.weapons[i].limit; if (!lim) return true;
+  const canFire = i => { if (MSE.reason(U, eqLive(), U.weapons[i])) return false; const lim = U.weapons[i].limit; if (!lim) return true;
     const cur = wGet(i); return lim.kind === "cooldown" ? !(cur > 0) : cur > 0; };
   const fireW = (i, cost) => {
     const w = U.weapons[i], lim = w.limit;
+    if (!mpSheetCanEdit()) return;
     if (ap < cost || !canFire(i)) return;
     actLog().st.push({ t: "w", i: i, ap: cost, prev: lim ? wGet(i) : null });
     ap -= cost;
@@ -6924,6 +6924,8 @@ function draw() {
     active = null; logAct("w", i); quietAct();
   };
   const fireTap = i => {
+    if (MSE.melee(U, U.weapons[i]) && (MSE.item(U,U.weapons[i].equipKey).kind !== "hybrid" || CUR.st.eq.mode === "sword")) { openEquipment(); return; }
+    if (MSE.reason(U, eqLive(), U.weapons[i])) { openEquipment(); return; }
     const opts = apOptions(U.weapons[i].ap);
     if (!opts.length) return;
     if (opts.length === 1) fireW(i, opts[0]);
@@ -6935,8 +6937,10 @@ function draw() {
     at.classList.add("aptap");
     at.style.zIndex = 3;
     if (!canFire(i) || ap < Math.min(...opts)) at.classList.add("cant");
-    at.title = !canFire(i) ? (w.limit.kind === "cooldown" ? "On cooldown" : "No uses left")
-      : ap < Math.min(...opts) ? "Not enough AP" : "Tap to fire \u2014 spends " + opts.join(" or ") + " AP";
+    at.title = MSE.reason(U, eqLive(), w) || (!canFire(i) ? (w.limit?.kind === "cooldown" ? "On cooldown" : "No uses left")
+      : ap < Math.min(...opts) ? "Not enough AP" : "Tap to fire \u2014 spends " + opts.join(" or ") + " AP");
+    const meleeEquip = MSE.melee(U, w) && (MSE.item(U,w.equipKey).kind !== "hybrid" || CUR.st.eq.mode === "sword");
+    if (meleeEquip) { at.classList.remove("cant"); at.textContent = MSE.reason(U, eqLive(), w) ? "EQUIP" : "READY"; at.title = "Manage equipped melee weapons — no repeated draw cost per exchange"; }
     at.onclick = e => { e.stopPropagation(); fireTap(i); };
     if (opts.length > 1 && active === "wap" + i) {
       const ch = el("div", "grp apchoice", { left: COL.wAP + "%", top: w.y + "%" });
@@ -7103,7 +7107,8 @@ function draw() {
       color: v === 0 ? "#fff" : "#0f172a",
       boxShadow: (sh ? "0 0 0 3px " + ring + "77, " : "") + "0 0 10px " + ring + "88" });
     b.textContent = v; b.title = LIMB_LABEL[k];
-    b.onclick = () => { hp[k] = mode === "damage" ? Math.max(0, v - amount) : Math.min(mx, v + amount); wake(id); };
+    if(eqPending && MSE.arms.includes(k) && v>0) { b.classList.add("eq-arm");b.setAttribute("role","button");b.tabIndex=0;b.title="Equip in "+LIMB_LABEL[k];b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();eqPickArm(k);}}; }
+    b.onclick = () => { if(eqPending){eqPickArm(k);return;} hp[k] = mode === "damage" ? Math.max(0, v - amount) : Math.min(mx, v + amount); wake(id); };
     sheet.appendChild(b);
     if (hudMode) {
       if (v === 0) {
@@ -7227,6 +7232,9 @@ function draw() {
       b.onclick = () => recallDE(i);
       g.appendChild(b); sheet.appendChild(g);
       return;
+    }
+    if (MSE.supported(U) && !MSE.shieldReady(U,eqLive(),i) && sh[i] > 0) {
+      const tag=el("div","lenttag",{left:cfg.x+"%",top:(cfg.y-3)+"%"});tag.textContent="UNAVAILABLE · EQUIP";tag.onclick=openEquipment;sheet.appendChild(tag);
     }
     const v = sh[i], d = shDown[i] || 0, id = "sh" + i, shw = active === id;
     const asking = d === -2, dead = d === -1, regen = d > 0;
@@ -7676,7 +7684,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf105";
+const APP_BUILD = "cf107";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
@@ -7725,7 +7733,7 @@ function advance(u, st) {
   u.weapons.forEach((w, i) => {
     if (w.limit && w.limit.kind === "cooldown" && st.wpn[i] > 0) st.wpn[i] = Math.max(0, st.wpn[i] - 1);
   });
-  refillMatrix(u, st);
+  if (!MSE.supported(u)) refillMatrix(u, st);
   refillDual(u, st, "start");                     // Funnel Cannon bonus shot: ready for your turn
   // revealed pods go home at the start of the unit's next turn
   if (u.pods && Array.isArray(st.pods)) st.pods.forEach(P => { if (P.hp > 0 && P.state === 2) P.state = 0; });
@@ -8083,7 +8091,7 @@ function endMyTurnCore() {
       notes.push(unitLabel(r.uid) + " \u2014 " + a.eot);
     });
   });
-  roster.forEach(r => refillMatrix(unitById(r.id), r.st));   // a new clash segment always starts in a new half-turn
+  roster.forEach(r => { if(!MSE.supported(unitById(r.id))) refillMatrix(unitById(r.id), r.st); });   // a new clash segment always starts in a new half-turn
   roster.forEach(r => refillDual(unitById(r.id), r.st, "end"));   // I-Field free block: ready for the enemy's attacks
   turn.phase = "enemy"; turn.started = true;
   turn.done = [];

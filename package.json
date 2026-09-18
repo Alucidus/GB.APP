@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "test": "node tests/engagement-server.mjs",
+    "test": "node tests/engagement-server.mjs && node tests/equipment.mjs && node tests/equipment-ui-smoke.mjs",
     "test:browser": "node tests/engagement-board.mjs"
   },
   "devDependencies": {

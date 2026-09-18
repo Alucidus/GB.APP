@@ -1,4 +1,4 @@
-# Engagement board verification (cf105)
+# Engagement board verification (cf106)
 
 ## Automated checks completed
 
@@ -37,3 +37,14 @@ cf103 checks no-loss merging: 5+5 becomes 8+2; 7+4 becomes 8+3; 3+4 becomes 7; t
 cf105 checks invitation pairings, defender adjustments, rejected duplicate/out-of-roster pairs, draft retention and repair, repeat defending squads, and all bout selectors appearing together.
 
 cf105 additionally checks per-bout dice agreement and in-app waiting notifications, including duplicate suppression and teammate ownership.
+
+cf106: offline tracker spending, restoration, zero limit, refill, and online protection were checked separately. Browser visual verification remains pending.
+
+
+## cf107 equipment checks
+
+`npm test` also runs equipment rules and the DOM smoke test. The latter uses stub nodes: it catches runtime and callback errors but cannot verify rendered appearance or CSS hit targets.
+
+On desktop and phone, open Weapons / Equip, select a rifle/bazooka/saber and tap each arm HP bubble; verify only equipment/AP changes. Cancel and verify normal damage taps resume. Equip two guns and inspect their −3 notices; integrated weapons must remain unpenalised. Lose an arm with a shield and weapon; recover each for 1 AP, verify their HP/cooldowns remain unchanged and an occupied hand sends the weapon to inventory. Check Phenex's sabers and both remote-DE lending controls. Verify Exia's matrix fills both hands, costs 2 AP, and does not refill parries until Begin melee segment. Switch to another device and inspect saved hand assignments; a read-only teammate must not equip.
+
+Chromium download timed out in this environment; no cf107 visual/browser run has been claimed.

@@ -1,11 +1,46 @@
-# Engagement board handoff — cf105
+# App handoff — cf107
 
-Continue from **cf105**, in `gunpla-battle-cf-cf105.zip`. The ZIP has `public/`, `src/`, and `wrangler.toml` directly at its root. Do not rebuild the board from the cf99 plan below.
+Continue from **cf107**, in `gunpla-battle-cf-cf107.zip`. The ZIP has `public/`, `src/`, and `wrangler.toml` directly at its root. Do not rebuild the board from the cf99 plan below.
 
 Next: run `npm test`, then follow `tests/README.md` to install Chromium and run `npm run test:browser`. Review desktop and phone screenshots, fix any visual issues, and play a full two-device game. The Playwright scenario has not yet run because Chromium was unavailable and its download timed out. The live Cloudflare Worker has not been deployed.
 
-The build-bump helper is now included: `python3 bump.py cf106` for the next change.
+The build-bump helper is now included: `python3 bump.py cf108` for the next change.
 
+
+## cf107 — Mobile-suit equipment and melee reference
+
+### Using it
+
+Open **Weapons / Equip**, choose a weapon, then tap the highlighted **arm HP bubble** on the sheet. That tap assigns equipment; it does not apply damage. Cancel exits assignment mode. The summary shows both hands. Shields have separate forearm mounts and can be assigned through the same bubble flow. Before locking the roster, choose starting equipment for free.
+
+### Implemented
+
+- Equipment state persists in existing unit saves and multiplayer unit updates. Old saves receive the standard main-weapon loadout without spending AP. Opponent details show held equipment without revealing numerical resources.
+- Ordinary equips cost 1 AP; listed heavy melee weapons cost 2 AP; dagger-type equips cost 0 AP; two ordinary sabers cost 1 AP each. Melee rows open equipment management and show READY when usable, rather than repeatedly charging draw AP.
+- Two ordinary handheld guns are allowed, with −3 displayed on each affected attack; gun-plus-melee penalises the gun similarly. Integrated weapons remain unaffected. Snipers use both hands. Wing Zero's purpose-built Twin Buster retains its exception.
+- Integrated, mounted, shield-linked, attached and handheld systems have distinct availability checks. Existing Fire AP costs, charge counters, cooldowns and undo remain in place. Fire and relevant special attacks reject unavailable equipment.
+- Arm loss makes held equipment and its forearm shield unavailable. Recover your own dropped weapon/shield within 10cm for 1 AP. An empty surviving hand/mount equips immediately; otherwise the item returns to your usable list. Shield HP, cooldowns and charges are preserved. Repeated pickup is rejected. Recovery does not repair a destroyed shield.
+- No switching while a manually marked melee segment is active. Use **Begin melee segment / End melee segment** in the picker. Exia parries refresh on a new segment, not by repeatedly changing pair. The special Dagger Guard still costs 2 AP; individual GN daggers are free to equip. Special matrix selection fills the actual hand slots and requires usable blades and arms.
+- Melee weapon reference added to Tables, including the agreed Spear/Lance 30cm charge and free dagger equip. Legend's Beam Javelin follows the spear/lance reach profile. Known base melee bonuses appear beside weapon names, in popups, and in the equipment picker. Undefined custom bonuses are explicitly marked rather than invented; see Equipment_Audit_cf107.md.
+- Phenex now supports equipping its Beam Sabers, including one per hand. Its existing DE weapon availability, remote lending and shield controls are retained. Rising Freedom and Infinite Justice are marked **REWORK NEEDED** and excluded from equipment enforcement.
+
+### Catalogue decisions carried forward
+
+Pale Rider's 180mm Cannon and F91's VSBR require equipping; VSBR modes share one equipment identity and retain their cooldown group. Nightfall's Songbird is integrated; Pulse Blade requires equipping. Astray's BuCUE Head is classified as melee and costs 1 AP to equip; its existing damage remains unchanged pending a defined critical/roll-bonus profile. Jiyan's Wolf-Ken/Tiger-Ken and Dual Fang Blades, and Master's Darkness Finger/Master Cloth, are independently usable. Gouf's forearm MG and Heat Rod need no switch; Heat Sword does. Epyon's Heat Rod depends on its shield. Shield missiles/cannons depend on an available shield.
+
+Banshee's Revolving Launcher follows the equipped Magnum, and Beam Jutte eligibility ignores its firing cooldown. Sinanju-family Attachment Bazooka remains a temporary special attack with its existing AP/charges; it never creates a persistent combined weapon. Ordinary firing modes do not charge extra equip AP. Exia GN Sword retains its explicit 1 AP mode switch and cannot pair with another weapon. Destiny's Flash-Edge can be thrown without changing the loadout; its melee profile is separately selectable. Vidar's Hunter Edges and Destiny's Palma remain integrated.
+
+### Validation and limits
+
+195 equipment-rule assertions, 58 UI smoke checks and all 219 existing engagement assertions pass (472 total). The UI smoke test executes all 50 mobile-suit sheets using a stub DOM and tests arm selection, Fire, undo safety and read-only protection. It is not a visual browser test. Chromium was unavailable and its installation timed out, so desktop/mobile rendering and live two-device play still need on-device verification. No deployment was performed.
+
+The app remains a tabletop tracker: range, physical dice and melee outcomes are resolved by players. Dual-wield modifiers are displayed for those rolls. This release automates recovery of the unit's **own** dropped equipment; transferring weapons between different units under the wider battlefield-loot rule is not implemented. Mount assignments for undocumented generic items use editable hand/forearm defaults; distinctive fixed systems retain explicit mappings. No general ammo counter was added. Campaign, pilot shop, personal-base automation and the proposed resupply/2-2-2 changes remain planned work.
+
+## cf106 — Simple offline Quick Resolve tracker
+
+Offline Quick Resolve now shows only the Flashbang, Smoke Grenade, and Grenade resource trackers. Tap an item to spend one, tap a used mark to restore one, and use **Resupplied** to refill the tracked supplies. Removed the online-session prompt and firefight workflow instructions from the offline tab; challenge controls are restricted to online play. Manual resource controls cannot change online supplies. Resupply logs now describe resupply rather than suggesting every engagement refills items.
+
+Validation: all 219 existing automated assertions pass. Offline controls were checked for spending, restoration, empty supplies, refill, and online protection. Browser visual verification remains pending. Deploy the full project and refresh devices to cf106. No deployment was performed.
 
 ## cf105 — Fighter reminders and dice choice for every bout
 
