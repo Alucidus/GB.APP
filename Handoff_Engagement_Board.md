@@ -1,4 +1,20 @@
-# Gunpla Battles — cf125 current handoff
+# Gunpla Battles — cf127 current handoff
+
+All limb HP +/- controls now remain attached to the diagram, 4px from their bubble edges, rather than being moved by landscape table spreading. Personal bases now require selecting the unit's combined health card before Slot 1 becomes active. There is one portrait/card per unit; the duplicate roster row and detail card are consolidated. Territory confirmation, ownership, replacement warnings and next-own-turn base repairs remain unchanged.
+
+See Release_Notes_cf127.md and Test_Checklist_cf127.md for checks and playtest. All cf126 work and the deferred character-creator asset notes remain included. No deployment.
+
+---
+
+# Gunpla Battles — cf126 previous handoff
+
+Ship repair slot headers now remain disabled and visually inactive until a unit is selected. Only valid destinations activate; assigning or canceling returns all headers to inactive. Selecting a unit still shows its repair details. Clear slot remains a separate confirmed action. No base or timing changes. All cf125 features below are retained.
+
+208 repair-interface browser checks passed across four viewports. See Release_Notes_cf126.md and Test_Checklist_cf126.md. No deployment; user playtest is next.
+
+---
+
+# Gunpla Battles — cf125 previous handoff
 
 Ship repair assignment and infantry deployment loading now use the user's preferred **select unit → highlight → select destination** interaction. No default repair slot or tap-to-cycle infantry destinations. Ship replacements retain confirmation, and infantry loading stays a draft until Confirm & deploy. See [UI_Interaction_Preferences.md](UI_Interaction_Preferences.md) for the explicit design preferences to follow in future work.
 

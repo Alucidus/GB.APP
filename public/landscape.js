@@ -36,7 +36,7 @@ function spreadSheet(){
     n.classList.remove('spread-left','spread-right','spread-wide','spread-ap');
     if(gap<=12||['frame','hudfx','dead'].includes(n.id))return;
     if(n.classList.contains('sqwrap')){n.classList.add('spread-wide');return;}
-    if(n.matches('.apflash,.apfloat,.fmech,.fret,.fshiplbl,.fhp,.flimb,.bhit,.bhitu,.swarn,.hp,.eq-limb-label,.eq-arm-prompt,.qa,.sqa,.sgrp,.smove,.gnote,.fstatc,.fbreath'))return;
+    if(n.matches('.apflash,.apfloat,.fmech,.fret,.fshiplbl,.fhp,.flimb,.bhit,.bhitu,.swarn,.hp,.hp-step,.eq-limb-label,.eq-arm-prompt,.qa,.sqa,.sgrp,.smove,.gnote,.fstatc,.fbreath'))return;
     if(n.matches('.fgrid')){n.classList.add('spread-wide');return;}
     if(U.type&&n.id==='helpBtn'){
       if(!spreadOriginal.has(n))spreadOriginal.set(n,{left:n.style.left,right:n.style.right});

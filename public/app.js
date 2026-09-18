@@ -5812,7 +5812,7 @@ function buildFrame() {
   add("flbl fcap", { left: "88.6%", top: "86.3%" }, "\u25C8 " + (ring ? cov + "\u00b0 " : "") + "SHIELD COVERAGE");
   if (ring) [[80.91, 66.32], [93.8, 66.45], [80.97, 80.97], [93.8, 80.98]].forEach(([x, y]) => add("fbub", { left: pc(x), top: pc(y) }));
 }
-const WROW_X = 6.3, WROW_W = 35.4, WROW_H = 5.8, WPIP_X = 43.5, IDLE = 2500, LIMB_OFF = 4.8;
+const WROW_X = 6.3, WROW_W = 35.4, WROW_H = 5.8, WPIP_X = 43.5, IDLE = 2500;
 
 let amount = 1;
 const AMOUNTS = [1, 2, 3, 4, 5, 6, 10, 15];
@@ -7216,10 +7216,13 @@ function drawSheetContents() {
         sheet.appendChild(w);
       } else if (p <= .34) b.classList.add("hudlow");
     }
-    [[-LIMB_OFF, "\u2212", () => hp[k] = Math.max(0, hp[k] - 1)],
-     [LIMB_OFF, "+", () => hp[k] = Math.min(mx, hp[k] + 1)]].forEach(([dx, lab, fn]) => {
-      const s = el("div", "step" + (sh ? " show" : ""), { position: "absolute", transform: "translate(-50%,-50%)",
-        left: (pos.x + dx) + "%", top: pos.y + "%", borderColor: ring, color: ring, zIndex: 5 });
+    [[-1, "\u2212", () => hp[k] = Math.max(0, hp[k] - 1)],
+     [1, "+", () => hp[k] = Math.min(mx, hp[k] + 1)]].forEach(([dx, lab, fn]) => {
+      // Share the bubble's diameter and anchor the button edge, independent of landscape table spacing.
+      const sign=dx<0?'-':'+';
+      const s = el("div", "step hp-step" + (sh ? " show" : ""), { position: "absolute", transform: dx<0?"translate(-100%,-50%)":"translate(0,-50%)",
+        left: 'calc('+pos.x+'% '+sign+' var(--limb-hp-size) / 2 '+sign+' 4px)', top: pos.y + "%", borderColor: ring, color: ring, zIndex: 5 });
+      s.dataset.hpLimb=k;s.dataset.hpAdjust=dx<0?'minus':'plus';
       s.textContent = lab; s.onclick = e => { e.stopPropagation(); fn(); wake(id); };
       sheet.appendChild(s);
     });
@@ -7817,7 +7820,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf125";
+const APP_BUILD = "cf127";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

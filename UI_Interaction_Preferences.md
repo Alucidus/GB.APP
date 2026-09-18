@@ -4,6 +4,8 @@ These preferences were explicitly requested during cf125 development. Use them w
 
 - For assigning units or equipment, use **select → highlight → select destination**. The first tap selects the item and makes its selection obvious. Valid destinations light up. Only the destination tap applies the choice. Show text or a checkmark as well as color, and allow deselection.
 - Do not cycle a unit through destinations with repeated taps. Do not preselect a destination that makes the next unit tap unexpectedly assign it.
+- Destination controls must be disabled and look inactive until a unit is selected. Ship repair slot headers must not be pressable just to view details; selecting the unit shows its details.
+- Apply that order to personal bases too: select the unit's combined health card, then its slot. Avoid repeating the same unit as a separate roster row and detail panel; use one portrait/card per unit.
 - Keep equivalent actions on the same controls. Shields equip and stow through the R/L shield HP bubbles; handheld weapons use the arm controls.
 - Use familiar labels. The equipment panel is **Inventory**, including picked-up weapons and shields. Avoid vague labels such as More for that panel.
 - Use the game's themed confirmation dialogs for swaps and replacements. Explain what will be displaced and the AP or unfinished-repair-cycle consequence before applying it.

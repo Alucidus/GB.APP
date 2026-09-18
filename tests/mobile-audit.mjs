@@ -9,7 +9,7 @@ try{
   await page.route('**/*',r=>r.request().url().startsWith(url)?r.continue():r.abort());await page.goto(url);await page.waitForFunction(()=>typeof openSheet==='function');
   await page.evaluate(()=>{side='federation';locked=true;turn=freshTurn();turn.round=1;turn.phase='you';turn.started=true;const u=unitById('rx-78-2-gundam');roster=[{uid:1,id:u.id,st:freshState(u)}];roster[0].st.hp.chest-=4;openSheet(1);});
   await page.screenshot({path:'tests/screenshots/mobile-sheet-'+viewport.width+'.png'});
-  await page.locator('#baseBtn').tap({position:{x:15,y:15}});await page.locator('#repairBaseAction').tap();await page.locator('#pickExtra button').tap();
+  await page.locator('#baseBtn').tap({position:{x:15,y:15}});await page.locator('.repair-base-unit').tap();await page.locator('#repairBaseSlot').tap();await page.locator('#pickExtra button').tap();
   assert.match(await page.locator('#repairStatus').textContent(),/Repairing/);
   const before=await page.evaluate(()=>CUR.st.hp.chest);await page.evaluate(()=>{turn.phase='enemy';startMyTurnCore();});assert.equal(await page.evaluate(()=>CUR.st.hp.chest),before+2);
   await page.evaluate(()=>openEquipment());await page.screenshot({path:'tests/screenshots/mobile-equipment-'+viewport.width+'.png'});await page.evaluate(()=>closePicker());

@@ -29,12 +29,14 @@ try{
  await owner.setViewportSize({width:844,height:390});
  await owner.locator('[data-owner-id="'+b.pid+'"]').tap();
  assert.equal(await owner.evaluate(()=>CUR.st.repair.owner),b.pid,'player row assigns owner');checks++;
- assert.equal(await owner.locator('#repairBaseAction').isDisabled(),true,'only owner can enter');checks++;
+ assert.equal(await owner.locator('#repairBaseSlot').isDisabled(),true,'only owner can enter');checks++;
+ assert.equal(await owner.locator('.repair-base-unit').getAttribute('aria-disabled'),'true','another owner cannot select unit');checks++;
  assert.deepEqual((await sync(a,{units:{'federation/1':{st:await owner.evaluate(()=>CUR.st)}}})).denied,[]);checks++;
  await refresh(ally,b);await ally.evaluate(()=>{mp.held.add(side+'/1');openSheet(1);openRepairBase();});
  assert.equal(await ally.evaluate(()=>CUR.st.repair.owner),b.pid,'assignment synchronized to teammate');checks++;
  assert.equal(await ally.locator('.repair-owner-list').count(),0,'nonleader cannot reassign');checks++;
- assert.equal(await ally.locator('#repairBaseAction').isEnabled(),true,'assigned player can enter their base');checks++;
+ assert.equal(await ally.locator('#repairBaseSlot').isDisabled(),true,'owner must select a unit first');checks++;
+ await ally.locator('.repair-base-unit').tap();assert.equal(await ally.locator('#repairBaseSlot').isEnabled(),true,'assigned player can select and enter their base');checks++;
  await owner.locator('[data-owner-id="'+a.pid+'"]').tap();
  await sync(a,{units:{'federation/1':{st:await owner.evaluate(()=>CUR.st)}}});await refresh(ally,b);
  await owner.locator('#pickCancel').tap();
@@ -42,10 +44,10 @@ try{
  assert.equal(await owner.locator('.repair-owner-list button:enabled').count(),0,'read-only sheet cannot reassign');checks++;
  await owner.evaluate(()=>{mp.held.add(side+'/1');closePicker();});
  await ally.evaluate(()=>{openSheet(1);openPicker();});
- await owner.locator('#baseBtn').tap();await owner.locator('#repairBaseAction').tap();await owner.locator('#pickCancel').tap();
+ await owner.locator('#baseBtn').tap();await owner.locator('.repair-base-unit').tap();await owner.locator('#repairBaseSlot').tap();await owner.locator('#pickCancel').tap();
  assert.equal(await owner.evaluate(()=>!!CUR.st.repair.entry),false,'cancelling entry does not enter base');checks++;
  for(const inBase of [true,false]){
-  await owner.locator('#baseBtn').tap();await owner.locator('#repairBaseAction').tap();await owner.locator('#pickExtra button').tap();
+  await owner.locator('#baseBtn').tap();await owner.locator(inBase?'#repairBaseSlot':'#repairBaseAction').tap();await owner.locator('#pickExtra button').tap();
   assert.deepEqual((await sync(a,{units:{'federation/1':{st:await owner.evaluate(()=>CUR.st)}}})).denied,[]);checks++;
   for(const [page,seat] of [[owner,a],[ally,b],[enemy,c]])await refresh(page,seat);
   await owner.evaluate(()=>renderRoster());
