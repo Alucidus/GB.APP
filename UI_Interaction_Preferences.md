@@ -14,3 +14,5 @@ These preferences were explicitly requested during cf125 development. Use them w
 - Preserve the full-page 8 Soldiers layout and original scaling. Its top tabs span the width; the group selectors stay slimmer. Do not enlarge controls until they hide the soldiers or squad choices.
 
 Implemented in cf125: ship repair assignment and pre-deployment infantry vehicle loading both select the unit first and then its destination. Infantry loading remains a draft until Confirm & deploy; Back discards draft choices. Repair timing is unchanged by the interaction pattern.
+
+- On small devices only, keep the damage toolbar to 1-4, custom # and nuclear blast; preserve the full presets on larger screens.

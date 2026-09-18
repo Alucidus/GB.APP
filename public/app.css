@@ -3519,3 +3519,20 @@ button.mb-item.fxtog{font:inherit;color:#dfe9f4;background:none;border-top:0;bor
 #sheet .eq-arm-caption{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;max-width:100%;padding:3px 6px;border:1px solid var(--eq-hand);border-radius:3px;background:#071b2bf2;color:var(--eq-hand);font:800 clamp(9px,1.05cqw,14px)/1.2 system-ui,sans-serif;pointer-events:none}
 
 #sheet .eq-limb-label{height:auto;min-height:28px;width:max-content;max-width:18%;padding:0}
+
+/* Small screens keep the four common amounts, custom entry and nuclear blast visible. */
+@media(max-width:1100px){
+ #topbar{display:grid;grid-template-columns:auto minmax(0,120px) auto minmax(279px,1fr) 80px auto;gap:4px;overflow:visible;padding:4px max(6px,env(safe-area-inset-right)) 4px max(6px,env(safe-area-inset-left))}
+ #topbar #umeta,#topbar #total{display:none}
+ #topbar #uname{min-width:0;max-width:120px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:11px}
+ #topbar .seg{display:flex}
+ #topbar #phaseChip{min-width:0;max-width:80px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+ #topbar #resetU{margin-left:0!important}
+ #topbar #amtBar{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;min-width:0;width:100%}
+ #topbar #amtBar>b{display:none}
+ #topbar .btn,#topbar .seg button,#topbar .phase{min-height:44px;min-width:44px;box-sizing:border-box;padding:2px 4px;font-size:10px;letter-spacing:0}
+ #topbar #amtBar .a{display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;margin:0;padding:4px 2px;font-size:13px}
+ #topbar #amtBar .a[data-amount="5"],#topbar #amtBar .a[data-amount="6"],#topbar #amtBar .a[data-amount="10"],#topbar #amtBar .a[data-amount="15"]{display:none}
+}
+@media(max-width:620px){#topbar{grid-template-columns:auto auto minmax(0,1fr) 44px auto}#topbar #uname{display:none}}
+@media(max-width:1100px) and (pointer:fine) and (max-height:400px){#topbar .btn,#topbar .seg button,#topbar .phase,#topbar #amtBar .a{min-height:28px}}

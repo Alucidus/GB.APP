@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf127)
+# Gunpla Battle — Cloudflare version (build cf128)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -15,7 +15,7 @@ public/            the app (index.html, images, service worker)
 .gitignore
 ```
 
-## Current build: cf127
+## Current build: cf128
 
 [Release_Notes_cf127.md](Release_Notes_cf127.md) covers attached limb HP controls and unit-first base assignment with one combined card per unit. Start with [Test_Checklist_cf127.md](Test_Checklist_cf127.md). All cf126 functionality below remains included.
 

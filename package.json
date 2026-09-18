@@ -18,7 +18,8 @@
     "test:layout": "node tests/layout-browser.mjs",
     "test:shields:browser": "node tests/shields-browser.mjs",
     "test:base:browser": "node tests/base-rosters-browser.mjs",
-    "test:repairs:browser": "node tests/repair-bay-browser.mjs"
+    "test:repairs:browser": "node tests/repair-bay-browser.mjs",
+    "test:toolbar:browser": "node tests/toolbar-browser.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.132.0"

@@ -6097,12 +6097,13 @@ function renderAmounts() {
   AMOUNTS.forEach(n => {
     const b = document.createElement("div");
     b.className = "a" + (n === amount ? " on" : "");
+    b.dataset.amount=n;
     b.textContent = n;
     b.title = "Each tap on a limb applies " + n;
     b.onclick = () => { amount = n; renderAmounts(); if (typeof sqSelState !== "undefined" && sqSelState && U && isSquad(U)) draw(); };
     bar.appendChild(b);
   });
-  const custom = AMOUNTS.indexOf(amount) < 0;
+  const custom = AMOUNTS.indexOf(amount) < 0 || (innerWidth<=1100&&amount>4);
   const cu = document.createElement("div");
   cu.className = "a cust" + (custom ? " on" : "");
   cu.textContent = custom ? amount : "#";
@@ -6122,7 +6123,7 @@ function openAmountInput() {
   const wrap = el("div", "amtin");
   const inp = document.createElement("input");
   inp.type = "number"; inp.min = "1"; inp.max = "999"; inp.step = "1"; inp.inputMode = "numeric"; inp.id = "amtInput";
-  inp.value = AMOUNTS.indexOf(amount) < 0 ? amount : "";
+  inp.value = AMOUNTS.indexOf(amount) < 0 || (innerWidth<=1100&&amount>4) ? amount : "";
   inp.placeholder = "e.g. 14";
   const keys = el("div", "amtkeys");
   ["1","2","3","4","5","6","7","8","9","\u232B","0","\u2713"].forEach(k => {
@@ -7818,9 +7819,9 @@ function fitSheet() {
   if (sh.style.width !== w + "px") sh.style.width = w + "px";
   spreadSheet();
 }
-window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
+window.addEventListener("resize", () => requestAnimationFrame(()=>{renderAmounts();fitSheet();}));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf127";
+const APP_BUILD = "cf128";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

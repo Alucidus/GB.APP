@@ -1,4 +1,10 @@
-# Gunpla Battles — cf127 current handoff
+# Gunpla Battles - cf128 current handoff
+
+Small-device damage toolbar now shows 1-4, custom # and nuclear blast in one row. Larger screens retain all presets. Selected custom amounts survive resizing. 252 toolbar checks and four infantry layout viewports passed. See Release_Notes_cf128.md and Test_Checklist_cf128.md. All cf127 fixes are included. No deployment.
+
+---
+
+# Gunpla Battles — cf127 previous handoff
 
 All limb HP +/- controls now remain attached to the diagram, 4px from their bubble edges, rather than being moved by landscape table spreading. Personal bases now require selecting the unit's combined health card before Slot 1 becomes active. There is one portrait/card per unit; the duplicate roster row and detail card are consolidated. Territory confirmation, ownership, replacement warnings and next-own-turn base repairs remain unchanged.
 
