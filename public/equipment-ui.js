@@ -1,5 +1,27 @@
 /* Equipment controls reuse the sheet's picker, theme, save and multiplayer lock. */
 let eqPending = null;
+let eqSwapDismiss = null;
+function eqSwapDialog(arm,key,replaced,signature) {
+  closePicker();
+  $('mpToast')?.classList.remove('on');
+  const uid=CUR.uid,cost=locked?MSE.item(U,key).cost:0;
+  $('pickT').textContent='Swap equipped weapon?';
+  $('pickS').textContent='Review the change before spending AP.';
+  const list=$('picklist');list.innerHTML='';
+  const card=el('div','eq-card eq-swap-card');
+  const old=el('p');old.textContent='Return to storage: '+replaced.join(' · ');
+  const next=el('b');next.textContent='Equip '+MSE.item(U,key).name+' · '+LIMB_LABEL[arm];
+  const price=el('p','eq-swap-cost');price.textContent=cost+' AP to equip · '+ap+' AP available';
+  card.append(old,next,price);list.appendChild(card);
+  const go=el('button','btn pri');go.id='eqSwapConfirm';go.textContent='SWAP · '+cost+' AP';
+  go.onclick=()=>{closePicker();if(CUR?.uid===uid&&eqPending?.key===key)eqPickArm(arm,signature);};
+  $('pickExtra').appendChild(go);$('pickCancel').textContent='Cancel';
+  const box=$('pickbox');box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');box.setAttribute('aria-labelledby','pickT');
+  const previous=document.activeElement;
+  box.onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();closePicker();}else if(e.key==='Tab'){e.preventDefault();(document.activeElement===$('pickCancel')?go:$('pickCancel')).focus();}};
+  eqSwapDismiss=()=>{box.onkeydown=null;box.removeAttribute('role');box.removeAttribute('aria-modal');box.removeAttribute('aria-labelledby');previous?.focus();};
+  $('pick').classList.add('on');$('pickCancel').focus();
+}
 function eqLive() { if(CUR) { CUR.st.hp=hp;CUR.st.ap=ap;CUR.st.sh=sh;CUR.st.shDown=shDown;CUR.st.track=track; } return CUR?.st; }
 function eqAllowed() { return CUR && MSE.supported(U) && mpSheetCanEdit() && !document.body.classList.contains('mpro'); }
 function eqAction(fn, label, reaction=false, reopen=true) {
@@ -149,18 +171,20 @@ function eqChoose(key) {
   if(!MSE.arms.some(arm=>eqValidArm(arm))){eqPending=previous;mpToast('No valid arm: check AP, arm health or recover the weapon first.');return;}
   closePicker();active=null;draw();
 }
-function eqPickArm(arm) {
+function eqPickArm(arm,approvedSignature=null) {
   if(!eqPending||eqPending.uid!==CUR.uid)return;
   const key=eqPending.key;
   if(!key){mpToast('Choose a highlighted weapon first.');return;}
   if(!MSE.arms.includes(arm)||hp[arm]<=0){mpToast('Tap an intact arm.');return;}
   if(!eqAllowed())return;
+  if(locked&&turn.phase!=='you'){mpToast('Switch equipment on your own turn.');return;}
   if(key!=='stow'&&!key.startsWith('shield:')){
     const current=eqLive(),preview=JSON.parse(JSON.stringify(current));
     const why=MSE.equip(U,preview,key,arm,!locked);
     if(why){mpToast(why);return;}
     const replaced=current.eq.hands.map((ref,i)=>ref&&!preview.eq.hands.includes(ref)?(i?'Left':'Right')+' arm: '+(MSE.item(U,ref)?.name||ref):null).filter(Boolean);
-    if(replaced.length&&!confirm('Swap equipped weapon?\n\n'+replaced.join('\n')+'\n\nEquip '+MSE.item(U,key).name+' for '+(locked?MSE.item(U,key).cost:0)+' AP? Replaced weapons return to storage.'))return;
+    const signature=JSON.stringify([CUR.uid,key,arm,current.eq,current.ap,current.hp,current.sh,current.track,locked,turn.round,turn.phase]);
+    if(replaced.length&&approvedSignature!==signature){eqSwapDialog(arm,key,replaced,signature);return;}
   }
   eqPending=key==='stow'||key.startsWith('shield:')?null:{uid:CUR.uid,key:''};
   eqAction(st=>{

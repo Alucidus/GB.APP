@@ -1,3 +1,35 @@
+# Gunpla Battles — cf114
+
+Moved the mobile-suit right-arm HP label to the right of its bubble and the left-arm HP label to the left of its bubble, aligned with the bubble centres. Equipment labels remain below the bubbles. Includes cf113's faction-themed in-game swap confirmation and cf112's violet/right and gold/left equipment colours.
+
+Verification: 165 real-browser equipment assertions passed across both faction themes at desktop and phone-landscape sizes. Inspected normal-sheet screenshots at both sizes to verify HP label placement. No gameplay rules changed. Build, asset URLs and service-worker cache are cf114. No deployment performed.
+
+Up next: user review of the equipment UI.
+
+Latest package: gunpla-battle-cf-cf114.zip. Older notes below are historical.
+
+# Gunpla Battles — cf113
+
+Equipment swaps now use the existing faction-themed in-game picker instead of a browser confirm dialog. The dialog lists the weapons returning to storage, the incoming weapon and arm, the equip cost and available AP. Cancel is initially focused; Escape and backdrop dismissal cancel without spending AP. Tab stays within the two actions.
+
+Swap revalidates ownership, turn, equipment and resources. If the loadout or turn changed while the warning was open, a new review is required; invalid changes are rejected. Empty-hand assignments keep the direct flow. Violet/right and gold/left colours from cf112 are retained.
+
+Verification: 165 real-browser assertions passed across both factions at desktop and phone-landscape sizes, including cancellation, Escape, acceptance, changed-state reconfirmation, no browser dialogs and AP preservation. 71 UI smoke checks passed. Dialog screenshots inspected at both sizes. No live Cloudflare testing or deployment performed. Build/asset/cache versions are cf113.
+
+Up next: user review of the equipment feature. Other roadmap work remains pending.
+
+Latest package: gunpla-battle-cf-cf113.zip. Older notes below are historical.
+
+# Gunpla Battles — cf112
+
+Small colour correction to cf111: cyan remains the selectable-control colour. Right-hand equipment now uses violet (#c4a1ff); left-hand equipment remains gold. Matching arm outlines, prompts, labels, held weapon rows and both-hand split highlights follow these colours. R/L labels and the white selection outline remain.
+
+141 real-browser assertions passed across both faction themes at desktop and phone-landscape sizes; the phone screenshot was visually checked. No gameplay rules changed. Build labels, asset URLs and service-worker cache are cf112 to prevent cached cf111 colours. No deployment performed.
+
+Up next: user review of the cf111 equipment features. Earlier roadmap and unresolved work remain in the handoff.
+
+Latest package: gunpla-battle-cf-cf112.zip. The following cf111 and older entries are historical.
+
 # App handoff — cf111
 
 Latest application: gunpla-battle-cf-cf111.zip. Read Release_Notes_cf111.md for changes and current verification. The original complete cf110 handoff and reference assets remain in the parent bundle.

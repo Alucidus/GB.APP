@@ -33,6 +33,7 @@ assert.equal(vm.runInContext('eqPending.key',ctx),'beam-saber');
 assert.equal(get('pick').classList.contains('on'),false,'direct equip does not open picker');
 assert.equal(get('equipBtn').textContent,'DONE');
 vm.runInContext("eqPickArm('rightArm')",ctx);
+get('pickExtra').children[0].click();
 assert.equal(get('pick').classList.contains('on'),false,'assignment does not reopen picker');
 assert.equal(vm.runInContext('ap',ctx),3);assert.equal(get('equipBtn').textContent,'DONE');
 assert.ok(get('sheet').children.some(n=>String(n.textContent).startsWith('[R] Beam Saber')),'right badge rendered');

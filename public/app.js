@@ -5743,8 +5743,8 @@ function buildFrame() {
   const hpl = (x, y) => add("flbl fhp", { left: pc(x), top: pc(y) }, "HP");
   lab("HEAD", L.head.x, L.head.y - 7.4); hpl(L.head.x - 4.2, L.head.y);
   lab("CHEST", L.chest.x, L.chest.y - 6.6); hpl(L.chest.x, L.chest.y + 6.3);
-  lab("RIGHT<br>ARM", L.rightArm.x, L.rightArm.y - 8.0); hpl(L.rightArm.x, L.rightArm.y + 7.6);
-  lab("LEFT<br>ARM", L.leftArm.x, L.leftArm.y - 8.0); hpl(L.leftArm.x, L.leftArm.y + 7.6);
+  lab("RIGHT<br>ARM", L.rightArm.x, L.rightArm.y - 8.0); hpl(L.rightArm.x + 4.2, L.rightArm.y);
+  lab("LEFT<br>ARM", L.leftArm.x, L.leftArm.y - 8.0); hpl(L.leftArm.x - 4.2, L.leftArm.y);
   hpl(L.rightLeg.x, L.rightLeg.y - 7.4); lab("RIGHT<br>LEG", L.rightLeg.x, L.rightLeg.y + 8.2);
   hpl(L.leftLeg.x, L.leftLeg.y - 7.4); lab("LEFT<br>LEG", L.leftLeg.x, L.leftLeg.y + 8.2);
   // shield coverage dial
@@ -5922,6 +5922,7 @@ window.openPicker = (mode, slot) => {
   $("pick").classList.add("on");
 };
 window.closePicker = () => {
+  if(eqSwapDismiss){const dismiss=eqSwapDismiss;eqSwapDismiss=null;dismiss();}
   $("pick").classList.remove("on");
   $("pickExtra").innerHTML = "";          // extra buttons belong to one dialog only
   $("pickCancel").textContent = "Cancel";
@@ -7699,7 +7700,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf111";
+const APP_BUILD = "cf114";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
