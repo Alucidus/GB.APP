@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf109)
+# Gunpla Battle — Cloudflare version (build cf110)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -6,7 +6,7 @@ This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare 
 
 ## Current release
 
-cf109 simplifies EQUIP, adds arm-based STOW, removes overlapping HP labels and applies the remaining approved melee bonuses. Deploy the complete project, including `public/equipment.js` and `public/equipment-ui.js`. Refresh every device to cf109. Read `Release_Notes_cf109.md` for rules, usage and verification limits. No deployment was performed while preparing this package.
+cf110 adds on-sheet EQUIP mode with cyan weapon/arm selection and persistent AP values; it retains cf109 stats and quantities. Deploy the complete project, including `public/equipment.js` and `public/equipment-ui.js`. Refresh every device to cf110. Read `Release_Notes_cf110.md` for rules, usage and verification limits. No deployment was performed while preparing this package.
 
 ## What's in this folder
 

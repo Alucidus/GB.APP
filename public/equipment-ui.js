@@ -27,36 +27,56 @@ function eqSummary() {
   $('sheet').classList.toggle('ms-equipment',enabled);
   if(!enabled||eqPending?.uid!==CUR?.uid)eqPending=null;
   $('sheet').classList.toggle('eq-assign',!!eqPending);
-  button.textContent=eqPending?'CANCEL':'EQUIP';
-  button.title=eqPending?'Cancel arm assignment':'Weapons, shield mounts, recovery and special combinations';
+  button.textContent=eqPending?(eqPending.key==='stow'?'CANCEL':'DONE'):'EQUIP';
+  button.title=eqPending?'Leave equipment mode (completed changes are kept)':'Choose a weapon, then an arm';
 }
 function eqStowClick() {
-  if(eqPending){eqPending=null;draw();return;}
-  eqChoose('stow');
+  if(eqPending?.key==='stow'){eqPending=null;draw();return;}
+  eqPending=null;eqChoose('stow');
 }
-function eqDockClick() { if(eqPending){eqPending=null;draw();}else openEquipment(); }
+function eqDockClick() {
+  if(eqPending){eqPending=null;draw();return;}
+  if(!eqAllowed())return;
+  if(locked&&turn.phase!=='you'){mpToast('Switch equipment on your own turn.');return;}
+  closePicker();$('mpToast')?.classList.remove('on');active=null;eqPending={uid:CUR.uid,key:''};draw();
+}
 function eqRowTag(x,s) {
   if(!x)return '';
   if(x.mount==='hand')return s.eq.hands.map((r,i)=>MSE.item(U,r)?.key===x.key&&s.hp[MSE.arms[i]]>0&&!s.eq.dropped.includes(r)?['R','L'][i]:'').filter(Boolean).join('+');
   return x.mount==='shield'?'SH':x.mount==='attachment'?'LINK':x.mount==='throw'?'THROW':'INT';
 }
-function eqValidArm(arm) {
+function eqValidArm(arm, key=eqPending?.key) {
   if(!eqPending||!MSE.arms.includes(arm)||hp[arm]<=0)return false;
   const copy=JSON.parse(JSON.stringify(eqLive()));
-  if(eqPending.key==='stow')return !!copy.eq.hands[MSE.arms.indexOf(arm)] && !copy.eq.segment;
-  if(eqPending.key.startsWith('shield:')) {
-    const i=Number(eqPending.key.slice(7));
+  if(key==='')return !copy.eq.segment;
+  if(key==='stow')return !!copy.eq.hands[MSE.arms.indexOf(arm)] && !copy.eq.segment;
+  if(key.startsWith('shield:')) {
+    const i=Number(key.slice(7));
     return !copy.eq.segment&&!copy.eq.shieldDropped.includes(i)&&copy.sh[i]>0&&!copy.eq.shields.includes(arm)&&(!locked||copy.ap>=1);
   }
-  return !MSE.equip(U,copy,eqPending.key,arm,!locked);
+  return !MSE.equip(U,copy,key,arm,!locked);
 }
 function eqDecorate(sheet) {
   if(!MSE.supported(U))return;
   const stow=eqPending?.key==='stow';
-  if(eqPending){const prompt=el('div','eq-prompt');prompt.textContent=stow?'Choose an arm to stow its weapon':'Choose an arm · '+(MSE.item(U,eqPending.key)?.name||'Shield');prompt.setAttribute('role','status');sheet.appendChild(prompt);}
+  if(eqPending){
+    const prompt=el('div','eq-prompt'),message=el('span');
+    const x=MSE.item(U,eqPending.key);
+    message.textContent=stow?'Choose an arm to stow its weapon':!eqPending.key?'Choose a weapon, then an arm':(x?.name||'Shield')+' · '+(locked?(x?.cost??1)+' AP to equip':'free setup')+' · choose an arm';
+    prompt.appendChild(message);
+    if(!stow){const more=el('button','btn sm eq-more');more.textContent='MORE';more.title='Shield mounts, recovery, special equipment and melee segments';more.onclick=openEquipment;prompt.appendChild(more);}
+    sheet.appendChild(prompt);
+    if(!stow)U.weapons.forEach(w=>{
+      const item=MSE.item(U,w.equipKey);if(item?.mount!=='hand')return;
+      const available=MSE.arms.some(arm=>eqValidArm(arm,item.key));
+      const row=el('button','eq-weapon'+(available?'':' unavailable')+(eqPending.key===item.key?' selected':''),{left:WROW_X+'%',top:(w.y-WROW_H/2)+'%',width:WROW_W+'%',height:WROW_H+'%'});
+      row.type='button';row.title='Select '+w.name+' · '+item.cost+' AP equip';row.setAttribute('aria-label',row.title);row.setAttribute('aria-pressed',String(eqPending.key===item.key));
+      row.onclick=()=>eqChoose(item.key);sheet.appendChild(row);
+    });
+  }
   MSE.arms.forEach(arm=>{
     const pos=LIMB_POS_DEFAULT[arm];
-    if(eqPending&&eqValidArm(arm)){const tag=el('div','eq-arm-prompt',{left:pos.x+'%',top:(pos.y-5.0)+'%'});tag.textContent=stow?'STOW HERE':'EQUIP HERE';sheet.appendChild(tag);}
+    if(eqPending&&eqValidArm(arm)){const tag=el('div','eq-arm-prompt',{left:pos.x+'%',top:(pos.y-5.0)+'%'});tag.textContent=stow?'STOW HERE':eqPending.key?'EQUIP HERE':'CHOOSE WEAPON';sheet.appendChild(tag);}
   });
 }
 function eqStatus(x,s) {
@@ -69,7 +89,7 @@ function eqStatus(x,s) {
 }
 function openEquipment() {
   if(!CUR||!MSE.supported(U))return;
-  eqPending=null;eqSummary();
+  const wasSelecting=!!eqPending;eqPending=null;eqSummary();if(wasSelecting)draw();
   const s=eqLive(),e=MSE.init(U,s),cats=MSE.catalog(U);
   $('pickT').textContent='Weapons / Equip — '+(U.short||U.name);
   $('pickS').textContent=(locked?ap+' AP available.':'Setup: choose starting equipment freely.')+' Shields use forearm mounts, not hand slots. Pickup requires being within 10cm.';
@@ -117,15 +137,16 @@ function eqChoose(key) {
   if(locked&&turn.phase!=='you'){mpToast('Switch equipment on your own turn.');return;}
   const st=eqLive();MSE.init(U,st);
   if(st.eq.segment){mpToast('Finish the melee segment first.');return;}
-  eqPending={uid:CUR.uid,key};
-  if(!MSE.arms.some(eqValidArm)){eqPending=null;mpToast('No valid arm: check AP, arm health or recover the weapon first.');return;}
+  const previous=eqPending;eqPending={uid:CUR.uid,key};
+  if(!MSE.arms.some(arm=>eqValidArm(arm))){eqPending=previous;mpToast('No valid arm: check AP, arm health or recover the weapon first.');return;}
   closePicker();active=null;draw();
 }
 function eqPickArm(arm) {
   if(!eqPending||eqPending.uid!==CUR.uid)return;
   const key=eqPending.key;
+  if(!key){mpToast('Choose a highlighted weapon first.');return;}
   if(!MSE.arms.includes(arm)||hp[arm]<=0){mpToast('Tap an intact arm.');return;}
-  eqPending=null;
+  eqPending=key==='stow'||key.startsWith('shield:')?null:{uid:CUR.uid,key:''};
   eqAction(st=>{
     if(key==='stow')return MSE.stow(U,st,arm);
     if(!key.startsWith('shield:'))return MSE.equip(U,st,key,arm,!locked);

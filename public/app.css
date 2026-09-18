@@ -3292,3 +3292,12 @@ button.mb-item.fxtog{font:inherit;color:#dfe9f4;background:none;border-top:0;bor
 #stowBtn{left:calc(3.8% + 30.6cqw);right:auto;cursor:pointer;font-family:inherit}
 #sheet.eq-assign #stowBtn{pointer-events:auto!important}
 #picklist{min-height:0;grid-auto-rows:max-content;flex:1 1 auto}
+
+/* Equipment mode intercepts row taps, leaving the actual AP values readable. */
+#sheet.eq-assign .txt{opacity:1}
+#sheet.eq-assign .eq-weapon{position:absolute;pointer-events:auto!important;z-index:64;background:rgba(0,229,255,.06);border:1px solid var(--eq-select);border-radius:.3cqw;cursor:pointer;padding:0}
+#sheet.eq-assign .eq-weapon.selected{background:rgba(0,229,255,.18);border-width:3px}
+#sheet.eq-assign .eq-weapon.unavailable{border-style:dashed;opacity:.35}
+#sheet.eq-assign .eq-prompt{pointer-events:auto!important;display:flex;align-items:center;gap:.5cqw;width:40%;box-sizing:border-box}
+#sheet .eq-more{margin-left:auto;font-size:clamp(6px,.85cqw,13px);padding:.2cqw .6cqw;flex-shrink:0}
+#sheet.eq-assign .eq-prompt{top:7%;bottom:auto}

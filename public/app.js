@@ -345,7 +345,7 @@ function drawShip() {
   const sheet = $("sheet");
   sheet.classList.add("shipsheet");
   // clear this sheet's own pieces AND anything a mobile suit sheet left behind (circles, MOVE/DODGE, stats, buff strip)
-  [...sheet.querySelectorAll(".sx,.hp,.grp,.tog,.step,.wrow,.txt,.num,.wpip,.sendbtn,.lenttag,.podstate,.arcring,.arcrot,.qa,.aphit,.swapz,.hudwarn,.porthit,.eq-row,.eq-limb-label,.eq-prompt,.eq-arm-prompt")].forEach(n => n.remove());
+  [...sheet.querySelectorAll(".sx,.hp,.grp,.tog,.step,.wrow,.txt,.num,.wpip,.sendbtn,.lenttag,.podstate,.arcring,.arcrot,.qa,.aphit,.swapz,.hudwarn,.porthit,.eq-row,.eq-limb-label,.eq-prompt,.eq-arm-prompt,.eq-weapon")].forEach(n => n.remove());
   renderAmounts();
   $("uname").textContent = u.short;
   $("umeta").textContent = "Warship · " + u.dp.toLocaleString() + " DP";
@@ -1046,7 +1046,7 @@ function drawGround() {
   hp = st.hp; ap = st.ap; dodges = 0;
   const sheet = $("sheet");
   sheet.classList.add("shipsheet");
-  [...sheet.querySelectorAll(".sx,.hp,.grp,.tog,.step,.wrow,.txt,.num,.wpip,.sendbtn,.lenttag,.podstate,.arcring,.arcrot,.qa,.aphit,.swapz,.hudwarn,.porthit,.eq-row,.eq-limb-label,.eq-prompt,.eq-arm-prompt")].forEach(n => n.remove());
+  [...sheet.querySelectorAll(".sx,.hp,.grp,.tog,.step,.wrow,.txt,.num,.wpip,.sendbtn,.lenttag,.podstate,.arcring,.arcrot,.qa,.aphit,.swapz,.hudwarn,.porthit,.eq-row,.eq-limb-label,.eq-prompt,.eq-arm-prompt,.eq-weapon")].forEach(n => n.remove());
   renderAmounts();
   $("uname").textContent = u.short;
   $("umeta").textContent = u.cls + " \u00b7 no DP";
@@ -1564,7 +1564,7 @@ function drawSquad() {
   hp = st.hp; ap = st.ap; dodges = 0;
   const sheet = $("sheet");
   sheet.classList.add("shipsheet"); sheet.classList.remove("st-noattack"); updateStanceBtn();
-  [...sheet.querySelectorAll(".sx,.hp,.grp,.tog,.step,.wrow,.txt,.num,.wpip,.sendbtn,.lenttag,.podstate,.arcring,.arcrot,.qa,.aphit,.swapz,.hudwarn,.porthit,.eq-row,.eq-limb-label,.eq-prompt,.eq-arm-prompt")].forEach(n => n.remove());
+  [...sheet.querySelectorAll(".sx,.hp,.grp,.tog,.step,.wrow,.txt,.num,.wpip,.sendbtn,.lenttag,.podstate,.arcring,.arcrot,.qa,.aphit,.swapz,.hudwarn,.porthit,.eq-row,.eq-limb-label,.eq-prompt,.eq-arm-prompt,.eq-weapon")].forEach(n => n.remove());
   renderAmounts();
   const alive = sqAlive(st), dead = alive === 0, hiding = stanceOf(st) === "hide";
   const apMax = alive === 1 ? 1 : u.ap;
@@ -6255,7 +6255,7 @@ function draw() {
   const LIVE = { sh: sh, shDown: shDown };   // this unit's shields, safe from the local names below
   const shMx = j => (Array.isArray(shMax) && shMax[j]) || ((U.shields || [])[j] || {}).hp || 0;
   const sheet = $("sheet");
-  [...sheet.querySelectorAll(".hp,.grp,.tog,.step,.wrow,.txt,.num,.wpip,.sendbtn,.lenttag,.podstate,.arcring,.arcrot,.qa,.aphit,.swapz,.hudwarn,.porthit,.eq-row,.eq-limb-label,.eq-prompt,.eq-arm-prompt")].forEach(n => n.remove());
+  [...sheet.querySelectorAll(".hp,.grp,.tog,.step,.wrow,.txt,.num,.wpip,.sendbtn,.lenttag,.podstate,.arcring,.arcrot,.qa,.aphit,.swapz,.hudwarn,.porthit,.eq-row,.eq-limb-label,.eq-prompt,.eq-arm-prompt,.eq-weapon")].forEach(n => n.remove());
   renderAmounts();
   $("uname").textContent = U.short || U.name;
   $("umeta").textContent = U.tier + " · " + U.dp + " DP" + (U.reworkNeeded ? " · REWORK NEEDED" : "");
@@ -6516,7 +6516,7 @@ function draw() {
     const wd = T(COL.wDmg, w.y, boosted ? w.boost.dmg : w.dmg, [5, 1.9, 26], "");
     if (boosted) { wd.style.color = "#6d28d9"; wd.style.fontWeight = "900"; wd.title = w.boost.note || ""; }
     wd.style.maxWidth = "5.2%"; shrinkToFit(wd, 0.62);        // long damage values stay inside the DMG column
-    weapAP[wi] = T(COL.wAP, w.y, w.ap, [5, 1.9, 26], "");
+    weapAP[wi] = T(COL.wAP, w.y, meleeInfo && (meleeInfo.kind!=='hybrid'||CUR.st.eq.mode==='sword') ? (meleeInfo.mount==='hand' ? meleeInfo.cost : 0) : w.ap, [5, 1.9, 26], "");
     shrinkToFit(T(COL.wRange, w.y, w.range, [5, 1.7, 24], "", 9), 0.8);
   });
 
@@ -6932,7 +6932,9 @@ function draw() {
   };
   const fireTap = i => {
     const w=U.weapons[i], x=MSE.item(U,w.equipKey), st=eqLive();
-    if(x?.mount==='hand' && (!MSE.held(U,st,x) || (x.kind==='melee'||(x.kind==='hybrid'&&st.eq.mode==='sword')))) { eqChoose(x.key); return; }
+    if(eqPending){if(eqPending.key!=='stow'&&x?.mount==='hand')eqChoose(x.key);return;}
+    if(x?.mount==='hand' && !MSE.held(U,st,x)){mpToast('Equip this weapon first: tap EQUIP, choose the weapon, then an arm.');return;}
+    if(x?.kind==='melee'||(x?.kind==='hybrid'&&st.eq.mode==='sword')){mpToast('Melee equip cost: '+x.cost+' AP. Use EQUIP to change hands.');return;}
     const why=MSE.reason(U,st,w);
     if(why){mpToast(why);return;}
     if(MSE.melee(U,w) && x?.kind!=='hybrid')return; // integrated melee is already ready
@@ -6949,11 +6951,9 @@ function draw() {
     if (!canFire(i) || ap < Math.min(...opts)) at.classList.add("cant");
     at.title = MSE.reason(U, eqLive(), w) || (!canFire(i) ? (w.limit?.kind === "cooldown" ? "On cooldown" : "No uses left")
       : ap < Math.min(...opts) ? "Not enough AP" : "Tap to fire \u2014 spends " + opts.join(" or ") + " AP");
-    const x=MSE.item(U,w.equipKey),held=x&&MSE.held(U,eqLive(),x);
-    const needEquip=x?.mount==='hand'&&!held;
-    const meleeEquip = MSE.melee(U, w) && (x.kind !== "hybrid" || CUR.st.eq.mode === "sword");
-    if(needEquip){at.classList.remove('cant');at.classList.add('eq-equip-ctl');at.textContent='EQUIP';at.title='Equip '+w.name+' — '+x.cost+' AP; then choose an arm';}
-    else if(meleeEquip){at.classList.remove('cant');at.classList.add('eq-equip-ctl');at.textContent=x.mount==='hand'?'EQUIP':MSE.reason(U,eqLive(),w)?'OFFLINE':'READY';at.title=x.mount==='hand'?'Equipped melee — tap to assign another arm':'Integrated melee — no switch needed';}
+    const x=MSE.item(U,w.equipKey),meleeEquip=MSE.melee(U,w);
+    if(x?.mount==='hand'&&!MSE.held(U,eqLive(),x))at.classList.remove('cant');
+    if(meleeEquip){at.classList.remove('cant');at.title=x.mount==='hand'?'Equip cost: '+x.cost+' AP · use EQUIP to select an arm':'Integrated melee · no equip cost';}
     at.onclick = e => { e.stopPropagation(); fireTap(i); };
     if (opts.length > 1 && active === "wap" + i) {
       const ch = el("div", "grp apchoice", { left: COL.wAP + "%", top: w.y + "%" });
@@ -7698,7 +7698,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf109";
+const APP_BUILD = "cf110";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
