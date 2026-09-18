@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf107)
+# Gunpla Battle — Cloudflare version (build cf108)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -6,7 +6,7 @@ This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare 
 
 ## Current release
 
-cf107 adds mobile-suit equipment. Deploy the complete project, including `public/equipment.js` and `public/equipment-ui.js`. Refresh every device to cf107. Read `Release_Notes_cf107.md` for rules, usage and verification limits. No deployment was performed while preparing this package.
+cf108 improves equipment controls and applies the approved melee profiles. Deploy the complete project, including `public/equipment.js` and `public/equipment-ui.js`. Refresh every device to cf108. Read `Release_Notes_cf108.md` for rules, usage and verification limits. No deployment was performed while preparing this package.
 
 ## What's in this folder
 

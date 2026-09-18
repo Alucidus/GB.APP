@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <meta name="apple-mobile-web-app-title" content="MSB">
 <title>Mobile Suit Battles</title>
-<link rel="stylesheet" href="app.css?v=cf107">
+<link rel="stylesheet" href="app.css?v=cf108">
 </head>
 <body>
 
@@ -216,11 +216,10 @@
     <span class="phase sm you" id="phaseChip" title="Turns are ended from the roster \u2014 tap to go there"></span>
     <button class="btn sm" id="resetU" style="margin-left:auto">Reset</button>
   </div>
-  <div id="equipmentSummary" hidden></div>
   <div id="sheet"><div id="frame" aria-hidden="true"></div><div id="hudfx" aria-hidden="true"><i class="hs"></i></div><div id="dead"><div>DESTROYED</div></div>
     <div id="rosterBtn" onclick="openPicker()">ROSTER</div>
     <div id="doneBtn" style="display:none"></div><div id="helpBtn" onclick="openSheetHelp()" title="How this sheet works">?</div>
-    <div id="tablesBtn" onclick="openTables()">TABLES</div><div id="stanceBtn" onclick="openStances()">STANCE</div><div id="rulesBtn" onclick="sqRules()" style="display:none">&#x24D8;&nbsp;GROUND RULES</div></div>
+    <div id="tablesBtn" onclick="openTables()">TABLES</div><div id="stanceBtn" onclick="openStances()">STANCE</div><button id="equipBtn" onclick="eqDockClick()" style="display:none">EQUIP</button><div id="rulesBtn" onclick="sqRules()" style="display:none">&#x24D8;&nbsp;GROUND RULES</div></div>
   <div id="tl"></div>
 </section>
 
@@ -237,10 +236,10 @@ window.addEventListener("unhandledrejection",function(ev){
   e.style.display="block"; e.textContent += "PROMISE: "+ev.reason+"\n";
 });
 </script>
-<script src="data.js?v=cf107"></script>
-<script src="equipment.js?v=cf107"></script>
-<script src="equipment-ui.js?v=cf107"></script>
-<script src="app.js?v=cf107"></script>
+<script src="data.js?v=cf108"></script>
+<script src="equipment.js?v=cf108"></script>
+<script src="equipment-ui.js?v=cf108"></script>
+<script src="app.js?v=cf108"></script>
 <div id="tbanner" aria-hidden="true"><div class="tb-band"><b id="tbannerT"></b><span id="tbannerS"></span></div></div>
 <div id="hangar" aria-hidden="true">
   <div class="hd l"><div class="hd-light"></div><div class="hd-emb"></div></div>

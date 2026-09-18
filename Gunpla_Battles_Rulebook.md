@@ -90,6 +90,25 @@ The Melee Roll Bonus is added directly to that fighter's d20 roll for every exch
 
 **Charge Range:** each melee weapon's Charge Range is how far a unit can close the distance and initiate melee in the same action, at no extra AP cost — having the weapon drawn already covers closing that distance (drawing costs 1 AP for most melee weapons, 2 AP for GN Sword, Beam Axe/Tomahawk and Anti-Ship Sword -- see the Draw Cost column in the Melee Weapons table). No separate Movement AP is needed as long as the target is within Charge Range. Beyond that distance, the unit must close the rest of the way with normal Movement first.
 
+### Approved unit melee profiles (cf108)
+
+| Weapon | Roll bonus | Normal / critical | Equip AP | Charge |
+|---|---:|---|---|---|
+| Mk-II Heat Saber | +2 | 2/4 | 1 | 15cm |
+| Rick Dom Heat Saber | +2 | 2/4 | 1 | 20cm |
+| Gouf Heat Sword | +3 | 2/4 | 1 | 15cm |
+| Nu Beam Saber | +4 | 3/6 | 2 | 20cm |
+| Vidar Burst Saber | +4 | 3/6 | 2 | 15cm |
+| Gerbera Straight | +3 | 2/4 | 1 | 15cm |
+| Nightfall Pulse Blade | +3 | 2/4 | 1 | 15cm |
+| Jiyan Dual Fang Blades | +3 | 2/4 | No switch | 15cm |
+| Destiny Flash-Edge blade | +1 | 2/4 | **0** | 10cm |
+| Astray BuCUE Head | +3 | 2/4 | 1 | 20cm |
+| Gouf Heat Rod | +2 | 2/4 | No switch | 20cm |
+| Master Darkness Finger | +3 | 2/4 | No switch | 15cm |
+
+Banshee Norn has no AA-DE Melee Mode attack. Its Beam Saber, AA-DE cannon and Magnum-linked Beam Jutte defence remain.
+
 ### Shield Stats *(fill in per shield type — suggested baseline below)*
 **Shields are not automatic — they're a loadout choice made per unit when building your army.** A unit either comes equipped with a shield (matching its canon design, e.g. GM) or doesn't (e.g. Zaku), and this should be decided and recorded at list-building time, not assumed by default.
 

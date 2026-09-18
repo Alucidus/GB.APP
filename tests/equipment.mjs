@@ -51,4 +51,8 @@ for(const u of units){const s=state(u);if(!M.supported(u)){ok(!M.init(u,s),'rewo
 }
 ok(c.tables['Melee Weapons'].some(r=>r[0]==='Spear / Lance'&&r[4]==='30cm (reach)'),'spear reference updated');
 {const u=unit('gundam-exia'),s=state(u),i=u.abilities.findIndex(a=>a.kind==='matrix');M.init(u,s);M.equip(u,s,'gn-long-blade','rightArm');const before=s.ap;M.equip(u,s,'gn-sword','rightArm');ok(s.ap===before-2,'GN Sword retains heavy equip cost');ok(!M.matrix(u,s,i,'dagger'),'special dagger pair');ok(s.track[i].p===2,'two initial parries');s.track[i].p=1;s.track[i].spent=1;M.matrix(u,s,i,'blade');ok(s.track[i].p===0,'pair swap preserves expenditure');M.matrix(u,s,i,'dagger');ok(s.track[i].p===1,'no free parry refill');s.hp.leftArm=0;M.init(u,s);ok(M.matrix(u,s,i,'saber'),'matrix cannot bypass lost arm');}
+for(const [id,name,bonus] of [['gundam-mk-ii','Heat Saber',2],['rick-dom','Heat Saber',2],['gouf-ms','Heat Sword',3],['nu-gundam','Nu Beam Saber',4],['gundam-vidar','Burst Saber',4],['astray-red','Gerbera Straight',3],['ac-nightfall','Pulse Blade',3],['jiyan-altron','Dual Fang Blades',3],['astray-red','BuCUE Head',3],['gouf-ms','Heat Rod',2],['master-gundam','Darkness Finger',3]]){const u=unit(id),weapon=w(u,name);ok(M.item(u,weapon.equipKey).bonus===bonus,'approved bonus '+name);}
+{const u=unit('destiny-gundam'),x=M.item(u,'flash-edge-blade');ok(x.cost===0&&x.bonus===1&&x.damage==='2/4'&&x.range==='Melee 10cm','Flash-Edge dagger profile');}
+ok(!unit('banshee-norn').weapons.some(w=>w.name==='AA-DE Melee Mode'),'obsolete Banshee row removed');
+ok(w(unit('astray-red'),'BuCUE Head').dmg==='2/4','BuCUE complete damage profile');
 console.log('PASS '+checks+' equipment assertions');

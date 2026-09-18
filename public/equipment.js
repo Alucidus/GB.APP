@@ -45,6 +45,7 @@ const MSE = (() => {
       else if (/Beam Saber|Cold Fusion Saber/.test(w.name)) bonus = 3;
       else if (/Heat Hawk|Heat Axe|Beam Hawk|Javelin|Spear|Lance/.test(w.name) && kind === 'melee') bonus = 2;
       else if (/Dagger|Schneider/i.test(w.name)) bonus = 1;
+      if (Number.isFinite(w.meleeBonus)) bonus=w.meleeBonus;
       if (/Javelin/.test(w.name)) w.range = 'Melee 30cm';
       if (/GN Beam Dagger/.test(w.name)) w.text = w.text.replace('1 AP for one, 2 AP for the pair', '0 AP to equip an individual dagger; the special Dagger Guard combination still costs 2 AP');
       w.equipKey = key;
@@ -54,7 +55,7 @@ const MSE = (() => {
     });
     if (/gundam-pixy/.test(u.id)) items.push({key:'beam-dagger-melee',name:'Beam Dagger (melee)',kind:'melee',mount:'hand',count:1,cost:0,bonus:1,rows:[],damage:'2/4',range:'Melee 10cm'});
     // Destiny's alternate blade profile was previously buried in Palma's description.
-    if (/destiny-gundam/.test(u.id)) items.push({key:'flash-edge-blade',name:'Flash-Edge (blade)',kind:'melee',mount:'hand',count:2,cost:1,bonus:null,rows:[],damage:'2/4',range:'Melee 15cm'});
+    if (/destiny-gundam/.test(u.id)) items.push({key:'flash-edge-blade',name:'Flash-Edge (blade)',kind:'melee',mount:'hand',count:2,cost:0,bonus:1,rows:[],damage:'2/4',range:'Melee 10cm'});
     u.abilities.forEach(a=>{if(a.kind==='matrix')a.text=a.text.replace('Each blade can still be drawn on its own at its listed stats, for 1 AP.', 'Each blade can still be drawn individually at its listed stats: daggers 0 AP, other ordinary blades 1 AP. Special pairs retain their 2 AP cost.');});
     u.equipment = items; return items;
   }

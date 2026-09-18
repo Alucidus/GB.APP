@@ -345,7 +345,7 @@ function drawShip() {
   const sheet = $("sheet");
   sheet.classList.add("shipsheet");
   // clear this sheet's own pieces AND anything a mobile suit sheet left behind (circles, MOVE/DODGE, stats, buff strip)
-  [...sheet.querySelectorAll(".sx,.hp,.grp,.tog,.step,.wrow,.txt,.num,.wpip,.sendbtn,.lenttag,.podstate,.arcring,.arcrot,.qa,.aphit,.swapz,.hudwarn,.porthit")].forEach(n => n.remove());
+  [...sheet.querySelectorAll(".sx,.hp,.grp,.tog,.step,.wrow,.txt,.num,.wpip,.sendbtn,.lenttag,.podstate,.arcring,.arcrot,.qa,.aphit,.swapz,.hudwarn,.porthit,.eq-row,.eq-limb-label,.eq-prompt,.eq-arm-prompt")].forEach(n => n.remove());
   renderAmounts();
   $("uname").textContent = u.short;
   $("umeta").textContent = "Warship · " + u.dp.toLocaleString() + " DP";
@@ -1046,7 +1046,7 @@ function drawGround() {
   hp = st.hp; ap = st.ap; dodges = 0;
   const sheet = $("sheet");
   sheet.classList.add("shipsheet");
-  [...sheet.querySelectorAll(".sx,.hp,.grp,.tog,.step,.wrow,.txt,.num,.wpip,.sendbtn,.lenttag,.podstate,.arcring,.arcrot,.qa,.aphit,.swapz,.hudwarn,.porthit")].forEach(n => n.remove());
+  [...sheet.querySelectorAll(".sx,.hp,.grp,.tog,.step,.wrow,.txt,.num,.wpip,.sendbtn,.lenttag,.podstate,.arcring,.arcrot,.qa,.aphit,.swapz,.hudwarn,.porthit,.eq-row,.eq-limb-label,.eq-prompt,.eq-arm-prompt")].forEach(n => n.remove());
   renderAmounts();
   $("uname").textContent = u.short;
   $("umeta").textContent = u.cls + " \u00b7 no DP";
@@ -1564,7 +1564,7 @@ function drawSquad() {
   hp = st.hp; ap = st.ap; dodges = 0;
   const sheet = $("sheet");
   sheet.classList.add("shipsheet"); sheet.classList.remove("st-noattack"); updateStanceBtn();
-  [...sheet.querySelectorAll(".sx,.hp,.grp,.tog,.step,.wrow,.txt,.num,.wpip,.sendbtn,.lenttag,.podstate,.arcring,.arcrot,.qa,.aphit,.swapz,.hudwarn,.porthit")].forEach(n => n.remove());
+  [...sheet.querySelectorAll(".sx,.hp,.grp,.tog,.step,.wrow,.txt,.num,.wpip,.sendbtn,.lenttag,.podstate,.arcring,.arcrot,.qa,.aphit,.swapz,.hudwarn,.porthit,.eq-row,.eq-limb-label,.eq-prompt,.eq-arm-prompt")].forEach(n => n.remove());
   renderAmounts();
   const alive = sqAlive(st), dead = alive === 0, hiding = stanceOf(st) === "hide";
   const apMax = alive === 1 ? 1 : u.ap;
@@ -5776,7 +5776,7 @@ function openSheet(uid) {
   { const cs = locked ? carrierState(uid) : null;
     if (cs && cs.state === "aboard") { mpToast(unitLabel(uid) + " is aboard the " + cs.u.short + " \u2014 " + (isShip(cs.u) ? "launch it from the ship's sheet." : "disembark it from the vehicle's sheet.")); openSheet(cs.ship.uid); return; } }
   U = unitById(CUR.id);
-  if ($("equipmentSummary")) $("equipmentSummary").hidden = !MSE.supported(U);
+  eqSummary();
   if (isShip(U) || isGround(U)) {                    // warships and ground vehicles have their own sheets
     const s = isShip(U) ? shipMigrate(U, CUR.st) : isSquad(U) ? sqMigrate(U, CUR.st) : gvMigrate(U, CUR.st);
     hp = s.hp; dodges = 0; ap = s.ap; track = s.track; wpn = s.wpn; sh = s.sh; shDown = s.shDown; shMax = s.shMax;
@@ -5792,13 +5792,12 @@ function openSheet(uid) {
   }
   // the interface takes the side's colours while a sheet is open
   const s = CUR.st;
-  // the weapon list changed since this game was saved: start its counters fresh
+  // Migrate by weapon identity so deleting/reordering a row never refreshes cooldowns.
   const wsig = U.weapons.map(w => w.name + (w.limit ? ":" + w.limit.kind : "")).join("|");
-  if (!Array.isArray(s.wpn) || s.wpn.length !== U.weapons.length || (s.wsig && s.wsig !== wsig))
-    s.wpn = U.weapons.map(w => w.limit && w.limit.kind === "charges" ? w.limit.max : 0);
-  if (s.wsig !== wsig && Array.isArray(s.wpn) && !s.wsig) {
-    // saves from before this check: reset only if a charge weapon holds an impossible value
-    U.weapons.forEach((w, j) => { if (w.limit && w.limit.kind === "charges" && !(s.wpn[j] > 0 && s.wpn[j] <= w.limit.max)) s.wpn[j] = w.limit.max; });
+  if (!Array.isArray(s.wpn) || s.wpn.length !== U.weapons.length || (s.wsig && s.wsig !== wsig)) {
+    const old=Array.isArray(s.wpn)?s.wpn:[],names=s.wsig?s.wsig.split('|'):[];
+    s.wpn=U.weapons.map((w,i)=>{const key=w.name+(w.limit?':'+w.limit.kind:'');const j=names.length?names.indexOf(key):i;return j>=0&&typeof old[j]==='number'?old[j]:(w.limit?.kind==='charges'?w.limit.max:0);});
+    delete s.wf; // old undo entries refer to the previous row indices
   }
   s.wsig = wsig;
   // skills added, removed or reordered since the game was saved: keep each saved value with its own skill
@@ -6256,7 +6255,7 @@ function draw() {
   const LIVE = { sh: sh, shDown: shDown };   // this unit's shields, safe from the local names below
   const shMx = j => (Array.isArray(shMax) && shMax[j]) || ((U.shields || [])[j] || {}).hp || 0;
   const sheet = $("sheet");
-  [...sheet.querySelectorAll(".hp,.grp,.tog,.step,.wrow,.txt,.num,.wpip,.sendbtn,.lenttag,.podstate,.arcring,.arcrot,.qa,.aphit,.swapz,.hudwarn,.porthit")].forEach(n => n.remove());
+  [...sheet.querySelectorAll(".hp,.grp,.tog,.step,.wrow,.txt,.num,.wpip,.sendbtn,.lenttag,.podstate,.arcring,.arcrot,.qa,.aphit,.swapz,.hudwarn,.porthit,.eq-row,.eq-limb-label,.eq-prompt,.eq-arm-prompt")].forEach(n => n.remove());
   renderAmounts();
   $("uname").textContent = U.short || U.name;
   $("umeta").textContent = U.tier + " · " + U.dp + " DP" + (U.reworkNeeded ? " · REWORK NEEDED" : "");
@@ -6493,12 +6492,20 @@ function draw() {
     const meleeInfo = MSE.melee(U,w);
     const equipInfo = MSE.supported(U) ? MSE.item(U,w.equipKey) : null;
     if (meleeInfo) { wn.textContent += meleeInfo.bonus === null ? " · +?" : " · +" + meleeInfo.bonus; shrinkToFit(wn, 0.7); }
-    if (equipInfo) wn.title = eqStatus(equipInfo, eqLive());
+    if (equipInfo) {
+      wn.title = eqStatus(equipInfo, eqLive());
+      const tag=eqRowTag(equipInfo,eqLive());
+      if(tag) {
+        const row=el('div','eq-row',{left:WROW_X+'%',top:(w.y-WROW_H/2)+'%',width:WROW_W+'%',height:WROW_H+'%'});
+        if(MSE.reason(U,eqLive(),w))row.classList.add('unavailable');sheet.appendChild(row);
+        wn.textContent='['+tag+'] '+wn.textContent;shrinkToFit(wn,0.7);
+      }
+    }
     wn.onclick = () => openPop(w.name, "Weapon",
       (equipInfo ? "<span>Equipment <b>" + ffText(eqStatus(equipInfo,eqLive())) + "</b></span>" : "")
       + (meleeInfo ? "<span>Melee roll <b>" + (meleeInfo.bonus === null ? "Not specified" : "+"+meleeInfo.bonus) + "</b></span>" : "")
       + (MSE.penalty(U,eqLive(),w) ? "<span>Dual wield <b>−3 roll / +3 target</b></span>" : "") +
-      "<span>Damage <b>" + (w.dmg || "\u2014") + "</b></span><span>" + (meleeInfo ? "Equip AP" : "AP") + " <b>" + (meleeInfo ? meleeInfo.cost : (w.ap || "\u2014"))
+      "<span>Damage <b>" + (w.dmg || "\u2014") + "</b></span><span>" + (meleeInfo ? "Equip AP" : "AP") + " <b>" + (meleeInfo ? (meleeInfo.mount === "hand" ? meleeInfo.cost : 0) : (w.ap || "\u2014"))
       + "</b></span><span>Range <b>" + (w.range || "\u2014") + "</b></span>"
       + (w.limit ? "<span>Limit <b>" + (w.limit.kind === "cooldown"
           ? w.limit.turns + "-turn cooldown" : w.limit.max + " charges") + "</b></span>" : "")
@@ -6924,8 +6931,11 @@ function draw() {
     active = null; logAct("w", i); quietAct();
   };
   const fireTap = i => {
-    if (MSE.melee(U, U.weapons[i]) && (MSE.item(U,U.weapons[i].equipKey).kind !== "hybrid" || CUR.st.eq.mode === "sword")) { openEquipment(); return; }
-    if (MSE.reason(U, eqLive(), U.weapons[i])) { openEquipment(); return; }
+    const w=U.weapons[i], x=MSE.item(U,w.equipKey), st=eqLive();
+    if(x?.mount==='hand' && (!MSE.held(U,st,x) || (x.kind==='melee'||(x.kind==='hybrid'&&st.eq.mode==='sword')))) { eqChoose(x.key); return; }
+    const why=MSE.reason(U,st,w);
+    if(why){mpToast(why);return;}
+    if(MSE.melee(U,w) && x?.kind!=='hybrid')return; // integrated melee is already ready
     const opts = apOptions(U.weapons[i].ap);
     if (!opts.length) return;
     if (opts.length === 1) fireW(i, opts[0]);
@@ -6939,8 +6949,11 @@ function draw() {
     if (!canFire(i) || ap < Math.min(...opts)) at.classList.add("cant");
     at.title = MSE.reason(U, eqLive(), w) || (!canFire(i) ? (w.limit?.kind === "cooldown" ? "On cooldown" : "No uses left")
       : ap < Math.min(...opts) ? "Not enough AP" : "Tap to fire \u2014 spends " + opts.join(" or ") + " AP");
-    const meleeEquip = MSE.melee(U, w) && (MSE.item(U,w.equipKey).kind !== "hybrid" || CUR.st.eq.mode === "sword");
-    if (meleeEquip) { at.classList.remove("cant"); at.textContent = MSE.reason(U, eqLive(), w) ? "EQUIP" : "READY"; at.title = "Manage equipped melee weapons — no repeated draw cost per exchange"; }
+    const x=MSE.item(U,w.equipKey),held=x&&MSE.held(U,eqLive(),x);
+    const needEquip=x?.mount==='hand'&&!held;
+    const meleeEquip = MSE.melee(U, w) && (x.kind !== "hybrid" || CUR.st.eq.mode === "sword");
+    if(needEquip){at.classList.remove('cant');at.classList.add('eq-equip-ctl');at.textContent='EQUIP '+x.cost;at.title='Equip '+w.name+' — '+x.cost+' AP; then choose an arm';}
+    else if(meleeEquip){at.classList.remove('cant');at.classList.add('eq-equip-ctl');at.textContent=MSE.reason(U,eqLive(),w)?'OFFLINE':'READY';at.title=x.mount==='hand'?'Equipped melee — tap to assign another arm':'Integrated melee — no switch needed';}
     at.onclick = e => { e.stopPropagation(); fireTap(i); };
     if (opts.length > 1 && active === "wap" + i) {
       const ch = el("div", "grp apchoice", { left: COL.wAP + "%", top: w.y + "%" });
@@ -7107,7 +7120,7 @@ function draw() {
       color: v === 0 ? "#fff" : "#0f172a",
       boxShadow: (sh ? "0 0 0 3px " + ring + "77, " : "") + "0 0 10px " + ring + "88" });
     b.textContent = v; b.title = LIMB_LABEL[k];
-    if(eqPending && MSE.arms.includes(k) && v>0) { b.classList.add("eq-arm");b.setAttribute("role","button");b.tabIndex=0;b.title="Equip in "+LIMB_LABEL[k];b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();eqPickArm(k);}}; }
+    if(eqPending && eqValidArm(k)) { b.classList.add("eq-arm");b.setAttribute("role","button");b.tabIndex=0;b.title="Equip in "+LIMB_LABEL[k];b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();eqPickArm(k);}}; }
     b.onclick = () => { if(eqPending){eqPickArm(k);return;} hp[k] = mode === "damage" ? Math.max(0, v - amount) : Math.min(mx, v + amount); wake(id); };
     sheet.appendChild(b);
     if (hudMode) {
@@ -7128,6 +7141,7 @@ function draw() {
     });
   });
 
+  eqDecorate(sheet);
   renderTurn();
   // tap the portrait to set this model's colour marker
   {
@@ -7684,7 +7698,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf107";
+const APP_BUILD = "cf108";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

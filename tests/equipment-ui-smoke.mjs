@@ -1,15 +1,15 @@
 // DOM smoke test: executes production scripts and callbacks; not visual/browser validation.
 import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';
 class Node {
- constructor(){this.children=[];this.dataset={};this.style={setProperty(){},removeProperty(){}};this.className='';this._text='';this.clientWidth=1000;this.clientHeight=1000;this.offsetWidth=30;this.scrollWidth=20;this.scrollHeight=10;this.classList={add:()=>{},remove:()=>{},contains:()=>false,toggle:()=>false};}
+ constructor(){this.children=[];this.dataset={};this.style={setProperty(){},removeProperty(){}};this.className='';this._text='';this.clientWidth=1000;this.clientHeight=1000;this.offsetWidth=30;this.scrollWidth=20;this.scrollHeight=10;this.classList={add:(...xs)=>{this.className=[...new Set([...this.className.split(' ').filter(Boolean),...xs])].join(' ')},remove:(...xs)=>{this.className=this.className.split(' ').filter(x=>!xs.includes(x)).join(' ')},contains:x=>this.className.split(' ').includes(x),toggle:(x,on)=>{const add=on===undefined?!this.classList.contains(x):on;add?this.classList.add(x):this.classList.remove(x);return add;}};}
  appendChild(n){this.children.push(n);n.parentNode=this;return n}append(...ns){ns.forEach(n=>this.appendChild(n))}replaceChildren(...ns){this.children=[];this.append(...ns)}
  set innerHTML(v){this._html=v;this.children=[]}get innerHTML(){return this._html||''}set textContent(v){this._text=v}get textContent(){return this._text}
  get firstElementChild(){return this.children[0]||new Node()}get lastElementChild(){return this.children.at(-1)||new Node()}get firstChild(){return this.children[0]||null}getBoundingClientRect(){return {width:1000,height:1000,left:0,top:0,right:1000,bottom:1000}}
- querySelector(){return null}querySelectorAll(){return []}addEventListener(){}removeEventListener(){}setAttribute(){}removeAttribute(){}remove(){}focus(){}scrollIntoView(){}contains(){return false}closest(){return null}getContext(){return {}}click(){this.onclick?.({stopPropagation(){},preventDefault(){}})}
+ querySelector(q){return this.querySelectorAll(q)[0]||null}querySelectorAll(q){const matches=n=>q.split(',').some(sel=>sel.startsWith('.')?n.classList.contains(sel.slice(1)):sel.startsWith('[data-act=')?String(n.dataset.act)===sel.match(/"(.*?)"/)[1]:false);return this.children.flatMap(n=>[...(matches(n)?[n]:[]),...n.querySelectorAll(q)]);}addEventListener(){}removeEventListener(){}setAttribute(){}removeAttribute(){}remove(){if(this.parentNode)this.parentNode.children=this.parentNode.children.filter(x=>x!==this)}focus(){}scrollIntoView(){}contains(){return false}closest(){return null}getContext(){return {}}click(){this.onclick?.({stopPropagation(){},preventDefault(){}})}
 }
 const nodes=new Map(),get=id=>{if(!nodes.has(id))nodes.set(id,new Node());return nodes.get(id)};
 const doc={getElementById:get,createElement:()=>new Node(),createElementNS:()=>new Node(),querySelector:()=>new Node(),querySelectorAll:()=>[],body:new Node(),documentElement:new Node(),addEventListener(){},createRange:()=>({selectNodeContents(){},getBoundingClientRect:()=>({width:10})})};
-const ctx=vm.createContext({console,document:doc,localStorage:{getItem:()=>null,setItem(){},removeItem(){}},navigator:{},location:{protocol:'http:',hostname:'localhost',href:'http://localhost'},history:{replaceState(){}},setTimeout:()=>0,clearTimeout(){},setInterval:()=>0,clearInterval(){},requestAnimationFrame:()=>0,cancelAnimationFrame(){},matchMedia:()=>({matches:false,addEventListener(){}}),getComputedStyle:()=>({getPropertyValue:()=>'',display:'block'}),addEventListener(){},scrollTo(){},innerWidth:1200,innerHeight:900,devicePixelRatio:1,Image:Node,ResizeObserver:class{observe(){}},URL,URLSearchParams,performance:{now:()=>0},fetch:()=>Promise.resolve({json:()=>({})}),alert(){},confirm:()=>true});ctx.window=ctx;ctx.self=ctx;
+const ctx=vm.createContext({console,document:doc,localStorage:{getItem:()=>null,setItem(){},removeItem(){}},navigator:{},location:{protocol:'http:',hostname:'localhost',href:'http://localhost'},history:{replaceState(){}},setTimeout:()=>0,clearTimeout(){},setInterval:()=>0,clearInterval(){},requestAnimationFrame:()=>0,cancelAnimationFrame(){},matchMedia:()=>({matches:false,addEventListener(){}}),getComputedStyle:()=>({getPropertyValue:()=>'',display:'block',backgroundColor:'rgba(0,0,0,0)'}),addEventListener(){},scrollTo(){},innerWidth:1200,innerHeight:900,devicePixelRatio:1,Image:Node,ResizeObserver:class{observe(){}},URL,URLSearchParams,performance:{now:()=>0},fetch:()=>Promise.resolve({json:()=>({})}),alert(){},confirm:()=>true});ctx.window=ctx;ctx.self=ctx;
 for(const name of ['data','equipment','equipment-ui','app'])vm.runInContext(fs.readFileSync(new URL('../public/'+name+'.js',import.meta.url),'utf8'),ctx,{filename:name+'.js'});
 vm.runInContext(`mpKick=()=>{};mpDirty=()=>{};renderTurn=()=>{};trackChanges=()=>{};applyHud=()=>{};renderAmounts=()=>{};side='federation';locked=true;turn=freshTurn();turn.phase='you';`,ctx);
 let checks=0;
@@ -25,5 +25,21 @@ vm.runInContext('closePicker();draw()',ctx);
 const fire=get('sheet').children.find(n=>n.title==='Tap to fire — spends 2 AP');
 assert.ok(fire,'live Fire control exists');fire.click();assert.equal(vm.runInContext('ap',ctx),1);checks+=2;
 vm.runInContext('eqUndo()',ctx);assert.equal(vm.runInContext('ap',ctx),1,'cannot undo equipment across a later shot');checks++;
+vm.runInContext('ap=4;draw()',ctx);
+const melee=get('sheet').children.find(n=>n.title?.startsWith('Equip Beam Saber —'));
+assert.equal(melee.textContent,'EQUIP 1');melee.click();
+assert.equal(vm.runInContext('eqPending.key',ctx),'beam-saber');
+assert.equal(get('pick').classList.contains('on'),false,'direct equip does not open picker');
+assert.equal(get('equipBtn').textContent,'CANCEL');
+vm.runInContext("eqPickArm('rightArm')",ctx);
+assert.equal(get('pick').classList.contains('on'),false,'assignment does not reopen picker');
+assert.equal(vm.runInContext('ap',ctx),3);assert.equal(get('equipBtn').textContent,'EQUIP');
+assert.ok(get('sheet').children.some(n=>String(n.textContent).startsWith('[R] Beam Saber')),'right badge rendered');
+assert.ok(get('sheet').children.some(n=>n.className==='eq-limb-label'&&n.textContent.includes('Beam Saber')),'bubble label rendered');
+vm.runInContext("eqChoose('beam-rifle');eqDockClick()",ctx);assert.equal(vm.runInContext('eqPending',ctx),null,'cancel exits assignment');
+vm.runInContext('openEquipment()',ctx);assert.equal(get('pick').classList.contains('on'),true,'dock opens full manager');
+vm.runInContext('closePicker()',ctx);checks+=11;
 vm.runInContext('mpSheetCanEdit=()=>false;eqChoose("beam-saber")',ctx);assert.equal(vm.runInContext('eqPending',ctx),null,'read-only blocks assigning');checks++;
+vm.runInContext(`mpSheetCanEdit=()=>true;U=UNITS.find(u=>u.id.includes('banshee-norn'));CUR={uid:1,id:U.id,st:freshState(U)};roster=[CUR];CUR.st.wsig='Beam Magnum:cooldown|Beam Saber|AA-DE Mega Cannon|AA-DE Melee Mode|Rev. Launcher (BOP/Bomb)';CUR.st.wpn=[2,0,0,0,0];openSheet(1);`,ctx);
+assert.equal(vm.runInContext('wpn[0]',ctx),2,'row removal preserves Magnum cooldown');assert.equal(vm.runInContext('wpn.length',ctx),4);checks+=2;
 console.log('PASS '+checks+' UI smoke checks (stub DOM, no visual verification)');

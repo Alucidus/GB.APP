@@ -1,16 +1,428 @@
+# Gunpla Battles — Complete Patch Notes & Decision Log
+
+**Current build: cf108**  
+**Scope:** every recorded Cloudflare release, cf1–cf108; detailed notes for cf100–cf108; the current engagement decisions; and the full supplied development archive, including older v-series and mp-series records.
+
+The latest deployable application is **gunpla-battle-cf-cf108.zip**.
+
+The earlier v-series, mp-series, and cf-series are separate version families. For example, v95 and cf95 are different releases. Earlier notes sometimes describe proposals, unfinished tasks, or rules later reversed. The current decision log below takes precedence over those historical descriptions. No missing early release notes or release dates have been invented.
+
+## cf108 — Equipment UI and approved melee profiles
+
+## Equipment on the stat sheet
+
+- EQUIP now sits beside STANCE and TABLES, using their exact shared dock-button styling, size and background treatment. The background dock extends to fit all three buttons. The separate equipment toolbar is removed.
+- Every stored handheld weapon displays **EQUIP 0 / 1 / 2**. Tap it, then a valid arm HP bubble. This neither opens an intermediate menu nor reopens the equipment manager afterward. Equipped ranged weapons retain their normal Fire AP control; equipped melee weapons show READY. Tap the weapon name for full information.
+- Equipped weapon rows have a subtle faction-coloured highlight and **[R]**, **[L]**, or **[R+L]** markers. Independent systems use **INT**, shield weapons **SH**, attachments **LINK**, and directly throwable systems **THROW**. Unavailable mounts are muted. These labels do not allocate integrated systems to hand slots.
+- Each arm bubble has a short held-weapon label and a separate SH shield status. Forearm shields still do not consume a hand slot.
+- During assignment, valid arms have a crisp **cyan outline for Spacenoid**, **white for Federation**, and **EQUIP HERE** labels. Other sheet elements are dimmed; their controls cannot apply damage during assignment. EQUIP becomes CANCEL. Reduced-motion preferences disable the outline animation. Invalid assignments (AP, damage, unavailable equipment, melee segment) are rejected before entering selection.
+- The dock EQUIP button retains the full manager for shield mounts, recovery, stowing, special pairs, and melee segment tracking.
+
+## Approved melee profiles
+
+| Weapon | Roll bonus | Normal / critical | Equip AP | Charge |
+|---|---:|---|---|---|
+| Mk-II Heat Saber | +2 | 2/4 | 1 | 15cm |
+| Rick Dom Heat Saber | +2 | 2/4 | 1 | 20cm |
+| Gouf Heat Sword | +3 | 2/4 | 1 | 15cm |
+| Nu Beam Saber | +4 | 3/6 | 2 | 20cm |
+| Vidar Burst Saber | +4 | 3/6 | 2 | 15cm |
+| Gerbera Straight | +3 | 2/4 | 1 | 15cm |
+| Nightfall Pulse Blade | +3 | 2/4 | 1 | 15cm |
+| Jiyan Dual Fang Blades | +3 | 2/4 | No switch | 15cm |
+| Destiny Flash-Edge blade | +1 | 2/4 | **0** | 10cm |
+| Astray BuCUE Head | +3 | 2/4 | 1 | 20cm |
+| Gouf Heat Rod | +2 | 2/4 | No switch | 20cm |
+| Master Darkness Finger | +3 | 2/4 | No switch | 15cm |
+
+The generic melee table remains the baseline, with these approved custom profiles. Daggers remain **free to equip** despite the pasted table's old 1 AP entry. Flash-Edge throwing remains independent of held equipment. Heavy weapon draw costs remain 2 AP.
+
+Removed Banshee Norn's unexplained **AA-DE Melee Mode** weapon row. Beam Saber, AA-DE Mega Cannon, Revolving Launcher and Beam Jutte defence remain. Save migration matches weapon counters by identity, so removing a row does not refresh the Magnum cooldown. Stale shot-undo entries tied to previous row indices are cleared when the weapon list changes.
+
+## Verification and outstanding work
+
+**499 automated checks pass:** 219 engagement checks, 209 equipment checks, and 71 UI smoke checks. Smoke tests execute all 50 mobile-suit sheets and exercise direct row selection, unchanged HP, AP charging, no intermediate/reopened picker, cancellation, labels, read-only protection and Banshee cooldown migration. They use a stub DOM, not a visual browser. Browser/device layout verification remains pending because Chromium is unavailable; no deployment was performed.
+
+Unresolved custom melee profiles remain listed in Equipment_Audit_cf108.md; no new bonuses were invented for those weapons. Rising Freedom and Infinite Justice remain excluded pending reworks. Phenex's DE mechanics remain unchanged. Recovery still covers a unit's own dropped equipment; cross-unit battlefield-loot transfers, campaign features and resupply changes remain outside this release.
+
+
+## cf107 — Mobile-suit equipment and melee reference
+
+### Using it
+
+Open **Weapons / Equip**, choose a weapon, then tap the highlighted **arm HP bubble** on the sheet. That tap assigns equipment; it does not apply damage. Cancel exits assignment mode. The summary shows both hands. Shields have separate forearm mounts and can be assigned through the same bubble flow. Before locking the roster, choose starting equipment for free.
+
+### Implemented
+
+- Equipment state persists in existing unit saves and multiplayer unit updates. Old saves receive the standard main-weapon loadout without spending AP. Opponent details show held equipment without revealing numerical resources.
+- Ordinary equips cost 1 AP; listed heavy melee weapons cost 2 AP; dagger-type equips cost 0 AP; two ordinary sabers cost 1 AP each. Melee rows open equipment management and show READY when usable, rather than repeatedly charging draw AP.
+- Two ordinary handheld guns are allowed, with −3 displayed on each affected attack; gun-plus-melee penalises the gun similarly. Integrated weapons remain unaffected. Snipers use both hands. Wing Zero's purpose-built Twin Buster retains its exception.
+- Integrated, mounted, shield-linked, attached and handheld systems have distinct availability checks. Existing Fire AP costs, charge counters, cooldowns and undo remain in place. Fire and relevant special attacks reject unavailable equipment.
+- Arm loss makes held equipment and its forearm shield unavailable. Recover your own dropped weapon/shield within 10cm for 1 AP. An empty surviving hand/mount equips immediately; otherwise the item returns to your usable list. Shield HP, cooldowns and charges are preserved. Repeated pickup is rejected. Recovery does not repair a destroyed shield.
+- No switching while a manually marked melee segment is active. Use **Begin melee segment / End melee segment** in the picker. Exia parries refresh on a new segment, not by repeatedly changing pair. The special Dagger Guard still costs 2 AP; individual GN daggers are free to equip. Special matrix selection fills the actual hand slots and requires usable blades and arms.
+- Melee weapon reference added to Tables, including the agreed Spear/Lance 30cm charge and free dagger equip. Legend's Beam Javelin follows the spear/lance reach profile. Known base melee bonuses appear beside weapon names, in popups, and in the equipment picker. Undefined custom bonuses are explicitly marked rather than invented; see Equipment_Audit_cf107.md.
+- Phenex now supports equipping its Beam Sabers, including one per hand. Its existing DE weapon availability, remote lending and shield controls are retained. Rising Freedom and Infinite Justice are marked **REWORK NEEDED** and excluded from equipment enforcement.
+
+### Catalogue decisions carried forward
+
+Pale Rider's 180mm Cannon and F91's VSBR require equipping; VSBR modes share one equipment identity and retain their cooldown group. Nightfall's Songbird is integrated; Pulse Blade requires equipping. Astray's BuCUE Head is classified as melee and costs 1 AP to equip; its existing damage remains unchanged pending a defined critical/roll-bonus profile. Jiyan's Wolf-Ken/Tiger-Ken and Dual Fang Blades, and Master's Darkness Finger/Master Cloth, are independently usable. Gouf's forearm MG and Heat Rod need no switch; Heat Sword does. Epyon's Heat Rod depends on its shield. Shield missiles/cannons depend on an available shield.
+
+Banshee's Revolving Launcher follows the equipped Magnum, and Beam Jutte eligibility ignores its firing cooldown. Sinanju-family Attachment Bazooka remains a temporary special attack with its existing AP/charges; it never creates a persistent combined weapon. Ordinary firing modes do not charge extra equip AP. Exia GN Sword retains its explicit 1 AP mode switch and cannot pair with another weapon. Destiny's Flash-Edge can be thrown without changing the loadout; its melee profile is separately selectable. Vidar's Hunter Edges and Destiny's Palma remain integrated.
+
+### Validation and limits
+
+195 equipment-rule assertions, 58 UI smoke checks and all 219 existing engagement assertions pass (472 total). The UI smoke test executes all 50 mobile-suit sheets using a stub DOM and tests arm selection, Fire, undo safety and read-only protection. It is not a visual browser test. Chromium was unavailable and its installation timed out, so desktop/mobile rendering and live two-device play still need on-device verification. No deployment was performed.
+
+The app remains a tabletop tracker: range, physical dice and melee outcomes are resolved by players. Dual-wield modifiers are displayed for those rolls. This release automates recovery of the unit's **own** dropped equipment; transferring weapons between different units under the wider battlefield-loot rule is not implemented. Mount assignments for undocumented generic items use editable hand/forearm defaults; distinctive fixed systems retain explicit mappings. No general ammo counter was added. Campaign, pilot shop, personal-base automation and the proposed resupply/2-2-2 changes remain planned work.
+
+## cf106 — Simple offline Quick Resolve tracker
+
+Offline Quick Resolve now shows only the Flashbang, Smoke Grenade, and Grenade resource trackers. Tap an item to spend one, tap a used mark to restore one, and use **Resupplied** to refill the tracked supplies. Removed the online-session prompt and firefight workflow instructions from the offline tab; challenge controls are restricted to online play. Manual resource controls cannot change online supplies. Resupply logs now describe resupply rather than suggesting every engagement refills items.
+
+Validation: all 219 existing automated assertions pass. Offline controls were checked for spending, restoration, empty supplies, refill, and online protection. Browser visual verification remains pending. Deploy the full project and refresh devices to cf106. No deployment was performed.
+
+## cf105 — Fighter reminders and dice choice for every bout
+
+When the opposing team confirms its next fighter, your team receives an in-app notification. Away from the engagement board, a persistent **Choose fighter** banner opens the pending selection. Repeated syncs do not repeat the notification; confirming clears it. If another teammate controls the fight, the banner identifies them instead of taking over.
+
+Each new bout, including forced re-engagement, resets the previous dice selection. Choose **physical** or **rolled** again, with the opposing side confirming before play begins. The next-bout start banner now correctly labels ordinary bouts and prompts for dice choice.
+
+219 automated assertions pass, including second-bout mode reset and agreement, forced-bout reset, reminders from both team perspectives, repeat-sync suppression, clearing, and teammate ownership. Browser visual verification remains pending. Deploy the full project including `src/index.js`, and refresh every device to cf105. No deployment was performed. Notifications are in-app; this update does not add background operating-system push notifications.
+
+## Contents
+
+1. [Current experience](#current-experience)
+2. [Current decisions](#current-decisions)
+3. [Changed or superseded decisions](#changed-or-superseded-decisions)
+4. [Detailed patch notes: cf100–cf104](#detailed-patch-notes-cf100cf104)
+5. [Complete Cloudflare release history: cf1–cf104](#complete-cloudflare-release-history-cf1cf104)
+6. [Verification and remaining work](#verification-and-remaining-work)
+7. [Deployment and next handoff](#deployment-and-next-handoff)
+8. [Historical development archive](#historical-development-archive)
+9. [Source record](#source-record)
+
+## Current experience
+
+1. Open the challenge roster on your own turn. Select participating squads and assign opponents in the **Bout lineup** on that same screen. Health and named objective markers help identify each squad.
+2. Send the challenge once. The defender opens **Review challenge**, reviews all bouts together, adjusts their fighters if needed, and presses **Confirm challenge** once. There is no sequential “Who meets their squad?” wizard.
+3. Agree on **Physical dice** or **Roll for me**. Either choice needs both teams’ agreement; proposing the alternative sends a new request.
+4. Play the bout’s four rounds using the existing item, roll, result, and casualty workflow.
+5. Resolve the **Objective Clash** on its own screen. The winner holds the objective, but has not yet extracted with it.
+6. Use the **engagement board** to inspect squads, edit the roster, top up survivors, attempt disengagement, or select the next fighters.
+7. For another scheduled bout, both teams confirm their fighters. Either may un-confirm until the turn ends. The next bout begins at the next turn boundary.
+8. During an escape attempt, exchange **Flash → Smoke → Flash again → Smoke again** as long as available items and player choices permit. The pursuer lets them go, or the departing side stays to fight. A holder’s successful escape secures the objective.
+
+## Current decisions
+
+### Engagement structure and control
+
+| Topic | Current decision | Record |
+|---|---|---|
+| Bout terminology | Call a four-round firefight a **bout** in the updated flow. Historical records and internal fields may still say segment. | Original handoff; cf100 |
+| Challenge timing | Ordinary challenges begin only on the challenger’s own turn. | cf90; preserved |
+| Multi-squad combat | Squads fight as individual pairs, one scheduled bout per turn. Outnumbered defenders can fight more than one bout. | cf96–cf97; cf104 |
+| Initial lineup | Choose participating squads and opponents on one challenge screen. | User decision; cf104 |
+| Defender’s choice | The challenger proposes; the defender reviews or changes their fighters before accepting. | Existing rule retained; cf104 |
+| Redundant picker | Remove the separate per-attacker pairing wizard. Show every matchup together. | User decision; cf104 |
+| Screen sequence | Objective Clash first; engagement board next; disengagement response or final result separately. | Original handoff; cf100 |
+| Next fighter | Each side confirms its own next fighter. Both confirmations are required. | Original handoff; cf100 |
+| Undo confirmation | Allow **Un-confirm** until the turn changes. | Original handoff; cf100 |
+| Turn gate | Block ending the turn mid-bout or while the relevant clash, escape response, or required fighter confirmations remain unresolved. The legacy roster-save turn path is also checked. | cf84; cf100 |
+| Next-turn start | Confirming fighters does not start another bout immediately. It starts at the next turn boundary. | cf97; strengthened cf100 |
+| Waiting squads | Engaged waiting squads remain pinned; they cannot move or make Coordinated Strike while waiting. They can still contribute items during breaks. | Original handoff; cf97/cf100 |
+| Other units | **Back to roster** lets the player manage other units while retaining fighter confirmation. | cf100 implementation |
+| Roster editing | Bring in squads, withdraw through the escape response, or merge survivors during a break. | cf98–cf100 |
+| More menu | Put **End firefight** and eligible **Forced Re-Engagement** under **More**. Forced Re-Engagement is available after scheduled bouts, or in a plain 1v1. | Original handoff; cf100 |
+
+### Dice and objective ownership
+
+| Topic | Current decision | Record |
+|---|---|---|
+| Physical dice selection | Ask the other side to confirm before advancing. | User decision; cf102 |
+| Rolled dice selection | Both sides must agree. A request for the alternative mode also needs agreement. | Existing rolled flow; cf102 |
+| Combat rounds | Keep both sides’ existing readiness/result/casualty gates. | Existing flow preserved |
+| Objective Clash | After a completed bout, use the existing physical-result report or server roll with HP advantage. | cf82; cf100 presentation |
+| Separate objective-result confirmation | **Not added.** The clarification in this conversation was about selecting physical dice. The Objective Clash still proceeds after one side reports or rolls its result. | Explicitly distinguished in conversation; cf102 scope |
+| Holding versus securing | The clash winner holds the objective. It is secured outright when that holder successfully gets away. | Original handoff; current rulebook |
+| Objective names | Use a named flag marker, such as 🚩 Car, rather than an unidentified carrier. | cf99 |
+| Challenge picker marker | Show the carried objective on both teams’ squads, including the name on phones. Resolve by team and squad ID so equal IDs do not mix ownership. | User report; cf101 |
+
+### Items, escape, and the outnumbering advantage
+
+| Topic | Current decision | Record |
+|---|---|---|
+| Item capacity | Quick Resolve resupply capacity is 2 Flashbangs, 1 Smoke, and 1 Grenade per squad. | cf95/current rules |
+| No automatic refill | Starting or ending fights/bouts does not restore spent items. | cf95; preserved |
+| Resupply | Ride in a vehicle capable of carrying squads for a full turn to resupply. | cf95/current rules |
+| Mid-bout use | Only the two fighting squads use their items during the bout. | Original handoff |
+| Break use | Any living squad in the engagement may spend its own items during an escape response, including a squad that has not fought. | cf98; cf101 |
+| Per-squad disengagement | A non-holder leaving removes only that squad; a holder leaving is an extraction attempt. | cf100 |
+| Smoke is not a guaranteed escape | Smoke counters the latest Flashbang only. The other team can spend another Flashbang. | User ruling; cf101 |
+| Repeated exchange | Each additional Flashbang requires another Smoke response, or the departing side stays. Each response consumes one charge. | User ruling; cf101 |
+| Why spare squads matter | A larger engaged force brings more total available item charges to the breaks. The user explicitly wanted this advantage. | User rationale for cf101 |
+| Response order | Do not stack a second Flashbang before the previous one receives its Smoke response. | cf101 implementation |
+| No flashes remaining | The pursuer must let the squad go after Smoke; **Let them go** acknowledges and finishes the escape in the app. | cf101 implementation/current rulebook |
+| Failed escape | Staying to fight returns to the board and clears both fighter confirmations. | cf100–cf101 |
+| Grenade in extraction | Grenade does not replace Flashbang or Smoke as an escape counter. | Existing rulebook |
+| Standalone queued re-engagement | Smoke still cancels that queued attempt. Another attempt may be made through the existing Force a re-engagement action with another available Flashbang. The break’s inline counter chain is a distinct UI flow. | cf89/cf101 release notes |
+
+### Merging and survivors
+
+| Topic | Current decision | Record |
+|---|---|---|
+| No lost overflow | **5 + 5 becomes 8 + 2**, not 8 with two survivors discarded. | User correction; cf103 |
+| Target squad | Fill the healthiest selected squad to a maximum of eight; it keeps its identity and name. | Original handoff; cf103 |
+| Equal-health tie | Prefer the squad currently open when health is tied. | cf103 implementation choice |
+| Remnant squads | Extra survivors remain in their original squads, with their names, items, and eligibility for future bouts. | User correction; cf103 |
+| Empty donors | Only a genuinely empty donor leaves the engagement; the server rejects removal of a living donor. | cf103 |
+| Full target | Topping up an already-full squad is a no-op. | cf103 |
+| Individual wounds | Transferred soldiers retain remaining HP and Kevlar; merging does not heal them or refill item bags. | cf103 |
+| Item bags | Items do not pool or move between bags during merging. | Existing bag behavior retained; cf103 rulebook wording |
+| Objective on a donor | A surviving donor keeps the objective. If it empties into the recipient, ownership transfers to the recipient. | cf103 |
+| Preview | Show the resulting health of every selected squad before applying the merge. | cf103 |
+
+Examples:
+
+| Before | After | What remains |
+|---|---|---|
+| 5 + 5 | 8 + 2 | Both squads survive |
+| 7 + 4 | 8 + 3 | Both squads survive |
+| 3 + 4 | 7 | One empty donor leaves the engagement |
+| 3 + 3 + 3 | 8 + 1 | One full squad and one remnant; one empty donor |
+| 8 + 2 | 8 + 2 | Nothing moves |
+
+### Appearance and delivery
+
+| Topic | Current decision | Record |
+|---|---|---|
+| App art style | Match the existing Gunpla UI: angular cut-corner panels, roster-style rows, existing emblems and infantry artwork. | User feedback; cf101 |
+| Faction treatment | Federation blue; Spacenoid red/black with gold accents. | Existing app skin; cf101 |
+| Board information | Health on every squad; named objective marker on the holder. Only your own squad cards show item quantities. | Original handoff; cf100 |
+| Image assets | Reuse the existing faction infantry art, emblems, and fed/spa item icons. | cf100–cf101 |
+| Deployment | Ship the whole project when server logic changes. Every player should refresh to the same build. | Existing setup guide; cf100–cf104 |
+| Latest package | `gunpla-battle-cf-cf104.zip`; `wrangler.toml`, `src/`, and `public/` are at its root. | cf104 |
+
+## Changed or superseded decisions
+
+| Earlier behavior or note | Replaced by | Applies from |
+|---|---|---|
+| New or forced fights restore item charges | No fight-based refill; full-turn vehicle resupply only | cf95 |
+| Six end-of-bout panels stacked together | One decision per screen, followed by the engagement board | cf100 |
+| Either side can line up the next bout alone | Two confirmations, reversible until the turn ends | cf100 |
+| Roster withdrawal bypasses the escape response | Per-squad disengagement with an opposing response | cf100 |
+| One Smoke guarantees extraction | Repeated Flash/Smoke exchange; spare squad reserves matter | cf101 |
+| Board looks separate from the app’s art style | Reuse existing Gunpla panel styling and faction artwork | cf101 |
+| Challenge squad picker does not identify the carrier | Named objective markers on both teams | cf101 |
+| Physical dice starts immediately | Opponent confirmation required | cf102 |
+| Merge caps at eight and empties every donor | Top up without discarding surplus survivors | cf103 |
+| Select squads, then answer a separate pairing wizard | Assign matchups inside the initial roster; defender reviews all together | cf104 |
+
+Historical assertions such as “items reset,” “Smoke guarantees escape,” and “all other merged squads leave the table” must not be used to implement the current build.
+
+## Detailed patch notes: cf100–cf104
+
+### cf100 — Engagement board update
+
+The end of a bout now shows one decision at a time: Objective Clash, then the engagement board, then a separate disengagement response or final result.
+
+- Federation blue / Spacenoid red squad cards show health and the objective holder. Only your team's cards show remaining item icons.
+- Each side selects and confirms its next fighter. Either side can un-confirm until the turn changes. The server blocks ending the turn until both confirm, including the older roster-save turn path. The selected bout starts with the existing next-turn banner system.
+- Disengage works per squad. The holder leaving is an extraction; another squad leaving removes only that squad. Any engaged squad can supply the denying Flashbang or answering Smoke. Staying after a denied escape clears both confirmations.
+- Edit roster supports adding, withdrawing through the response flow, and merging into the healthiest squad, capped at eight. Objective ownership follows the merge survivor. Items do not refill.
+- End firefight and Forced Re-Engagement are under More. Forced Re-Engagement appears after the scheduled bouts are complete, or for a plain 1v1.
+- Back to roster lets players use their other units while keeping their confirmation. Engagement squads remain pinned until released.
+
+**Deployment:** upload the full cf100 project, including **`src/index.js`**, `public/app.js`, `public/app.css`, `public/index.html`, and `public/sw.js`. Both the server and client changed. Refresh every device and check **cf100** before starting a new game. No Cloudflare deployment was performed in this task.
+
+**Validation:** 140 automated assertions passed using two player seats, the production room logic, and client rendering/bookkeeping checks. See `tests/README.md`. The two-device Playwright scenario is included but **browser visual testing is still pending**: Chromium was absent and its download timed out. Test desktop/phone layout and a full two-device game before release.
+
+**Remaining for the next session:** run the included Playwright scenario, review phone and desktop layout, and play one full multi-squad game on actual devices. Earlier completed-build notes above are historical; cf100 describes the current end-of-bout flow.
+
+### cf101 — Matching artwork, objective picker, and repeated extraction counters
+
+- Engagement board styling now follows the existing Gunpla kit UI: cut-corner panels, roster-style rows, faction emblems, existing infantry art, blue Federation and red/gold Spacenoid panels, and existing theme colors for controls. No new art downloads are required.
+- The challenge squad picker shows the carried objective name on both teams, including on phones. Team identity is used when squad IDs overlap.
+- **Designer rule change:** Smoke counters the latest Flashbang, not the entire extraction. The pursuing side can choose **Flash again**, spending another charge from any living engaged squad. Another Smoke is required to answer it. Continue until the pursuing side lets them go or the departing side stays to fight. The latter clears fighter confirmations. If no Flashbang remains, use **Let them go** to acknowledge the escape.
+- The rulebook now describes this item exchange and removes the guaranteed-Smoke-escape wording. The ordinary queued Forced Re-Engagement counter remains a cancellation of that attempt; another attempt can be made with another available Flashbang through the existing Force a re-engagement action.
+- Deploy the **whole project**, including `src/index.js`. The server, UI, stylesheet, and cache version changed; all devices should show **cf101**.
+
+**Checks:** 160 automated assertions passed, including repeated Flash/Smoke responses, duplicate-action rejection, the turn gate during the exchange, and both teams’ objective markers. The existing two-browser Playwright scenario was updated but remains unrun because Chromium is unavailable in this environment. The user confirmed cf100’s functionality in play; cf101’s visual changes still need an on-device look. No deployment was performed.
+
+### cf102 — Both teams confirm the dice mode
+
+Choosing Physical dice now sends a request to the other team. The requester sees “Waiting for their confirmation”; the other side sees **Confirm physical dice** or **Request rolled dice**. Requesting the alternative mode requires confirmation too. Rolled dice retains two-sided agreement. The server rejects self-confirmation and starting the round while the request is pending.
+
+173 automated assertions pass, including the request, counteroffer, confirmation, and both UI perspectives. Browser visual verification remains pending because Chromium is unavailable. Deploy the full project, including `src/index.js`, and refresh both devices to cf102. No deployment was performed.
+
+### cf103 — Merge without losing survivors
+
+Merging now tops up the healthiest selected squad to eight and leaves surplus soldiers in their original squads. Equal-health ties favour the squad currently open. Examples: **5 + 5 → 8 + 2**, **7 + 4 → 8 + 3**, **3 + 4 → 7**, and **3 + 3 + 3 → 8 + 1**. A full target is a no-op. The picker previews each squad’s resulting health.
+
+Only genuinely empty donor squads leave the engagement. Living remnants retain their names, items, and next-bout eligibility. An objective stays with a surviving donor; it transfers to the receiving squad only if its former holder is emptied. Transferred soldiers retain their individual wounds and Kevlar; merging does not replenish squad item charges. The server rejects attempts to remove a donor that still has survivors.
+
+190 automated assertions pass, including the user’s exact 5 + 5 example, three-squad overflow, full targets, wound preservation, and multiplayer updates retaining partial donors. Browser visual verification remains pending. Deploy the full cf103 project, including the server, and refresh all devices. No deployment was performed.
+
+### cf104 — Matchups inside the challenge roster
+
+The initial challenge roster now includes an editable **Bout lineup**. Select the participating squads, set each attacker’s enemy matchup on that same screen, and send once. HP and carried-objective markers remain visible. Adding or removing squads keeps valid choices and repairs invalid ones; outnumbered defenders can be assigned to more than one bout.
+
+The defender opens **Review challenge**, sees every proposed bout together using the same lineup component, adjusts their fighters if needed, and presses **Confirm challenge** once. The former sequential “Who meets their squad?” screen has been removed. Invitations store the proposed pairings; the server validates them and applies the defender’s final pairings in one acceptance.
+
+200 automated assertions pass, covering proposed pairings, defender adjustments, invalid pairings, retained selections, and all matchup rows rendering together. Browser visual verification remains pending. Deploy the full project including `src/index.js`, and refresh every device to cf104. No deployment was performed.
+
+## Complete Cloudflare release history: cf1–cf104
+
+The cf1–cf99 rows below are the supplied historical build ledger, retained as release-time descriptions. They are not fresh verification claims. Later decisions above override older behavior.
+
+| Build | Changed files | Release notes |
+|---|---|---|
+| cf1 | everything | First Cloudflare version: live rooms, instant pushes, reconnection |
+| cf2 | `src/index.js`, `public/index.html`, `public/sw.js` | Over-budget teams ask the **host** to raise the DP limit (Accept / Decline pop-up); a raise applies to **both teams** |
+| cf3 | `public/index.html`, `public/sw.js` | Your team's roster shows **who has each sheet open** (coloured tag + outline per player) |
+| cf4 | `src/index.js`, `public/index.html`, `public/sw.js` | **Official turn order** kept by the room (only the active team can end its turn; the other team waits; out-of-step devices correct themselves); **no flicker** returning from a sheet (redraws only when something changed) |
+| cf5 | `public/index.html`, `public/sw.js`, **new** `public/img/ship-musai.webp`, `ship-salamis.webp`, `ship-rewloola.webp`, `ship-racailum.webp` | **Warships**: Musai, Salamis Kai, Rewloola, Ra Cailum — new ship sheet (Canva layout, code-drawn), tinted wireframes, rings for Hull / Bridge / Thrusters / weapon systems, weapons list, Crew / AP / Movement, abilities (launch, dock, Damage Control, base module, decoys); ship rules applied automatically |
+| cf6 | `src/index.js`, `public/index.html`, `public/sw.js` | **Stuck turn fix**: the room also passes the turn when the active team's save shows it ended (covers devices on older builds); lobby shows every device's build and warns on a mismatch; waiting message names a leader on another build; **host button** to give the turn to a team; safer handling of a refused turn change |
+| cf7 | `public/index.html`, `public/sw.js`, **new** `public/img/portraits/ship-musai.webp`, `ship-salamis.webp`, `ship-rewloola.webp`, `ship-racailum.webp` | **Roster tabs** (Mobile suits · Ships · Ground units); **grand warship picker** cards with the new ship photos; Ground units **under construction** notice; ship photos on roster rows and the ship sheet dial; fix: the unit list stays in columns after adding a unit |
+| cf8 | `public/index.html`, `public/sw.js` | **Carriers**: Confirm team → **Load your carriers** (capacity rule, auto-load); passengers greyed on the roster (⚓ ABOARD); **Launch** picker (catapult bonus: +10cm/AP, may attack — purple buff on the suit sheet); **Dock** picker (aboard next turn); **Emergency Disembark** when a carrier is destroyed |
+| cf9 | `public/index.html`, `public/sw.js` | Turn notice no longer flickers and is message-only; the **one** Start My Turn button turns **green and pulses** when it's your turn to start; fix: a leader's roster could be wiped if they added units / confirmed before the first sync after the battle started |
+| cf10 | `public/img/portraits/ship-musai.webp`, `ship-rewloola.webp`, `public/index.html`, `public/sw.js` | Cleaner Musai and Rewloola portraits (build bump so devices fetch the new images) |
+| cf11 | `public/index.html`, `public/sw.js` | Ship sheets: **MOVE** button (1 AP per move, undo, halved / straight-ahead / immobilised handled); Crew / AP / Movement labels moved **above** their boxes |
+| cf12 | `public/index.html`, `public/sw.js` | Ship rules: missile launchers / barrage have a **1 turn cooldown**; every gun that can shoot 2 targets is limited to **1 target at half system HP (10 or less)** — shown as an amber 1 TARGET flag |
+| cf13 | `public/index.html`, `public/sw.js` | Carriers: **several launches per turn** (1 AP each, ↶ undoes the latest); a suit launched this turn **can't dock** that turn. **☢ nuke button** on every sheet (Anti-Ship Missile / Atomic Bazooka, pick the distance: suits 15/10/5 to all 6; warships 40 Hull + Bridge & Thrusters disabled / 25 / 10). Fix: no thrusters shows immobilised even with the Bridge down |
+| cf14 | `public/index.html`, `public/sw.js` | Two-target guns at half HP **fire once** (12 ×1 / 5 ×1, no stacking); **Anti-Air Array works without the Bridge**; ☢ button simplified to "caught in a nuclear blast" — one table for every nuke (suits 15/10/5 to all 6, ships 40 + Bridge & Thrusters / 25 / 10 Hull) |
+| cf15 | `public/index.html`, `public/sw.js` | Fix: a mobile suit sheet's circles / MOVE / DODGE / stats no longer stay on screen when switching to a ship sheet; ship MOVE button centred under the Movement box (undo sits beside it) |
+| cf16 | `public/index.html`, `public/sw.js` | **Bridge HIT button** beside the Bridge ring (one tap per attack: −2 crew, −3 next turn; ↶ undo; pulses amber when the Bridge lost HP but no hit is recorded) — the ring now only changes HP. **# chip** on the damage bar to type any amount (e.g. 14), on every sheet |
+| cf17 | `public/index.html`, `public/sw.js` | **New landing page**: PLAY ONLINE (top, recommended, shows a live session) / PLAY OFFLINE (→ faction menu); hangar doors on every menu route; lobby teams headed by the faction cards (tap to join); offline menu's Multiplayer shortcut → Main menu |
+| cf18 | `public/index.html`, `public/sw.js`, **new** `public/img/lobby-bg.webp` | **Lobby on the two-hangar art**: Federation panel on the blue half, Spacenoid on the red half (tap to join), your side lit / the other dimmed, session code on the centre pillar, controls in a bottom dock; sign-in on a glass panel; phone layouts |
+| cf19 | `public/index.html`, `public/sw.js`, `public/img/lobby-bg.webp` (updated art) | Lobby pass 2: everything centred (Ready, host settings, Start, buttons), VS pillar with player counts, **team-pick animation** (side light sweep, name banner, panel lock-on brackets), idle scan lines, fits the screen without scrolling |
+| cf20 | `public/index.html`, `public/sw.js` | PLAY ONLINE card: blue / red split instead of purple (outline, glow, RECOMMENDED tag) |
+| cf21 | `public/index.html`, `public/sw.js` | Fix: PLAY ONLINE card background restored (cf20's colour wash removed) — thin blue left / red right edge glow only |
+| cf22 | `public/index.html`, `public/sw.js` | PLAY ONLINE card uses the two-hangar art as one seamless background (no misaligned image seam); lobby's dark bottom band now reaches both screen edges and the bottom (no bright gaps) |
+| cf23 | `public/index.html`, `public/sw.js` | Lobby: picking Federation no longer lays a blue wash over the (already bright) left half — it stays crisp, only the Spacenoid half dims; the Spacenoid red glow is unchanged |
+| cf24 | `public/index.html`, `public/sw.js` | Fix: Start My Turn now turns fully green on the Spacenoid side too (a more specific Spacenoid red rule was overriding the fill) |
+| cf25 | `public/index.html`, `public/sw.js` | **Turns start automatically**: when the other team ends its turn, the leader's device starts yours (full start-of-turn upkeep) and everyone gets a green "your turn has started" notice; if a teammate still has a sheet open it waits and names them. Fix: undoing a turn start no longer counts as ending the turn (it used to hand the turn to the other team) |
+| cf26 | `public/index.html`, `public/sw.js`, **new folder** `public/img/ground/` (32 images) | **Ground units, stage 1**: Ground Units tab with vehicle cards (free, per-type caps + 8-vehicle cap); Tank / Car / Helicopter / Jet / Transport Ship sheets (tinted wireframes, HP + Armor rings, OVERMAP/GROUND weapons with cooldowns and Bombing/Strafe charges, Fire/Air Support target-effect tables, AP / Movement / Dodge, MOVE, Hide Stance, cargo, objective, targeting, respawn) |
+| cf27 | `public/index.html`, `public/sw.js` | Fix: the round portrait badge on ship and ground-vehicle sheets used the faded "no portrait yet" style (30% opacity + scan lines) — pictures now show at full strength (was nearly invisible on Spacenoid sheets) |
+| cf28 | `public/index.html`, `public/sw.js` | Ship and ground-vehicle health bubbles: numbers centred in the white bubble (current value large, "/max" small underneath); three-digit hulls fit |
+| cf29 | `public/index.html`, `public/sw.js` | **STANCE button** on every sheet (beside TABLES): suits Defense / Overwatch / Focus / Boost / Peek & Shoot (+ Stealth for stealth units); warships and all vehicles Boost; one stance at a time, Stealth never combines; effects applied (Boost +10cm & attack lock, Focus no Dodge, durations), stance tags on roster + enemy panel. Tank Fire Support has no cooldown; Tank/Car lose Hide; colour wheel for duplicate ground units |
+| cf30 | `public/index.html`, `public/sw.js` | STANCE button restyled to match TABLES exactly (same outline/fill layers, size, row); TABLES + STANCE now share one dock plate mirroring DONE + ROSTER (equal gap and margins); active stance keeps the same shape in purple; decorative stripes moved clear |
+| cf31 | `public/index.html`, `public/sw.js` | **DONE in the enemy turn = yellow tally** ("damage counted so far"): roster marks, sheet DONE button, turn-box counter and hint; a counted unit that loses health again clears its mark and shows ↻ RE-CHECK until DONE is tapped again; repairs don't clear it; marks reset every turn and sync live |
+| cf32 | `public/index.html`, `public/sw.js` | Enemy-turn sheet button now reads **DAMAGE COUNTED** (two lines, with the tally); hint and messages use the same wording |
+| cf33 | `src/index.js`, `public/index.html`, `public/sw.js` | **End-turn requests**: if the other team hasn't marked every unit that can take damage as DAMAGE COUNTED, End My Turn becomes a request (waiting count + Cancel); it passes automatically once all are counted, or when the defending leader taps **Accept now**. **Pass leadership** (turn box, or 'make leader' in the lobby) |
+| cf34 | `public/index.html`, `public/sw.js` | **Infantry Squads** (up to 4, free): 3-tab sheet — **Overmap** (squad health = living soldiers with a who-falls picker, AP, Hide, Coordinated Strike), **8 Soldiers** (HP / Kevlar / shields / swaps / items / KIA), **Quick Resolve** (rounds, firepower & suppression, item charges, blind call + reveal with the counter triangle, margin / volley tables, optional simulated dice, Objective Clash, Forced Re-Engagement, new segment / engagement). **Squads ride in vehicles** (Car 1, Heli 1, Transport 2): load step at Confirm, embark / disembark, Emergency Disembark when the vehicle is destroyed. Fix: ☢ on vehicles / squads |
+| cf35 | `public/index.html`, `public/sw.js` | 8 Soldiers tab rebuilt for touch: big tap bubbles (HP, Kevlar, shield Armor / HP) that apply the chosen DMG amount, large item and swap buttons, 2-column scrolling grid on phones. Ground Units tab: prominent vehicle-limit meter (8-slot bar) + per-type limit chips |
+| cf36 | `public/index.html`, `public/sw.js` | 8 Soldiers tab split into two pages of four (Riflemen & MG · Specialists) with page buttons showing faces and survivors; tall cards with large soldier art, role tag, KIA stamp, name bar, bubbles and gear buttons — no scrolling |
+| cf37 | `public/index.html`, `public/sw.js` | Soldier cards v3: AP bubble (3, refills each turn); MOVE (1 AP) / DODGE (free, blast 4+) / FIRE (current weapon's AP, uses Rocket charges) with counters + undo; ⇄ weapon button = switch (1 AP) + full weapon list with thrown items (1 AP each); per-soldier stance corner (Overwatch 1 AP, Peek & Shoot, Defense 10cm, Recon Stealth); ⓘ GROUND RULES panel (Section 13.6 / 13.7) |
+| cf38 | `public/index.html`, `public/sw.js` | Soldier cards: DODGE button removed (the blast-dodge rule stays in ⓘ GROUND RULES); MOVE and FIRE are now two large buttons |
+| cf39 | `public/index.html`, `public/sw.js` | Soldier cards: "BLAST DODGE 4+" reminder under MOVE / FIRE (tooltip: Rockets and Bombing Runs can't be dodged; bullets never) |
+| cf40 | `public/index.html`, `public/sw.js` | Squad sheet on phones: Overmap and Quick Resolve columns always stay side by side (no stacking that pushed FIRE off-screen); Squad Health portraits in a larger 4 × 2 grid with heads fully visible |
+| cf41 | `public/index.html`, `public/sw.js` | Squad sheet: MOVE now sits under FIRE in the Coordinated Strike card (same size, with undo). 8 Soldiers and Quick Resolve hide the unit info panel and use the freed space for bigger parts; shield units show their five bubbles in two rows (AP · HP · Kevlar / Armor · Shield) so nothing is cut off on phones |
+| cf42 | `public/index.html`, `public/sw.js` | Help sentence under the sheet removed; the HEAD = KILL tag removed; new **?** button beside DONE opens a "how this sheet works" guide for the open unit type (suit / ship / vehicle / squad), including the kill location |
+| cf43 | `public/index.html`, `public/sw.js` | Soldier cards: stat **bars** on the left of the art (AP · HP · Kevlar, + Armor · Shield) replace the bubbles; tap a bar to select it → ▲ ▼ − + ✓ strip (AP ±1; health bars ± the DMG amount); every soldier's art is the same size |
+| cf44 | `public/index.html`, `public/sw.js` | **Sheets fit the screen** (16:9 sheet sized to the space left by the top bar and timeline — no scrolling, centred on wide screens); **one-row top bar on phones**; **bigger mobile suit tables** (taller Abilities / Weapons rows, larger text and tap targets); larger ship / vehicle table text |
+| cf45 | `public/index.html`, `public/sw.js` | Squad sheet: ⓘ GROUND RULES is now a full-size button centred in the bottom row on its own plate (all three tabs); soldier cards get the freed height |
+| cf46 | `public/index.html`, `public/sw.js` | In-sheet ROSTER picker shows unit status: grouped (Mobile suits / Ships / Ground units), portraits, ⚓ ABOARD · carrier (greyed, "opens the …"), LAUNCHED / DOCKING, stance, ✓ DONE or counted tally, ↻ RE-CHECK, who has the sheet open, OPEN NOW, destroyed |
+| cf47 | `public/index.html`, `public/sw.js` | Fix: launching, docking and decoys only on your own turn (cells show — in the enemy turn); MOVE buttons on suit, ship, vehicle and soldier sheets no longer spend AP during the enemy turn |
+| cf48 | `public/index.html`, `public/sw.js`, **new** `public/img/menu2-bg.webp`, `menu2-gundam.webp`, `menu2-zaku.webp`, `menu2-clash.webp`, `menu2-logo.webp` | **New landing art** in layers (background + separate logo). **PLAY ONLINE clash animation**: the Gundam and Zaku charge in from the sides, blue-red clash with flash, shockwave and shake, white-out into the lobby (~2s); SKIP (or tap) from the second time; synthesized whoosh + clash sound with a 🔊 / 🔇 toggle; reduced-motion devices and returning to a live session use the quick transition |
+| cf49 | `public/index.html`, `public/sw.js` | Clash animation v2: the logo leaves at the start; after the impact the view zooms into the clash (≈4.4×, brightening) and fades to white leaving only the logo, then the lobby fades in (~3.5s; SKIP from the second time) |
+| cf50 | `public/index.html`, `public/sw.js` | Clash animation v3: harder zoom (×9 in 0.75s, accelerating, blur + blow-out); the white clears to the empty background with the logo as the hero, then the lobby fades in (~3.8s) |
+| cf51 | `public/index.html`, `public/sw.js`, `public/img/menu2-clash.webp` (replaced — sharper 2600px from the designer's upscale) | Clash animation: blue / red light layer under the burst (no hard edge to the light); the end logo's lighting now animates smoothly (no glitch) |
+| cf52 | `public/index.html`, `public/sw.js` | Clash animation: sound removed (and the 🔊 button); the shake now moves an oversized scene (12% larger than the screen) so no black bars appear; the landing and ending backgrounds use the same slight zoom so nothing jumps |
+| cf53 | `src/index.js`, `public/index.html`, `public/sw.js` | **Online Firefight** (Quick Resolve over the link): challenge an enemy squad from the squad's Quick Resolve tab; the enemy team gets an Accept / Decline banner; choose Physical dice or Roll for me (the other side must agree — the room rolls both pools); each round both players pick Flashbang / Smoke / Grenade / none blind — picks stay on the room server until both lock — then a 3-2-1 countdown, reveal, and effect animations on the receiving screen; effects (and the margin table with rolled dice) apply to each player's own squad; READY for the next round; after round 4: Objective Clash (rolled by the room), new segment, Forced Re-Engagement, end. Pause hands the fight to any teammate (Resume). ⚔ FIREFIGHT tags on roster and enemy panel |
+| cf54 | `public/index.html`, `public/sw.js`, **new** `public/img/m3-base.webp`, `m3-emblem.webp`, `m3-ships-l.webp`, `m3-ships-r.webp`, `m3-rocks.webp`, `m3-fg.webp` | **Layered landing scene**: depth parallax (mouse on desktop, drag on phones with spring-back, phone tilt — iPhones ask once), fleets slowly advancing on each other, floating asteroids, slow space zoom, twinkling stars, pulsing emblem, distant explosion flashes, rising embers; lite mode on low-memory devices; still image with reduced motion. The PLAY ONLINE clash now plays over the live scene and flies through it (front layers rush past fastest) |
+| cf55 | `public/index.html`, `public/sw.js` | The offline faction menu uses the same layered, parallax scene and separate logo as the landing page (one shared motion loop for whichever menu is showing) |
+| cf56 | `src/index.js`, `public/index.html`, `public/sw.js` | Quick Resolve tab rebuilt around the online firefight (the old one-device board is removed): challenge / open card, round guide, margin table. Clash screen: dice are rolled AFTER the item reveal (Smoke clears this roll's set-aside dice; the server rolls then in rolled mode); big 'ROLL N DICE NOW' box with the breakdown and a plain 'you were flashed — physically move N dice away' instruction; NEXT ROUND box (flash + your 1s / margin suppression → dice next round) |
+| cf57 | `src/index.js`, `public/index.html`, `public/sw.js` | Flashbang now removes 3 dice from the enemy's roll THIS round (server rolls accordingly; Smoke still cancels it). Physical dice: '📋 LOST THIS ROUND? PICK THE MARGIN' opens the margin table (incl. enemy Perfect Volley) and applies casualties + set-aside dice; the next-round box counts your 1s + margin. Rolled dice: highlighted margin table with both totals. Reveal cards flip only once |
+| cf58 | `public/index.html`, `public/sw.js` | Firefight screen: flash / smoke / explosion effects play on their own layer (adjusting your 1s can't cut them short or replay them); a redraw during the 3-2-1 countdown keeps the current number |
+| cf59 | `public/index.html`, `public/sw.js`, **new** `public/img/m4-far-fed.webp`, `m4-far-zeon.webp`, `m4-near-fed.webp`, `m4-near-zeon.webp`, **replaced** `public/img/menu2-bg.webp`; **delete** `public/img/m3-ships-l.webp` and `m3-ships-r.webp` | Menu scene uses the designer's new ships: 9 ships cut out and arranged as far and near layers per fleet (Federation left, Zeon right, facing each other around the emblem), each with its own parallax depth and drift; the clash fly-through and the end background use them too |
+| cf60 | `public/index.html`, `public/sw.js` | Perfect Volley rule change: only a squad rolling 2–5 dice with every die a 6 (includes suppressed squads down to 2 dice); destroys 3 / 4 / 5 / 6. Margin table has one 'Lost to a Perfect Volley' row that asks how many sixes (2–5) and applies the casualties; rolled dice use the same rule; reference text updated |
+| cf61 | `public/index.html`, `public/sw.js`, **new folder** `public/img/fx/` (15 sprites) | Designer's effect art: menu scene now has sprite explosions on the ships and beam shots between the fleets (pink from the Federation, yellow from Zeon) ending in impact bursts; firefight flash / grenade / smoke use the sprites; unit sheets show a hit spark when damage is tapped and a fireball when a part or unit is destroyed (not on repair; off with reduced motion) |
+| cf62 | `public/index.html`, `public/sw.js` | Menu battle effects: long beams stretched from ship to target (flash on, thin out, big impact + ring), bolts of random length / thickness (sometimes in bursts of 3), blasts in small / medium / big sizes (big ones with a shockwave ring), chains of small blasts across a ship; bigger fireball + ring when a part is destroyed on a sheet |
+| cf63 | `public/index.html`, `public/sw.js`, **replaced** 13 images in `public/img/fx/` | Explosion sprites re-cut: each sprite is separated along the gaps between them (no clipped rays, no fragments of neighbours, soft fade where two touch; every edge verified clear). Menu hits now show in front of the near ships |
+| cf64 | `public/index.html`, `public/sw.js` | Menu battle: more beam fire — events every 0.7–1.9s, long beams 22% and bolts 50% of events, sometimes answered by return fire; up to 12 effects at once (Federation beams pink, Zeon beams yellow) |
+| cf65 | `public/index.html`, `public/sw.js` | Menu space explosions use only starbursts and rings: star-y + orange ring on Federation ships (Zeon's yellow fire), star-p + pink ring on Zeon ships (Federation's pink fire) |
+| cf66 | `public/index.html`, `public/sw.js` | **Hangar effects.** Team lobby: Gundam eye glow, Zaku mono-eye sweep, light strips chasing upwards, searchlights, floor sheen, fog and dust, welding sparks, distant battle in the space windows (stars / rings), your hangar powers up when you pick a side, alarm beacons + LAUNCH SEQUENCE when everyone is ready, sparks and steam on the hangar doors. Budget / roster screens: the side's hangar gets eye glow (Nu Gundam visor / Zaku mono-eye sweep), flickering ceiling lights, drifting mist, dust, floor sheen, a searchlight and welding sparks, faded out behind the list. Lite mode keeps only the glows; reduced motion turns them off |
+| cf67 | `public/index.html`, `public/sw.js`; **delete** `public/img/fx/boom-o1.webp`, `boom-o2.webp`, `boom-o3.webp`, `boom-p1.webp`, `boom-p2.webp` | No fireball sprites anywhere: a destroyed part on a sheet shows a star burst + ring, the firefight Grenade shows a star burst over the ground blast; the fireball files are removed from the app and its offline cache |
+| cf68 | `public/index.html`, `public/sw.js`, **new** `public/img/m3-emblem-glow.webp` | **Fullscreen performance:** the menu scene is drawn at most 1920×1080 and scaled up (the art is 1672px wide); hangar effect layers are drawn at their picture's own size; the parallax loop sleeps when nothing moves; the emblem glow is a pre-blurred image instead of a live blur; searchlights / floor sheen no longer use blend modes; on big screens (1440p / 4K) the lobby's frosted-glass panels use a solid tint instead of live blur; if a screen still runs under ~35 fps for a few seconds the background effects switch to lite automatically for that session |
+| cf69 | `public/index.html`, `public/sw.js`, **replaced** `public/img/lobby-bg.webp` (designer's version with the Zaku eye blacked out) | Hangar effects trimmed to the eyes only (lobby and roster). Eyes realigned: Gundam eyes at 28.55% / 24.65% and 29.75% / 25%, Zaku mono-eye drawn into the blacked-out slot at 69.9% / 28% and sweeping inside it. The effect layers now read the picture's real position (the lobby picture is anchored to the top on narrow screens — that is what pushed the eyes off) |
+| cf70 | `public/index.html`, `public/sw.js` | Hangar doors reverted to the original (no seam sparks, steam or explosions; the door code and styles now match the pre-effects version exactly) |
+| cf71 | `public/index.html`, `public/sw.js` | **EFFECTS: FULL / LITE** toggle in the bottom bar of the landing page and the offline menu, remembered per device (choosing FULL also stops the automatic lite switch; until a choice is made the automatic behaviour stays). Narrow phones: bottom bar as a 2×2 grid (landing) / 3 columns (offline menu); logos slightly smaller on short portrait screens so both menus fit without scrolling from 320×640 up |
+| cf72 | `public/index.html`, `public/sw.js`, **new** `public/img/online-card.webp` | The PLAY ONLINE card uses its own copy of the original hangar art (eye intact); the lobby keeps the blacked-out version. Zaku mono-eye path follows the visor slot: centred at 69.95% / 27.96%, moves down-left along the slot (to 68.96% / 28.40%) and nearly level to the right (70.84% / 27.90%); its light streak is tilted to the slot's 15° angle |
+| cf73 | `public/index.html` (now a small page), **new** `public/app.css`, `public/app.js`, `public/data.js`, `public/img/emb-fed-bg.svg`, `emb-fed-sm.svg`, `emb-spa-bg.svg`, `emb-spa-sm.svg`; `public/sw.js` | **Antivirus false-positive fix** (Windows Defender flagged index.html as Trojan:Win32/MalUri.A!cl): the one 890 KB page is split into index.html (16 KB) + app.css + data.js + app.js, loaded in the same order; the four URL-encoded SVG images became real .svg files; a code comment mentioning file:// was reworded. No behaviour change (all regression tests pass; screens pixel-identical). From now on most updates change app.js / app.css plus index.html and sw.js |
+| cf74 | `public/app.css`, `public/app.js`, `public/index.html`, `public/sw.js` | Lobby eyes: the Gundam glow is smaller and dimmer, with a gentle flare when Federation is picked (was very bright); the Zaku mono-eye's right-hand stop moved in (70.44% instead of 70.84%) |
+| cf75 | `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | Effects toggle / auto-quality rewritten as one small `Effects` module: one setting (`gb.effects` = auto / full / lite) and one class (`fx-lite`); auto only measures while a menu is showing and stops once it knows (the old checker ran a frame loop forever on every screen); no more reading the device's processor count / memory; the toggle is a real button; settings from older builds are cleaned up |
+| cf76 | **`src/index.js`** (server), `public/app.js`, `public/index.html`, `public/sw.js` (build number) | Antivirus false-positive fix for the server file: the Worker no longer invents internal addresses (`https://room/ws`, `https://room/rpc`) to talk to a session room — it forwards the real request / uses the app's own `/api/sync` address, and the room answers on `/api/ws` and `/api/sync`. No change to what devices send or receive |
+| cf77 | `public/app.css`, `public/app.js`, `public/index.html`, `public/sw.js` | Lobby Zaku eye: larger at rest (2.3% × 2.8% of the picture instead of 1.9% × 2.3%, same sweep route along the visor), with a gentle flare when Spacenoid is picked (1.45× instead of 4×) |
+| cf78 | `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | Removed the eye glow effect from the budget / roster screens (both sides) — code and styles deleted; the lobby eyes are unchanged |
+| cf79 | `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | Menu space explosions: a shockwave ring never appears on its own — every hit is a starburst, with a ring added around it on big hits (always) and some medium hits; beam impacts follow the same rule |
+| cf80 | `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | **Firefight clash screen for phones:** after the reveal the screen is two columns (left: item vs item, result chips, ⓘ Details; right: roll box, a big 0–8 "how many rolled a 1?" number row, margin button, next-round line, READY) and fits landscape phones without scrolling; results are short chips coloured for YOU (green good / red bad / grey neutral) with the full text behind ⓘ Details; picking your 1s updates in place (no more jump to the top) and redraws keep the scroll position |
+| cf81 | `public/app.js`, `public/index.html`, `public/sw.js` | Firefight (physical dice): the ROLL N DICE NOW box disappears as soon as you pick how many of your dice rolled a 1 (so it isn't mistaken for next round's roll); it returns with the new count next round. "1 die" wording fix |
+| cf82 | **`src/index.js`** (server), `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | **Objective Clash:** with physical dice the app no longer rolls — the end screen shows both squads' current HP and who adds what ("YOU add +3 to your roll · the enemy rolls flat"), then the players tap "We secured it" / "They secured it" and both screens show the holder. With Roll-for-me the server rolls using the current HP (it used the HP from before round 4's casualties) |
+| cf83 | **`src/index.js`** (server), `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | **Firefight with physical dice is now step by step:** reveal + ROLL N DICE → DICE ROLLED → how many 1s → "Now compare your successes" banner with big I WON (green) / I LOST (red) / Tied → if lost: margin options (incl. Perfect Volley → number of sixes) → casualty picker → round summary + READY. Both players' results are shared: matching claims are required ("You both said you won — there can only be one winner"), the winner waits for the loser to apply their losses, and READY only appears (and is only accepted by the server) once both are done. Roll-for-me is unchanged |
+| cf84 | **`src/index.js`** (server), `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | The turn can't be ended while a firefight is mid-segment (choosing dice, readying, picking or revealing): the End Turn button shows "⚔ Firefight in progress — round N of 4", tapping it explains why, and the server refuses end-turn / end-request writes until the 4 rounds are finished (segment complete) |
+| cf85 | `public/app.js`, `public/index.html`, `public/sw.js` | Firefight end screen: the "New 4-round segment" button is gone — another segment only comes from ✦ Forced Re-Engagement, which is shown only when your squad has a Flashbang ("spend 1 Flashbang · N left"); End firefight is the main button, with a note that Forced Re-Engagement is usually played when the enemy tries to move away at the start of their turn |
+| cf86 | `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | **Objective holder:** when an Objective Clash is settled, the winning Infantry Squad is marked 🚩 OBJECTIVE on its team's roster and on the enemy's list (the loser's marker is cleared); the squad's Overmap tab shows "Holds the objective — secured against …" with a Clear button, and squads without it get a "Mark as holding the objective" link for fights settled outside the app |
+| cf87 | **`src/index.js`** (server), `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | **Forced Re-Engagement is booked for the next turn:** spending the Flashbang (from the firefight's end screen, or from the squad's Quick Resolve tab after the fight was ended — "✦ Force a re-engagement") queues the fight; it doesn't block ending the turn, both rosters show "✦ RE-ENGAGES NEXT TURN", and when the next turn begins the server starts it automatically (no accepting) and both teams get a "Forced Re-Engagement has begun — Open the firefight" banner. Also fixes "Open/Resume" not opening the sheet when the same squad had been open before |
+| cf88 | `public/app.js`, `public/index.html`, `public/sw.js` | Items reset when a Forced Re-Engagement segment begins (2 Flashbangs / 1 Smoke / 1 Grenade for both squads), as for any new engagement; rulebook updated (the forced segment begins at the start of the next turn and item charges reset) |
+| cf89 | **`src/index.js`** (server), `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | **Counter a Forced Re-Engagement with Smoke:** while a forced firefight waits for the next turn, the squad being forced back can spend a Smoke Grenade ("◌ Counter with Smoke" on its Quick Resolve tab) to cancel it — its team gets a banner when it's booked ("Counter with Smoke?" / "Let it happen"), squads without Smoke see that it will happen, and the forcing player is told when it's countered |
+| cf90 | **`src/index.js`** (server), `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | Firefight challenges can only be started on your own turn (the enemy-turn Quick Resolve card explains this; the server refuses them) — during the enemy turn only a Flashbang Forced Re-Engagement can be booked. Roster status tags (🚩 objective, ⚔ firefight, ✦ re-engages) now sit before the unit name so they're never cut off, and show just their icon on screens up to 1000px wide |
+| cf91 | **`src/index.js`** (server), `public/app.js`, `public/index.html`, `public/sw.js` | Forced Re-Engagement only against an enemy squad this squad has already fought: the server records each pair of squads at their first reveal; the Force button only appears when there is one, its picker lists only those squads, and the server refuses anything else |
+| cf92 | `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | Quick Resolve tab: the squad's remaining items (Flashbang / Smoke Grenade / Grenade — pips, "N left" / "none left") are now the first thing on the tab; the firefight card and the round guide / margin table follow below |
+| cf93 | `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | Offline Quick Resolve = item tracker: tap an item tile to use one (its mark is crossed out), tap a crossed mark to restore it, ↺ Refill all for a new engagement; each change is logged on the unit's timeline. Online games keep the automatic tracking |
+| cf94 | **`src/index.js`** (server), `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | **Counter from the notification:** "◌ Counter with Smoke" on the banner now counters straight away (confirm; takes the squad quietly if nobody has it open), says when there's no Smoke or a teammate has the squad open; the squad-sheet button explains instead of doing nothing. **Roll for me is step by step:** reveal → 🎲 ROLL FOR ME → waits for the enemy → both players' dice revealed together (1s red, 6s gold, successes counted, result worked out) → casualties if you lost → summary; READY only once the loser has removed their casualties |
+| cf95 | `public/app.js`, `public/index.html`, `public/sw.js` | **Items never refill on their own** (no refill for a new engagement or a new segment): a squad keeps what is left. It resupplies only by boarding a vehicle that carries squads and staying aboard through a full turn (2 Flashbangs / 1 Smoke / 1 Grenade, logged). Quick Resolve tab wording updated; rulebook 13.6 and the multi-squad / Forced Re-Engagement paragraphs rewritten to match |
+| cf96 | **`src/index.js`** (server), `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | **Multi-squad engagements, stage 1 of the flow:** the challenge picker is now two columns (your squads / the enemy's, Federation boxes blue and Spacenoid red) with multi-select, a squad count on the button and a name for the objective; the invite carries both squad lists and the defender chooses which of their squads meets each attacker; the engagement (lists, pairings, bout, objective name) is stored on the server and shown as a strip on the clash screen and on the Quick Resolve card; every squad in an engagement is tagged (⚔ FIREFIGHT / ⚔ WAITING ITS BOUT) and a waiting squad doesn't open the clash screen |
+| cf97 | **`src/index.js`** (server), `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | 🚩 objective marker now shows in the vehicle load / embark / disembark lists. **Multi-squad stage 3 — playing the queue:** after a bout the end screen offers "Bout N of M — your X vs their Y" with ⇄ Change my squad (shows each squad's health, items and objective marker) and "Line up bout N", which queues it to start automatically when the next turn begins (banner on both sides); squads waiting their bout are pinned (no moving or Coordinated Strike, with a note on the sheet) but can still spend items in the breaks |
+| cf98 | **`src/index.js`** (server), `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | **Multi-squad stage 4 — the breaks:** after each bout the holder can pull out with the objective; the other side can deny with a Flashbang from ANY squad in the engagement (including one that never fought) or let them go; the leaver can answer with a Smoke Grenade and secure it, or stay and fight on. ⇄ Edit squads between bouts: withdraw, bring a squad in, or merge survivors (health pooled up to 8 into the healthiest, which keeps its name). An engagement ends on a successful extraction (both sides see "Objective secured") or when a side has no squads left |
+| cf99 | `public/app.js`, `public/index.html`, `public/sw.js` | **Objectives can be named:** the roster / enemy-list marker now reads 🚩 SERVER ROOM (the engagement's name is applied automatically when a squad wins the clash), the squad's Overmap banner shows the name with Rename and Clear, marking one by hand asks for the name, and a Tank carrying an objective names it too (shown on its sheet and roster row) |
+| cf100 | **`src/index.js`**, `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js`; new `bump.py` and tests | One-decision end-of-bout flow; roster board with own item icons; two-sided reversible fighter confirmation; next-turn bout start; per-squad disengagement and any-squad counters; More menu. 140 automated assertions pass; browser visual check pending. |
+| cf101 | `src/index.js`, `public/app.js`, `public/app.css`, `public/index.html`, `public/sw.js` | Matching Gunpla board skin and existing art; named objectives in challenge picker; repeated Flash/Smoke extraction counters. 160 automated assertions pass; visual review pending. |
+| cf102 | `src/index.js`, `public/app.js`, `public/index.html`, `public/sw.js` | Both dice modes require two-sided agreement, including alternative-mode requests. Reject self-confirmation and early readiness. 173 automated assertions passed. |
+| cf103 | `src/index.js`, `public/app.js`, `public/index.html`, `public/sw.js` | Merge without losing survivors: 5+5 becomes 8+2; partial donors remain, emptied holders transfer objectives, wounds and item counts are preserved. 190 automated assertions passed. |
+| cf104 | `src/index.js`, `public/app.js`, `public/index.html`, `public/sw.js`, `public/app.css` | Matchups are editable inside the challenge roster. Defender reviews all proposed bouts together and confirms once. Sequential pairing wizard removed. 200 automated assertions passed. |
+
+## Verification and remaining work
+
+| Build | Recorded automated assertions | What was checked in this conversation |
+|---|---:|---|
+| cf100 | 140 | Engagement board, two-player room protocol, four-round bouts, turn gates, confirmation reversal, escape and merge handling |
+| cf101 | 160 | Repeated Flash/Smoke responses, duplicate-response rejection, objective picker markers, prior regression coverage |
+| cf102 | 173 | Physical-mode consent, alternative requests, refusal of self-confirmation/early ready, both UI perspectives |
+| cf103 | 190 | Exact 5+5 case, overflow, no-op full target, partial donor retention, wound and objective handling |
+| cf104 | 200 | Proposed and revised pairings, invalid pairings, draft retention/repair, all matchup rows rendered together |
+
+These are successive totals for the evolving test suite, not five independent test suites to add together. JavaScript syntax checks and ZIP integrity checks were also performed while preparing the releases.
+
+The tests exercise production room logic through a local HTTP adapter with two player seats and in-memory storage. Client rendering and bookkeeping checks use Node VM execution. They do **not** constitute visual browser testing, live Cloudflare deployment testing, WebSocket transport verification, or Durable Object persistence testing.
+
+The user reported cf100 working functionally, then identified the styling, objective-picker, counter-chain, confirmation, merge-overflow, and redundant-pairing issues addressed in the later builds. That feedback is not a claim that every later build received a full device playtest.
+
+Still to do:
+
+- Run the included two-browser Playwright scenario on a machine with Chromium. Chromium was absent here, and downloading it timed out; the scenario was updated but has not completed successfully.
+- Review desktop and phone layout, particularly the challenge lineup, long objective names, and full engagement boards.
+- Play a full multi-squad game on two real devices, including repeated Flash/Smoke exchanges, 5+5 merging, and defender-adjusted pairings.
+- Verify the deployment and multiplayer transport in the actual Cloudflare environment after deployment. No deployment was performed in this conversation.
+- Treat older backlog items in the archive as historical until checked against the current rulebook and app. This patch-note consolidation does not mark them all resolved.
+
+## Deployment and next handoff
+
+Use **cf104** as the continuation point. Deploy the full project, including `src/index.js`, `public/app.js`, `public/app.css`, `public/index.html`, and `public/sw.js`. Reopen or refresh every device and verify the same build number.
+
+`npm test` runs the automated room/client checks. Follow `tests/README.md` for the Playwright setup and `npm run test:browser`. The test adapter is a local test harness, not a replacement for Cloudflare hosting.
+
+For the next application change, use `python3 bump.py cf105` to update the client build and service-worker cache together, then update release notes and package the project. Documentation-only work does not require a build bump.
+
+## Historical development archive
+
+The complete supplied to-do/development record follows, so the older **v-series**, **mp-series**, tentative decisions, implementation details, corrections, and outstanding work remain searchable. This appendix is deliberately historical: headings such as “next,” “still open,” or “all done” describe their original entry, not a new assessment. Some early versions are mentioned only as ranges or milestones; no separate changelog was supplied for every early build.
+
+For a conflict, use the current decisions and supersession table above, then the current rulebook and actual app behavior. In particular, old local-only/Netlify architecture notes predate the Cloudflare multiplayer build, and old refill/merge/Smoke wording is not the current rule.
+
+<details>
+<summary>Expand the full original development record, including earlier version families</summary>
+
 # Mobile Suit Battles — To-Do List
-
-## cf108 update
-
-Equipment dock styling, direct weapon-to-arm assignment, row/bubble labels and approved melee profiles are implemented. Banshee AA-DE Melee Mode is removed. See Release_Notes_cf108.md and Equipment_Audit_cf108.md for current verification and remaining custom profiles.
-
-
-## cf107 equipment status
-
-Implemented: persistent hand equipment, forearm shield mounts, arm-bubble assignment, AP costs, Fire eligibility, own-equipment recovery and melee reference. See Release_Notes_cf107.md.
-
-Remaining: browser/device verification; unspecified custom melee bonuses in Equipment_Audit_cf107.md; cross-unit battlefield weapon transfers; Rising Freedom and Infinite Justice reworks. Campaign, resupply timing and 2/2/2 are still pending.
-
 
 ## ✅ TOP PRIORITY — App fixes (all done by v40)
 
@@ -2018,18 +2430,18 @@ The defender opens **Review challenge**, sees every proposed bout together using
 
 200 automated assertions pass, covering proposed pairings, defender adjustments, invalid pairings, retained selections, and all matchup rows rendering together. Browser visual verification remains pending. Deploy the full project including `src/index.js`, and refresh every device to cf104. No deployment was performed.
 
-## cf105 — Fighter reminders and dice choice for every bout
 
-When the opposing team confirms its next fighter, your team receives an in-app notification. Away from the engagement board, a persistent **Choose fighter** banner opens the pending selection. Repeated syncs do not repeat the notification; confirming clears it. If another teammate controls the fight, the banner identifies them instead of taking over.
+</details>
 
-Each new bout, including forced re-engagement, resets the previous dice selection. Choose **physical** or **rolled** again, with the opposing side confirming before play begins. The next-bout start banner now correctly labels ordinary bouts and prompts for dice choice.
+## Source record
 
-219 automated assertions pass, including second-bout mode reset and agreement, forced-bout reset, reminders from both team perspectives, repeat-sync suppression, clearing, and teammate ownership. Browser visual verification remains pending. Deploy the full project including `src/index.js`, and refresh every device to cf105. No deployment was performed. Notifications are in-app; this update does not add background operating-system push notifications.
+Compiled from the working records maintained through cf104:
 
+- **Cloudflare_Setup_Guide.md:** historical cf1–cf99 ledger and current deployment notes.
+- **Stat_Sheet_ToDo.md:** older v-series/mp-series history, detailed development decisions, historical backlog, and cf100–cf104 release entries. Reproduced in the archive above.
+- **Handoff_Engagement_Board.md:** original cf99 handoff and subsequent continuation notes.
+- **Gunpla_Battles_Rulebook.md:** current extraction, item-resupply, objective, and consolidation wording.
+- **This conversation:** explicit user corrections and decisions through the integrated challenge roster in cf104.
+- **work/tests/engagement-server.mjs and recorded test output:** latest 200-assertion result. No new application tests were run solely to write this document.
 
-## cf106 — Simple offline Quick Resolve tracker
-
-Offline Quick Resolve now shows only the Flashbang, Smoke Grenade, and Grenade resource trackers. Tap an item to spend one, tap a used mark to restore one, and use **Resupplied** to refill the tracked supplies. Removed the online-session prompt and firefight workflow instructions from the offline tab; challenge controls are restricted to online play. Manual resource controls cannot change online supplies. Resupply logs now describe resupply rather than suggesting every engagement refills items.
-
-Validation: all 219 existing automated assertions pass. Offline controls were checked for spending, restoration, empty supplies, refill, and online protection. Browser visual verification remains pending. Deploy the full project and refresh devices to cf106. No deployment was performed.
-
+Earlier release descriptions are preserved as historical records rather than re-audited claims. Version dates were not supplied consistently, so this document orders changes by build number.

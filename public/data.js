@@ -583,7 +583,8 @@ const UNITS=[
     "ap": "1",
     "range": "Melee 15cm",
     "limit": null,
-    "text": ""
+    "text": "",
+    "meleeBonus": 2
    },
    {
     "name": "Vulcan Pod",
@@ -974,7 +975,7 @@ const UNITS=[
    },
    {
     "name": "Head Vulcans",
-    "y": 88.0,
+    "y": 88,
     "dmg": "1",
     "ap": "1",
     "range": "20cm only",
@@ -1157,7 +1158,7 @@ const UNITS=[
    },
    {
     "name": "Beam Saber",
-    "y": 88.0,
+    "y": 88,
     "dmg": "2/4",
     "ap": "1",
     "range": "Melee 15cm",
@@ -1237,7 +1238,8 @@ const UNITS=[
     "ap": "2",
     "range": "Melee 20cm",
     "limit": null,
-    "text": ""
+    "text": "",
+    "meleeBonus": 4
    },
    {
     "name": "Hyper Bazooka",
@@ -1337,17 +1339,8 @@ const UNITS=[
     "text": ""
    },
    {
-    "name": "AA-DE Melee Mode",
-    "y": 83.7,
-    "dmg": "2/4",
-    "ap": "1",
-    "range": "Melee 20cm",
-    "limit": null,
-    "text": ""
-   },
-   {
     "name": "Rev. Launcher (BOP/Bomb)",
-    "y": 88.0,
+    "y": 88,
     "dmg": "1/4",
     "ap": "2",
     "range": "60/40cm",
@@ -1645,7 +1638,8 @@ const UNITS=[
     "ap": "1",
     "range": "Melee 15cm",
     "limit": null,
-    "text": ""
+    "text": "",
+    "meleeBonus": 3
    },
    {
     "name": "Beam Rifle",
@@ -1668,11 +1662,12 @@ const UNITS=[
    {
     "name": "BuCUE Head",
     "y": 83.7,
-    "dmg": "2",
+    "dmg": "2/4",
     "ap": "1",
-    "range": "20cm only",
+    "range": "Melee 20cm",
     "limit": null,
-    "text": ""
+    "text": "",
+    "meleeBonus": 3
    }
   ],
   "shields": [
@@ -1811,7 +1806,8 @@ const UNITS=[
     "ap": "1",
     "range": "Melee 15cm",
     "limit": null,
-    "text": ""
+    "text": "",
+    "meleeBonus": 3
    }
   ],
   "shields": [
@@ -1871,7 +1867,8 @@ const UNITS=[
     "ap": "1",
     "range": "Melee 15cm",
     "limit": null,
-    "text": ""
+    "text": "",
+    "meleeBonus": 3
    },
    {
     "name": "Songbird Double Barrel Cannon",
@@ -1961,7 +1958,8 @@ const UNITS=[
     "ap": "2",
     "range": "Melee 15cm",
     "limit": null,
-    "text": ""
+    "text": "",
+    "meleeBonus": 4
    },
    {
     "name": "Hunter Edges",
@@ -2028,7 +2026,8 @@ const UNITS=[
     "ap": "1",
     "range": "Melee 15cm",
     "limit": null,
-    "text": ""
+    "text": "",
+    "meleeBonus": 3
    },
    {
     "name": "Master Cloth",
@@ -2367,7 +2366,7 @@ const UNITS=[
    },
    {
     "name": "Agni Cannon",
-    "y": 88.0,
+    "y": 88,
     "dmg": "6",
     "ap": "2",
     "range": "Unlimited",
@@ -2467,7 +2466,7 @@ const UNITS=[
    },
    {
     "name": "CIWS",
-    "y": 88.0,
+    "y": 88,
     "dmg": "1",
     "ap": "1",
     "range": "20cm only",
@@ -3085,7 +3084,7 @@ const UNITS=[
     "ap": "0",
     "range": "Melee 0cm",
     "limit": null,
-    "text": "draw: 0 AP — always equipped · charge: **0cm**  \n\nAlso on this row — Flash-Edge 2 (blade mode): 2 / 4 dmg, 1 AP AP, 15cm."
+    "text": "draw: 0 AP — always equipped · charge: **0cm**  \n\nAlso on this row — Flash-Edge 2 (blade mode): 2 / 4 dmg, +1 melee roll, 0 AP equip, 10cm charge."
    }
   ],
   "regen": 3,
@@ -3405,7 +3404,8 @@ const UNITS=[
     "ap": "1",
     "range": "Melee 20cm",
     "limit": null,
-    "text": ""
+    "text": "",
+    "meleeBonus": 2
    },
    {
     "name": "Heat Sword",
@@ -3414,7 +3414,8 @@ const UNITS=[
     "ap": "1",
     "range": "Melee 15cm",
     "limit": null,
-    "text": ""
+    "text": "",
+    "meleeBonus": 3
    }
   ],
   "shields": [
@@ -3471,7 +3472,8 @@ const UNITS=[
     "ap": "1",
     "range": "Melee 20cm",
     "limit": null,
-    "text": ""
+    "text": "",
+    "meleeBonus": 2
    }
   ],
   "shields": [
@@ -3693,7 +3695,7 @@ const UNITS=[
    },
    {
     "name": "—",
-    "y": 88.0,
+    "y": 88,
     "dmg": "—",
     "ap": "—",
     "range": "—",
@@ -3893,7 +3895,7 @@ const UNITS=[
    },
    {
     "name": "Head Vulcans",
-    "y": 88.0,
+    "y": 88,
     "dmg": "1",
     "ap": "1",
     "range": "20cm only",
@@ -4007,7 +4009,7 @@ const UNITS=[
    },
    {
     "name": "Head Vulcans",
-    "y": 88.0,
+    "y": 88,
     "dmg": "1",
     "ap": "1",
     "range": "20cm only",
@@ -4434,7 +4436,7 @@ const UNITS=[
    },
    {
     "name": "Head Vulcans",
-    "y": 88.0,
+    "y": 88,
     "dmg": "1",
     "ap": "1",
     "range": "20cm only",

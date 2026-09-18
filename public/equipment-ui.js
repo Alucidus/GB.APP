@@ -2,14 +2,14 @@
 let eqPending = null;
 function eqLive() { if(CUR) { CUR.st.hp=hp;CUR.st.ap=ap;CUR.st.sh=sh;CUR.st.shDown=shDown;CUR.st.track=track; } return CUR?.st; }
 function eqAllowed() { return CUR && MSE.supported(U) && mpSheetCanEdit() && !document.body.classList.contains('mpro'); }
-function eqAction(fn, label, reaction=false) {
+function eqAction(fn, label, reaction=false, reopen=true) {
   if(!eqAllowed())return;
   if(!reaction && locked && turn.phase!=='you'){mpToast('Switch equipment on your own turn.');return;}
   const s=eqLive(),before=JSON.stringify({eq:s.eq,track:s.track,ap:s.ap});
   const why=fn(s);if(why){mpToast(why);return;}
   ap=s.ap;track=s.track;
   s.eqUndo={before,after:JSON.stringify([s.eq,s.track,s.ap,s.hp,s.wpn,s.sh]),round:turn.round,phase:turn.phase};
-  qaLog(CUR.uid,'equipment',Date.now(),label);persist();draw();if(!reaction)openEquipment();
+  qaLog(CUR.uid,'equipment',Date.now(),label);persist();draw();if(reopen)openEquipment();
 }
 function eqUndo() {
   if(!eqAllowed())return;
@@ -19,16 +19,44 @@ function eqUndo() {
   qaLog(CUR.uid,'equipment',Date.now(),'Equipment change undone');persist();draw();openEquipment();
 }
 function eqSummary() {
-  const box=$('equipmentSummary');if(!box)return;
-  if(!MSE.supported(U)){box.hidden=true;eqPending=null;$('sheet').classList.remove('eq-assign');return;}
-  if(eqPending?.uid!==CUR.uid)eqPending=null;
+  const button=$('equipBtn');if(!button)return;
+  const enabled=MSE.supported(U);
+  button.style.display=enabled?'flex':'none';
+  $('sheet').classList.toggle('ms-equipment',enabled);
+  if(!enabled||eqPending?.uid!==CUR?.uid)eqPending=null;
   $('sheet').classList.toggle('eq-assign',!!eqPending);
-  const s=eqLive(),e=MSE.init(U,s);box.hidden=false;
-  const name=(r,i)=>r ? (hp[MSE.arms[i]]<=0||e.dropped.includes(r)?'Unavailable: ':'')+(MSE.item(U,r)?.name||r) : 'Empty';
-  if(eqPending){box.innerHTML='<strong>Equip '+ffText(MSE.item(U,eqPending.key)?.name||'shield')+' — tap an intact arm’s health bubble</strong><button class="btn sm" onclick="eqPending=null;draw()">Cancel</button>';return;}
-  box.innerHTML='<button class="btn sm pri" onclick="openEquipment()">WEAPONS / EQUIP</button><span><b>R</b> '+ffText(name(e.hands[0],0))+' · <b>L</b> '+ffText(name(e.hands[1],1))+'</span>'+
-    (e.segment?'<strong>Melee segment active</strong>':'')+
-    (e.dropped.length||e.shieldDropped.length?'<strong>Dropped equipment</strong>':'');
+  button.textContent=eqPending?'CANCEL':'EQUIP';
+  button.title=eqPending?'Cancel arm assignment':'Weapons, shield mounts, recovery and special combinations';
+}
+function eqDockClick() { if(eqPending){eqPending=null;draw();}else openEquipment(); }
+function eqRowTag(x,s) {
+  if(!x)return '';
+  if(x.mount==='hand')return s.eq.hands.map((r,i)=>MSE.item(U,r)?.key===x.key&&s.hp[MSE.arms[i]]>0&&!s.eq.dropped.includes(r)?['R','L'][i]:'').filter(Boolean).join('+');
+  return x.mount==='shield'?'SH':x.mount==='attachment'?'LINK':x.mount==='throw'?'THROW':'INT';
+}
+function eqValidArm(arm) {
+  if(!eqPending||!MSE.arms.includes(arm)||hp[arm]<=0)return false;
+  const copy=JSON.parse(JSON.stringify(eqLive()));
+  if(eqPending.key.startsWith('shield:')) {
+    const i=Number(eqPending.key.slice(7));
+    return !copy.eq.segment&&!copy.eq.shieldDropped.includes(i)&&copy.sh[i]>0&&!copy.eq.shields.includes(arm)&&(!locked||copy.ap>=1);
+  }
+  return !MSE.equip(U,copy,eqPending.key,arm,!locked);
+}
+function eqDecorate(sheet) {
+  if(!MSE.supported(U))return;
+  const s=eqLive(),e=MSE.init(U,s);
+  if(eqPending){const prompt=el('div','eq-prompt');prompt.textContent='Choose an arm · '+(MSE.item(U,eqPending.key)?.name||'Shield');prompt.setAttribute('role','status');sheet.appendChild(prompt);}
+  MSE.arms.forEach((arm,i)=>{
+    const pos=LIMB_POS_DEFAULT[arm],r=e.hands[i],x=MSE.item(U,r);
+    const label=el('div','eq-limb-label',{left:pos.x+'%',top:(pos.y+5.4)+'%'});
+    const usable=r&&hp[arm]>0&&!e.dropped.includes(r);
+    const shield=e.shields.findIndex(m=>m===arm);
+    label.textContent=(i===0?'R · ':'L · ')+(x?x.name:'Empty')+(r&&!usable?' · LOST':'');
+    if(shield>=0)label.textContent+=' · SH '+(MSE.shieldReady(U,s,shield)?'✓':'×');
+    label.title=label.textContent;sheet.appendChild(label);
+    if(eqPending&&eqValidArm(arm)){const tag=el('div','eq-arm-prompt',{left:pos.x+'%',top:(pos.y-5.0)+'%'});tag.textContent='EQUIP HERE';sheet.appendChild(tag);}
+  });
 }
 function eqStatus(x,s) {
   const w=U.weapons[x.rows[0]],why=w?MSE.reason(U,s,w):'';
@@ -89,7 +117,11 @@ function openEquipment() {
 function eqChoose(key) {
   if(!eqAllowed())return;
   if(locked&&turn.phase!=='you'){mpToast('Switch equipment on your own turn.');return;}
-  eqPending={uid:CUR.uid,key};closePicker();active=null;draw();
+  const st=eqLive();MSE.init(U,st);
+  if(st.eq.segment){mpToast('Finish the melee segment first.');return;}
+  eqPending={uid:CUR.uid,key};
+  if(!MSE.arms.some(eqValidArm)){eqPending=null;mpToast('No valid arm: check AP, arm health or recover the weapon first.');return;}
+  closePicker();active=null;draw();
 }
 function eqPickArm(arm) {
   if(!eqPending||eqPending.uid!==CUR.uid)return;
@@ -106,6 +138,6 @@ function eqPickArm(arm) {
     if(st.eq.shields.includes(arm))return 'Forearm mount occupied';
     if(locked&&st.ap<1)return 'Not enough AP';
     st.eq.shields[i]=arm;if(locked)st.ap--;return '';
-  },'Equipment assigned to '+arm);
+  },'Equipment assigned to '+arm,false,false);
   draw();
 }
