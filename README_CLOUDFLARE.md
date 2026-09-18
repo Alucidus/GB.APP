@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf106)
+# Gunpla Battle — Cloudflare version (build cf122)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -14,6 +14,10 @@ src/index.js       the Worker + BattleRoom (sessions, leaders, locks, deliveries
 public/            the app (index.html, images, service worker)
 .gitignore
 ```
+
+## Current build: cf122
+
+Read [Release_Notes_cf122.md](Release_Notes_cf122.md) for the completed pickup and responsive-layout work, and [Release_Notes_cf121.md](Release_Notes_cf121.md) for personal-base/carrier repairs. Older sections below are historical.
 
 ## cf106 — Simple offline Quick Resolve tracker
 

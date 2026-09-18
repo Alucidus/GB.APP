@@ -15,6 +15,8 @@
 // leader while nobody else holds it) · lock (claim if free or stale) · inbox (any teammate, once; cleared by holder).
 
 import {protectSupply,serviceSupplies,spendSupply} from './resupply.js';
+import {protectRepairs,serviceRepairs} from './repairs.js';
+import {protectPickup,servicePickups} from './pickups.js';
 const TTL_MS = 24 * 60 * 60 * 1000;
 const CODE_LEN = 5;
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -411,7 +413,8 @@ export class BattleRoom {
         const holder = locks[k] && locks[k].pid;
         if (!(holder === pid || (amLeader && (!holder || !alive(holder))))) { denied.push("unit:" + k); continue; }
         if (JSON.stringify(data).length > MAX_BYTES) { denied.push("unit-size:" + k); continue; }
-        await M.set("unit/" + k, protectSupply(data,M.get('unit/'+k))); push = true;
+        const unitId=M.get('team/'+myTeam)?.roster?.find(r=>String(r.uid)===m[2])?.id;
+        await M.set("unit/" + k, protectPickup(protectRepairs(protectSupply(data,M.get('unit/'+k)),M.get('unit/'+k),pid,leaders[myTeam],players,myTeam,unitId),M.get('unit/'+k))); push = true;
       }
     }
     // 5. deliveries this device applied are cleared while it still holds the lock
@@ -444,6 +447,8 @@ export class BattleRoom {
     }
 
     if(await serviceSupplies(M,previousTurn))push=true;
+    if(await servicePickups(M,w.pickup,pid,myTeam,uid=>{const holder=locks[myTeam+'/'+uid]?.pid;return holder===pid||(amLeader&&(!holder||!alive(holder)));},denied))push=true;
+    if(await serviceRepairs(M,previousTurn,leaders))push=true;
     // 7b. online Firefight (Quick Resolve over the link)
     if (w.ff && myTeam) {
       const ops = Array.isArray(w.ff) ? w.ff.slice(0, 6) : [w.ff];

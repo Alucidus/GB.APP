@@ -5,9 +5,12 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "test": "node tests/engagement-server.mjs && node tests/equipment.mjs && node tests/equipment-ui-smoke.mjs && node tests/equipment-counts.mjs && node tests/decisions-cf119.mjs && node tests/resupply-server.mjs",
+    "test": "node tests/engagement-server.mjs && node tests/equipment.mjs && node tests/equipment-ui-smoke.mjs && node tests/equipment-counts.mjs && node tests/decisions-cf119.mjs && node tests/resupply-server.mjs && node tests/repairs.mjs && node tests/pickups.mjs",
+    "test:mobile": "node tests/mobile-audit.mjs",
     "test:browser": "node tests/engagement-board.mjs",
-    "test:equipment:browser": "node tests/equipment-browser.mjs"
+    "test:equipment:browser": "node tests/equipment-browser.mjs",
+    "test:pickup:browser": "node tests/pickups-browser.mjs && node tests/pickups-online-browser.mjs",
+    "test:layout": "node tests/layout-browser.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.132.0"

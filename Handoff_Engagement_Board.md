@@ -1,3 +1,17 @@
+# Gunpla Battles — cf122 current handoff
+
+Current deliverable: complete cf122 package. Pickup, off-sheet captured equipment details, landscape spacing, personal Tier-0 bases and Tier-2 carrier repairs are implemented. Read Release_Notes_cf122.md and Release_Notes_cf121.md together for behavior and confirmed timing.
+
+The latest designer decision is to keep captured weapons out of the printed native weapon list. Tap copper/yellow hand labels for full information and captured ranged firing; Equip > More lists stored captures. Do not reinstate five-slot replacement or append overlapping sheet rows.
+
+## Up next
+
+User playtest. Keep higher-tier base/campaign purchasing and Infinite Justice, Rising Freedom and Turn A reworks deferred pending their own scope. The earlier cf120 “next repair milestone” below is historical and has now been completed.
+
+Validation: 1,000 model/server/UI-smoke assertions, 340 targeted browser assertions, two-client pickup and engagement scenarios, and three phone landscape audits. No deployment or physical Safari test. The code and tests in this folder are the release source.
+
+---
+
 # Gunpla Battles — cf120
 
 Quick Resolve squads now start with **2 Flashbangs, 2 Smoke Grenades and 2 Grenades**. The Detailed Battle Map's individual specialist equipment is unchanged.
@@ -427,3 +441,5 @@ Wording: use "bout", not "segment".
 
 ## Test scripts (in `/home/claude/cft/` in the old session; rewrite as needed)
 `cf53_ff.py` (full firefight), plus ad-hoc ones for the queue, breaks, merge, forced re-engagement, counters and the objective marker. Two-device pattern: create session → both join → teams → rosters → challenge → play.
+
+Final geometry audit: 993 checks across all 66 unit sheets at three phone sizes passed, including AP separation, footer clearance and matching backgrounds.

@@ -1,0 +1,40 @@
+import assert from 'node:assert/strict';
+import '../public/data.js';import '../public/repairs.js';
+import {startTestServer} from './local-room.mjs';
+const R=globalThis.GBRepairs,defs=globalThis.GBRepairUnits,u=defs.find(u=>u.id==='rx-78-2-gundam');let checks=0;
+const eq=(a,b,m)=>{assert.deepEqual(a,b,m);checks++;};
+const suit=(uid,owner='one')=>({uid,id:u.id,st:{hp:Object.fromEntries(Object.entries(u.limb).map(([k,v])=>[k,v-5])),sh:[0],shMax:[20],eq:{hands:['beam-saber#0',null],dropped:['beam-saber#0'],shieldDropped:[]},wpn:[0,1],repair:{owner,entry:'entry-'+uid}}});
+let rows=[suit(1),suit(2),suit(3,'two')];
+R.process(rows,defs,1);const hp=rows[0].st.hp.chest;
+eq(rows.map(r=>r.st.repair.live.status),['Repairing','Waiting','Repairing'],'one slot per owner');
+R.process(rows,defs,2,true);eq(rows.map(r=>r.st.hp.chest),[hp+2,hp,hp+2],'ground next turn and independent owners');
+eq(rows[0].st.sh,[5],'tier0 shield');eq(rows[0].st.eq.dropped,[],'weapon replacement');eq(rows[0].st.eq.hands,[null,null],'replacement not equipped');eq(rows[0].st.wpn,[0,1],'charges unchanged');
+R.process(rows,defs,2,true);eq(rows[0].st.hp.chest,hp+2,'no repeated tick');
+rows[1].st.repair.priority=-1;R.process(rows,defs,2);eq(rows[1].st.repair.live.since,2,'new priority starts own cycle');
+rows[1].st.hp.leftArm=0;R.process(rows,defs,3,true);eq(rows[1].st.hp.leftArm,0,'destroyed arm never repaired');
+rows[1].st.hp.chest=0;R.process(rows,defs,4,true);eq(rows[1].st.hp.chest,0,'no revival');
+const saz=defs.find(x=>x.kill==='head');const dead={uid:9,id:saz.id,st:{hp:{...saz.limb,head:0},repair:{owner:'one',entry:'x'}}};R.process([dead],defs,5,true);eq(dead.st.repair.live,undefined,'unit specific kill location');
+const ship={uid:10,id:'rewloola-class-battleship',st:{hp:{hull:20},ship:{carry:[1,2,3,4],docking:[],repairBoardings:{}}}};
+rows=[ship,...[1,2,3,4].map(i=>suit(i))];R.process(rows,defs,2);R.process(rows,defs,3,true);
+eq(rows.slice(1).map(r=>r.st.hp.chest),[hp+4,hp+4,hp+4,hp],'three carrier slots');eq(rows[1].st.sh,[12],'tier2 shield');
+ship.st.hp.hull=0;R.process(rows,defs,4,true);eq(rows[1].st.repair.live,undefined,'destroyed carrier stops service');
+const beam={...u,regen:true},temp={...u,shields:[{hp:20,when:'field'}]},coat={...u,shields:[{hp:20,label:'Coating'}]};
+for(const def of [beam,temp,coat]){const r=suit(1);R.heal(def,r.st,2);eq(r.st.sh,[0],'nonphysical shield excluded');}
+const {room,server,url}=await startTestServer();
+const post=async b=>(await (await fetch(url+'/api/sync',{method:'POST',body:JSON.stringify(b)})).json());
+try{
+ const a=await post({action:'create',name:'Repair A'}),b=await post({action:'join',code:'ABCDE',name:'Repair B'});
+ const sync=(p,writes={})=>post({action:'sync',...p,known:{},writes});
+ const unit=suit(1,a.pid);delete unit.st.repair.entry;
+ const carrier={uid:2,id:ship.id,st:{hp:{hull:20},ship:{carry:[],docking:[{uid:1}],aboard:0}}};
+ await sync(a,{player:{team:'federation'},team:{roster:[{uid:1,id:u.id},{uid:2,id:ship.id}]},units:{'federation/1':{st:unit.st},'federation/2':{st:carrier.st}}});
+ await sync(b,{player:{team:'spacenoid'}});await sync(a,{settings:{phase:'battle',first:'federation'}});
+ const state=()=>room.mem.get('unit/federation/1').st;
+ const advance=async()=>{const t=room.mem.get('turn');await sync(t.active==='federation'?a:b,{endTurn:{seq:t.seq}});};
+ eq(state().repair.live.status,'Docking');await advance();await advance();
+ eq(room.mem.get('unit/federation/2').st.ship.carry,[1],'server docks at turn2');eq(state().hp.chest,hp,'no repair turn2');
+ const stale=structuredClone(state());await advance();await advance();eq(state().hp.chest,hp+4,'first carrier repair turn3');
+ await sync(a,{units:{'federation/1':{st:stale}}});eq(state().hp.chest,hp+4,'stale write does not undo service');
+ await sync(a);eq(state().hp.chest,hp+4,'reconnect no duplicate');
+ console.log('PASS '+checks+' repair assertions');
+}finally{await new Promise(r=>server.close(r));}

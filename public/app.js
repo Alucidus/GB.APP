@@ -138,8 +138,9 @@ function shipAdvance(u, st) {
   // a weapon fired last turn sits out this whole turn; the countdown starts after that
   S.cd = S.cd.map((v, i) => { if (S.cdFresh[i]) { S.cdFresh[i] = false; return v; } return Math.max(0, (v || 0) - 1); });
   S.launched = [];                                   // the catapult bonus only lasts the turn of the launch
-  if (S.docking.length) {                            // the enemy's turn has ended: docking suits are aboard
-    S.docking.forEach(d => { if (!S.carry.includes(d.uid) && S.carry.length < u.hangar) S.carry.push(d.uid); });
+  if (!mpTeamMode() && st.hp.hull>0 && S.docking.length) {
+    S.repairBoardings=S.repairBoardings||{};
+    S.docking.forEach(d => { const suit=roster.find(r=>r.uid===d.uid);if (suit && !isDead(suit) && !S.carry.includes(d.uid) && S.carry.length < u.hangar) {S.carry.push(d.uid);S.repairBoardings[d.uid]='dock:'+turn.round;} });
     if (uid != null) logEv(uid, S.docking.map(d => unitLabel(d.uid)).join(", ") + " docked and aboard", "good");
     S.docking = [];
   }
@@ -425,8 +426,8 @@ function drawShip() {
     dc: { name: "Damage Control", sub: !u.dc ? "cruiser — no spare crew" : dcOn ? "crew 9+ \u00b7 2-turn repairs" : "crew 8 or less — stopped",
       ap: "\u2014", cd: !u.dc ? "NONE" : reps.length ? reps.join(" \u00b7 ") : dcOn ? "READY" : "OFFLINE", warn: u.dc && !dcOn,
       info: "While Crew HP is 9 or more, a Thruster, the Bridge or a weapon system knocked out comes back at full HP after 2 full turns. At 8 Crew HP or less, repairs stop and anything knocked out stays down. Hull damage never repairs.\n\nCruisers (1 squad, 8 Crew HP) can never run Damage Control." },
-    base: { name: "Base of Operations", sub: "tier " + u.base + " module aboard", ap: "\u2014", cd: "TIER " + u.base,
-      info: "This capital ship carries a tier-" + u.base + " Base of Operations module (campaign rules)." },
+    base: { name: "Repair bay", sub: "Tier 2 · 3 repair slots", ap: "OPEN", cd: "TIER " + u.base, act:openRepairBay,
+      info: "Tier 2: +4 HP per intact location and +12 per physical shield/quadrant each service tick; replaces dropped weapons into storage. Dock turn 1, aboard turn 2, first repair turn 3. No revival or destroyed-limb repairs." },
     decoy: { name: "Decoy Balloons", sub: "secretly pick the real ship (1–3)", ap: S.decoy && S.decoy.ch && ownTurn ? "1" : "\u2014",
       cd: S.decoy && S.decoy.left ? "ACTIVE " + S.decoy.left + "T" : S.decoy && S.decoy.ch ? "1 CHARGE" : "USED", act: ownTurn ? () => shipAbility("decoy") : null, on: S.decoy && S.decoy.left > 0,
       info: "1 AP, 1 charge per game. Write down a number from 1 to 3 — that's the real ship.\n\nAttackers more than 30cm away must name a number first; a wrong guess hits a balloon (attack wasted, AP spent). Within 30cm no guess is needed. Area attacks ignore the decoys. The balloons deflate after 3 full turns, or as soon as the real ship is identified within 30cm." },
@@ -1615,11 +1616,11 @@ function drawSquad() {
         '<p><b>1 AP \u00b7 90cm</b> \u00b7 roll 1d6: <b>2+</b> under 30cm, <b>3+</b> at 30\u201360cm, <b>4+</b> at 60\u201390cm</p>' +
         '<table class="sqtbl">' + STRIKE_TARGETS.map(([a, b]) => '<tr><td>' + a + '</td><td>' + b + '</td></tr>').join("") + '</table>' +
         '<p class="warn">Cannot target an enemy squad within 30cm \u2014 that\'s a Firefight Clash instead.</p>' +
-        '<button class="btn pri sqbig' + (hiding || dead || st.ap < 1 ? ' off' : '') + '" onclick="sqStrike()">FIRE \u2014 1 AP</button>' +
+        '<div class="sq-actions"><button class="btn pri sqbig' + (hiding || dead || st.ap < 1 ? ' off' : '') + '" onclick="sqStrike()">FIRE \u2014 1 AP</button>' +
         (() => { const qa0 = st.qa && sameHalf(st.qa) ? st.qa.m : 0, cm = hiding ? 5 : 10, cant = st.ap < 1 || dead || outOfPlay(uid) || turn.phase !== "you";
           return '<div class="sqmoverow"><button class="btn sqbig sqmove' + (cant ? ' off' : '') + '" onclick="sqMoveSquad(1)">MOVE \u2014 ' + cm + 'cm \u00b7 1 AP' + (qa0 ? '<em>\u00d7' + qa0 + '</em>' : '') + '</button>' +
             (qa0 ? '<button class="btn squndo" onclick="sqMoveSquad(-1)" title="Undo the last move">\u21B6</button>' : '') + '</div>'; })() +
-        (hiding ? '<p class="warn">Hide Stance: no attacks this turn \u2014 untargetable by mobile suits.</p>' : '') +
+        '</div>' + (hiding ? '<p class="warn">Hide Stance: no attacks this turn \u2014 untargetable by mobile suits.</p>' : '') +
       '</div>' +
     '</div>';
   } else if (S.tab === "soldiers") {
@@ -2214,11 +2215,11 @@ function ffPickRender() {
   const P = ffSel; if (!P) return;
   const box = (side, x, team) => {
     const on = P[side].includes(x.uid), off = x.busy || x.aboard || x.alive <= 0;
-    return '<div class="ffsq ' + ffSideClass(team) + (on ? ' on' : '') + (off ? ' off' : '') + '"' +
+    return '<button type="button" aria-pressed="'+on+'" '+(off?'disabled ':'')+'class="ffsq ' + ffSideClass(team) + (on ? ' on' : '') + (off ? ' off' : '') + '"' +
       (off ? '' : ' onclick="ffPickTap(\'' + side + '\',' + x.uid + ')"') + '>' +
       '<span class="pt shipp gp"><img src="img/ground/' + (team === "federation" ? "fed" : "spa") + '-rifleman.webp" alt=""></span>' +
       '<span class="t"><b>' + ffText(x.label) + '</b>' + ffChallengeObjective(x.uid, team) + '<em>' + (x.alive <= 0 ? "wiped out" : x.busy ? "\u2694 in a firefight" : x.aboard ? "aboard a vehicle" : x.alive + " / 8 \u00b7 " + HEALTH_WORD(x.alive / 8)) + '</em></span>' +
-      (on ? '<span class="tick">\u2713</span>' : '') + '</div>';
+      (on ? '<span class="tick">\u2713</span>' : '') + '</button>';
   };
   const col = (side, list, team, title) => '<div class="ffcol"><h5 class="' + ffSideClass(team) + '">' + title + '</h5>' + list.map(x => box(side, x, team)).join("") + '</div>';
   const n = P.me.length, m = P.foe.length;
@@ -3323,11 +3324,13 @@ function show(id) {
 }
 
 function save() {
+  pickupRefresh();
+  repairRefresh();
   qrStampTransportChanges();
   qrReconcileRoster();
   try {
     stashTeam();                       // fold the live team back into teams[side]
-    localStorage.setItem(SAVE, JSON.stringify({ side: side, teams: teams }));
+    localStorage.setItem(SAVE, JSON.stringify({ side: side, teams: teams, battlefield:pickupField }));
   } catch (e) {}
   try { mpDirty(); } catch (e) {}
 }
@@ -3337,6 +3340,7 @@ function load() {
     if (d && d.side) {
       side = d.side;
       teams = d.teams || { federation: null, spacenoid: null };
+      pickupField=d.battlefield||{seq:0,items:{},receipts:{}};
       loadTeam(side);
       return true;
     }
@@ -4467,6 +4471,8 @@ async function mpSync() {
   if (sentAccept) body.writes.acceptEnd = sentAccept;
   if (sentLead) body.writes.passLead = sentLead;
   const sentFF = (mp.ffOps || []).slice(0, 6);
+  const sentPickup=(mp.pickupOps||[]).slice(0,4);
+  if(sentPickup.length)body.writes.pickup=sentPickup;
   if (sentFF.length) body.writes.ff = sentFF;
   if (sentSettings) body.writes.settings = sentSettings;
   const unitsSent = {};
@@ -4511,6 +4517,7 @@ async function mpSync() {
   if (sentSettings && mp.wantSettings === sentSettings) mp.wantSettings = null;
   rel.forEach(k => { mp.wantRelease.delete(k); mp.held.delete(k); });
   const denied = new Set(j.denied || []);
+  if(sentPickup.length){mp.pickupOps.splice(0,sentPickup.length);const why=[...denied].find(x=>x.startsWith('pickup:'));mpToast(why?why.slice(7):'Equipment picked up · 1 AP');}
   if (sentFF.length) {
     mp.ffOps.splice(0, sentFF.length);
     if (denied.has("ff:invite")) mpToast("That squad is already in a firefight.");
@@ -4559,6 +4566,7 @@ async function mpSync() {
     }
   });
   mpApply();
+  if($('pick').classList.contains('on')&&$('pickT').textContent.startsWith('Pick Up'))openPickup();
   mpOk();
 }
 function mpGranted(k) {
@@ -4650,6 +4658,22 @@ function mpApplyUnit(r, force) {
   if (!force && mp.held.has(lockKey(t, r.uid)) && mp.base.units[r.uid] !== undefined) {
     const remote=d.st?.sq?.qr,local=r.st.sq?.qr;
     let suppliesChanged=false;
+    const rs=d.st;
+    if(rs&&(rs.pickupRevision||0)!==(r.st.pickupRevision||0)){
+      for(const k of ['eq','wpn','wsig','sh','shMax','shDown','ap','pickupRevision'])if(rs[k]!==undefined)r.st[k]=structuredClone(rs[k]);
+      suppliesChanged=true;
+    }
+    if(rs?.repair){
+      if(JSON.stringify(r.st.repair)!==JSON.stringify(rs.repair)){r.st.repair=structuredClone(rs.repair);suppliesChanged=true;}
+      if((r.st.repairRevision||0)!==(rs.repairRevision||0)){
+        for(const k of ['hp','sh','shDown','eq','repairRevision'])if(rs[k]!==undefined)r.st[k]=structuredClone(rs[k]);
+        suppliesChanged=true;
+      }
+    }
+    if(rs?.ship&&r.st.ship&&(rs.ship.repairTransitRevision||0)!==(r.st.ship.repairTransitRevision||0)){
+      for(const k of ['carry','docking','aboard','repairBoardings','repairTransitRevision'])if(rs.ship[k]!==undefined)r.st.ship[k]=structuredClone(rs.ship[k]);
+      suppliesChanged=true;
+    }
     if(remote&&local){
       const before=JSON.stringify([local.items,local.resupply]);
       local.items=JSON.parse(JSON.stringify(remote.items));local.supplyVersion=2;
@@ -5648,6 +5672,13 @@ function apFeedback(x, y, w, n) {
   const t = document.createElement("div"); t.className = "apfloat";
   Object.assign(t.style, { left: x + "%", top: (y - 1) + "%" });
   t.textContent = "\u2212" + n + " AP";
+  // Feedback follows the real button after landscape table reflow.
+  fitSheet();
+  const cell=[...sheet.querySelectorAll('.aptap')].find(e=>Math.abs(parseFloat(e.style.left)-x)<.1&&Math.abs(parseFloat(spreadOriginal.get(e)?.top||e.style.top)-y)<.1);
+  if(cell){const r=cell.getBoundingClientRect(),s=sheet.getBoundingClientRect(),left=r.left-s.left+r.width/2,top=r.top-s.top+r.height/2;
+    Object.assign(f.style,{left:left+'px',top:top+'px',width:r.width+'px',height:r.height+'px'});
+    Object.assign(t.style,{left:left+'px',top:(top-4)+'px'});
+  }
   sheet.append(f, t);
   setTimeout(() => { f.remove(); t.remove(); }, 1000);
 }
@@ -5788,7 +5819,7 @@ function openSheet(uid) {
   if (!CUR) return;
   { const cs = locked ? carrierState(uid) : null;
     if (cs && cs.state === "aboard") { mpToast(unitLabel(uid) + " is aboard the " + cs.u.short + " \u2014 " + (isShip(cs.u) ? "launch it from the ship's sheet." : "disembark it from the vehicle's sheet.")); openSheet(cs.ship.uid); return; } }
-  U = unitById(CUR.id);
+  U = GBPickups.prepare(unitById(CUR.id),CUR.st);
   eqSummary();
   if (isShip(U) || isGround(U)) {                    // warships and ground vehicles have their own sheets
     const s = isShip(U) ? shipMigrate(U, CUR.st) : isSquad(U) ? sqMigrate(U, CUR.st) : gvMigrate(U, CUR.st);
@@ -5806,7 +5837,7 @@ function openSheet(uid) {
   // the interface takes the side's colours while a sheet is open
   const s = CUR.st;
   // Migrate by weapon identity so deleting/reordering a row never refreshes cooldowns.
-  const wsig = U.weapons.map(w => w.name + (w.limit ? ":" + w.limit.kind : "")).join("|");
+  const wsig = U.weapons.map(GBPickups.weaponKey).join("|");
   if (!Array.isArray(s.wpn) || s.wpn.length !== U.weapons.length || (s.wsig && s.wsig !== wsig)) {
     const old=Array.isArray(s.wpn)?s.wpn:[],names=s.wsig?s.wsig.split('|'):[];
     s.wpn=U.weapons.map((w,i)=>{const key=w.name+(w.limit?':'+w.limit.kind:'');const j=names.length?names.indexOf(key):i;return j>=0&&typeof old[j]==='number'?old[j]:(w.limit?.kind==='charges'?w.limit.max:0);});
@@ -6254,6 +6285,8 @@ function abilityLocked(a, abilities, trackArr) {
 }
 
 function draw() {
+  pickupRefresh();
+  repairRefresh();repairDrawUI();
   qrReconcileRoster();
   const service=$("resupplyStatus");
   if(service)service.innerHTML=CUR&&U?.cargo&&isGround(U)?qrServiceHTML(CUR):"";
@@ -6386,6 +6419,8 @@ function draw() {
   // reads like the head-destroyed penalty rather than an advantage.
   // active buffs collected into one strip, like the red damage strip below it
   const buffNotes = [];
+  if (U.weapons.some(w=>MSE.penalty(U,eqLive(),w))) buffNotes.push("RANGED ROLL −3 · DUAL WIELD");
+  if (MSE.combo(U,eqLive()).startsWith('Dual sabers:')) buffNotes.push("MELEE ADVANTAGE · 2d20, KEEP HIGHER");
   if (catapult) buffNotes.push("\u{1F680} CATAPULT LAUNCH \u2014 FREE BOOST, MAY ATTACK");
   if (stanceK === "boost") buffNotes.push("\u00BB BOOST STANCE \u2014 +10cm/AP \u00b7 NO ATTACKS THIS TURN");
   if (stanceK === "boost") {                                   // lay a lock over the weapons table
@@ -6500,7 +6535,8 @@ function draw() {
   });
 
   U.weapons.forEach((w, wi) => {
-    const wn = T(COL.wName, w.y, w.label || w.name, [5, 2.0, 28], "txtL", 15.2);
+    if(w.pickupId)return;
+    const wn = T(COL.wName, w.y, eqInventoryLabel(MSE.item(U,w.equipKey),eqLive(),w.label||w.name), [5, 2.0, 28], "txtL", 15.2);
     const paired = U.abilities.some((a, i) => a.kind === "matrix" && (mxOpt(a, track[i] && track[i].sel) || { weapons: [] }).weapons.indexOf(w.name) >= 0);
     if (paired) { wn.style.color = "#6d28d9"; wn.style.fontWeight = "900"; }
     shrinkToFit(wn, 0.7);
@@ -6946,6 +6982,10 @@ function draw() {
     actLog().st.push({ t: "w", i: i, ap: cost, prev: lim ? wGet(i) : null });
     ap -= cost;
     if (lim) wSet(i, lim.kind === "cooldown" ? lim.turns + 1 : wGet(i) - 1);
+    if(w.pickupId&&U.tier==='Grunt'&&parseFloat(w.dmg)>5){
+      const hand=CUR.st.eq.hands.findIndex((ref,j)=>MSE.item(U,ref)?.key===w.equipKey&&hp[MSE.arms[j]]>0);
+      if(hand>=0){const arm=MSE.arms[hand];hp[arm]=Math.max(0,hp[arm]-2);logEv(CUR.uid,'Captured weapon strain · '+LIMB_LABEL[arm]+' took 2 damage','bad');}
+    }
     active = null; logAct("w", i); quietAct();
   };
   const fireTap = i => {
@@ -6962,6 +7002,7 @@ function draw() {
     if (opts.length === 1) fireW(i, opts[0]);
     else wake("wap" + i);                                  // two costs: show both to pick from
   };
+  window.fireEquippedWeapon=(i,cost)=>{fireW(i,cost);};
   U.weapons.forEach((w, i) => {
     const at = weapAP[i], opts = apOptions(w.ap);
     if (!at || !opts.length) return;
@@ -7023,6 +7064,7 @@ function draw() {
     (L ? L.st : []).forEach(x => { rows[x.t + x.i] = x; });
     Object.keys(rows).forEach(k => {
       const x = rows[k];
+      if(x.t==='w'&&U.weapons[x.i]?.pickupId)return;
       const y = x.t === "w" ? U.weapons[x.i].y : SKILL_Y[x.i];
       const ub = el("div", "wpip undoA", { left: "4.3%", top: y + "%", borderColor: "#3b82f6",
         background: "rgba(255,255,255,.96)", color: "#1e3a8a", zIndex: 6 });
@@ -7043,6 +7085,7 @@ function draw() {
 
   U.weapons.forEach((w, i) => {
     if (!w.limit) return;
+    if(w.pickupId)return;
     const isCd = w.limit.kind === "cooldown";
     const cur = wGet(i);
     // cooldown: 0 = ready. Firing sets turns+1 so a "1-turn cooldown"
@@ -7224,7 +7267,10 @@ function draw() {
     du.innerHTML = "<span>\u21B6</span>" + (qa.d ? "<small>\u00d7" + qa.d + "</small>" : ""); du.title = "Undo the last dodge (gives it back) \u2014 " + qa.d + " dodge(s) this turn";
     du.onclick = e => { e.stopPropagation(); if (!qa.d) return; qa.d -= 1; dodges = Math.min(dodgeMax, dodges + 1); logDodges(); quiet(); };
 
-    box.append(mu, mv, dg, du);
+    box.classList.add('action-trio');
+    const pick=el('button','qab pickup');pick.type='button';pick.id='pickupBtn';pick.innerHTML='<b>PICK UP</b><small>1 AP · 10cm</small>';pick.onclick=openPickup;
+    pick.title='Pick up dropped equipment within 10cm for 1 AP';
+    box.append(mu, mv, dg, pick, du);
     sheet.appendChild(box);
     if (capped) {
       const cw = T(59.4, 84.6, "STEALTH MOVE CAP REACHED (" + moveCap + " AP)", [4, 1.1, 15], "");
@@ -7237,6 +7283,12 @@ function draw() {
 
   // shDown[i]:  0 = fine | -2 = at zero, awaiting your call | -1 = destroyed for good | n>0 = regenerating
   (U.shields || []).forEach((cfg, i) => {
+    if(cfg.captured)return;
+    const equipment=MSE.init(U,eqLive());
+    if(equipment && (equipment.shieldDropped.includes(i)||!equipment.shields[i])){
+      const lost=equipment.shieldDropped.includes(i),g=el('div','grp',{left:cfg.x+'%',top:cfg.y+'%'}),b=el('button','num');
+      b.type='button';b.textContent=lost?'DROPPED':'STORED';b.title=lost?'Pick up this shield within 10cm for 1 AP':'Choose a forearm in Equip';b.onclick=lost?openPickup:openEquipment;g.appendChild(b);sheet.appendChild(g);return;
+    }
     // a shield that only exists while an ability is running
     if (cfg.when) {
       const rq = U.abilities.findIndex(x => x.name.indexOf(cfg.when) === 0);
@@ -7298,7 +7350,7 @@ function draw() {
     m.onclick = e => { e.stopPropagation();
       if (dead) return;
       sh[i] = Math.max(0, v - amount);
-      if (sh[i] === 0 && U.regen && !regen) shDown[i] = -2;   // ask
+      if (sh[i] === 0 && U.regen && !cfg.captured && !regen) shDown[i] = -2;   // ask
       wake(id); };
     const n = el("div", "num", { borderColor: col,
       background: dead ? "rgba(127,29,29,.95)" : regen ? "rgba(88,28,135,.92)"
@@ -7374,13 +7426,14 @@ function draw() {
     const R = U.ring, VB = 1600, VH = 900;
     const cx = R.cx / 100 * VB, cy = R.cy / 100 * VH;
     const rIn = R.rIn / 100 * VB, rOut = R.rOut / 100 * VB;
-    const n = U.shields.length, step = 360 / n;
+    const nativeShields = U.shields.filter(c=>!c.captured);
+    const n = nativeShields.length, step = 360 / n;
     // explicit start angle per shield (0 deg = top of the ring, clockwise)
     // 4 shields sit on the printed bubbles: TL, TR, BL, BR
     // 2 shields (Phenex's DEs): DE 1 covers the front 180 (top half), DE 2 the rear 180 (bottom half)
     const ARC_START = n === 4 ? [270, 0, 180, 90]
                     : n === 2 ? [270, 90]
-                    : U.shields.map((_, i) => i * step);
+                    : nativeShields.map((_, i) => i * step);
 
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("class", "arcring");
@@ -7398,7 +7451,7 @@ function draw() {
       return `M${x0},${y0} A${r1},${r1} 0 ${big} 1 ${x1},${y1} L${x2},${y2} A${r0},${r0} 0 ${big} 0 ${x3},${y3} Z`;
     };
 
-    U.shields.forEach((cfg, i) => {
+    nativeShields.forEach((cfg, i) => {
       const v = sh[i], d = shDown[i] || 0;
       const away = !!(U.lendable && out && out[i] !== null && out[i] !== undefined);
       const dead = d === -1, regen = d > 0, asking = d === -2;
@@ -7452,7 +7505,7 @@ function draw() {
     if (swapMode) {
       // whole-corner tap zones, as large as the shield panel allows
       const ZL = 75.6, ZR = 99, ZT = 61, ZB = 88.8, GAP = 0.3, two = U.shields.length === 2;
-      U.shields.forEach((cfg, i) => {
+      nativeShields.forEach((cfg, i) => {
         const left = cfg.x < R.cx, top = cfg.y < R.cy;
         const x0 = two ? ZL : (left ? ZL : R.cx + GAP), x1 = two ? ZR : (left ? R.cx - GAP : ZR);
         const y0 = top ? ZT : R.cy + GAP, y1 = top ? R.cy - GAP : ZB;
@@ -7585,9 +7638,9 @@ function draw() {
   });
   fitCD();                                   // pod rows are drawn late
   // a combined total when there is more than one
-  if ((U.shields || []).length > 1) {
+  if ((U.shields || []).filter(c=>!c.captured).length > 1) {
     // a shield that has been lent away is not protecting this unit, so it leaves the total
-    const isAway = j => !!(U.lendable && out && out[j] !== null && out[j] !== undefined);
+    const isAway = j => !!(U.shields[j]?.captured || CUR.st.eq?.shieldDropped?.includes(j) || (CUR.st.eq&&!CUR.st.eq.shields[j]) || (U.lendable && out && out[j] !== null && out[j] !== undefined));
     const tot = sh.reduce((a, b, j) => a + (isAway(j) ? 0 : b), 0);
     const t = el("div", "num", { position: "absolute", transform: "translate(-50%,-50%)",
       left: "80.5%", top: "57.3%", cursor: "default",
@@ -7711,14 +7764,15 @@ window.openSheetHelp = () => {
 function fitSheet() {
   const s4 = $("s4"), sh = $("sheet");
   if (!s4 || !sh || !s4.classList.contains("on")) return;
-  const avail = window.innerHeight - $("topbar").offsetHeight - $("tl").offsetHeight - ($("resupplyStatus")?.offsetHeight || 0);
+  const avail = window.innerHeight - $("topbar").offsetHeight - $("tl").offsetHeight - ($("resupplyStatus")?.offsetHeight || 0) - ($("repairStatus")?.offsetHeight || 0);
   const full = s4.clientWidth || document.documentElement.clientWidth;
   const w = Math.max(300, Math.min(full, Math.floor(avail * 16 / 9)));
   if (sh.style.width !== w + "px") sh.style.width = w + "px";
+  spreadSheet();
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf120";
+const APP_BUILD = "cf122";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
@@ -7727,6 +7781,7 @@ $("search").addEventListener("input", e => { query = e.target.value; renderRoste
 $("mDmg").onclick = () => { mode = "damage"; document.body.classList.remove("repair"); $("mDmg").className = "on-dmg"; $("mRep").className = ""; };
 $("mRep").onclick = () => { mode = "repair"; document.body.classList.add("repair"); $("mRep").className = "on-rep"; $("mDmg").className = ""; };
 function advance(u, st) {
+  u=GBPickups.prepare(u,st);
   if (isShip(u)) { shipAdvance(u, st); return; }
   if (isGround(u)) {
     if (u.gtype === "squad") { sqMigrate(u, st); st.ap = sqAlive(st) === 1 ? 1 : u.ap; st.sq.soldiers.forEach(x => { sqSoldierFix(x); x.ap = x.hp > 0 ? 3 : 0; }); return; }
@@ -7963,7 +8018,7 @@ function reloadCur() {
   if (!CUR) return;
   const r = roster.find(x => x.uid === CUR.uid);
   if (!r) { CUR = null; return; }
-  CUR = r; U = unitById(r.id);
+  CUR = r; U = GBPickups.prepare(unitById(r.id),r.st);
   const s = r.st;
   hp = s.hp; dodges = s.dodges; ap = s.ap; track = s.track; wpn = s.wpn; sh = s.sh; shDown = s.shDown;
   shMax = Array.isArray(s.shMax) ? s.shMax : (U.shields || []).map(x => x.hp);
@@ -7972,7 +8027,7 @@ function reloadCur() {
   pods = U.pods ? s.pods : null;
   risk = s.risk || {};
 }
-function captureState() { return JSON.stringify({ sts: roster.map(r => [r.uid, r.st]), turn: turn }); }
+function captureState() { return JSON.stringify({ sts: roster.map(r => [r.uid, r.st]), turn: turn, battlefield:mpTeamMode()?null:pickupField }); }
 function beforePhase() {
   if ($("s4").classList.contains("on")) persist();   // flush the open sheet only if it is showing
   phaseUndo = captureState();
@@ -8179,6 +8234,7 @@ function startMyTurnCore() {
       if (P.hp > 0 && P.state === 2 && st.pods[i].state === 0) logEv(uid, u.pods.label + " " + (i + 1) + " returned", "info");
     });
   });
+  repairRefresh(true);
   afterPhase();
 }
 // enemy turn: a yellow tally = "this unit's damage is counted so far" (more hits clear it again)
@@ -8241,7 +8297,7 @@ function undoPhase() {
   if (!phaseUndo || !mpGuardLeader("undo the turn change")) return;
   const d = JSON.parse(phaseUndo);
   d.sts.forEach(([uid, st]) => { const r = roster.find(x => x.uid === uid); if (r) r.st = st; });
-  turn = d.turn; phaseUndo = null;
+  turn = d.turn; if(d.battlefield&&!mpTeamMode())pickupField=d.battlefield; phaseUndo = null;
   afterPhase();
 }
 function setFirst(who) {
@@ -8256,6 +8312,7 @@ function newGame() {
   if (!confirm("Start a new game?\n\nThe turn count and timeline reset, and every model goes back to full health.")) return;
   turn = freshTurn();
   roster.forEach(r => { r.st = freshState(unitById(r.id)); });
+  if(!mpTeamMode())for(const [id,item] of Object.entries(pickupField.items||{}))if(item.team===side)delete pickupField.items[id];
   phaseUndo = null;
   afterPhase();
 }

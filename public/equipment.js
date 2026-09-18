@@ -90,11 +90,11 @@ const MSE = (() => {
     // Generated force fields are not physical equipment that can fall off an arm.
     e.shields=e.shields.map((mount,i)=>fieldAbility(u,i)>=0?'body':mount);
     e.shieldDropped=e.shieldDropped.filter(i=>fieldAbility(u,i)<0);
-    // Keep the original reference on its lost arm until recovery; repairs/undo restore it naturally.
-    e.dropped=e.dropped.filter(r=>!e.hands.includes(r)||e.hands.some((v,i)=>v===r&&s.hp?.[arms[i]]<=0));
-    e.shieldDropped=e.shieldDropped.filter(i=>!e.shields[i]||s.hp?.[e.shields[i]]<=0);
-    e.hands.forEach((r,i)=>{if(r && !(s.hp?.[arms[i]]>0) && !e.dropped.includes(r)) e.dropped.push(r);});
-    e.shields.forEach((m,i)=>{if(arms.includes(m) && !(s.hp?.[m]>0) && !e.shieldDropped.includes(i)) e.shieldDropped.push(i);});
+    // Repairing the arm does not retrieve equipment from the battlefield.
+    const destroyed=!(s.hp?.[u.kill||'chest']>0);
+    for(const key of e.taken||[]){if(key.startsWith('weapon:')&&!e.dropped.includes(key.slice(7)))e.dropped.push(key.slice(7));if(key.startsWith('shield:')&&!e.shieldDropped.includes(Number(key.slice(7))))e.shieldDropped.push(Number(key.slice(7)));}
+    e.hands.forEach((r,i)=>{if(r && (destroyed||!(s.hp?.[arms[i]]>0)) && !e.dropped.includes(r)) e.dropped.push(r);});
+    e.shields.forEach((m,i)=>{if(arms.includes(m) && (!u.regen||u.shields[i]?.captured) && (destroyed||!(s.hp?.[m]>0)) && !e.shieldDropped.includes(i)) e.shieldDropped.push(i);});
     if(e.hands.some((r,i)=>r && (s.hp?.[arms[i]]<=0 || e.dropped.includes(r))))clearMatrix(u,s);
     return e;
   }
@@ -103,6 +103,7 @@ const MSE = (() => {
   function reason(u,s,w) {
     if(!supported(u))return '';
     const e=init(u,s),x=item(u,w.equipKey); if(!x)return '';
+    if(w.pickupId&&/FULL/.test(w.name))return 'Full Output requires the original unit ability';
     if(s.hp[u.kill||'chest']<=0)return 'Unit destroyed';
     if(x.mount==='shield')return shieldReady(u,s)?'':'Shield unavailable';
     if(x.mount==='attachment')return held(u,s,item(u,x.parent))?'':'Equip Beam Magnum';
@@ -159,6 +160,7 @@ const MSE = (() => {
     const e=init(u,s); if(!e||e.segment)return 'Finish the melee segment first';
     if(s.ap<1)return 'Not enough AP';
     const list=isShield?e.shieldDropped:e.dropped;
+    if(e.taken?.includes((isShield?'shield:':'weapon:')+r))return 'Another unit already picked this up';
     if(!list.includes(r))return 'Already recovered';
     if(!arms.some(k=>s.hp[k]>0))return 'Requires an intact arm';
     if(isShield) {
@@ -216,6 +218,7 @@ const MSE = (() => {
   }
   return {arms,supported,catalog,item,ref,init,held,reason,penalty,equip,stow,recover,melee,shieldReady,abilityReason,clearMatrix,combo,matrix};
 })();
-UNITS.forEach(u=>{if(/^(infinite-justice|rising-freedom|gundam-turn-a)/.test(u.id))u.reworkNeeded=true;MSE.catalog(u);});
-TABLES['Melee Weapons']=[['Weapon','Roll Bonus','Normal / Crit','Equip AP','Charge Range'],['Bare Hands / Unarmed','+0','1 / 2','1','Adjacent only'],['Sword','+1','1 / 2','1','10cm'],['Beam Dagger','+1','2 / 4','0','10cm'],['Heat Axe / Heat Hawk','+2','2 / 4','1','15cm'],['Spear / Lance','+2','2 / 4','1','30cm (reach)'],['Beam Saber','+3','2 / 4','1','15cm'],['GN Sword','+4','3 / 6','2','30cm'],['Beam Axe / Beam Tomahawk','+4','3 / 6','2','20cm'],['Anti-Ship Sword','+4','4 / 8','2','30cm']];
-TABLES.Destruction[1][1]='Arm weapons and shield unavailable; recover dropped equipment within 10cm for 1 AP.';
+globalThis.GBEquipment=MSE;
+globalThis.GBRepairUnits.forEach(u=>{if(/^(infinite-justice|rising-freedom|gundam-turn-a)/.test(u.id))u.reworkNeeded=true;MSE.catalog(u);});
+globalThis.GBRuleTables['Melee Weapons']=[['Weapon','Roll Bonus','Normal / Crit','Equip AP','Charge Range'],['Bare Hands / Unarmed','+0','1 / 2','1','Adjacent only'],['Sword','+1','1 / 2','1','10cm'],['Beam Dagger','+1','2 / 4','0','10cm'],['Heat Axe / Heat Hawk','+2','2 / 4','1','15cm'],['Spear / Lance','+2','2 / 4','1','30cm (reach)'],['Beam Saber','+3','2 / 4','1','15cm'],['GN Sword','+4','3 / 6','2','30cm'],['Beam Axe / Beam Tomahawk','+4','3 / 6','2','20cm'],['Anti-Ship Sword','+4','4 / 8','2','30cm']];
+globalThis.GBRuleTables.Destruction[1][1]='Arm weapons and shield unavailable; recover dropped equipment within 10cm for 1 AP.';

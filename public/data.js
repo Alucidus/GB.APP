@@ -4663,3 +4663,5 @@ const UNITS=[
   "portrait": "nightingale"
  }
 ];
+globalThis.GBRepairUnits = UNITS;
+globalThis.GBRuleTables = TABLES;

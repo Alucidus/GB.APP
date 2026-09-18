@@ -1,6 +1,12 @@
 /* Equipment controls reuse the sheet's picker, theme, save and multiplayer lock. */
 let eqPending = null;
 let eqSwapDismiss = null;
+function eqInventoryLabel(x,s,fallback) {
+  if(!x||x.mount!=='hand'||x.count<2)return fallback||x?.label||x?.name||'';
+  const unavailable=new Set([...(s.eq?.hands||[]).filter(Boolean),...(s.eq?.dropped||[])]);
+  const remaining=Array.from({length:x.count},(_,i)=>MSE.ref(x,i)).filter(r=>!unavailable.has(r)).length;
+  return x.name+' ×'+remaining;
+}
 function eqSwapDialog(arm,key,replaced,signature) {
   closePicker();
   $('mpToast')?.classList.remove('on');
@@ -88,24 +94,25 @@ function eqDecorate(sheet) {
     if(!stow&&eqPending.key){const cost=el('strong','eq-cost');cost.textContent=locked?(x?.cost??1)+' AP to equip':'0 AP · free setup';message.appendChild(cost);const hint=el('span','eq-hint');hint.textContent='Choose an arm · '+ap+' AP available';message.appendChild(hint);}
     prompt.setAttribute('role','status');prompt.setAttribute('aria-live','polite');
     prompt.appendChild(message);
-    if(!stow){const more=el('button','btn sm eq-more');more.textContent='MORE';more.title='Shield mounts, recovery, special equipment and melee segments';more.onclick=openEquipment;prompt.appendChild(more);}
+    if(!stow){const more=el('button','btn sm eq-more');more.textContent='MORE';more.title='Captured weapons, shield mounts, recovery and melee segments';more.onclick=openEquipment;prompt.appendChild(more);}
     sheet.appendChild(prompt);
     if(!stow)U.weapons.forEach(w=>{
+      if(w.pickupId)return;
       const item=MSE.item(U,w.equipKey);if(item?.mount!=='hand')return;
       const available=MSE.arms.some(arm=>eqValidArm(arm,item.key));
       const row=el('button','eq-weapon'+(available?'':' unavailable')+(eqPending.key===item.key?' selected':''),{left:WROW_X+'%',top:(w.y-WROW_H/2)+'%',width:WROW_W+'%',height:WROW_H+'%'});
       const held=eqRowTag(item,eqLive());
       if(held)row.classList.add(held==='R+L'?'eq-both':held==='R'?'eq-right':'eq-left');
-      row.type='button';row.title='Select '+(w.label||w.name)+' · '+item.cost+' AP equip';row.setAttribute('aria-label',row.title);row.setAttribute('aria-pressed',String(eqPending.key===item.key));
+      row.type='button';row.title='Select '+eqInventoryLabel(item,eqLive(),w.label||w.name)+' · '+item.cost+' AP equip';row.setAttribute('aria-label',row.title);row.setAttribute('aria-pressed',String(eqPending.key===item.key));
       row.onclick=()=>eqChoose(item.key);sheet.appendChild(row);
     });
   }
   MSE.arms.forEach((arm,i)=>{
     const pos=LIMB_POS_DEFAULT[arm];
     const s=eqLive(),ref=s.eq.hands[i],item=MSE.item(U,ref);
-    const label=el('div','eq-limb-label '+(i?'eq-left':'eq-right'),{left:pos.x+'%',top:(pos.y+5.2)+'%'});
-    label.textContent=(i?'L':'R')+' · '+(hp[arm]<=0?'ARM LOST':item&&!s.eq.dropped.includes(ref)?item.name:'Empty hand');
-    label.title=label.textContent;sheet.appendChild(label);
+    const label=el('button','eq-limb-label '+(i?'eq-left':'eq-right'),{left:pos.x+'%',top:(pos.y+5.2)+'%'});label.type='button';
+    const caption=el('span','eq-arm-caption');caption.textContent=(i?'L':'R')+' · '+(hp[arm]<=0?'ARM LOST':item&&!s.eq.dropped.includes(ref)?item.name:'Empty hand');label.appendChild(caption);
+    label.title='Tap for equipped weapon and shield details';label.setAttribute('aria-label',label.textContent+' · equipment details');label.onclick=()=>eqPending?eqPickArm(arm):openEquippedInfo(arm);sheet.appendChild(label);
     if(eqPending&&eqValidArm(arm)){const tag=el('div','eq-arm-prompt '+(i?'eq-left':'eq-right'),{left:pos.x+'%',top:(pos.y-5.0)+'%'});tag.textContent=stow?'STOW HERE':eqPending.key?'EQUIP HERE':'CHOOSE WEAPON';sheet.appendChild(tag);}
   });
 }
@@ -146,7 +153,7 @@ function openEquipment() {
     if(melee)desc+='<br>Melee roll: <b>'+(x.bonus===null?'not specified in unit rules':'+'+x.bonus)+'</b>';
     if(w&&MSE.penalty(U,s,w))desc+='<br><b>−3 ranged roll (+3 target number)</b>';
     if(x.mount==='hand')desc+='<br>Equip: '+x.cost+' AP per weapon'+(x.count>1?' · '+x.count+' copies':'');
-    const d=section(x.label||x.name,desc);
+    const d=section(eqInventoryLabel(x,s),desc+(x.mount==='hand'&&x.count>1?'<br>Quantity shows unequipped copies in storage.':''));
     if(x.mount==='hand')button(d,'Equip weapon',()=>eqChoose(x.key),e.segment);
     if(x.exclusive&&MSE.held(U,s,x))button(d,'Mode: '+e.mode+' · switch 1 AP',()=>eqAction(st=>{if(st.eq.segment)return 'Finish the melee segment first';if(locked&&st.ap<1)return 'Not enough AP';if(locked)st.ap--;st.eq.mode=st.eq.mode==='rifle'?'sword':'rifle';return '';},'GN Sword mode switched'));
     if(w?.limit){const n=wpn[x.rows[0]]||0;const p=el('p');p.textContent=w.limit.kind==='cooldown'?(n>0?'Cooling down · '+n+' turn steps remaining':'Ready to fire'):n+' charges remaining';d.appendChild(p);}
@@ -158,7 +165,7 @@ function openEquipment() {
   });
   [...e.dropped.map(r=>({r,shield:false,name:MSE.item(U,r)?.name||r})),...e.shieldDropped.map(r=>({r,shield:true,name:'Shield '+(r+1)}))].forEach(x=>{
     const d=section('Recover '+x.name,'1 AP · confirm the dropped equipment is within 10cm. Empty hand/mount equips immediately; otherwise returns to your usable list.');
-    button(d,'Within 10cm · recover 1 AP',()=>eqAction(st=>MSE.recover(U,st,x.r,x.shield),'Recovered '+x.name),e.segment);
+    button(d,'Within 10cm · recover 1 AP',()=>openPickup(),e.segment);
   });
   U.abilities.forEach((a,i)=>{if(a.kind==='matrix'){const d=section(a.name,'Special combinations retain their 2 AP cost. Changing pair does not refresh spent parries.');button(d,'Choose special pair',()=>openMatrix(i),e.segment);}});
   $('pickExtra').innerHTML='';$('pickCancel').textContent='Close';$('pick').classList.add('on');
