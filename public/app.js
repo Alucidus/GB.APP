@@ -7120,6 +7120,7 @@ function draw() {
       color: v === 0 ? "#fff" : "#0f172a",
       boxShadow: (sh ? "0 0 0 3px " + ring + "77, " : "") + "0 0 10px " + ring + "88" });
     b.textContent = v; b.title = LIMB_LABEL[k];
+    if(eqPending&&MSE.supported(U)&&MSE.arms.includes(k))b.classList.add(k==='rightArm'?'eq-right':'eq-left');
     if(eqPending && eqValidArm(k)) { b.classList.add("eq-arm");b.setAttribute("role","button");b.tabIndex=0;b.title=(eqPending.key==='stow'?"Stow from ":"Equip in ")+LIMB_LABEL[k];b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();eqPickArm(k);}}; }
     b.onclick = () => { if(eqPending){eqPickArm(k);return;} hp[k] = mode === "damage" ? Math.max(0, v - amount) : Math.min(mx, v + amount); wake(id); };
     sheet.appendChild(b);
@@ -7698,7 +7699,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitSheet));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf110";
+const APP_BUILD = "cf111";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

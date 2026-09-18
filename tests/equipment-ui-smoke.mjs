@@ -36,7 +36,7 @@ vm.runInContext("eqPickArm('rightArm')",ctx);
 assert.equal(get('pick').classList.contains('on'),false,'assignment does not reopen picker');
 assert.equal(vm.runInContext('ap',ctx),3);assert.equal(get('equipBtn').textContent,'DONE');
 assert.ok(get('sheet').children.some(n=>String(n.textContent).startsWith('[R] Beam Saber')),'right badge rendered');
-assert.ok(!get('sheet').children.some(n=>n.className==='eq-limb-label'),'no labels over HP');
+assert.equal(get('sheet').children.filter(n=>n.classList.contains('eq-limb-label')).length,2,'hand labels restored beside HP');
 vm.runInContext("eqChoose('beam-rifle');eqDockClick()",ctx);assert.equal(vm.runInContext('eqPending',ctx),null,'cancel exits assignment');
 vm.runInContext('openEquipment()',ctx);assert.equal(get('pick').classList.contains('on'),true,'dock opens full manager');
 vm.runInContext('closePicker()',ctx);checks+=11;

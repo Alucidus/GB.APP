@@ -3301,3 +3301,18 @@ button.mb-item.fxtog{font:inherit;color:#dfe9f4;background:none;border-top:0;bor
 #sheet.eq-assign .eq-prompt{pointer-events:auto!important;display:flex;align-items:center;gap:.5cqw;width:40%;box-sizing:border-box}
 #sheet .eq-more{margin-left:auto;font-size:clamp(6px,.85cqw,13px);padding:.2cqw .6cqw;flex-shrink:0}
 #sheet.eq-assign .eq-prompt{top:7%;bottom:auto}
+/* cf111: equipment costs and hand identity stay readable in both faction themes. */
+#sheet .eq-arm-prompt{color:var(--eq-hand,var(--eq-select))}
+#sheet{--eq-right:#00e5ff;--eq-left:#ffc857}
+#sheet .eq-right{--eq-hand:var(--eq-right)}
+#sheet .eq-left{--eq-hand:var(--eq-left)}
+#sheet.eq-assign .eq-prompt{font-size:clamp(11px,1.5cqw,21px);padding:.8cqw 1cqw;border:2px solid var(--eq-select);border-radius:.6cqw;box-shadow:0 0 1.2cqw #00e5ff55;line-height:1.3;color:#fff;background:#071b2b}
+#sheet .eq-cost{display:block;font-size:clamp(16px,2.2cqw,31px);color:#ffe082;font-weight:900;margin:.25cqw 0}
+#sheet .eq-hint{display:block;font-size:clamp(10px,1.15cqw,17px);color:#d7f8ff}
+#sheet .eq-more{min-height:30px;font-size:clamp(10px,1.1cqw,16px)}
+#sheet.eq-assign .eq-arm{outline-color:var(--eq-hand,var(--eq-select))}
+#sheet.eq-assign .hp.eq-right,#sheet.eq-assign .hp.eq-left{outline:.3cqw solid var(--eq-hand);outline-offset:.4cqw}
+#sheet.eq-assign .eq-weapon.eq-right,#sheet.eq-assign .eq-weapon.eq-left{border-color:var(--eq-hand);background:color-mix(in srgb,var(--eq-hand) 20%,transparent);opacity:1;border-left-width:.6cqw}
+#sheet.eq-assign .eq-weapon.eq-both{border-color:var(--eq-right);border-right:.6cqw solid var(--eq-left);border-left:.6cqw solid var(--eq-right);background:linear-gradient(90deg,#00e5ff33 50%,#ffc85733 50%);opacity:1}
+#sheet.eq-assign .eq-weapon.selected{outline:2px solid #fff;outline-offset:2px}
+#sheet .eq-limb-label{position:absolute;transform:translateX(-50%);width:18%;box-sizing:border-box;padding:.35cqw .5cqw;background:#071b2bf2;border:1px solid var(--eq-hand);border-radius:.35cqw;color:var(--eq-hand);font-size:clamp(9px,1.05cqw,15px);font-weight:800;line-height:1.25;text-align:center;z-index:66;pointer-events:none;overflow-wrap:anywhere}

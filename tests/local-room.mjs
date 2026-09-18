@@ -21,7 +21,7 @@ export async function startTestServer() {
       }
       const pathname = decodeURIComponent(new URL(req.url,'http://localhost').pathname);
       const file=path.resolve(root, '.' + (pathname === '/' ? '/index.html' : pathname));
-      if (!file.startsWith(root + '/')) throw Error('Invalid path');
+      if (!file.startsWith(root + path.sep)) throw Error('Invalid path');
       const types={'.html':'text/html','.js':'text/javascript','.css':'text/css','.webp':'image/webp','.svg':'image/svg+xml'};
       res.writeHead(200,{'content-type':types[path.extname(file)] || 'application/octet-stream'}); res.end(await fs.readFile(file));
     } catch(e) {res.writeHead(404);res.end(String(e));}

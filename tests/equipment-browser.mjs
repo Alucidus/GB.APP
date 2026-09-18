@@ -13,6 +13,8 @@ try {
   const page=await browser.newPage({viewport,serviceWorkers:'block',reducedMotion:'reduce'});
   await page.route('**/*',route=>route.request().url().startsWith(url)?route.continue():route.abort());
   page.on('pageerror',e=>errors.push(e.message));
+  let allowSwap=true;const dialogs=[];
+  page.on('dialog',async dialog=>{dialogs.push(dialog.message());await (allowSwap?dialog.accept():dialog.dismiss());});
   await page.goto(url);await page.waitForFunction(()=>typeof openSheet==='function');
   async function open(id,side) {await page.evaluate(({id,side:team})=>{
    side=team;locked=true;turn=freshTurn();const u=UNITS.find(u=>u.id===id);
@@ -29,15 +31,30 @@ try {
    assert.equal(await page.locator('#pick').evaluate(n=>n.classList.contains('on')),false);assert.ok(await page.locator('.eq-weapon').count()>0);checks+=2;
    await page.locator('.eq-weapon[title*="Beam Saber"]').click();
    assert.ok((await page.locator('.eq-prompt').innerText()).includes('1 AP to equip'));checks++;
+   const preSwap=await page.evaluate(()=>JSON.stringify([CUR.st.eq,ap,hp,sh,wpn]));
+   allowSwap=false;
+   await page.locator('.hp.eq-arm[title="Equip in Right Arm"]').click();
+   assert.equal(await page.evaluate(()=>JSON.stringify([CUR.st.eq,ap,hp,sh,wpn])),preSwap);
+   assert.ok(dialogs.at(-1).includes('Swap equipped weapon?'));
+   assert.equal(await page.evaluate(()=>eqPending.key),'beam-saber-x2');checks+=3;
+   allowSwap=true;
    await page.locator('.hp.eq-arm[title="Equip in Right Arm"]').click();
    assert.equal(await page.locator('#pick').evaluate(n=>n.classList.contains('on')),false);
    const firstAP=await page.evaluate(()=>ap);checks++;
    assert.equal(await page.locator('#equipBtn').innerText(),'DONE');checks++;
+   assert.ok(await page.locator('.eq-weapon.eq-right[title*="Beam Saber"]').count());
+   assert.ok(await page.locator('.eq-limb-label.eq-right').innerText().then(t=>t.includes('Beam Saber')));checks+=2;
+   const rowColor=await page.locator('.eq-weapon.eq-right[title*="Beam Saber"]').evaluate(n=>getComputedStyle(n).borderLeftColor);
+   assert.equal(rowColor,await page.locator('.hp.eq-right').evaluate(n=>getComputedStyle(n).outlineColor));checks++;
+   if(process.env.EQUIPMENT_SCREENSHOT)await page.screenshot({path:process.env.EQUIPMENT_SCREENSHOT+'-'+side+'-held-'+viewport.width+'.png'});
    await page.locator('.eq-weapon[title*="Beam Saber"]').click();
+   const dialogCount=dialogs.length;
    await page.locator('.hp.eq-arm[title="Equip in Left Arm"]').click();
+   assert.equal(dialogs.length,dialogCount,'empty arm requires no swap warning');checks++;
    assert.equal(await page.evaluate(()=>ap),firstAP-1);
    assert.equal(await page.evaluate(()=>new Set(CUR.st.eq.hands).size),2);
    assert.equal(await page.evaluate(()=>MSE.combo(U,CUR.st).includes('Advantage')),true);checks+=3;
+   assert.ok(await page.locator('.eq-weapon.eq-both[title*="Beam Saber"]').count());checks++;
    assert.equal(await page.evaluate(()=>JSON.stringify(hp)),initialHP);checks++;
    await page.locator('#stowBtn').click();
    assert.equal(await page.locator('.eq-arm').count(),2);checks++;
@@ -45,7 +62,7 @@ try {
    assert.equal(await page.evaluate(()=>CUR.st.eq.hands[0]),null);
    assert.ok(await page.evaluate(()=>CUR.st.eq.hands[1]));
    assert.equal(await page.evaluate(()=>ap),firstAP-1);
-   assert.equal(await page.locator('.eq-limb-label').count(),0);checks+=4;
+   assert.equal(await page.locator('.eq-limb-label').count(),2);checks+=4;
    await page.locator('#stowBtn').click();await page.locator('#stowBtn').click();
    assert.equal(await page.evaluate(()=>eqPending),null);checks++;
    // Equipped main gun fires through the finger-sized AP hit area on turn one.
