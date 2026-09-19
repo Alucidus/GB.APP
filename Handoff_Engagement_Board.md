@@ -1,4 +1,10 @@
-# Gunpla Battles - cf134 current handoff
+# Gunpla Battles - cf135 current handoff
+
+Hangar flight now respects the fixed thruster artwork: no banking or lateral direction reversal. Slight upward diagonal, accelerating entry then fast coast. Keeps smaller Gundam and larger Zaku pair, short passes and chase delay. Desktop/phone browser checks passed. No deployment.
+
+---
+
+# Gunpla Battles - cf134 previous handoff
 
 Revised hangar chase: smaller distant Gundam, larger pursuing Zakus, banking paths and perspective shrink. Active flights take 1.6 and 1.28 seconds, with the pursuers starting 1.3 seconds later. Desktop and phone browser checks passed. No deployment.
 

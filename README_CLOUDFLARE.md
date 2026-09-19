@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf134)
+# Gunpla Battle — Cloudflare version (build cf135)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
