@@ -2,6 +2,7 @@
 #pilotScreen[data-faction=spacenoid]{--pilot-accent:#e7b465}
 #pilotScreen[data-faction=neutral]{--pilot-accent:#c6ced6}
 .pilot-avatar{width:44px;height:44px;object-fit:contain;flex:none;border:1px solid #91a9bc80;border-radius:8px;background:#21313e;vertical-align:middle}
+.ffobjective-choice{border:1px solid #77889966;padding:8px;margin:10px 0;display:flex;flex-wrap:wrap;gap:8px}.ffobjective-choice label{display:flex;align-items:center;gap:8px;min-height:44px;cursor:pointer}.ffobjective-choice input{width:20px;height:20px}
 .pilot-lobby-identity{display:flex;align-items:center;gap:12px;text-align:left;margin-bottom:12px}
 .pilot-lobby-identity small,.pilot-select-card small,.pilot-unit-choice small{display:block;font-size:12px;color:#b0c5d4;margin-top:5px;line-height:1.4}
 .lb-p>.pilot-avatar{width:36px;height:36px}.lb-n{overflow-wrap:anywhere;min-width:0}

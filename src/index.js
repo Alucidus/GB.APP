@@ -50,7 +50,7 @@ const claimsAgree = c => !!c && ((c.a === "won" && c.b === "lost") || (c.a === "
 
 // A break remains on screen until the turn changes, so either team can un-confirm.
 const moreBouts = g => !!(g.eng && g.eng.pairs && g.eng.bout < g.eng.pairs.length);
-const breakPending = g => g.state === "end" && (!g.obj || !!g.ext ||
+const breakPending = g => g.state === "end" && ((!g.obj && g.hasObjective!==false) || !!g.ext ||
   (moreBouts(g) && !(g.confirmed && g.confirmed.a && g.confirmed.b)));
 function startNextBout(g) {
   const pr = g.eng.pairs[g.eng.bout];
@@ -546,7 +546,8 @@ export class BattleRoom {
           denied.push("ff:pairs"); return false;
         }
         await M.set(key, { id, state: "invite", at: now, mode: null, rollAsk: null, round: 1, seg: 1, forced: null, startSeq: null,
-          eng: { aList, bList, obj: String(op.obj || "").slice(0, 24), pairs: proposed, bout: 1, log: [] },
+          hasObjective: op.hasObjective!==false,
+          eng: { aList, bList, obj: op.hasObjective===false?"":String(op.obj || "").slice(0, 24), pairs: proposed, bout: 1, log: [] },
           a: { team: myTeam, uid: aList[0].uid, pid, label: aList[0].label },
           b: { team: other, uid: bList[0].uid, pid: null, label: bList[0].label },
           lock: { a: false, b: false }, ready: { a: null, b: null }, hp: { a: null, b: null }, reveal: null, roll: null, obj: null });
@@ -697,7 +698,7 @@ export class BattleRoom {
         if (g.state !== "pick" || !mine || !g.lock[side]) break;
         await M.del("ffsec/" + id + "/" + side); g.lock[side] = false; return save();
       case "objective": {
-        if (g.state !== "end" || !mine || g.obj) break;
+        if (g.state !== "end" || !mine || g.obj || g.hasObjective===false) break;
         const other = side === "a" ? "b" : "a";
         // current squad health, as the caller's device sees it (falls back to the last ready report)
         const hpOk = v => Number.isInteger(v) && v >= 0 && v <= 8;
@@ -712,7 +713,7 @@ export class BattleRoom {
         g.obj = { a: ra, b: rb, win: ra > rb ? "a" : "b", ha, hb, seg: g.seg }; g.holder = { side: g.obj.win, uid: g[g.obj.win].uid }; return save();
       }
       case "segment":                               // another 4-round segment (re-engage / Forced Re-Engagement)
-        if (g.state !== "end" || !mine || !g.obj || g.ext || (g.eng && moreBouts(g))) break;
+        if (g.state !== "end" || !mine || (!g.obj && g.hasObjective!==false) || g.ext || (g.eng && moreBouts(g))) break;
         if(op.forced){const uid=op.uid||g[side].uid;if(g.eng&&!g.eng[side+'List'].some(x=>x.uid===uid))break;if(!await spendSupply(M,myTeam,uid,'fb'))break;}
         g.confirmed = { a: false, b: false };
         g.mode = null; g.rollAsk = null; g.modePick = null;
@@ -729,7 +730,7 @@ export class BattleRoom {
         if (g.state !== "end" || !mine || !g.eng || g.ext) break;
         g.confirmed = { ...(g.confirmed || {}), [side]: false }; g.startSeq = null; return save();
       case "nextbout": {
-        if (g.state !== "end" || !mine || !g.obj || g.ext || !moreBouts(g)) break;
+        if (g.state !== "end" || !mine || (!g.obj && g.hasObjective!==false) || g.ext || !moreBouts(g)) break;
         const uid = g.eng.pairs[g.eng.bout][side === "a" ? 0 : 1];
         const st = (M.get("unit/" + myTeam + "/" + uid) || {}).st;
         if (!g.eng[side + "List"].some(x => x.uid === uid) || (st?.hp && st.hp.hp <= 0)) break;
@@ -742,7 +743,7 @@ export class BattleRoom {
         return save();
       }
       case "setnext": {                             // a side swaps which of its squads takes the next bout
-        if (g.state !== "end" || !mine || !g.obj || g.ext || !g.eng || !g.eng.pairs || g.confirmed?.[side]) break;
+        if (g.state !== "end" || !mine || (!g.obj && g.hasObjective!==false) || g.ext || !g.eng || !g.eng.pairs || g.confirmed?.[side]) break;
         const nb = (g.eng.bout || 1) + 1;
         if (nb > g.eng.pairs.length) break;
         const list = side === "a" ? g.eng.aList : g.eng.bList;
@@ -753,10 +754,10 @@ export class BattleRoom {
         return save();
       }
       case "extract": {                          // every squad gets the same response window
-        if (g.state !== "end" || !mine || !g.obj || !g.eng || g.ext) break;
+        if (g.state !== "end" || !mine || (!g.obj && g.hasObjective!==false) || !g.eng || g.ext) break;
         const uid = op.uid || g[side].uid;
         if (!g.eng[side + "List"].some(x => x.uid === uid)) break;
-        const holder = g.holder || { side: g.obj.win, uid: g[g.obj.win].uid };
+        const holder = g.holder || (g.obj?{ side: g.obj.win, uid: g[g.obj.win].uid }:{});
         g.ext = { side, uid, holder: holder.side === side && holder.uid === uid, deny: null, smoke: false };
         g.confirmed = { a: false, b: false }; g.startSeq = null; return save();
       }
@@ -780,7 +781,7 @@ export class BattleRoom {
         if (g.state !== "end" || !mine) break;
         g.state = "closed"; g.secured = other; return save();
       case "engedit": {                             // withdraw / add / merge on my own side, between bouts
-        if (g.state !== "end" || !mine || !g.obj || g.ext || !g.eng) break;
+        if (g.state !== "end" || !mine || (!g.obj && g.hasObjective!==false) || g.ext || !g.eng) break;
         g.confirmed = { a: false, b: false }; g.startSeq = null;
         const list = side === "a" ? g.eng.aList : g.eng.bList;
         if (op.kind === "merge") {
@@ -802,7 +803,7 @@ export class BattleRoom {
         return save();
       }
       case "end":
-        if (!mine || (g.state !== "invite" && (g.state !== "end" || !g.obj || g.ext))) break;
+        if (!mine || (g.state !== "invite" && (g.state !== "end" || (!g.obj && g.hasObjective!==false) || g.ext))) break;
         await M.del("ffsec/" + id + "/a"); await M.del("ffsec/" + id + "/b");
         g.state = "closed"; return save();
     }

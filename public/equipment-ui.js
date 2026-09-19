@@ -55,8 +55,8 @@ function eqSummary() {
   $('sheet').classList.toggle('ms-equipment',enabled);
   if(!enabled||eqPending?.uid!==CUR?.uid)eqPending=null;
   $('sheet').classList.toggle('eq-assign',!!eqPending);
-  button.textContent=eqPending?(eqPending.key==='stow'?'CANCEL':'DONE'):'EQUIP';
-  button.title=eqPending?'Leave equipment mode (completed changes are kept)':'Choose equipment, then its arm or shield HP bubble';
+  button.textContent=eqPending?'CANCEL':'EQUIP';
+  button.title=eqPending?'Exit equipment selection (completed changes are kept)':'Choose equipment, then its arm or shield HP bubble';
 }
 function eqStowClick() {
   if(eqPending?.key==='stow'){eqPending=null;draw();return;}

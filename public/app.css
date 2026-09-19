@@ -3281,7 +3281,7 @@ button.mb-item.fxtog{font:inherit;color:#dfe9f4;background:none;border-top:0;bor
 #sheet .eq-equip-ctl{font-size:clamp(4px,1.05cqw,15px)!important;max-width:5cqw;white-space:nowrap}
 #sheet{--eq-select:#00e5ff}
 #sheet.eq-assign>*{pointer-events:none!important}
-#sheet.eq-assign #equipBtn{pointer-events:auto!important}
+#sheet.eq-assign #equipBtn,#sheet.eq-assign #doneBtn{pointer-events:auto!important}
 #sheet.eq-assign #baseBtn{visibility:hidden}
 #sheet.eq-assign .txt,#sheet.eq-assign .wrow,#sheet.eq-assign .grp,#sheet.eq-assign #frame,#sheet.eq-assign .hp:not(.eq-arm){opacity:.3}
 #sheet.eq-assign .eq-arm{pointer-events:auto!important;outline:.3cqw solid var(--eq-select);outline-offset:.4cqw;cursor:pointer;z-index:65;box-shadow:none!important;animation:eq-outline 1.3s ease-in-out infinite alternate}
@@ -3536,3 +3536,6 @@ button.mb-item.fxtog{font:inherit;color:#dfe9f4;background:none;border-top:0;bor
 }
 @media(max-width:620px){#topbar{grid-template-columns:auto auto minmax(0,1fr) 44px auto}#topbar #uname{display:none}}
 @media(max-width:1100px) and (pointer:fine) and (max-height:400px){#topbar .btn,#topbar .seg button,#topbar .phase,#topbar #amtBar .a{min-height:28px}}
+
+/* Short landscape sheets keep row details in their tap-to-open notices. */
+@media (max-height:600px) and (orientation:landscape){#sheet .sx.sw-name span{display:none}}

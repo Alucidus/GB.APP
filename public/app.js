@@ -801,6 +801,7 @@ const GROUND_CAP = { tank: 2, car: 4, heli: 2, jet: 2, transport: 2, squad: 4 };
 const GROUND_VEHICLE_CAP = 8;
 const GV_TARGETS = {
   fire: [["Infantry Squad", "Squad Splash Table (d10)"], ["Ground vehicle", "6 dmg \u2014 armour-piercing"], ["Mobile suit", "2 dmg to all 6 locations"], ["Aircraft", "Cannot target at all"]],
+  car: [["Infantry Squad", "2 damage"], ["Armored / ground vehicle", "4 damage"], ["Mobile suit", "1 damage to all 6 locations"], ["Aircraft", "Cannot target"]],
   air:  [["Infantry Squad", "Squad Splash Table (d10)"], ["Ground vehicle", "3 dmg"], ["Aircraft", "3 dmg"], ["Mobile suit", "3 dmg to all 6 locations \u00b7 no Dodge"]],
 };
 const SPLASH_TABLE = "d10: 1\u20133 = 1 casualty \u00b7 4\u20136 = 2 \u00b7 7\u20138 = 3 \u00b7 9 = 4 \u00b7 10 = 5";
@@ -815,9 +816,11 @@ const GV_TYPES = {
       { key: "mg", scale: "GROUND", name: "Machine Gun", dmg: "8d6 \u00b7 3+", ap: 1, range: "60cm", cd: 0,
         note: "Detailed Battle Map. 8d6, 3+ to hit, 1 damage (2 on a 6, critical). Cannot damage Armor." },
     ] },
-  car: { cls: "Car", hp: 8, armor: 3, ap: 3, moveCm: 25, dodge: 12, prox: 30, respawn: "base", cargo: 1, targets: null,
-    targetNote: "The Car has no Overmap attack. A squad riding inside may still make its own Coordinated Strike out of the vehicle \u2014 that uses the squad's action and stats.",
+  car: { cls: "Car", hp: 8, armor: 3, ap: 3, moveCm: 25, dodge: 12, prox: 30, respawn: "base", cargo: 1, targets: "car",
+    targetNote: "Fire Support: 2 AP, 60cm, single target. Embarked squads can also make their own Coordinated Strike using squad AP.",
     gw: [
+      { key: "fire", scale: "OVERMAP", name: "Fire Support", dmg: "per target", ap: 2, range: "60cm", cd: 0,
+        note: "2 AP. One target within 60cm, standard range-based to-hit. Infantry: 2 damage. Armored/ground vehicle: 4 damage. Mobile suit: 1 damage to all 6 locations. Cannot target aircraft. No blast radius." },
       { key: "mg", scale: "GROUND", name: "Machine Gun", dmg: "8d6 \u00b7 3+", ap: 1, range: "60cm", cd: 0,
         note: "Detailed Battle Map. 8d6, 3+ to hit (a mounted gun is steadier than a soldier's), 1 damage (2 on a 6, critical). Cannot damage Armor." },
     ] },
@@ -981,7 +984,7 @@ function buildGroundFrame() {
   GV_HEX.forEach(([y, t]) => { add("flbl fstatc", { left: "49.8%", top: pc(y - 4.4) }, t); add("fhex", { left: "49.8%", top: pc(y) }); });
   // target effects panel (right, under the name panel)
   add("ftbl gtarget", { left: "57%", top: "22.5%", width: "37.8%", height: "30.5%" });
-  add("flbl fth", { left: "75.9%", top: "25%" }, u.targets === "fire" ? "FIRE SUPPORT \u2014 TARGET EFFECTS" : u.targets === "air" ? "AIR SUPPORT \u2014 TARGET EFFECTS" : "OVERMAP ATTACK");
+  add("flbl fth", { left: "75.9%", top: "25%" }, (u.targets === "fire" || u.targets === "car") ? "FIRE SUPPORT \u2014 TARGET EFFECTS" : u.targets === "air" ? "AIR SUPPORT \u2014 TARGET EFFECTS" : "OVERMAP ATTACK");
   add("fname fshipname"); add("flbl fsub", { left: "69.6%", top: "4.9%" }, "GROUND //");
   const cx = 94.3, cy = 10.6;
   add("fdial o", { left: pc(cx), top: pc(cy) }); add("fdial i", { left: pc(cx), top: pc(cy) });
@@ -1039,6 +1042,16 @@ function gvToggle(k, v) {
     save(); openSheet(uid); return;
   }
   gvCommit();
+}
+function gvMountedStrike(){
+  if(!CUR||!mpSheetCanEdit())return;
+  const vehicleUid=CUR.uid;
+  $('pickT').textContent='Coordinated Strike';$('pickS').textContent='Select an embarked squad. Costs 1 squad AP; vehicle AP is unchanged.';$('picklist').innerHTML='';$('pickExtra').innerHTML='';$('pickCancel').textContent='Cancel';
+  gvCarry(CUR).forEach(uid=>{const r=roster.find(x=>x.uid===uid);if(!r)return;const b=el('button','row');b.disabled=!sqAlive(r.st)||r.st.ap<1||stanceOf(r.st)==='hide'||!!ffPinned(uid);b.innerHTML=portraitHTML(unitById(r.id),r)+'<span>'+ffText(unitLabel(uid))+' · '+r.st.ap+' AP</span>';b.onclick=()=>{
+    if(!mpForeignCheck(uid))return;closePicker();
+    const fire=()=>{const target=roster.find(x=>x.uid===uid),vehicle=roster.find(x=>x.uid===vehicleUid);if(!target||!vehicle||!gvCarry(vehicle).includes(uid)||!sqAlive(target.st)||target.st.ap<1||stanceOf(target.st)==='hide'||ffPinned(uid))return;target.st.ap--;logEv(uid,'Coordinated Strike from '+unitLabel(vehicleUid)+' (1 squad AP)','info');save();if(CUR)draw();};
+    if(mpTeamMode()&&!mp.held.has(lockKey(mpMyTeam(),uid)))mpForeign(uid,fire,()=>{},'Coordinated Strike was');else fire();
+  };$('picklist').appendChild(b);});$('pick').classList.add('on');
 }
 function drawGround() {
   const u = U, st = gvMigrate(u, CUR.st), G = st.gv;
@@ -1098,6 +1111,7 @@ function drawGround() {
   if (u.cargo) rows.push({ name: "Squads aboard", sub: (gvCarry(CUR).length ? gvCarry(CUR).map(unitLabel).join(", ") : "capacity " + u.cargo + " \u00b7 safe & untargetable"),
     ap: "+", act: () => gvEmbark(), cd: gvCarry(CUR).length + " / " + u.cargo, step: true,
     info: "Carries " + u.cargo + " Infantry Squad" + (u.cargo > 1 ? "s" : "") + ", safe and untargetable while aboard. If destroyed with squads inside: Emergency Disembark \u2014 roll 1d6 per living soldier, 4+ survives, 1\u20133 perishes; survivors are placed at the wreck. Tap + to embark a squad, \u21E9 to disembark one." });
+  if(u.gtype==='car'&&gvCarry(CUR).length)rows.push({name:'Coordinated Strike',sub:'Select an embarked squad · uses squad AP',ap:'1',cd:'SQUAD',act:gvMountedStrike,info:'An embarked squad can fire using its own Coordinated Strike, costing 1 squad AP. Vehicle AP is unchanged.'});
   if (u.objective) rows.push({ name: G.objective && G.objName ? "\u{1F6A9} " + G.objName : "Objective", sub: "may carry the mission objective", ap: G.objective ? "ON" : "set", cd: G.objective ? "CARRYING" : "\u2014", act: () => gvToggle("objective"), on: G.objective,
     info: "A Tank cannot transport a squad, but may carry the mission objective itself (e.g. the person or item being secured)." });
   rows.push({ name: "Targeting", sub: "untargetable by suits unless one is within " + u.prox + "cm", ap: "\u2014", cd: (u.dodge ? "DODGE " + u.dodge + "+" : "NO DODGE"),
@@ -1364,7 +1378,9 @@ function sqCasualtyPicker(count, why, done) {
     };
     lst.appendChild(d);
   });
-  $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Later";
+  $("pickExtra").innerHTML = "";
+  const wipe=el('button','btn');wipe.id='sqRemoveAll';wipe.textContent='Remove all soldiers';let armed=false;
+  wipe.onclick=()=>{if(!armed){armed=true;wipe.textContent='Confirm — remove all '+sqAlive(st)+' soldiers';return;}if(CUR?.uid!==uid||!mpSheetCanEdit())return;const before=sqAlive(st);st.sq.soldiers.forEach(s=>s.hp=0);sqSyncHP(st);aggDmg(uid,'sq:hp','Squad Health',before,0,8,'lost');logEv(uid,'SQUAD WIPED OUT — respawns from base','bad','gv0');closePicker();sqCommit();if(done)done();};$('pickExtra').appendChild(wipe); $("pickCancel").textContent = "Later";
   $("pick").classList.add("on");
 }
 function sqRevivePicker() {
@@ -2232,7 +2248,8 @@ function ffPickRender() {
     col("me", P.mine, mpMyTeam(), "Your side \u00b7 " + teamName(mpMyTeam())) +
     '<div class="ffvsmid">VS</div>' +
     col("foe", P.enemy, otherTeam(mpMyTeam()), "Enemy \u00b7 " + teamName(otherTeam(mpMyTeam()))) + '</div>' +
-    '<label class="ffobjname">\u{1F6A9} What are they fighting over?<input id="ffObjName" maxlength="24" placeholder="e.g. Server room" value="' + ffText(P.obj || "") + '" oninput="ffSel.obj=this.value"></label>' +
+    '<fieldset class="ffobjective-choice"><legend>Fight purpose</legend><label><input type="radio" name="ffPurpose" id="ffNoObjective" '+(!P.hasObjective?'checked':'')+' onchange="ffSel.hasObjective=false;ffPickRender()"> No objective · range encounter</label><label><input type="radio" name="ffPurpose" id="ffWithObjective" '+(P.hasObjective?'checked':'')+' onchange="ffSel.hasObjective=true;ffPickRender()"> Fight for an objective</label></fieldset>' +
+    (P.hasObjective?'<label class="ffobjname">Objective name<input id="ffObjName" maxlength="24" placeholder="e.g. Server room" value="'+ffText(P.obj||'')+'" oninput="ffSel.obj=this.value"></label>':'') +
     (n && m ? ffLineupHTML(P.me.map(uid => P.mine.find(x => x.uid === uid)), P.foe.map(uid => P.enemy.find(x => x.uid === uid)), P.pairs, mpMyTeam(), otherTeam(mpMyTeam()), false) : '');
   const go = $("ffGoBtn");
   if (go) {
@@ -2250,7 +2267,7 @@ window.ffChallenge = () => {
     const cs = carrierState(r.uid);
     return { uid: r.uid, label: unitLabel(r.uid), alive: sqAlive(r.st), busy: !!ffForUid(r.uid, mpMyTeam()), aboard: !!(cs && cs.state === "aboard") };
   });
-  ffSel = { mine, enemy: ffEnemySquads(), me: [CUR.uid], foe: [], obj: "" };
+  ffSel = { mine, enemy: ffEnemySquads(), me: [CUR.uid], foe: [], obj: "", hasObjective: false };
   $("pickT").textContent = "\u2694 Challenge an enemy squad";
   $("pickS").innerHTML = "Select squads on both sides, then review matchups below. <b>One pair fights each turn.</b>";
   ffPickRender();
@@ -2263,7 +2280,7 @@ window.ffChallenge = () => {
     ffOp({ op: "invite", id: ffNewId(),
       aUids: P.me, aLabels: P.me.map(u => lab(P.mine, u)),
       bUids: P.foe, bLabels: P.foe.map(u => lab(P.enemy, u)),
-      obj: (P.obj || "").trim(), pairs: P.pairs });
+      obj: P.hasObjective?(P.obj || "").trim():"", hasObjective:!!P.hasObjective, pairs: P.pairs });
     mpToast(P.me.length + " vs " + P.foe.length + " challenge sent \u2014 waiting for the enemy to accept.");
     ffSel = null;
   };
@@ -2398,7 +2415,7 @@ function ffReviewChallenge(id) {
 }
 function ffReviewRender() {
   const f = ffSel && mp.data["ff/" + ffSel.reviewId];if (!f?.eng) return;
-  $("picklist").innerHTML = '<div class="ffreview-objective">🚩 ' + ffText(f.eng.obj || "Objective") + '</div>' + ffLineupHTML(f.eng.aList, f.eng.bList, ffSel.pairs, f.a.team, f.b.team, true);
+  $("picklist").innerHTML = '<div class="ffreview-objective">' + (f.hasObjective===false?'No objective · range encounter':'🚩 '+ffText(f.eng.obj || 'Objective')) + '</div>' + ffLineupHTML(f.eng.aList, f.eng.bList, ffSel.pairs, f.a.team, f.b.team, true);
 }
 window.ffDecline = id => ffOp({ op: "decline", id });
 window.ffResume = id => {
@@ -2692,7 +2709,7 @@ window.ffObjective = win => {
   ffOp({ op: "objective", id: f.id, hpMine: sqAlive(CUR.st), hpFoe: enemyHp, win });
 };
 window.ffSegment = forced => {
-  const f = ffMine(); if (!f || f.state !== "end" || !f.obj || f.ext || ffMoreBouts(f)) return;
+  const f = ffMine(); if (!f || f.state !== "end" || (!f.obj && f.hasObjective!==false) || f.ext || ffMoreBouts(f)) return;
   const queue = x => {
     ffOp({ op: "segment", id: f.id, forced: !!forced, uid: x?.uid });
     mpToast("Forced Re-Engagement booked — it starts next turn.");
@@ -2754,10 +2771,10 @@ window.ffSmokeOut = () => {
     x => { ffOp({ op: "smokeout", id: f.id, uid: x.uid }); mpToast("\u25CC Smoke thrown — the enemy can flash again or let you go."); });
 };
 window.ffFightOn = () => { const f = ffMine(); if (f) ffOp({ op: "fighton", id: f.id }); };
-window.ffConcede = () => { const f = ffMine(); if (f && confirm("Your squads are out of the fight. The enemy secures the objective?")) ffOp({ op: "concede", id: f.id }); };
+window.ffConcede = () => { const f = ffMine(); if (f && confirm(f.hasObjective===false?"Your squads are out of the fight. End this engagement?":"Your squads are out of the fight. The enemy secures the objective?")) ffOp({ op: "concede", id: f.id }); };
 // withdraw / add / merge between bouts
 window.ffEditSquads = () => {
-  const f = ffMine(); if (!f || !f.eng || f.state !== "end" || !f.obj || f.ext) return;
+  const f = ffMine(); if (!f || !f.eng || f.state !== "end" || (!f.obj && f.hasObjective!==false) || f.ext) return;
   const s = ffSideOf(f), mineList = ffMySquads(f);
   $("pickT").textContent = "\u21C4 Edit your squads";
   $("pickS").innerHTML = "Between bouts you can pull a squad out, bring one in, or merge survivors. Leaving can be stopped by an enemy Flashbang.";
@@ -3019,7 +3036,7 @@ function ffText(value) {
 }
 function ffMoreBouts(f) { return !!(f.eng && f.eng.pairs && f.eng.bout < f.eng.pairs.length); }
 function ffBreakPending(f) {
-  return f.state === "end" && (!f.obj || !!f.ext || (ffMoreBouts(f) && !(f.confirmed?.a && f.confirmed?.b)));
+  return f.state === "end" && ((!f.obj && f.hasObjective!==false) || !!f.ext || (ffMoreBouts(f) && !(f.confirmed?.a && f.confirmed?.b)));
 }
 window.ffBoardBack = () => { ffHidden = true; renderFF(); closeSheet(); };
 window.ffConfirmFighter = () => {
@@ -3051,7 +3068,7 @@ function ffBoard(f, s) {
   }).join('');
   const noAlive = f.eng && !ffMySquads(f).some(x => x.alive > 0);
   const status = mine && theirs ? 'Both teams confirmed — bout ' + (f.eng.bout + 1) + ' starts next turn.' : mine ? 'Waiting for the ' + teamName(f[o].team) + ' to confirm.' : 'Choose your next fighter, then confirm.';
-  return '<section class="ffboard"><div class="ffboard-title"><div><small>BETWEEN BOUTS</small><h2>Engagement board</h2><p>🚩 ' + name + ' · ' + (holder?.side === s ? 'Your squad holds it' : 'The enemy holds it') + '</p></div>' +
+  return '<section class="ffboard"><div class="ffboard-title"><div><small>BETWEEN BOUTS</small><h2>Engagement board</h2><p>' + (f.hasObjective===false?'No objective · range encounter':'🚩 '+name+' · '+(holder?.side === s ? 'Your squad holds it' : 'The enemy holds it')) + '</p></div>' +
     (f.eng ? '<button class="btn" onclick="ffEditSquads()">⇄ Edit roster</button>' : '') + '</div>' +
     '<div class="ffboard-teams">' + [s, o].map(sd => '<section class="ffboard-team ' + f[sd].team + '"><h3>' + teamName(f[sd].team) + '<small>' + (sd === s ? 'YOUR SQUADS' : 'ENEMY SQUADS') + '</small></h3>' + cards(sd) + '</section>').join('') + '</div>' +
     (noAlive ? '<div class="ffboard-confirm"><b>Your squads are out of the fight.</b><button class="btn pri" onclick="ffConcede()">End the engagement</button></div>' : more ? '<div class="ffboard-confirm" role="status"><div><b>Bout ' + (f.eng.bout + 1) + ' of ' + f.eng.pairs.length + '</b><p>' + status + '</p><small>' + (mine && theirs ? 'You can un-confirm until this turn ends.' : 'Both teams must confirm before the turn can end.') + '</small></div><button class="btn big ' + (mine ? '' : 'pri') + '" onclick="ffConfirmFighter()">' + (mine ? 'Un-confirm' : 'Confirm fighter') + '</button></div>' : '<p class="ffboard-finished">All bouts complete. Disengage to leave, or open More for the remaining options.</p>') +
@@ -3182,6 +3199,8 @@ function renderFF() {
         ? ffWizard(f, s, o, q, alive, { vs, chips, det, nowDice, parts, off, fl, fp })
         : '<div class="ffrv2"><div class="ffcolL">' + vs + dice + chips + det + '</div><div class="ffcolR">' + rollBox + onesRow + margin + next + ready + '</div></div>';
     } else body = '<div class="ffcount"><b class="keep">' + (ffShown[rkey + ":n"] || 1) + '</b></div>';   // a redraw mid-countdown keeps the number
+  } else if (f.state === "closed" && f.hasObjective===false) {
+    body='<div class="ffmsg"><b>Firefight complete</b><span>This was a range encounter. No objective roll or capture.</span><button class="btn" onclick="ffPause()">Close</button></div>';
   } else if (f.state === "closed" && f.secured && f.eng) {
     body = '<div class="ffmsg"><b>' + (!f.ext?.holder ? (f.secured === s ? "Your side secured 🚩 " : "They secured 🚩 ") + ffText(f.eng.obj || "the objective") : f.secured === s ? "You extracted with 🚩 " + ffText(f.eng.obj || "the objective") : "They extracted with 🚩 " + ffText(f.eng.obj || "the objective")) + '</b>' +
       '<span>' + (!f.ext?.holder ? "The engagement is over." : f.secured === s ? "Your squad got away with \u{1F6A9} " + ffText(f.eng.obj || "the objective") + "." : "Their squad got away with \u{1F6A9} " + ffText(f.eng.obj || "the objective") + ".") + '</span>' +
@@ -3199,12 +3218,12 @@ function renderFF() {
       '<span class="ocHp">Your squad <b>' + mineHp + ' HP</b> · Enemy <b>' + foeHp + ' HP</b></span><span class="ocBn">' + bonus + '</span>' +
       '<small>Re-roll ties. The winner holds the objective until a squad gets away with it.</small><div class="ffrow wrap">' +
       (f.mode === "physical" ? '<button class="btn big pri" onclick="ffObjective(\'mine\')">We secured it</button><button class="btn big" onclick="ffObjective(\'theirs\')">They secured it</button>' : '<button class="btn big pri" onclick="ffObjective()">Roll the Objective Clash</button>') + '</div></div></div>';
-    body = !ob ? clash : f.ext ? ffDisengageScreen(f, s) : ffBoard(f, s);
+    body = !ob && f.hasObjective!==false ? clash : f.ext ? ffDisengageScreen(f, s) : ffBoard(f, s);
   }
   const keepScroll = box.querySelector(".ffpanel") ? box.querySelector(".ffpanel").scrollTop : 0;
   box.innerHTML = '<div class="ffpanel">' +
     '<div class="ffhead"><b>\u2694 FIREFIGHT</b><span class="ffpips">' + pips + '</span><span class="ffmode">' + (f.mode === "rolled" ? "ROLLED DICE" : f.mode === "physical" ? "PHYSICAL DICE" : "") + (f.seg > 1 ? " \u00b7 BOUT " + f.seg : "") + '</span>' +
-      (f.state === "end" && f.obj && !f.ext ? '<button class="btn sm" onclick="ffBoardBack()">Back to roster</button>' : '<button class="btn sm" onclick="ffPause()">\u23F8 Pause</button>') + '</div>' +
+      (f.state === "end" && (f.obj || f.hasObjective===false) && !f.ext ? '<button class="btn sm" onclick="ffBoardBack()">Back to roster</button>' : '<button class="btn sm" onclick="ffPause()">\u23F8 Pause</button>') + '</div>' +
     ((f.state === "end" || f.state === "closed") ? '' : '<div class="ffsides"><div class="ffside me"><small>YOU</small><b>' + myLabel + '</b><em>' + alive + ' / 8 \u00b7 FP ' + FIREPOWER(alive) + (q.supp ? ' \u00b7 ' + q.supp + ' dice set aside' : '') + '</em>' +
       '<span class="ffinv">' + ["fb", "sm", "gr"].map(k => FF_ITEMS[k].i + "\u00d7" + q.items[k]).join("  ") + '</span></div>' +
       '<div class="ffside foe"><small>ENEMY</small><b>' + foeLabel + '</b><em>' + enemyAlive + ' / 8</em><span class="ffinv">items hidden</span></div></div>') +
@@ -3220,7 +3239,7 @@ function renderFF() {
 let ffWaitNotified = new Set();
 function ffWaitingForFighter(f, team) {
   const sd = f.a?.team === team ? "a" : f.b?.team === team ? "b" : null;
-  return !!(sd && f.state === "end" && f.obj && !f.ext && ffMoreBouts(f) &&
+  return !!(sd && f.state === "end" && (f.obj || f.hasObjective===false) && !f.ext && ffMoreBouts(f) &&
     f.confirmed?.[ffOther(sd)] && !f.confirmed?.[sd]);
 }
 // invites on the defending team, and a challenger's declined notice
@@ -7824,7 +7843,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(()=>{renderAmounts();fitSheet();}));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf141";
+const APP_BUILD = "cf142";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
@@ -8440,7 +8459,8 @@ function renderTurn() {
   if (ub) ub.style.display = phaseUndo ? "" : "none";
   const db = $("doneBtn");
   if (db) {
-    const show = !!(CUR && locked && !isDead(CUR) && !outOfPlay(CUR.uid));
+    const equipping=!!(eqPending&&CUR&&eqPending.uid===CUR.uid);
+    const show = equipping || !!(CUR && locked && !isDead(CUR) && !outOfPlay(CUR.uid));
     db.style.display = show ? "flex" : "none";
     if (show) {
       const d = isDone(CUR.uid);
@@ -8450,6 +8470,7 @@ function renderTurn() {
       db.style.borderColor = d ? "" : acc; db.style.color = d ? "" : acc;
       db.title = !you ? (d ? "Damage counted so far \u2014 tap to clear. A new hit clears it by itself." : "This unit's damage is applied \u2014 mark it counted (it can still take more)")
         : d ? "Ticked off for this turn \u2014 tap to un-tick" : "Finished with this unit \u2014 tick it off and go back to the roster";
+      if(equipping){db.textContent='DONE ✓';db.className='';db.title='Finish equipping; keep this unit open';}
     }
   }
   const tl = $("tl");
@@ -8501,6 +8522,7 @@ $("phaseChip").onclick = () => closeSheet();
 let doneBusy = false;
 $("doneBtn").onclick = () => {
   if (!CUR || doneBusy) return;
+  if(eqPending){eqPending=null;draw();return;}
   if (isDone(CUR.uid)) { setDone(CUR.uid, false); renderTurn(); return; }
   const uid = CUR.uid;
   setDone(uid, true);
