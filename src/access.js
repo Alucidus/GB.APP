@@ -1,4 +1,4 @@
-const COOKIE='__Host-gb-access',AGE=12*60*60;
+const COOKIE='__Host-gb-access',AGE=30*24*60*60;
 const enc=new TextEncoder();
 const hex=b=>Array.from(new Uint8Array(b),x=>x.toString(16).padStart(2,'0')).join('');
 const configured=e=>typeof e.SITE_PASSWORD==='string'&&e.SITE_PASSWORD.length>0&&typeof e.SESSION_SECRET==='string'&&e.SESSION_SECRET.length>=32;
