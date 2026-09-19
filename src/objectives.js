@@ -8,7 +8,7 @@ export async function serviceObjectives(M,ops,pid,team,canWrite,denied){
   if(!op||typeof op.requestId!=='string'||op.requestId.length>80||!op.confirmed||!canWrite(op.uid)){denied.push('objective:You do not control this unit.');continue;}
   const receipt=pid+':'+op.requestId;if(f.receipts[receipt])continue;
   const item=f.items[op.id];
-  const busy=fights.some(g=>g.hasObjective!==false&&!['closed','declined','invite'].includes(g.state)&&((item&&f.fights[g.id]?.id===item.id)|| (item&&O.clean(g.eng?.obj).toLowerCase()===item.name.toLowerCase())));
+  const busy=fights.some(g=>g.hasObjective!==false&&!['closed','declined','invite'].includes(g.state)&&((item&&(g.eng?.objectiveId===item.id||f.fights[g.id]?.id===item.id))|| (item&&O.clean(g.eng?.obj).toLowerCase()===item.name.toLowerCase())));
   if(busy){denied.push('objective:Finish the objective firefight or disengagement first.');continue;}
   const why=O.act(f,rows,team,op);if(why){denied.push('objective:'+why);continue;}f.receipts[receipt]=true;
  }

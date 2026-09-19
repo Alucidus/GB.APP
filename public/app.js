@@ -2216,6 +2216,22 @@ function ffDraftPairs(P) {
   P.pairs = P.me.map((uid, i) => [uid, P.foe.includes(old.find(pr => pr[0] === uid)?.[1]) ? old.find(pr => pr[0] === uid)[1] : P.foe[i % P.foe.length]]);
   return P.pairs;
 }
+function ffObjectiveReady(P){return !P.hasObjective||!!objectiveLedger().items[P.objectiveId]||!!(P.newObjective&&(P.obj||'').trim());}
+function ffChallengeReady(){const P=ffSel,go=$('ffGoBtn');if(!P||!go)return;const ready=P.me.length&&P.foe.length&&ffObjectiveReady(P);go.disabled=!ready;go.className='btn big '+(ready?'pri':'off');}
+window.ffObjectivePurpose=on=>{ffSel.hasObjective=on;ffSel.purposeTouched=true;ffPickRender();};
+window.ffSelectObjective=id=>{const P=ffSel,o=objectiveLedger().items[id];P.objectiveId=o?id:'';P.obj=o?o.name:'';P.newObjective=!o;P.objectiveTouched=true;P.hasObjective=true;P.purposeTouched=true;ffPickRender();};
+function ffObjectiveOptions(P){
+ const items=Object.values(objectiveLedger().items);
+ if(!P.objectiveTouched){
+  const relevant=items.filter(o=>o.holder&&((o.holder.team===mpMyTeam()&&P.me.includes(o.holder.uid))||(o.holder.team===otherTeam(mpMyTeam())&&P.foe.includes(o.holder.uid))));
+  P.objectiveId=relevant.length===1?relevant[0].id:'';P.obj=relevant.length===1?relevant[0].name:'';
+  if(!P.purposeTouched)P.hasObjective=relevant.length===1;
+ }
+ if(!P.hasObjective)return '';
+ return '<div class="ffobjective-options"><h5>Select the objective</h5>'+items.map(o=>'<button type="button" class="objective-card'+(P.objectiveId===o.id?' selected':'')+'" data-ff-objective="'+o.id+'" aria-pressed="'+(P.objectiveId===o.id)+'" onclick="ffSelectObjective(\''+o.id+'\')"><b>⚑ '+ffText(o.name)+'</b><span>'+(o.holder?ffText(teamName(o.holder.team))+' · carrier #'+o.holder.uid:'On the battlefield')+'</span></button>').join('')+
+ '<button type="button" class="btn sm" id="ffNewObjective" onclick="ffSelectObjective(\'\')">'+(P.newObjective?'Naming a new objective':'＋ New objective')+'</button>'+
+ (P.newObjective?'<label class="ffobjname">New objective name<input id="ffObjName" maxlength="40" placeholder="e.g. Server room" value="'+ffText(P.obj||'')+'" oninput="ffSel.obj=this.value;ffChallengeReady()"></label>':'')+'</div>';
+}
 function ffPickRender() {
   const P = ffSel; if (!P) return;
   const box = (side, x, team) => {
@@ -2228,18 +2244,19 @@ function ffPickRender() {
   };
   const col = (side, list, team, title) => '<div class="ffcol"><h5 class="' + ffSideClass(team) + '">' + title + '</h5>' + list.map(x => box(side, x, team)).join("") + '</div>';
   const n = P.me.length, m = P.foe.length;
+  const objectiveOptions=ffObjectiveOptions(P);
   ffDraftPairs(P);
   $("picklist").innerHTML = '<div class="ffpick2">' +
     col("me", P.mine, mpMyTeam(), "Your side \u00b7 " + teamName(mpMyTeam())) +
     '<div class="ffvsmid">VS</div>' +
     col("foe", P.enemy, otherTeam(mpMyTeam()), "Enemy \u00b7 " + teamName(otherTeam(mpMyTeam()))) + '</div>' +
-    '<fieldset class="ffobjective-choice"><legend>Fight purpose</legend><label><input type="radio" name="ffPurpose" id="ffNoObjective" '+(!P.hasObjective?'checked':'')+' onchange="ffSel.hasObjective=false;ffPickRender()"> No objective · range encounter</label><label><input type="radio" name="ffPurpose" id="ffWithObjective" '+(P.hasObjective?'checked':'')+' onchange="ffSel.hasObjective=true;ffPickRender()"> Fight for an objective</label></fieldset>' +
-    (P.hasObjective?'<label class="ffobjname">Objective name<input id="ffObjName" list="ffObjectiveNames" maxlength="40" placeholder="e.g. Server room" value="'+ffText(P.obj||'')+'" oninput="ffSel.obj=this.value"></label><datalist id="ffObjectiveNames">'+Object.values(objectiveLedger().items).map(o=>'<option value="'+ffText(o.name)+'"></option>').join('')+'</datalist>':'') +
+    '<fieldset class="ffobjective-choice"><legend>Fight purpose</legend><label><input type="radio" name="ffPurpose" id="ffNoObjective" '+(!P.hasObjective?'checked':'')+' onchange="ffObjectivePurpose(false)"> No objective · range encounter</label><label><input type="radio" name="ffPurpose" id="ffWithObjective" '+(P.hasObjective?'checked':'')+' onchange="ffObjectivePurpose(true)"> Fight for an objective</label></fieldset>' +
+    objectiveOptions +
     (n && m ? ffLineupHTML(P.me.map(uid => P.mine.find(x => x.uid === uid)), P.foe.map(uid => P.enemy.find(x => x.uid === uid)), P.pairs, mpMyTeam(), otherTeam(mpMyTeam()), false) : '');
   const go = $("ffGoBtn");
   if (go) {
     go.textContent = n && m ? "\u2694 CHALLENGE \u00b7 " + n + " vs " + m : "SELECT BOTH SIDES";
-    go.className = "btn big " + (n && m ? "pri" : "off");
+    ffChallengeReady();
   }
 }
 window.ffChallenge = () => {
@@ -2259,13 +2276,14 @@ window.ffChallenge = () => {
   const go = el("button", "btn big pri"); go.id = "ffGoBtn";
   go.onclick = () => {
     const P = ffSel; if (!P || !P.me.length || !P.foe.length) return;
+    if(!ffObjectiveReady(P)){mpToast("Select an existing objective or name a new one.");return;}
     const lab = (list, uid) => (list.find(x => x.uid === uid) || {}).label || "Squad";
     closePicker();
     ffHidden = false;
     ffOp({ op: "invite", id: ffNewId(),
       aUids: P.me, aLabels: P.me.map(u => lab(P.mine, u)),
       bUids: P.foe, bLabels: P.foe.map(u => lab(P.enemy, u)),
-      obj: P.hasObjective?(P.obj || "").trim():"", hasObjective:!!P.hasObjective, pairs: P.pairs });
+      obj: P.hasObjective?(P.obj || "").trim():"", objectiveId:P.hasObjective?(P.objectiveId||null):null, hasObjective:!!P.hasObjective, pairs: P.pairs });
     mpToast(P.me.length + " vs " + P.foe.length + " challenge sent \u2014 waiting for the enemy to accept.");
     ffSel = null;
   };
@@ -7822,7 +7840,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(()=>{renderAmounts();fitSheet();}));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf148";
+const APP_BUILD = "cf149";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

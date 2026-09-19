@@ -548,14 +548,22 @@ export class BattleRoom {
         const tk0 = M.get("turn");
         if (tk0 && tk0.active !== myTeam) { denied.push("ff:not-your-turn"); return false; }   // challenges only on your own turn
         if (aList.some(x => busy(x.uid)) || bList.some(x => busy(x.uid)) || M.has(key)) { denied.push("ff:invite"); return false; }
+        const objectiveItems=M.get('objectives')?.items||{};
+        let objective=op.hasObjective===false?null:(op.objectiveId?objectiveItems[op.objectiveId]:Object.values(objectiveItems).find(o=>o.name.toLowerCase()===String(op.obj||'').trim().toLowerCase()));
+        if(op.hasObjective!==false&&op.objectiveId&&!objective){denied.push('ff:objective-missing');return false;}
         const proposed = op.pairs === undefined ? null : op.pairs;
         if (proposed !== null && (!Array.isArray(proposed) || proposed.length !== aList.length ||
             proposed.some((pr, i) => !Array.isArray(pr) || pr.length !== 2 || pr[0] !== aList[i].uid || !bList.some(x => x.uid === pr[1])))) {
           denied.push("ff:pairs"); return false;
         }
+        if(op.hasObjective!==false&&!objective&&String(op.obj||'').trim()){
+          const field=globalThis.GBObjectives.init(structuredClone(M.get('objectives')||{}));
+          if(Object.keys(field.items).length>=100){denied.push('ff:objective-limit');return false;}
+          objective=globalThis.GBObjectives.ensure(field,op.obj);await M.set('objectives',field);
+        }
         await M.set(key, { id, state: "invite", at: now, mode: null, rollAsk: null, round: 1, seg: 1, forced: null, startSeq: null,
           hasObjective: op.hasObjective!==false,
-          eng: { aList, bList, obj: op.hasObjective===false?"":String(op.obj || "").slice(0, 40), pairs: proposed, bout: 1, log: [] },
+          eng: { aList, bList, objectiveId:objective?.id||null, obj: op.hasObjective===false?"":objective?.name||String(op.obj || "").slice(0, 40), pairs: proposed, bout: 1, log: [] },
           a: { team: myTeam, uid: aList[0].uid, pid, label: aList[0].label },
           b: { team: other, uid: bList[0].uid, pid: null, label: bList[0].label },
           lock: { a: false, b: false }, ready: { a: null, b: null }, hp: { a: null, b: null }, reveal: null, roll: null, obj: null });

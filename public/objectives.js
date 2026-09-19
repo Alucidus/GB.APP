@@ -42,8 +42,8 @@
    if(g.state==='closed'&&g.secured&&h.side!==g.secured)h={side:g.secured,uid:g[g.secured]?.uid};
    const sig=g.id+':'+g.seg+':'+h.side+':'+h.uid;if(f.fights[g.id]?.sig===sig)continue;
    const previous=f.fights[g.id],name=clean(g.eng?.obj)||'Objective '+g.id;
-   const o=f.items[previous?.id]||byName(f,name)||add(f,name);const to=rows.find(r=>r.team===g[h.side]?.team&&r.uid===h.uid);
+   const o=f.items[g.eng?.objectiveId]||f.items[previous?.id]||byName(f,name)||add(f,name);const to=rows.find(r=>r.team===g[h.side]?.team&&r.uid===h.uid);
    move(o,alive(to)?to:null,'Firefight objective secured');f.fights[g.id]={sig,id:o.id};
   }project(f,rows);}
- root.GBObjectives={clean,eligible,alive,same,init,byName,scan,project,act,fights};
+ root.GBObjectives={clean,eligible,alive,same,init,byName,ensure:(f,name)=>byName(f,name)||add(f,name),scan,project,act,fights};
 })(globalThis);
