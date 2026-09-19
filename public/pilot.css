@@ -39,7 +39,7 @@ html.fx-lite .pilot-flyby{display:none}
 .pilot-shade{position:absolute;inset:0;z-index:-2;background:linear-gradient(90deg,rgba(2,9,15,.83),rgba(2,9,15,.08) 76%),linear-gradient(0deg,rgba(2,9,15,.7),transparent 45%);pointer-events:none}
 .pilot-flight-space[data-scene=duel]>.pilot-flight{visibility:hidden}
 .pilot-flight-space[data-scene=chase]>.pilot-duel{visibility:hidden}
-.pilot-duel{position:absolute;inset:0;--duel-x:53%;--duel-y:26%;--nu-exit-angle:-148.57deg}
+.pilot-duel{position:absolute;inset:0;--duel-x:53%;--duel-y:26%}
 .pilot-sazabi{position:absolute;width:clamp(160px,19vw,275px);left:var(--duel-x);top:var(--duel-y);opacity:0;animation:pilot-sazabi-scene 16s linear infinite paused;transform:translate(-50%,-50%)}
 .pilot-sazabi-art{display:block;width:100%;height:auto}
 .pilot-shield-impact{position:absolute;left:31%;top:35%;width:0;height:0}
@@ -64,20 +64,19 @@ html.fx-lite .pilot-flyby{display:none}
 @keyframes pilot-shield-beam{0%,13%{opacity:0;transform:scaleX(0)}13.01%{opacity:1;transform:scaleX(0)}14%{opacity:1;transform:scaleX(1)}14.5%{opacity:1;transform:scaleX(1)}15%,100%{opacity:0;transform:scaleX(1)}}
 @keyframes pilot-shield-blast{0%,14%{opacity:0;transform:scale(.1)}14.1%{opacity:1;transform:scale(.35)}15%{opacity:1;transform:scale(.85)}17%,100%{opacity:0;transform:scale(1.1)}}
 @keyframes pilot-shield-ring{0%,14%{opacity:0;transform:scale(.1)}14.2%{opacity:.9;transform:scale(.3)}17.5%,100%{opacity:0;transform:scale(1.2)}}
-/* Nu enters from the beam's left side, curls upward, then joins Sazabi's escape line. */
+/* Opposing breaks: Nu keeps moving right and banks into an upward-right climb. */
 @keyframes pilot-nu-ramp{
  0%,23%{left:8%;top:calc(var(--duel-y) - 2.5%);transform:translate(-50%,-50%) rotate(0deg);opacity:0}
  23.01%{opacity:1}
  25%{left:calc(var(--duel-x) - 4%);top:calc(var(--duel-y) - 2.5%);transform:translate(-50%,-50%) rotate(0deg);opacity:1}
- 26%{left:calc(var(--duel-x) + 3%);top:calc(var(--duel-y) - 3%);transform:translate(-50%,-50%) rotate(-15deg);opacity:1}
- 27%{left:calc(var(--duel-x) + 6%);top:calc(var(--duel-y) - 5%);transform:translate(-50%,-50%) rotate(-55deg);opacity:1}
- 28%{left:calc(var(--duel-x) + 4%);top:calc(var(--duel-y) - 7%);transform:translate(-50%,-50%) rotate(-110deg);opacity:1}
- 29%{left:calc(var(--duel-x) - 1%);top:calc(var(--duel-y) - 8%);transform:translate(-50%,-50%) rotate(var(--nu-exit-angle));opacity:1}
- 30%{left:calc(var(--duel-x) - 8.75%);top:calc(var(--duel-y) * .75 - 3%);transform:translate(-50%,-50%) rotate(var(--nu-exit-angle));opacity:1}
- 33%{left:calc(var(--duel-x) - 35%);top:-12%;transform:translate(-50%,-50%) rotate(var(--nu-exit-angle));opacity:1}
- 33.01%,100%{left:calc(var(--duel-x) - 35%);top:-12%;transform:translate(-50%,-50%) rotate(var(--nu-exit-angle));opacity:0}
+ 26%{left:calc(var(--duel-x) + 3%);top:calc(var(--duel-y) - 3%);transform:translate(-50%,-50%) rotate(-10deg);opacity:1}
+ 27%{left:calc(var(--duel-x) + 9%);top:calc(var(--duel-y) - 7%);transform:translate(-50%,-50%) rotate(-28deg);opacity:1}
+ 28%{left:calc(var(--duel-x) + 14%);top:calc(var(--duel-y) - 14%);transform:translate(-50%,-50%) rotate(-42deg);opacity:1}
+ 29%{left:calc(var(--duel-x) + 19%);top:calc(var(--duel-y) - 23%);transform:translate(-50%,-50%) rotate(-46deg);opacity:1}
+ 31%{left:calc(var(--duel-x) + 31%);top:calc(var(--duel-y) - 45%);transform:translate(-50%,-50%) rotate(-46deg);opacity:1}
+ 31.01%,100%{left:calc(var(--duel-x) + 31%);top:calc(var(--duel-y) - 45%);transform:translate(-50%,-50%) rotate(-46deg);opacity:0}
 }
-@media(orientation:portrait){.pilot-duel{--duel-x:65%;--duel-y:22%;--nu-exit-angle:-151.33deg}.pilot-sazabi{width:160px}.pilot-nu{width:190px}.pilot-duel-beam{width:100vw}}
+@media(orientation:portrait){.pilot-duel{--duel-x:65%;--duel-y:22%}.pilot-sazabi{width:160px}.pilot-nu{width:190px}.pilot-duel-beam{width:100vw}}
 .pilot-header{height:76px;box-sizing:border-box;padding:12px max(20px,env(safe-area-inset-right)) 12px max(20px,env(safe-area-inset-left));display:flex;gap:20px;align-items:center;border-bottom:1px solid #93b1c644;background:#08111acc}
 .pilot-header>div{flex:1}.pilot-header h1{font-size:24px;margin:0;letter-spacing:.18em}.pilot-header small{font-size:10px;letter-spacing:.16em;color:var(--pilot-accent)}
 .pilot-layout{display:grid;grid-template-columns:minmax(290px,42%) minmax(0,1fr);gap:3vw;height:calc(100% - 76px);padding:22px max(22px,env(safe-area-inset-right)) 18px max(22px,env(safe-area-inset-left));box-sizing:border-box;max-width:1600px;margin:auto}
