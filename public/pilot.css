@@ -8,10 +8,10 @@
 .pilot-flyby{position:absolute;inset:0;z-index:-4;overflow:hidden;pointer-events:none}
 /* Match the cover-sized hangar so the diagonal follows its window at every aspect ratio. */
 .pilot-flight-space{position:absolute;width:max(100vw,177.6833dvh);height:max(100dvh,56.2800vw);left:50%;top:50%;transform:translate(-50%,-50%)}
-.pilot-flight{position:absolute;left:12%;top:57%;opacity:0;animation:pilot-window-dash 16s linear infinite;animation-play-state:paused;will-change:left,top,opacity}
+.pilot-flight{position:absolute;left:var(--flight-x0);top:var(--flight-y0);opacity:0;animation:pilot-window-dash 16s linear infinite;animation-play-state:paused;will-change:left,top,opacity}
 .pilot-flyby-gundam{width:clamp(72px,10vw,150px)}
 .pilot-flight.pilot-flyby-zakus{width:clamp(165px,24vw,360px);animation-name:pilot-window-pursuit;animation-delay:.95s}
-.pilot-craft{position:relative;transform:translate(-50%,-50%) rotate(70deg)}
+.pilot-craft{position:relative;transform:translate(-50%,-50%) rotate(var(--flight-angle,70deg)) scaleX(var(--flight-mirror,1))}
 .pilot-craft img{display:block;width:100%;height:auto;position:relative;z-index:1}
 /* Light tapered exhaust extensions, underneath the original painted flames. */
 .pilot-craft:before,.pilot-craft:after{content:'';position:absolute;top:81%;left:34%;width:5%;height:72%;background:linear-gradient(#c4faff99,#34b8ff55 25%,#2395ff00);clip-path:polygon(0 0,100% 0,53% 100%);filter:blur(1px);pointer-events:none}
@@ -20,23 +20,63 @@
 .pilot-flyby-zakus .pilot-craft:after{left:45%;top:91%;height:43%}
 #pilotScreen.on .pilot-flight{animation-play-state:running}
 @keyframes pilot-window-dash{
- 0%,4%{left:12%;top:57%;opacity:0}
- 4.01%{left:12%;top:57%;opacity:1;animation-timing-function:cubic-bezier(.3,0,.65,.5)}
- 5%{left:24%;top:49.5%;opacity:1}
- 8.5%{left:95%;top:5%;opacity:1}
- 8.51%,100%{left:95%;top:5%;opacity:0}
+ 0%,4%{left:var(--flight-x0,12%);top:var(--flight-y0,57%);opacity:0}
+ 4.01%{left:var(--flight-x0,12%);top:var(--flight-y0,57%);opacity:1;animation-timing-function:cubic-bezier(.3,0,.65,.5)}
+ 5%{left:var(--flight-x1,24%);top:var(--flight-y1,49.5%);opacity:1}
+ 8.5%{left:var(--flight-x2,95%);top:var(--flight-y2,5%);opacity:1}
+ 8.51%,100%{left:var(--flight-x2,95%);top:var(--flight-y2,5%);opacity:0}
 }
 @keyframes pilot-window-pursuit{
- 0%,4%{left:12%;top:57%;opacity:0}
- 4.01%{left:12%;top:57%;opacity:1;animation-timing-function:cubic-bezier(.3,0,.65,.5)}
- 4.8%{left:24%;top:49.5%;opacity:1}
- 7.6%{left:95%;top:5%;opacity:1}
- 7.61%,100%{left:95%;top:5%;opacity:0}
+ 0%,4%{left:var(--flight-x0,12%);top:var(--flight-y0,57%);opacity:0}
+ 4.01%{left:var(--flight-x0,12%);top:var(--flight-y0,57%);opacity:1;animation-timing-function:cubic-bezier(.3,0,.65,.5)}
+ 4.8%{left:var(--flight-x1,24%);top:var(--flight-y1,49.5%);opacity:1}
+ 7.6%{left:var(--flight-x2,95%);top:var(--flight-y2,5%);opacity:1}
+ 7.61%,100%{left:var(--flight-x2,95%);top:var(--flight-y2,5%);opacity:0}
 }
 html.fx-lite .pilot-flyby{display:none}
 @media(prefers-reduced-motion:reduce){.pilot-flyby{display:none}}
 @media(orientation:portrait){.pilot-flight-space{left:60%;transform:translate(-60%,-50%)}.pilot-flyby-gundam{width:72px}.pilot-flight.pilot-flyby-zakus{width:155px}}
 .pilot-shade{position:absolute;inset:0;z-index:-2;background:linear-gradient(90deg,rgba(2,9,15,.83),rgba(2,9,15,.08) 76%),linear-gradient(0deg,rgba(2,9,15,.7),transparent 45%);pointer-events:none}
+.pilot-flight-space[data-scene=duel]>.pilot-flight{visibility:hidden}
+.pilot-flight-space[data-scene=chase]>.pilot-duel{visibility:hidden}
+.pilot-duel{position:absolute;inset:0;--duel-x:53%;--duel-y:26%}
+.pilot-sazabi{position:absolute;width:clamp(160px,19vw,275px);left:var(--duel-x);top:var(--duel-y);opacity:0;animation:pilot-sazabi-scene 16s linear infinite paused;transform:translate(-50%,-50%)}
+.pilot-sazabi-art{display:block;width:100%;height:auto}
+.pilot-shield-impact{position:absolute;left:31%;top:35%;width:0;height:0}
+.pilot-duel-beam{position:absolute;width:40vw;height:12px;max-width:none;object-fit:fill;right:0;top:-6px;transform-origin:0 50%;opacity:0;animation:pilot-shield-beam 16s linear infinite paused}
+.pilot-duel-blast,.pilot-duel-ring{position:absolute;width:90px;height:90px;max-width:none;left:-45px;top:-45px;opacity:0;animation:pilot-shield-blast 16s linear infinite paused}
+.pilot-duel-ring{animation-name:pilot-shield-ring}
+.pilot-nu{position:absolute;width:clamp(180px,23vw,330px);left:95%;top:40%;opacity:0;animation:pilot-nu-ramp 16s linear infinite paused}
+.pilot-nu img{display:block;width:100%;height:auto;transform:scaleX(-1)}
+#pilotScreen.on .pilot-duel *{animation-play-state:running}
+@keyframes pilot-sazabi-scene{
+ 0%,4%{left:96%;top:44%;transform:translate(-50%,-50%) rotate(0deg);opacity:0}
+ 4.01%{opacity:1;animation-timing-function:cubic-bezier(.1,.7,.2,1)}
+ 8%{left:var(--duel-x);top:var(--duel-y);transform:translate(-50%,-50%) rotate(0deg);opacity:1;animation-timing-function:ease-in-out}
+ 11%{left:calc(var(--duel-x) - .35%);top:calc(var(--duel-y) - .5%);transform:translate(-50%,-50%) rotate(-1deg);opacity:1;animation-timing-function:ease-in-out}
+ 14%{left:var(--duel-x);top:var(--duel-y);transform:translate(-50%,-50%) rotate(0deg);opacity:1}
+ 15%{left:calc(var(--duel-x) + .5%);top:calc(var(--duel-y) + .2%);transform:translate(-50%,-50%) rotate(2deg);opacity:1;animation-timing-function:ease-out}
+ 17%{left:var(--duel-x);top:var(--duel-y);transform:translate(-50%,-50%) rotate(0deg);opacity:1}
+ 18%{left:var(--duel-x);top:var(--duel-y);transform:translate(-50%,-50%) rotate(8deg);opacity:1;animation-timing-function:cubic-bezier(.5,0,.8,.4)}
+ 23%{left:calc(var(--duel-x) - 35%);top:-12%;transform:translate(-50%,-50%) rotate(8deg);opacity:1}
+ 23.01%,100%{left:calc(var(--duel-x) - 35%);top:-12%;opacity:0}
+}
+@keyframes pilot-shield-beam{0%,13%{opacity:0;transform:scaleX(0)}13.01%{opacity:1;transform:scaleX(0)}14%{opacity:1;transform:scaleX(1)}14.5%{opacity:1;transform:scaleX(1)}15%,100%{opacity:0;transform:scaleX(1)}}
+@keyframes pilot-shield-blast{0%,14%{opacity:0;transform:scale(.1)}14.1%{opacity:1;transform:scale(.35)}15%{opacity:1;transform:scale(.85)}17%,100%{opacity:0;transform:scale(1.1)}}
+@keyframes pilot-shield-ring{0%,14%{opacity:0;transform:scale(.1)}14.2%{opacity:.9;transform:scale(.3)}17.5%,100%{opacity:0;transform:scale(1.2)}}
+/* Sampled quarter-circle: horizontal entry bends continuously into vertical pursuit. */
+@keyframes pilot-nu-ramp{
+ 0%,23%{left:96%;top:42%;transform:translate(-50%,-50%) rotate(0deg);opacity:0}
+ 23.01%{opacity:1}
+ 25%{left:calc(var(--duel-x) + 12%);top:42%;transform:translate(-50%,-50%) rotate(0deg);opacity:1}
+ 26%{left:calc(var(--duel-x) + 6%);top:40.5%;transform:translate(-50%,-50%) rotate(22.5deg);opacity:1}
+ 27%{left:calc(var(--duel-x) + 1%);top:36%;transform:translate(-50%,-50%) rotate(45deg);opacity:1}
+ 28%{left:calc(var(--duel-x) - 2.5%);top:29%;transform:translate(-50%,-50%) rotate(67.5deg);opacity:1}
+ 29%{left:calc(var(--duel-x) - 4%);top:21%;transform:translate(-50%,-50%) rotate(90deg);opacity:1}
+ 32%{left:calc(var(--duel-x) - 4%);top:-15%;transform:translate(-50%,-50%) rotate(90deg);opacity:1}
+ 32.01%,100%{left:calc(var(--duel-x) - 4%);top:-15%;opacity:0}
+}
+@media(orientation:portrait){.pilot-duel{--duel-x:65%;--duel-y:22%}.pilot-sazabi{width:160px}.pilot-nu{width:190px}.pilot-duel-beam{width:100vw}}
 .pilot-header{height:76px;box-sizing:border-box;padding:12px max(20px,env(safe-area-inset-right)) 12px max(20px,env(safe-area-inset-left));display:flex;gap:20px;align-items:center;border-bottom:1px solid #93b1c644;background:#08111acc}
 .pilot-header>div{flex:1}.pilot-header h1{font-size:24px;margin:0;letter-spacing:.18em}.pilot-header small{font-size:10px;letter-spacing:.16em;color:var(--pilot-accent)}
 .pilot-layout{display:grid;grid-template-columns:minmax(290px,42%) minmax(0,1fr);gap:3vw;height:calc(100% - 76px);padding:22px max(22px,env(safe-area-inset-right)) 18px max(22px,env(safe-area-inset-left));box-sizing:border-box;max-width:1600px;margin:auto}
