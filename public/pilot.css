@@ -1,6 +1,19 @@
 #pilotScreen{position:fixed;inset:0;min-height:0;height:100dvh;overflow:hidden;padding:0;color:#edf4fa;--pilot-accent:#81c9ed;background:#030b12;isolation:isolate}
 #pilotScreen[data-faction=spacenoid]{--pilot-accent:#e7b465}
 #pilotScreen[data-faction=neutral]{--pilot-accent:#c6ced6}
+.pilot-avatar{width:44px;height:44px;object-fit:contain;flex:none;border:1px solid #91a9bc80;border-radius:8px;background:#21313e;vertical-align:middle}
+.pilot-lobby-identity{display:flex;align-items:center;gap:12px;text-align:left;margin-bottom:12px}
+.pilot-lobby-identity small,.pilot-select-card small,.pilot-unit-choice small{display:block;font-size:12px;color:#b0c5d4;margin-top:5px;line-height:1.4}
+.lb-p>.pilot-avatar{width:36px;height:36px}.lb-n{overflow-wrap:anywhere;min-width:0}
+#mpLobby,#mpLobby .lb2-sides,#mpLobby .lb-team{box-sizing:border-box}
+.pilot-roster-badge{display:flex;align-items:center;gap:6px;font-size:12px;margin-top:5px;color:#d6e5ee}.pilot-roster-badge .pilot-avatar{width:30px;height:30px}
+.pilot-assign-overlay{position:fixed;inset:0;z-index:600;background:#020811dc;display:grid;place-items:center;padding:12px;box-sizing:border-box}
+.pilot-assign-panel{box-sizing:border-box;width:min(560px,100%);max-height:calc(100dvh - 24px);overflow:auto;padding:18px;background:#0c1c28;border:1px solid #85adbf;border-radius:12px;color:#edf4fa}
+.pilot-assign-panel header{display:flex;align-items:center;justify-content:space-between;gap:12px}.pilot-assign-panel h2{font-size:20px;margin:0}
+.pilot-assign-panel button{min-height:44px;touch-action:manipulation}.pilot-assign-panel button:focus-visible{outline:2px solid white;outline-offset:2px}
+.pilot-select-card,.pilot-unit-choice{display:flex;align-items:center;text-align:left;gap:12px;width:100%;padding:12px;border:1px solid #526673;border-radius:8px;background:#122a39;color:#ecf2f7;margin:8px 0;cursor:pointer}
+.pilot-select-card.selected{border:2px solid #f3cc66;background:#3b3420}.pilot-unit-choice.available{border:2px solid #f3cc66}.pilot-unit-choice:disabled{opacity:.55;cursor:default}.pilot-unit-choice>span:not(.portrait){min-width:0}.pilot-unit-choice b{overflow-wrap:anywhere}
+@media(max-width:600px){#mpLobby .lb-p{flex-wrap:wrap}#mpLobby .lb-n{flex:1 1 calc(100% - 54px);white-space:normal;overflow:visible;text-overflow:clip}#mpLobby .lb-mklead{min-height:44px}#mpLobby .lb-team{min-width:0}#mpLobby .lb-name input{min-width:0}}
 #pilotScreen .m-bg{z-index:-4;position:absolute;inset:0;pointer-events:none;transform-origin:0 0;overflow:hidden}
 #pilotScreen .m-bg.capped{right:auto;bottom:auto;will-change:scale}
 .pilot-hangar{position:absolute;inset:0;z-index:-3;background:url(img/pilots/hangar.png) center/cover no-repeat;pointer-events:none}

@@ -11,8 +11,8 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <meta name="apple-mobile-web-app-title" content="MSB">
 <title>Mobile Suit Battles</title>
-<link rel="stylesheet" href="app.css?v=cf140">
-<link rel="stylesheet" href="pilot.css?v=cf140">
+<link rel="stylesheet" href="app.css?v=cf141">
+<link rel="stylesheet" href="pilot.css?v=cf141">
 </head>
 <body>
 
@@ -188,6 +188,7 @@
     <button class="btn sm" id="btnClear" onclick="clearRoster()">Clear</button>
     <button class="btn sm pri" id="btnConfirm" onclick="tryConfirm()">Confirm team</button>
     <button class="btn sm" id="btnEdit" onclick="editTeam()">Edit team</button>
+    <button class="btn sm" id="btnPilotAssign" onclick="PilotSocial.open()">Pilot</button>
     <button class="mpchip" id="mpChip" onclick="if (!mpChipTap()) openMP()" title="Multiplayer session">&#8644; MP</button>
     <span class="tally" id="tally"></span>
   </div>
@@ -241,18 +242,19 @@ window.addEventListener("unhandledrejection",function(ev){
   e.style.display="block"; e.textContent += "PROMISE: "+ev.reason+"\n";
 });
 </script>
-<script src="supplies.js?v=cf140"></script>
-<script src="resupply-ui.js?v=cf140"></script>
-<script src="data.js?v=cf140"></script>
-<script src="equipment.js?v=cf140"></script>
-<script src="equipment-ui.js?v=cf140"></script>
-<script src="repairs.js?v=cf140"></script>
-<script src="repair-ui.js?v=cf140"></script>
-<script src="landscape.js?v=cf140"></script>
-<script src="pickups.js?v=cf140"></script>
-<script src="pickup-ui.js?v=cf140"></script>
-<script src="app.js?v=cf140"></script>
-<script src="pilot.js?v=cf140"></script>
+<script src="supplies.js?v=cf141"></script>
+<script src="resupply-ui.js?v=cf141"></script>
+<script src="data.js?v=cf141"></script>
+<script src="equipment.js?v=cf141"></script>
+<script src="equipment-ui.js?v=cf141"></script>
+<script src="repairs.js?v=cf141"></script>
+<script src="repair-ui.js?v=cf141"></script>
+<script src="landscape.js?v=cf141"></script>
+<script src="pickups.js?v=cf141"></script>
+<script src="pickup-ui.js?v=cf141"></script>
+<script src="app.js?v=cf141"></script>
+<script src="pilot.js?v=cf141"></script>
+<script src="pilot-social.js?v=cf141"></script>
 <div id="tbanner" aria-hidden="true"><div class="tb-band"><b id="tbannerT"></b><span id="tbannerS"></span></div></div>
 <div id="hangar" aria-hidden="true">
   <div class="hd l"><div class="hd-light"></div><div class="hd-emb"></div></div>

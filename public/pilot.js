@@ -11,7 +11,7 @@ window.Pilot = (() => {
   function status(text){$('pilotStatus').textContent=text;}
   function button(text,selected,fn){const b=document.createElement('button');b.type='button';b.className='pilot-option'+(selected?' selected':'');b.textContent=text;b.setAttribute('aria-pressed',String(selected));b.onclick=fn;return b;}
   function choices(label,key,items){const group=document.createElement('fieldset');const legend=document.createElement('legend');legend.textContent=label;group.append(legend);const row=document.createElement('div');row.className='pilot-choices';items.forEach(([text,value])=>{const b=button(text,draft[key]===value,()=>{draft[key]=value;if(key==='body'&&value==='female'&&draft.hair>8)draft.hair=0;render();});b.dataset.choice=key+':'+value;if(key.endsWith('Color')){b.classList.add('swatch');b.style.setProperty('--swatch',value==='original'?'linear-gradient(135deg,#d4bb84,#344d70)':value);}row.append(b);});group.append(row);return group;}
-  function groupKey(){return draft.body==='female'?'female':['male-light','male-east','male-south','male-dark'][draft.face];}
+  function groupKey(profile=draft){return profile.body==='female'?'female':['male-light','male-east','male-south','male-dark'][profile.face];}
   function tiles(label,key,names,images){const field=choices(label,key,names.map((name,i)=>[name,i]));field.classList.add('pilot-tile-field');field.dataset.control=key;field.querySelectorAll('button').forEach((b,i)=>{const caption=document.createElement('span');caption.textContent=b.textContent;b.replaceChildren();const img=document.createElement('img');img.src=images[i];img.alt='';img.loading='lazy';b.append(img,caption);b.classList.add('pilot-tile');});return field;}
   function input(label,key,multiline=false){const wrap=document.createElement('label');wrap.className='pilot-field';wrap.textContent=label;const el=document.createElement(multiline?'textarea':'input');el.value=draft[key];el.maxLength=multiline?1200:48;el.id='pilot-'+key;if(multiline)el.rows=5;el.oninput=()=>{draft[key]=el.value;updateCaption();status('Unsaved changes');};wrap.append(el);return wrap;}
   function updateCaption(){$('pilotName').textContent=draft.name.trim()||'Your pilot';$('pilotCallsign').textContent=draft.callsign.trim()||'PILOT REGISTRATION';}
@@ -86,21 +86,40 @@ window.Pilot = (() => {
     const points=layer.box[0]>600?[[6,4],[40,4],[44,10],[44,22],[42,28],[38,34],[32,38],[20,38],[12,34],[6,28],[4,22],[3,12]]:[[10,2],[39,2],[44,6],[46,12],[46,20],[44,26],[40,32],[34,36],[24,36],[16,33],[10,28],[6,22],[5,12],[7,6]];
     let inside=false;for(let i=0,j=points.length-1;i<points.length;j=i++){const [xi,yi]=points[i],[xj,yj]=points[j];if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)inside=!inside;}return inside;
   }
-  async function paint(){const token=++pending;ready=false;$('pilotSave').disabled=true;try{
-    const female=draft.body==='female',key=groupKey(),layers=manifest[key],map=manifest._creator.groups[key];
-    const face=layers[map.faces[female?draft.face:0]],hair=layers[map.hairs[draft.hair]],uniform=layers[map.uniforms[draft.uniform]],beard=!female&&draft.beard?layers[map.beards[draft.beard-1]]:null;
-    const [f,h,u]=await Promise.all([load(face),load(hair),load(uniform)]);if(token!==pending)return;
-    const canvas=$('pilotCanvas'),ctx=canvas.getContext('2d');ctx.clearRect(0,0,SIZE,HEIGHT);let faceArt=f;
-    if(female){const feat=femaleFeatures[[0,2,3,1][draft.face]];faceArt=tint(f,draft.eyeColor,(x,y,r,g,b,l)=>feat.eyes.some(([cx,cy,rx=25,ry=25])=>((x-cx)/rx)**2+((y-cy)/ry)**2<1),'eye');faceArt=tint(faceArt,draft.browColor,(x,y,r,g,b,l)=>feat.brows.some(([a,b,c,d])=>x>=a&&x<=c&&y>=b&&y<=d)&&r<105&&g<90&&l>18,'brow');}
+  async function renderPortrait(profile,canvas,isCurrent=()=>true){
+    const female=profile.body==='female',key=groupKey(profile),layers=manifest[key],map=manifest._creator.groups[key];
+    const face=layers[map.faces[female?profile.face:0]],hair=layers[map.hairs[profile.hair]],uniform=layers[map.uniforms[profile.uniform]],beard=!female&&profile.beard?layers[map.beards[profile.beard-1]]:null;
+    const [f,h,u]=await Promise.all([load(face),load(hair),load(uniform)]);if(!isCurrent())return;
+    const ctx=canvas.getContext('2d');ctx.clearRect(0,0,SIZE,HEIGHT);let faceArt=f;
+    if(female){const feat=femaleFeatures[[0,2,3,1][profile.face]];faceArt=tint(f,profile.eyeColor,(x,y,r,g,b,l)=>feat.eyes.some(([cx,cy,rx=25,ry=25])=>((x-cx)/rx)**2+((y-cy)/ry)**2<1),'eye');faceArt=tint(faceArt,profile.browColor,(x,y,r,g,b,l)=>feat.brows.some(([a,b,c,d])=>x>=a&&x<=c&&y>=b&&y<=d)&&r<105&&g<90&&l>18,'brow');}
     ctx.drawImage(faceArt,face.box[0],face.box[1]);
-    if(!female){for(const layer of layers.filter(l=>/eye|brow/i.test(l.name))){const original=await load(layer);if(token!==pending)return;const brow=/brow/i.test(layer.name);ctx.drawImage(tint(original,brow?draft.browColor:draft.eyeColor,(x,y,r,g,b,l)=>brow?(l>18&&l<180):(key!=='male-light'||maleFirstIris(layer,x,y)),brow?'brow':'eye'),layer.box[0],layer.box[1]);}}
-    ctx.drawImage(tint(u,draft.uniformColor,null,'uniform'),uniform.box[0],uniform.box[1]);
+    if(!female){for(const layer of layers.filter(l=>/eye|brow/i.test(l.name))){const original=await load(layer);if(!isCurrent())return;const brow=/brow/i.test(layer.name);ctx.drawImage(tint(original,brow?profile.browColor:profile.eyeColor,(x,y,r,g,b,l)=>brow?(l>18&&l<180):(key!=='male-light'||maleFirstIris(layer,x,y)),brow?'brow':'eye'),layer.box[0],layer.box[1]);}}
+    ctx.drawImage(tint(u,profile.uniformColor,null,'uniform'),uniform.box[0],uniform.box[1]);
     // Facial hair stays below scalp hair, so long strands cover beards naturally.
-    if(beard){const b=await load(beard);if(token!==pending)return;ctx.drawImage(tint(b,draft.facialHairColor),beard.box[0],beard.box[1]);}
-    ctx.drawImage(tint(h,draft.hairColor),hair.box[0],hair.box[1]);ready=true;$('pilotSave').disabled=false;
+    if(beard){const b=await load(beard);if(!isCurrent())return;ctx.drawImage(tint(b,profile.facialHairColor),beard.box[0],beard.box[1]);}
+    ctx.drawImage(tint(h,profile.hairColor),hair.box[0],hair.box[1]);
+  }
+  async function paint(){const token=++pending;ready=false;$('pilotSave').disabled=true;try{
+    await renderPortrait({...draft},$('pilotCanvas'),()=>token===pending);if(token!==pending)return;
+    ready=true;$('pilotSave').disabled=false;
   }catch(e){if(token===pending)status('Could not load the pilot artwork. Check your connection and reopen Pilot.');console.error(e);}}
+  let avatarJob=null;
+  async function identity(){
+    const profile=read();if(!profile?.name.trim())return null;
+    const signature=JSON.stringify(profile),key='gb.pilot.avatar.v1';
+    try{const cached=JSON.parse(localStorage.getItem(key)||'null');if(cached?.signature===signature&&/^data:image\/webp;base64,[A-Za-z0-9+/=]+$/.test(cached.portrait)&&cached.portrait.length<24000)return {name:profile.name,portrait:cached.portrait};}catch{}
+    if(avatarJob?.signature===signature)return avatarJob.promise;
+    const promise=(async()=>{
+      manifest=manifest||await fetch('img/pilots/layers.json').then(r=>{if(!r.ok)throw Error('Pilot assets unavailable');return r.json();});
+      const canvas=document.createElement('canvas');canvas.width=SIZE;canvas.height=HEIGHT;await renderPortrait(profile,canvas);
+      const icon=document.createElement('canvas');icon.width=icon.height=128;
+      icon.getContext('2d').drawImage(canvas,180,180,900,900,0,0,128,128);
+      const portrait=icon.toDataURL('image/webp',.8);try{localStorage.setItem(key,JSON.stringify({signature,portrait}));}catch{}
+      return {name:profile.name,portrait};
+    })();avatarJob={signature,promise};try{return await promise;}finally{if(avatarJob?.promise===promise)avatarJob=null;}
+  }
   async function open(){saved=read();draft=saved?{...saved}:defaults();tab=saved?'sheet':'appearance';part='body';show('pilotScreen');try{manifest=manifest||await fetch('img/pilots/layers.json').then(r=>{if(!r.ok)throw Error('Pilot assets unavailable');return r.json();});render();m3Init();m3Start();Effects.menuShown();}catch{status('Could not load pilot options. Reopen Pilot to retry.');}}
-  function save(){if(!ready)return;if(!draft.name.trim()){tab='identity';render();status('Enter a pilot name before saving.');$('pilot-name').focus();return;}draft.name=draft.name.trim();draft.callsign=draft.callsign.trim();try{localStorage.setItem(KEY,JSON.stringify(draft));saved={...draft};tab='sheet';render();status('Pilot saved on this device');}catch{status('Storage is full or unavailable. Your changes have not been saved.');}}
+  function save(){if(!ready)return;if(!draft.name.trim()){tab='identity';render();status('Enter a pilot name before saving.');$('pilot-name').focus();return;}draft.name=draft.name.trim();draft.callsign=draft.callsign.trim();try{localStorage.setItem(KEY,JSON.stringify(draft));saved={...draft};tab='sheet';render();status('Pilot saved on this device');window.PilotSocial?.refresh();}catch{status('Storage is full or unavailable. Your changes have not been saved.');}}
   function back(){if(JSON.stringify(draft)!==JSON.stringify(saved)&& (saved||draft.name||JSON.stringify(draft)!==JSON.stringify(defaults()))){$('pilotDiscard').hidden=false;$('pilotKeep').focus();return;}show('s0');}
   // Coordinates use the original hangar image, not the cropped phone viewport.
   const flightRoutes=[
@@ -125,5 +144,5 @@ window.Pilot = (() => {
     chooseFlight();screen.querySelector('.pilot-flyby-gundam').addEventListener('animationiteration',chooseFlight);const scene=$('m3').cloneNode(true);scene.querySelectorAll('.fg').forEach(n=>n.remove());$('pilotBattle').replaceChildren(...scene.children);$('pilotBack').onclick=back;$('pilotSave').onclick=save;$('pilotKeep').onclick=()=>{$('pilotDiscard').hidden=true;};$('pilotLeave').onclick=()=>{$('pilotDiscard').hidden=true;show('s0');};screen.querySelectorAll('[data-pilot-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.pilotTab;render();});
     screen.addEventListener('keydown',e=>{if($('pilotDiscard').hidden)return;if(e.key==='Escape'){e.preventDefault();$('pilotDiscard').hidden=true;$('pilotBack').focus();}if(e.key==='Tab'){e.preventDefault();(document.activeElement===$('pilotKeep')?$('pilotLeave'):$('pilotKeep')).focus();}});
   }
-  init();return {open,save,get ready(){return ready;}};
+  init();return {open,save,identity,read,get ready(){return ready;}};
 })();

@@ -4521,6 +4521,7 @@ async function mpSync() {
   if (sentSettings && mp.wantSettings === sentSettings) mp.wantSettings = null;
   rel.forEach(k => { mp.wantRelease.delete(k); mp.held.delete(k); });
   const denied = new Set(j.denied || []);
+  for(const d of denied)if(d.startsWith('pilot:'))mpToast(d.slice(6));
   if(sentPickup.length){mp.pickupOps.splice(0,sentPickup.length);const why=[...denied].find(x=>x.startsWith('pickup:'));mpToast(why?why.slice(7):'Equipment picked up · 1 AP');}
   if (sentFF.length) {
     mp.ffOps.splice(0, sentFF.length);
@@ -4814,6 +4815,8 @@ function mpApply() {
       changed = true;
     }
   }
+  const pilotSig=JSON.stringify(Object.entries(mpPlayers()).map(([id,p])=>[id,p.team,p.pilot,p.pilotUnit]));
+  if(mp.pilotSig!==pilotSig){mp.pilotSig=pilotSig;changed=true;window.PilotSocial?.update();}
   // units
   roster.forEach(r => { if (mpApplyUnit(r)) changed = true; });
   // deliveries for units this device holds (or can pick up)
@@ -4975,9 +4978,9 @@ function mpBegin(j) {
   Object.assign(mp, { code: j.code, pid: j.pid, token: j.token, status: "connecting", msg: "", data: {}, etags: {}, seen: {},
     base: { team: undefined, units: {} }, leaders: {}, hostPid: j.host ? j.pid : null, held: new Set(), wantAcquire: new Set(),
     wantRelease: new Set(), afterLock: {}, viewing: null, wantPlayer: { build: APP_BUILD }, wantSettings: null, entered: false, prompt: null, fails: 0 });
-  mpStore(); mpRender(); mpStart(); mpConnect();
+  mpStore(); mpRender(); mpStart(); mpConnect(); window.PilotSocial?.refresh();
 }
-const mpNameInput = () => { const v = ($("mpName") || {}).value || ""; const n = v.trim().slice(0, 18); try { if (n) localStorage.setItem(MP_NAME_KEY, n); } catch (e) {} return n; };
+const mpNameInput = () => { const v = ($("mpName") || {}).value || ""; const n = v.trim().slice(0, 48); try { if (n) localStorage.setItem(MP_NAME_KEY, n); } catch (e) {} return n; };
 window.mpCreate = async () => {
   const name = mpNameInput();
   if (!name) { mp.msg = "Enter your player name first."; mpRender(); return; }
@@ -5041,7 +5044,7 @@ function mpResume() {
     }
   } catch (e) {}
 }
-window.openMP = () => { renderLobby(); show("s5"); };
+window.openMP = () => { renderLobby(); show("s5"); window.PilotSocial?.refresh(); };
 window.mpForceTurn = team => {
   if (!mpIsHost()) return;
   if (!confirm("Give the turn to the " + teamName(team) + "?\n\nUse this if the turn order is stuck (for example a device that didn't update).")) return;
@@ -5205,15 +5208,15 @@ function setLobbyHTML(box, html) {            // only touch the page when someth
 function renderLobby() {
   const box = $("mpLobby"); if (!box) return;
   mpLobbyTheme();
-  const nameVal = (() => { try { return localStorage.getItem(MP_NAME_KEY) || ""; } catch (e) { return ""; } })();
+  const nameVal = window.Pilot?.read()?.name || (() => { try { return localStorage.getItem(MP_NAME_KEY) || ""; } catch (e) { return ""; } })();
   const msg = mp.msg ? '<p class="mpmsg">' + mp.msg + '</p>' : '';
   if (!mp.code) {
     box.classList.remove("lb2wrap"); $("s5").classList.remove("lb2on");
     setLobbyHTML(box,
       '<div class="lb-head"><div class="cwstep">MULTIPLAYER</div><h1>Battle Session</h1>' +
       '<p class="bp-sub">Everyone uses their own device. Create a session, share the code, and pick teams together.</p></div>' +
-      '<div class="lb-start">' +
-        '<label class="bp-cbox lb-name"><span class="bp-cl">NAME</span><input id="mpName" maxlength="18" placeholder="Your name" value="' + nameVal.replace(/"/g, "&quot;") + '"></label>' +
+      '<div class="lb-start">' + (window.PilotSocial?.lobbyIdentity() || '') +
+        '<label class="bp-cbox lb-name"><span class="bp-cl">NAME</span><input id="mpName" maxlength="48" placeholder="Your name" value="' + nameVal.replace(/"/g, "&quot;") + '"></label>' +
         '<button class="btn pri mpbig" onclick="mpCreate()">Create session</button>' +
         '<div class="mpor">or join one</div>' +
         '<div class="mpjoin"><input id="mpCode" maxlength="5" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="CODE">' +
@@ -5241,7 +5244,7 @@ function renderLobby() {
         '</div></div>' +
       '<div class="lb-list">' + (list.length ? list.map(([pid, p]) =>
         '<div class="lb-p' + (pid === mp.pid ? ' me' : '') + '">' +
-          '<span class="lb-n">' + (mp.leaders[t] === pid ? '<i title="Team leader">\u{1F451}</i>' : '') + p.name + (pid === mp.pid ? ' <em>(you)</em>' : '') + '</span>' +
+          (window.PilotSocial?.icon(p.pilot) || '') + '<span class="lb-n">' + (mp.leaders[t] === pid ? '<i title="Team leader">\u{1F451}</i>' : '') + p.name + (pid === mp.pid ? ' <em>(you)</em>' : '') + '</span>' +
           (pid === mp.hostPid ? '<span class="lb-tag">HOST</span>' : '') +
           (me && me.team === t && mp.leaders[t] === mp.pid && pid !== mp.pid ? '<button class="linkbtn lb-mklead" onclick="event.stopPropagation();mpMakeLead(\'' + pid + '\')">\u{1F451} make leader</button>' : '') +
           '<span class="lb-build' + (p.build === APP_BUILD ? '' : ' bad') + '">' + (p.build || "old") + '</span>' +
@@ -5253,7 +5256,7 @@ function renderLobby() {
   };
   const builds = [...new Set(st.act.map(([, p]) => p.build || "old"))];
   const buildWarn = builds.length > 1 ? '<div class="lb-un">\u26A0 Devices are on different builds (' + builds.join(", ") + '). Everyone should close and reopen the app so all show build ' + APP_BUILD + '.</div>' : '';
-  const unassigned = buildWarn + (st.unassigned.length ? '<div class="lb-un">Not on a team yet: ' + st.unassigned.map(([, p]) => p.name).join(", ") + '</div>' : '');
+  const unassigned = buildWarn + (st.unassigned.length ? '<div class="lb-un">Not on a team yet: ' + st.unassigned.map(([, p]) => (window.PilotSocial?.icon(p.pilot) || '') + ffText(p.name)).join(", ") + '</div>' : '');
   let controls = "";
   if (!battle) {
     const mine = me && me.team;
@@ -5398,7 +5401,7 @@ function renderOpp() {
       '<span style="min-width:0"><div class="nm">' +
         (ud && ud.st && pct > 0 && objHeld(ud.st) ? objTagHTML(objHeld(ud.st).name) : '') +
         (ffForUid(x.uid, t) ? ffTagHTML(ffForUid(x.uid, t), x.uid, t) : '') +
-        label + baseTagHTML({...x,st:ud?.st},ot) + (oppAboard.has(x.uid) ? ' <span class="cartag aboard">\u2693 ABOARD</span>' : '') +
+        label + (window.PilotSocial?.badge(x,ot) || '') + baseTagHTML({...x,st:ud?.st},ot) + (oppAboard.has(x.uid) ? ' <span class="cartag aboard">\u2693 ABOARD</span>' : '') +
         (ud && ud.st ? ' ' + stanceTagHTML(stanceNow({ id: x.id, st: ud.st })) : '') + '</div><div class="tr"><b style="color:' + HEALTH_COL(pct) + '">' + HEALTH_WORD(pct) + '</b> \u00b7 ' + u.tier + '</div></span>' +
       '<span class="dp">' + u.dp.toLocaleString() + '</span></div>';
   });
@@ -5559,7 +5562,7 @@ function renderRosterCore() {
           (locked && !dead && objHeld(r.st) ? objTagHTML(objHeld(r.st).name) : '') +
           (locked && mpTeamMode() && ffForUid(r.uid, mpMyTeam()) ? ffTagHTML(ffForUid(r.uid, mpMyTeam()), r.uid, mpMyTeam()) : '') +
           (u.short || u.name) + (n > 1 ? ' <span style="color:var(--muted)">#' + idx + '</span>' : '') +
-          baseTagHTML(r) +
+          baseTagHTML(r) + (window.PilotSocial?.badge(r) || '') +
           (ctl ? ' <span class="ctltag" title="' + (ctl.me ? 'You have this sheet open' : ctl.name + ' has this sheet open') + '">' + (ctl.me ? '\u270E You' : '\u{1F512} ' + ctl.name) + '</span>' : '') +
           (cst ? ' ' + carrierTag(r.uid) : '') + (locked ? ' ' + stanceTagHTML(stanceNow(r)) : '') +
           (locked && needsRecheck(r) ? ' <span class="rechecktag">\u21BB RE-CHECK</span>' : '') +
@@ -7821,7 +7824,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(()=>{renderAmounts();fitSheet();}));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf140";
+const APP_BUILD = "cf141";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

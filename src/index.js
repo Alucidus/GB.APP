@@ -38,7 +38,7 @@ const randomHex = n => [...rnd(n)].map(x => x.toString(16).padStart(2, "0")).joi
 const cleanCode = c => (typeof c === "string" ? c.trim().toUpperCase() : "");
 const validCode = c => c.length === CODE_LEN && [...c].every(ch => CODE_CHARS.includes(ch));
 const validPid = p => typeof p === "string" && /^[a-f0-9]{12}$/.test(p);
-const cleanName = n => (typeof n === "string" ? n.replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, 18) : "");
+const cleanName = n => (typeof n === "string" ? n.replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, 48) : "");
 const validTeam = t => TEAMS.includes(t);
 const validUid = u => Number.isInteger(u) && u > 0 && u < 1e6;
 const lockOk = k => { const m = /^(federation|spacenoid)\/(\d+)$/.exec(k || ""); return m && validUid(+m[2]) ? m : null; };
@@ -300,6 +300,13 @@ export class BattleRoom {
       }
       if (typeof w.player.ready === "boolean" && np.team) np.ready = w.player.ready;
       if (typeof w.player.build === "string") np.build = w.player.build.replace(/[^a-z0-9.\-]/gi, "").slice(0, 12);
+      if (Object.hasOwn(w.player,'pilot')) {
+        const profile=w.player.pilot;
+        if(profile===null){np.pilot=null;np.pilotUnit=null;}
+        else if(profile&&cleanName(profile.name)&&typeof profile.portrait==='string'&&profile.portrait.length<24000&&/^data:image\/webp;base64,[A-Za-z0-9+/=]+$/.test(profile.portrait))np.pilot={name:cleanName(profile.name),portrait:profile.portrait};
+        else denied.push('pilot:Invalid pilot portrait. Save your pilot again.');
+      }
+      if(np.team!==me.team)np.pilotUnit=null;
       if (!np.team) np.ready = false;
     }
     const changed = JSON.stringify({ ...np, seen: 0 }) !== JSON.stringify({ ...me, seen: 0 });
@@ -390,6 +397,9 @@ export class BattleRoom {
       else if (JSON.stringify(w.team).length > MAX_BYTES) denied.push("team-size");
       else {
         await M.set("team/" + myTeam, w.team); push = true;
+        for(const [id,player] of Object.entries(players))if(player.team===myTeam&&player.pilotUnit&&!w.team.roster?.some(r=>r.uid===player.pilotUnit&&globalThis.GBRepairUnits?.some(u=>u.id===r.id))){
+          player.pilotUnit=null;await M.set('player/'+id,player);
+        }
         // every team save carries how many times that team has ended its turn: if the active team's count
         // went up (and it now shows the enemy turn), pass the turn on — even if the explicit message was missed
         const tk = M.get("turn"), tt = w.team.turn || {};
@@ -405,6 +415,17 @@ export class BattleRoom {
         }
       }
     }
+      if(w.player&&Object.hasOwn(w.player,'pilotUnit')){
+        const uid=w.player.pilotUnit;
+        const unit=M.get('team/'+np.team)?.roster?.find(r=>r.uid===uid);
+        const suit=unit&&globalThis.GBRepairUnits?.some(u=>u.id===unit.id);
+        const occupied=Object.entries(players).some(([id,p])=>id!==pid&&p.team===np.team&&p.pilotUnit===uid);
+        if(uid===null)np.pilotUnit=null;
+        else if(!np.pilot||!validUid(uid)||!suit)denied.push('pilot:Choose a mobile suit on your team.');
+        else if(occupied)denied.push('pilot:That mobile suit already has a pilot.');
+        else np.pilotUnit=uid;
+        if(!denied.some(d=>d.startsWith('pilot:'))){await M.set('player/'+pid,np);players[pid]=np;push=true;}
+      }
     // 4. unit states (lock holder, or leader when nobody live holds the lock) — before any release / claim
     if (w.units && typeof w.units === "object") {
       for (const [k, data] of Object.entries(w.units).slice(0, 60)) {
