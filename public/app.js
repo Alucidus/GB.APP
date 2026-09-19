@@ -5759,7 +5759,7 @@ function buildFrame() {
   $("sheet").classList.remove("shipsheet");
   const cov = ["blue360", "red360", "phenex"].indexOf(U.bg) >= 0 ? "360" : "180";
   const ring = !!U.ring, model = mechModel(U), rolled = isGruntTier(U);
-  const key = [sideKey(), cov, ring, model, rolled, U.portrait || "", (CUR && CUR.mark) || ""].join("|");
+  const key = [sideKey(), cov, ring, model, U.id, rolled, U.portrait || "", (CUR && CUR.mark) || ""].join("|");
   const F = $("frame");
   $("sheet").dataset.side = sideKey();
   if (key === frameKey && F.childElementCount) return;
@@ -5775,10 +5775,22 @@ function buildFrame() {
   add("fstripe", { left: "27%", bottom: "1.6cqw" }); add("fstripe", { right: "2.9cqw", top: "1cqw" });
   add("fdock l"); add("fdock r");                                        // plates the bottom buttons sit on
   // blueprint model behind everything else
-  const mh = 76 * 0.5625;                                            // 76% of the sheet height, in container units
-  const mw = add("fmech", { width: (MECH_ASPECT[model] * mh) + "cqw" });
+  const art = UNIT_ART[U.id];
+  const mh = (art ? 67 : 76) * 0.5625;
+  const artWidth = art ? Math.min(33, art.crop[2] / art.crop[3] * mh) : MECH_ASPECT[model] * mh;
+  const mw = add("fmech" + (art ? " unit-art" : ""), { width: artWidth + "cqw" });
   const mi = document.createElement("canvas"); mi.className = "fmech-in " + model; mw.appendChild(mi);
-  paintMech(mi, model, sideKey());
+  if (art) {
+    const image = new Image();
+    mi.setAttribute("role", "img"); mi.setAttribute("aria-label", U.name);
+    image.onload = () => {
+      const [x, y, w, h] = art.crop;
+      mi.width = w; mi.height = h;
+      mi.getContext("2d").drawImage(image, x, y, w, h, 0, 0, w, h);
+      mi.dataset.loaded = "true";
+    };
+    image.src = art.src;
+  } else paintMech(mi, model, sideKey());
   // section titles
   add("fsec", { left: "22.6%", top: "4.3%" }, "<i></i>ABILITIES<i></i>");
   add("fsec", { left: "22.6%", top: "50.9%" }, "<i></i>WEAPONS LIST<i></i>");
@@ -7842,7 +7854,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(()=>{renderAmounts();fitSheet();}));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf154";
+const APP_BUILD = "cf155";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

@@ -3566,3 +3566,7 @@ button.mb-item.fxtog{font:inherit;color:#dfe9f4;background:none;border-top:0;bor
 #s0 .save-menu{background:transparent;color:inherit;border:0;border-left:1px solid #ffffff18;font:inherit;text-align:left}
 #s0 .save-menu:hover,#s0 .save-menu:focus-visible{background:#16394d;color:#fff}
 @media(max-width:560px){#s0 .save-menu{border-top:1px solid #ffffff18;border-left:0}}
+
+/* Full-color unit art remains inside the existing diagram area. */
+#frame .fmech.unit-art{height:67%;top:17%;opacity:1;display:flex;align-items:center;pointer-events:none}
+#frame .unit-art .fmech-in{position:static;width:100%;height:auto;max-height:100%;object-fit:contain}
