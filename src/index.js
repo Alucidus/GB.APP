@@ -17,6 +17,7 @@
 import {protectSupply,serviceSupplies,spendSupply} from './resupply.js';
 import {protectRepairs,serviceRepairs} from './repairs.js';
 import {protectPickup,servicePickups} from './pickups.js';
+import {serviceObjectives} from './objectives.js';
 const TTL_MS = 24 * 60 * 60 * 1000;
 const CODE_LEN = 5;
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -490,6 +491,8 @@ export class BattleRoom {
       }
     }
 
+    if(await serviceObjectives(M,w.objective,pid,myTeam,uid=>{const holder=locks[myTeam+'/'+uid]?.pid;return holder===pid||(amLeader&&(!holder||!alive(holder)));},denied))push=true;
+
     // 8. reply with everything that changed since the caller's last view (never seat tokens or secret picks)
     const known = body.known && typeof body.known === "object" ? body.known : {};
     const changes = {}, etags = {};
@@ -547,7 +550,7 @@ export class BattleRoom {
         }
         await M.set(key, { id, state: "invite", at: now, mode: null, rollAsk: null, round: 1, seg: 1, forced: null, startSeq: null,
           hasObjective: op.hasObjective!==false,
-          eng: { aList, bList, obj: op.hasObjective===false?"":String(op.obj || "").slice(0, 24), pairs: proposed, bout: 1, log: [] },
+          eng: { aList, bList, obj: op.hasObjective===false?"":String(op.obj || "").slice(0, 40), pairs: proposed, bout: 1, log: [] },
           a: { team: myTeam, uid: aList[0].uid, pid, label: aList[0].label },
           b: { team: other, uid: bList[0].uid, pid: null, label: bList[0].label },
           lock: { a: false, b: false }, ready: { a: null, b: null }, hp: { a: null, b: null }, reveal: null, roll: null, obj: null });

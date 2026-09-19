@@ -817,10 +817,10 @@ const GV_TYPES = {
         note: "Detailed Battle Map. 8d6, 3+ to hit, 1 damage (2 on a 6, critical). Cannot damage Armor." },
     ] },
   car: { cls: "Car", hp: 8, armor: 3, ap: 3, moveCm: 25, dodge: 12, prox: 30, respawn: "base", cargo: 1, targets: "car",
-    targetNote: "Fire Support: 2 AP, 60cm, single target. Embarked squads can also make their own Coordinated Strike using squad AP.",
+    targetNote: "Fire Support: 2 vehicle AP, 60cm, single target. A squad aboard enables 3 damage against aircraft; no squad AP cost.",
     gw: [
       { key: "fire", scale: "OVERMAP", name: "Fire Support", dmg: "per target", ap: 2, range: "60cm", cd: 0,
-        note: "2 AP. One target within 60cm, standard range-based to-hit. Infantry: 2 damage. Armored/ground vehicle: 4 damage. Mobile suit: 1 damage to all 6 locations. Cannot target aircraft. No blast radius." },
+        note: "2 AP. One target within 60cm, standard range-based to-hit. Infantry: 2 damage. Armored/ground vehicle: 4 damage. Mobile suit: 1 damage to all 6 locations. Aircraft: 3 damage only while a living squad is aboard, representing a passenger firing a rocket. Costs vehicle AP only; no separate squad attack. Without a squad aboard, cannot target aircraft. No blast radius." },
       { key: "mg", scale: "GROUND", name: "Machine Gun", dmg: "8d6 \u00b7 3+", ap: 1, range: "60cm", cd: 0,
         note: "Detailed Battle Map. 8d6, 3+ to hit (a mounted gun is steadier than a soldier's), 1 damage (2 on a 6, critical). Cannot damage Armor." },
     ] },
@@ -1029,11 +1029,7 @@ function gvToggle(k, v) {
   if (!CUR || !isGround(U) || !mpSheetCanEdit()) return;
   const st = CUR.st, G = st.gv, uid = CUR.uid;
   if (k === "hide") { G.hide = !G.hide; logEv(uid, G.hide ? "Hide Stance \u2014 movement halved, no attacks, untargetable by mobile suits" : "Hide Stance off", G.hide ? "buff" : "info"); }
-  if (k === "objective") {
-    G.objective = !G.objective;
-    if (G.objective) G.objName = (prompt("What is this objective? (e.g. Data core)", G.objName || "") || "").trim().slice(0, 24);
-    logEv(uid, G.objective ? "\u{1F6A9} Carrying " + (G.objName || "the objective") : "Objective dropped", "info");
-  }
+  if (k === "objective") { openObjectives(); return; }
   if (k === "cargo") G.cargo = Math.max(0, Math.min(U.cargo, G.cargo + v));
   if (k === "ap") st.ap = Math.max(0, Math.min(U.ap + 4, st.ap + v));
   if (k === "respawn") {
@@ -1043,15 +1039,11 @@ function gvToggle(k, v) {
   }
   gvCommit();
 }
-function gvMountedStrike(){
-  if(!CUR||!mpSheetCanEdit())return;
-  const vehicleUid=CUR.uid;
-  $('pickT').textContent='Coordinated Strike';$('pickS').textContent='Select an embarked squad. Costs 1 squad AP; vehicle AP is unchanged.';$('picklist').innerHTML='';$('pickExtra').innerHTML='';$('pickCancel').textContent='Cancel';
-  gvCarry(CUR).forEach(uid=>{const r=roster.find(x=>x.uid===uid);if(!r)return;const b=el('button','row');b.disabled=!sqAlive(r.st)||r.st.ap<1||stanceOf(r.st)==='hide'||!!ffPinned(uid);b.innerHTML=portraitHTML(unitById(r.id),r)+'<span>'+ffText(unitLabel(uid))+' · '+r.st.ap+' AP</span>';b.onclick=()=>{
-    if(!mpForeignCheck(uid))return;closePicker();
-    const fire=()=>{const target=roster.find(x=>x.uid===uid),vehicle=roster.find(x=>x.uid===vehicleUid);if(!target||!vehicle||!gvCarry(vehicle).includes(uid)||!sqAlive(target.st)||target.st.ap<1||stanceOf(target.st)==='hide'||ffPinned(uid))return;target.st.ap--;logEv(uid,'Coordinated Strike from '+unitLabel(vehicleUid)+' (1 squad AP)','info');save();if(CUR)draw();};
-    if(mpTeamMode()&&!mp.held.has(lockKey(mpMyTeam(),uid)))mpForeign(uid,fire,()=>{},'Coordinated Strike was');else fire();
-  };$('picklist').appendChild(b);});$('pick').classList.add('on');
+function gvTargetEffects(r) {
+  const u=unitById(r.id),table=u.targets?GV_TARGETS[u.targets]:null;
+  if(u.gtype!=='car'||!table)return table;
+  const aboard=gvCarry(r).some(uid=>{const squad=roster.find(x=>x.uid===uid);return squad&&isSquad(unitById(squad.id))&&sqAlive(squad.st)>0;});
+  return table.map(([label,effect])=>[label,label==='Aircraft'?(aboard?'3 damage · squad aboard':'Cannot target · no squad aboard'):effect]);
 }
 function drawGround() {
   const u = U, st = gvMigrate(u, CUR.st), G = st.gv;
@@ -1102,7 +1094,7 @@ function drawGround() {
     b.onclick = () => gvFire(i);
   });
   // target effects
-  const T = u.targets ? GV_TARGETS[u.targets] : null;
+  const T = gvTargetEffects(CUR);
   const tb = add("div", "gtargets", { left: "58.2%", top: "28%" },
     (T ? '<table>' + T.map(([a, b2]) => '<tr><td>' + a + '</td><td>' + b2 + '</td></tr>').join("") + '</table>' : '') +
     '<p>' + u.targetNote + (T && T[0][1].indexOf("Splash") >= 0 ? ' <i>Splash: ' + SPLASH_TABLE + '</i>' : '') + '</p>');
@@ -1111,9 +1103,6 @@ function drawGround() {
   if (u.cargo) rows.push({ name: "Squads aboard", sub: (gvCarry(CUR).length ? gvCarry(CUR).map(unitLabel).join(", ") : "capacity " + u.cargo + " \u00b7 safe & untargetable"),
     ap: "+", act: () => gvEmbark(), cd: gvCarry(CUR).length + " / " + u.cargo, step: true,
     info: "Carries " + u.cargo + " Infantry Squad" + (u.cargo > 1 ? "s" : "") + ", safe and untargetable while aboard. If destroyed with squads inside: Emergency Disembark \u2014 roll 1d6 per living soldier, 4+ survives, 1\u20133 perishes; survivors are placed at the wreck. Tap + to embark a squad, \u21E9 to disembark one." });
-  if(u.gtype==='car'&&gvCarry(CUR).length)rows.push({name:'Coordinated Strike',sub:'Select an embarked squad · uses squad AP',ap:'1',cd:'SQUAD',act:gvMountedStrike,info:'An embarked squad can fire using its own Coordinated Strike, costing 1 squad AP. Vehicle AP is unchanged.'});
-  if (u.objective) rows.push({ name: G.objective && G.objName ? "\u{1F6A9} " + G.objName : "Objective", sub: "may carry the mission objective", ap: G.objective ? "ON" : "set", cd: G.objective ? "CARRYING" : "\u2014", act: () => gvToggle("objective"), on: G.objective,
-    info: "A Tank cannot transport a squad, but may carry the mission objective itself (e.g. the person or item being secured)." });
   rows.push({ name: "Targeting", sub: "untargetable by suits unless one is within " + u.prox + "cm", ap: "\u2014", cd: (u.dodge ? "DODGE " + u.dodge + "+" : "NO DODGE"),
     info: "Untargetable by mobile suits by default \u2014 targetable only while an enemy mobile suit is within " + u.prox + "cm (proximity alone). " +
       (u.dodge ? "Rolled Dodge " + u.dodge + "+ against every attack, unlimited per turn. " : "No Rolled Dodge \u2014 its HP is its defence. ") +
@@ -1356,7 +1345,7 @@ function sqLabel(st, i) {
   return R.name + " #" + k;
 }
 function sqCommit() { sqSyncHP(CUR.st); ap = CUR.st.ap; save(); draw(); }
-// a casualty on the squad: pick which soldier falls (players choose — Armor Unit / Recon never come back)
+// A casualty on the squad: players choose which soldier falls; mistaken entries can be corrected for every role.
 function sqCasualtyPicker(count, why, done) {
   const st = CUR.st, uid = CUR.uid;
   if (count <= 0 || !sqAlive(st)) { if (done) done(); return; }
@@ -1385,14 +1374,14 @@ function sqCasualtyPicker(count, why, done) {
 }
 function sqRevivePicker() {
   const st = CUR.st, uid = CUR.uid;
-  const dead = st.sq.soldiers.map((s, i) => ({ s, i })).filter(x => x.s.hp <= 0 && !(sqRole(x.s.r).n === 1 && (x.s.r === "armor" || x.s.r === "recon")));
-  if (!dead.length) { mpToast("No soldier can be restored (Armor Unit and Recon never come back)."); return; }
-  $("pickT").textContent = "Restore a soldier"; $("pickS").innerHTML = "Undo a casualty entered by mistake.";
+  const dead = st.sq.soldiers.map((s, i) => ({ s, i })).filter(x => x.s.hp <= 0);
+  if (!dead.length) { mpToast("No fallen soldiers to restore."); return; }
+  $("pickT").textContent = "Correct a casualty"; $("pickS").innerHTML = "Undo a casualty entered by mistake.";
   const lst = $("picklist"); lst.innerHTML = "";
   dead.forEach(({ s, i }) => {
     const d = el("div", "row");
     d.innerHTML = '<span class="pt shipp gp"><img src="img/ground/' + U.sk + '-' + s.r + '.webp" alt=""></span><span style="min-width:0;flex:1"><div class="nm">' + sqLabel(st, i) + '</div><div class="tr">back at 6 HP</div></span>';
-    d.onclick = () => { s.hp = 6; closePicker(); logEv(uid, sqLabel(st, i) + " restored", "good"); sqCommit(); };
+    d.onclick = () => { if(CUR?.uid!==uid||!mpSheetCanEdit())return; s.hp = 6; closePicker(); logEv(uid, sqLabel(st, i) + " restored — casualty correction", "good"); sqCommit(); };
     lst.appendChild(d);
   });
   $("pickExtra").innerHTML = ""; $("pickCancel").textContent = "Cancel";
@@ -1438,7 +1427,7 @@ window.sqStrike = () => {
   if (ffPinned(CUR.uid)) { mpToast("\u2694 Pinned in the engagement \u2014 this squad waits for its bout. It can still spend items in the breaks."); return; }
   const st = CUR.st;
   if (stanceOf(st) === "hide") { mpToast("Hide Stance: no attacks this turn."); return; }
-  if (outOfPlay(CUR.uid)) { /* firing out of a vehicle is allowed */ }
+  if (outOfPlay(CUR.uid)) { mpToast("Disembark the squad before attacking."); return; }
   if (st.ap < 1) { mpToast("Not enough AP."); return; }
   st.ap -= 1; logEv(CUR.uid, "Coordinated Strike (1 AP)", "info"); sqCommit();
 };
@@ -1610,11 +1599,6 @@ function drawSquad() {
     ' \u2014 waiting for its bout. No moving or strikes; it can still spend items in the breaks.</div>';
   if (cs && cs.state === "aboard") h += '<div class="sqnote">\u2693 Aboard the ' + cs.u.short + ' \u2014 safe and untargetable. Disembark from the vehicle\'s sheet.</div>';
   if (S.tab === "overmap") {
-    h += S.holdsObj
-      ? '<div class="sqnote objnote">\u{1F6A9} <b>Holds ' + (objName(S.holdsObj) || "the objective") + '</b>' + (S.holdsObj.vs ? ' \u2014 secured against ' + S.holdsObj.vs + (S.holdsObj.turn ? ' (turn ' + S.holdsObj.turn + ')' : '') : '') +
-        '<button class="btn sm" onclick="sqObjective(true)">Rename</button>' +
-        '<button class="btn sm" onclick="sqObjective(false)">Clear</button></div>'
-      : '<div class="sqobjlink"><button class="linkbtn" onclick="sqObjective(true)">\u{1F6A9} Mark as holding the objective</button></div>';
     const pips = S.soldiers.map((s, i) => '<button class="sqpip' + (s.hp > 0 ? ' on' : '') + '" onclick="sqPip()" title="' + sqLabel(st, i) + '"><img src="img/ground/' + u.sk + '-' + s.r + '.webp" alt=""></button>').join("");
     h += '<div class="sqgrid om">' +
       '<div class="sqcard"><h4><img class="sq-overmap-icon" src="img/portraits/'+u.portrait+'.webp" alt="">SQUAD HEALTH <b>' + alive + ' / 8</b></h4><div class="sqpips">' + pips + '</div>' +
@@ -1947,6 +1931,7 @@ function sqCnt(s, k) { return s[k] && s[k].key === sKey() ? s[k].n : 0; }
 function sqBump(s, k, d) { const n = Math.max(0, sqCnt(s, k) + d); s[k] = { key: sKey(), n }; return n; }
 window.sqAct = (i, what, arg) => {
   if (!CUR || !isSquad(U) || !mpSheetCanEdit()) return;
+  if (["fire", "throw"].includes(what) && outOfPlay(CUR.uid)) { mpToast("Disembark the squad before attacking."); return; }
   const st = CUR.st, S = st.sq, s = sqSoldierFix(S.soldiers[i]), uid = CUR.uid, who = sqLabel(st, i), rep = mode === "repair";
   if (s.hp <= 0 && what !== "ap") { mpToast(who + " is down."); return; }
   const soldierStance = () => stanceOf({ stance: s.stance });
@@ -2249,7 +2234,7 @@ function ffPickRender() {
     '<div class="ffvsmid">VS</div>' +
     col("foe", P.enemy, otherTeam(mpMyTeam()), "Enemy \u00b7 " + teamName(otherTeam(mpMyTeam()))) + '</div>' +
     '<fieldset class="ffobjective-choice"><legend>Fight purpose</legend><label><input type="radio" name="ffPurpose" id="ffNoObjective" '+(!P.hasObjective?'checked':'')+' onchange="ffSel.hasObjective=false;ffPickRender()"> No objective · range encounter</label><label><input type="radio" name="ffPurpose" id="ffWithObjective" '+(P.hasObjective?'checked':'')+' onchange="ffSel.hasObjective=true;ffPickRender()"> Fight for an objective</label></fieldset>' +
-    (P.hasObjective?'<label class="ffobjname">Objective name<input id="ffObjName" maxlength="24" placeholder="e.g. Server room" value="'+ffText(P.obj||'')+'" oninput="ffSel.obj=this.value"></label>':'') +
+    (P.hasObjective?'<label class="ffobjname">Objective name<input id="ffObjName" list="ffObjectiveNames" maxlength="40" placeholder="e.g. Server room" value="'+ffText(P.obj||'')+'" oninput="ffSel.obj=this.value"></label><datalist id="ffObjectiveNames">'+Object.values(objectiveLedger().items).map(o=>'<option value="'+ffText(o.name)+'"></option>').join('')+'</datalist>':'') +
     (n && m ? ffLineupHTML(P.me.map(uid => P.mine.find(x => x.uid === uid)), P.foe.map(uid => P.enemy.find(x => x.uid === uid)), P.pairs, mpMyTeam(), otherTeam(mpMyTeam()), false) : '');
   const go = $("ffGoBtn");
   if (go) {
@@ -2343,8 +2328,8 @@ function ffTagHTML(f, uid, team) {
   return '<span class="fftag" title="In a firefight">\u2694<b> FIREFIGHT</b></span> ';
 }
 const objName = o => (o && typeof o === "object" && o.name ? String(o.name) : "").slice(0, 24);
-const objTagHTML = name => '<span class="objtag" title="Holds ' + (name || "the objective") + '">\u{1F6A9}<b> ' + (name ? name.toUpperCase() : "OBJECTIVE") + '</b></span> ';
-const objHeld = st => st && ((st.sq && st.sq.holdsObj) ? { name: objName(st.sq.holdsObj) } : (st.gv && st.gv.objective) ? { name: (st.gv.objName || "") } : null);
+const objTagHTML = name => '<span class="objtag" title="Holds ' + (ffText(name || "the objective")) + '">\u{1F6A9}<b> ' + (name ? ffText(name.toUpperCase()) : "OBJECTIVE") + '</b></span> ';
+const objHeld = st => st?.objectives?.length ? {name:st.objectives.map(o=>o.name).join(' · ')} : null;
 const objTagFor = uid => { const r = roster.find(x => x.uid === uid); const h = r && !isDead(r) ? objHeld(r.st) : null; return h ? objTagHTML(h.name) : ""; };
 const OBJ_TAG = objTagHTML("");
 // counter straight from the notification (takes the squad's sheet quietly if needed, like ticking a unit done)
@@ -2906,15 +2891,7 @@ window.ffEnd = () => {
 };
 // ---------- my side's bookkeeping, once per state change ----------
 // manual objective marker (for fights resolved without the app, or when the squad leaves the objective)
-window.sqObjective = on => {
-  if (!CUR || !CUR.st || !CUR.st.sq) return;
-  if (typeof mpSheetCanEdit === "function" && mpTeamMode() && !mpSheetCanEdit()) { mpToast("Only the player controlling this sheet can change that."); return; }
-  let oname = "";
-  if (on) oname = (prompt("What is this objective? (e.g. Server room)", objName(CUR.st.sq.holdsObj)) || "").trim().slice(0, 24);
-  CUR.st.sq.holdsObj = on ? { vs: "", turn: turn.round || 0, name: oname } : null;
-  logEv(CUR.uid, on ? "\u{1F6A9} Holds " + (oname || "the objective") : "No longer holds the objective", "info");
-  save(); if (typeof sqCommit === "function") sqCommit(); else draw();
-};
+window.sqObjective = () => openObjectives();
 function ffSync(f) {
   const s = ffSideOf(f), q = CUR.st.sq.qr;
   if (q.ffId !== f.id) {                                   // a new engagement: items refill
@@ -2927,13 +2904,6 @@ function ffSync(f) {
     const ok = f.id + ":" + f.seg + ":" + holder.side + ":" + holder.uid;
     if (q.objKey !== ok) {
       q.objKey = ok;
-      const ids = f.eng ? f.eng[ s + "List" ].map(x => x.uid) : [f[s].uid];
-      // Include a removed holder when merges changed the roster.
-      roster.filter(r => ids.includes(r.uid) || r.st?.sq?.holdsObj?.engId === f.id).forEach(r => {
-        if (!r.st.sq) return;
-        r.st.sq.holdsObj = holder.side === s && holder.uid === r.uid ?
-          { vs: f[ffOther(s)].label, turn: turn.round || 0, name: f.eng?.obj || "", engId: f.id } : null;
-      });
       logEv(CUR.uid, holder.side === s ? "🚩 Your side holds the objective" : "The enemy holds the objective", holder.side === s ? "buff" : "bad");
       save(); if (typeof sqCommit === "function") sqCommit();
     }
@@ -3348,12 +3318,13 @@ function show(id) {
 
 function save() {
   pickupRefresh();
+  objectiveRefresh();
   repairRefresh();
   qrStampTransportChanges();
   qrReconcileRoster();
   try {
     stashTeam();                       // fold the live team back into teams[side]
-    localStorage.setItem(SAVE, JSON.stringify({ side: side, teams: teams, battlefield:pickupField }));
+    localStorage.setItem(SAVE, JSON.stringify({ side: side, teams: teams, battlefield:pickupField, objectives:objectiveField }));
   } catch (e) {}
   try { mpDirty(); } catch (e) {}
 }
@@ -3364,6 +3335,7 @@ function load() {
       side = d.side;
       teams = d.teams || { federation: null, spacenoid: null };
       pickupField=d.battlefield||{seq:0,items:{},receipts:{}};
+      objectiveField=d.objectives||{};
       loadTeam(side);
       return true;
     }
@@ -4494,6 +4466,8 @@ async function mpSync() {
   if (sentAccept) body.writes.acceptEnd = sentAccept;
   if (sentLead) body.writes.passLead = sentLead;
   const sentFF = (mp.ffOps || []).slice(0, 6);
+  const sentObjectives=(mp.objectiveOps||[]).slice(0,4);
+  if(sentObjectives.length)body.writes.objective=sentObjectives;
   const sentPickup=(mp.pickupOps||[]).slice(0,4);
   if(sentPickup.length)body.writes.pickup=sentPickup;
   if (sentFF.length) body.writes.ff = sentFF;
@@ -4541,6 +4515,7 @@ async function mpSync() {
   rel.forEach(k => { mp.wantRelease.delete(k); mp.held.delete(k); });
   const denied = new Set(j.denied || []);
   for(const d of denied)if(d.startsWith('pilot:'))mpToast(d.slice(6));
+  if(sentObjectives.length){mp.objectiveOps.splice(0,sentObjectives.length);const why=[...denied].find(x=>x.startsWith('objective:'));mpToast(why?why.slice(10):'Objective updated for both teams');}
   if(sentPickup.length){mp.pickupOps.splice(0,sentPickup.length);const why=[...denied].find(x=>x.startsWith('pickup:'));mpToast(why?why.slice(7):'Equipment picked up · 1 AP');}
   if (sentFF.length) {
     mp.ffOps.splice(0, sentFF.length);
@@ -4683,6 +4658,7 @@ function mpApplyUnit(r, force) {
     const remote=d.st?.sq?.qr,local=r.st.sq?.qr;
     let suppliesChanged=false;
     const rs=d.st;
+    if(rs&&JSON.stringify(r.st.objectives)!==JSON.stringify(rs.objectives)){r.st.objectives=structuredClone(rs.objectives||[]);suppliesChanged=true;}
     if(rs&&(rs.pickupRevision||0)!==(r.st.pickupRevision||0)){
       for(const k of ['eq','wpn','wsig','sh','shMax','shDown','ap','pickupRevision'])if(rs[k]!==undefined)r.st[k]=structuredClone(rs[k]);
       suppliesChanged=true;
@@ -4705,7 +4681,7 @@ function mpApplyUnit(r, force) {
       const before=JSON.stringify([local.items,local.resupply]);
       local.items=JSON.parse(JSON.stringify(remote.items));local.supplyVersion=2;
       if(remote.resupply)local.resupply=JSON.parse(JSON.stringify(remote.resupply));else delete local.resupply;
-      suppliesChanged=before!==JSON.stringify([local.items,local.resupply]);
+      suppliesChanged=suppliesChanged||before!==JSON.stringify([local.items,local.resupply]);
     }
     mp.seen[key] = etag; return suppliesChanged;
   }
@@ -4836,6 +4812,7 @@ function mpApply() {
   }
   const pilotSig=JSON.stringify(Object.entries(mpPlayers()).map(([id,p])=>[id,p.team,p.pilot,p.pilotUnit]));
   if(mp.pilotSig!==pilotSig){mp.pilotSig=pilotSig;changed=true;window.PilotSocial?.update();}
+  if(mp.objectiveSig!==mp.etags.objectives){mp.objectiveSig=mp.etags.objectives;changed=true;}
   // units
   roster.forEach(r => { if (mpApplyUnit(r)) changed = true; });
   // deliveries for units this device holds (or can pick up)
@@ -5469,7 +5446,7 @@ function setHTMLIfChanged(el, html) {
   el.innerHTML = html; el.__html = html; el.__first = el.firstChild;
   return true;
 }
-function renderRoster() { renderRosterCore(); renderOpp(); splitColumns(); mpRender(); }
+function renderRoster() { objectiveRefresh(); renderRosterCore(); renderOpp(); splitColumns(); mpRender(); }
 // ---------- roster tabs: Mobile suits · Ships · Ground units ----------
 const unitTab = u => !u ? "suits" : u.type === "warship" ? "ships" : u.type === "ground" ? "ground" : "suits";
 let rosterTab = (() => { try { const t = localStorage.getItem("msb.tab"); return ["suits", "ships", "ground"].includes(t) ? t : "suits"; } catch (e) { return "suits"; } })();
@@ -6330,7 +6307,8 @@ function draw() {
 }
 function drawSheetContents() {
   pickupRefresh();
-  repairRefresh();repairDrawUI();
+  objectiveRefresh();
+  repairRefresh();repairDrawUI();objectiveDraw();
   qrReconcileRoster();
   const service=$("resupplyStatus");
   if(service)service.innerHTML=CUR&&U?.cargo&&isGround(U)?qrServiceHTML(CUR):"";
@@ -7819,6 +7797,7 @@ window.openSheetHelp = () => {
       "<b>DMG 1\u201315</b> \u2014 how much each tap applies. <b>#</b> types any amount. <b>\u2622</b> applies a nuclear blast by distance.",
       "The turn chip shows whose turn it is \u2014 tap it to go to the roster.",
     ])) +
+    (GBObjectives.eligible(CUR) ? sec("Objectives", li(["<b>OBJECTIVE</b> opens the shared list for both teams. Select an item, then pick up, capture, drop, or select a receiving unit and confirm transfer. A destroyed carrier drops its items. Jets cannot carry objectives. Physical mission conditions are checked on the tabletop."])) : "") +
     sec("Bottom buttons", li([
       "<b>TABLES</b> \u2014 hit, range and damage tables.",
       "<b>STANCE</b> \u2014 declare a stance (one at a time).",
@@ -7835,7 +7814,7 @@ window.openSheetHelp = () => {
 function fitSheet() {
   const s4 = $("s4"), sh = $("sheet");
   if (!s4 || !sh || !s4.classList.contains("on")) return;
-  const avail = window.innerHeight - $("topbar").offsetHeight - $("tl").offsetHeight - ($("resupplyStatus")?.offsetHeight || 0) - ($("repairStatus")?.offsetHeight || 0);
+  const avail = window.innerHeight - $("topbar").offsetHeight - $("tl").offsetHeight - ($("resupplyStatus")?.offsetHeight || 0) - ($("repairStatus")?.offsetHeight || 0) - ($("objectiveStatus")?.offsetHeight || 0);
   const full = s4.clientWidth || document.documentElement.clientWidth;
   const w = Math.max(300, Math.min(full, Math.floor(avail * 16 / 9)));
   if (sh.style.width !== w + "px") sh.style.width = w + "px";
@@ -7843,7 +7822,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(()=>{renderAmounts();fitSheet();}));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf142";
+const APP_BUILD = "cf146";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
