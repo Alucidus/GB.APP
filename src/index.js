@@ -429,6 +429,7 @@ export class BattleRoom {
         const occupied=Object.entries(players).some(([id,p])=>id!==pid&&p.team===np.team&&p.pilotUnit===uid);
         if(uid===null)np.pilotUnit=null;
         else if(!np.pilot||!validUid(uid)||!suit)denied.push('pilot:Choose a mobile suit on your team.');
+        else if(np.pilot.campaign?.units?.[unit.id]?.destroyed)denied.push('pilot:Restore this unit in your hangar first.');
         else if(occupied)denied.push('pilot:That mobile suit already has a pilot.');
         else np.pilotUnit=uid;
         if(!denied.some(d=>d.startsWith('pilot:'))){await M.set('player/'+pid,np);players[pid]=np;push=true;}

@@ -5,9 +5,11 @@ const traits=[{"id": "marksman-s-instinct", "name": "Marksman's Instinct", "cate
 const ranks=[['Rookie',0,0,0],['Veteran',10,1,1],['Ace',25,2,2],['Newtype / Coordinator',45,3,3],['Super Newtype',100,4,4],['Legendary Newtype',200,6,4]];
 const fresh=()=>({version:1,earned:0,spent:0,units:{},history:[]});
 const rank=c=>ranks.filter(r=>c.earned>=r[1]).at(-1),balance=c=>c.earned-c.spent,price=u=>Math.ceil(u.dp/100);
+const revival=u=>['Flagship','Super Flagship','Superweapon','Myth','Unknown Class'].includes(u.tier)?Math.ceil(u.dp/250):0;
 function valid(c){
  if(!c||c.version!==1||!Number.isSafeInteger(c.earned)||c.earned<0||c.earned>1000000||!Number.isSafeInteger(c.spent)||c.spent<0||c.spent>c.earned||!c.units||Array.isArray(c.units)||typeof c.units!=='object'||Object.keys(c.units).length>100||!Array.isArray(c.history)||c.history.length>200)return false;
  for(const [id,b] of Object.entries(c.units)){
+  if(b?.destroyed!==undefined&&typeof b.destroyed!=='boolean')return false;
   if(!/^[a-z0-9-]+$/.test(id)||!b||!Number.isInteger(b.extra)||b.extra<0||b.extra>15||!Array.isArray(b.traits)||b.traits.length>rank(c)[2]+b.extra||new Set(b.traits.map(t=>t.id)).size!==b.traits.length)return false;
   for(const t of b.traits)if(!traits.some(x=>x.id===t.id)||!Number.isInteger(t.tier)||t.tier<1||t.tier>rank(c)[3]||!Array.isArray(t.choices)||t.choices.length>2||t.choices.some(v=>!Number.isInteger(v)||v<0||v>200))return false;
  }
@@ -27,6 +29,9 @@ function act(current,u,action,id,choices=[]){
  const c=structuredClone(current),b=u&&c.units[u.id];let text='';
  if(action==='award'){if(!Number.isInteger(id)||id<=0||c.earned+id>1000000)throw Error('Enter a positive whole number of GP.');c.earned+=id;text='Manual prototype award: +'+id+' GP';}
  else if(action==='unit'){if(!u||u.type||!u.limb||!Number.isFinite(u.dp)||u.dp<=0)throw Error('Choose a mobile suit.');if(b)throw Error('Already owned.');const cost=price(u);if(balance(c)<cost)throw Error('Not enough GP.');c.spent+=cost;c.units[u.id]={extra:0,traits:[]};text='Purchased '+u.name+' · '+cost+' GP';}
+ else if(action==='destroyed'){if(!b||b.destroyed)throw Error('Choose a ready owned unit.');b.destroyed=true;text='Recorded destroyed: '+u.name;}
+ else if(action==='correct'){if(!b?.destroyed)throw Error('Unit is already ready.');b.destroyed=false;text='Corrected mistaken loss: '+u.name;}
+ else if(action==='repair'){if(!b?.destroyed)throw Error('Unit is already ready.');const cost=revival(u);if(balance(c)<cost)throw Error('Not enough GP.');c.spent+=cost;b.destroyed=false;text='Restored '+u.name+' · '+cost+' GP';}
  else if(action==='slot'){if(!b||rank(c)[0]!=='Legendary Newtype')throw Error('Extra slots unlock at Legendary Newtype.');if(b.extra>=15)throw Error('All 21 slots are available.');if(balance(c)<100)throw Error('Not enough GP.');b.extra++;c.spent+=100;text='Extra unit trait slot · 100 GP';}
  else if(action==='trait'){const why=reason(c,u,id);if(why)throw Error(why);const owned=b.traits.find(t=>t.id===id),tier=(owned?.tier||0)+1;
   if(id==='weapon-mastery'&&tier===1&&(choices.length!==1||!u.weapons?.[choices[0]]))throw Error('Select a weapon first.');
@@ -36,5 +41,5 @@ function act(current,u,action,id,choices=[]){
  c.history.push({at:Date.now(),text});c.history=c.history.slice(-200);if(!valid(c))throw Error('Invalid campaign data.');return c;
 }
 const benefits=c=>[c.earned>=10?'+1 standard ranged rolls':'No rank bonuses',...(c.earned>=25?['+1 melee rolls']:[]),...(c.earned>=45?['Newtype Sync: '+(c.earned>=200?8:c.earned>=100?6:4)+' targets; funnel access']:[]),...(c.earned>=100?['+'+(c.earned>=200?2:1)+' AP']:[]),...(c.earned>=200?['Newtype Blackout: once per game']:[])].join(' · ');
-return {benefits,cooldown,traits,ranks,fresh,rank,balance,price,valid,reason,act};
+return {revival,benefits,cooldown,traits,ranks,fresh,rank,balance,price,valid,reason,act};
 })();

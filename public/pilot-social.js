@@ -55,13 +55,14 @@ window.PilotSocial = (() => {
     const remove=document.getElementById('pilotAssignRemove');if(remove)remove.onclick=()=>assign(null);
     const suits=roster.filter(r=>unitTab(unitById(r.id))==='suits');
     units.innerHTML=suits.length?suits.map(r=>{
-      const occupied=owner(r.uid),other=occupied&&occupied[0]!==mp.pid,u=unitById(r.id);
-      return '<button class="pilot-unit-choice'+(selected&&!other?' available':'')+'" data-pilot-unit="'+r.uid+'" '+(!selected||other?'disabled':'')+'>'+portraitHTML(u,r)+'<span><b>'+esc(u.short||u.name)+(countOf(r.id)>1?' #'+copyIndex(r):'')+'</b><small>'+(other?'Assigned to '+esc(occupied[1].pilot.name):current===r.uid?'Your pilot is assigned here':selected?'Assign here':'Select your pilot first')+'</small></span>'+(current===r.uid?icon(profile):'')+'</button>';
+      const occupied=owner(r.uid),other=occupied&&occupied[0]!==mp.pid,u=unitById(r.id),destroyed=profile.campaign?.units?.[r.id]?.destroyed;
+      return '<button class="pilot-unit-choice'+(selected&&!other&&!destroyed?' available':'')+'" data-pilot-unit="'+r.uid+'" '+(!selected||other||destroyed?'disabled':'')+'>'+portraitHTML(u,r)+'<span><b>'+esc(u.short||u.name)+(countOf(r.id)>1?' #'+copyIndex(r):'')+'</b><small>'+(destroyed?'Restore this unit in your hangar':other?'Assigned to '+esc(occupied[1].pilot.name):current===r.uid?'Your pilot is assigned here':selected?'Assign here':'Select your pilot first')+'</small></span>'+(current===r.uid?icon(profile):'')+'</button>';
     }).join(''):'<p>Add a mobile suit to your roster first.</p>';
     units.querySelectorAll('[data-pilot-unit]').forEach(b=>b.onclick=()=>assign(Number(b.dataset.pilotUnit)));
   }
   function assign(uid){
     if(!profile||(uid!==null&&!selected))return;
+    if(uid!==null&&profile.campaign?.units?.[roster.find(r=>r.uid===uid)?.id]?.destroyed)return;
     if(mpTeamMode()){
       const occupied=owner(uid);if(uid!==null&&occupied&&occupied[0]!==mp.pid){update();return;}
       mp.wantPlayer={...mp.wantPlayer,pilot:profile,pilotUnit:uid};mpKick();

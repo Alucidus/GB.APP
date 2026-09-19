@@ -7842,7 +7842,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(()=>{renderAmounts();fitSheet();}));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf152";
+const APP_BUILD = "cf154";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
