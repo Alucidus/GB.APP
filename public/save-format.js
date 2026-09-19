@@ -4,11 +4,12 @@ globalThis.GBSave=(()=>{
  const KEYS=['msb.state.v4','gb.pilot.v1','gb.effects','gb.mute','msb.tab','gb.clashSeen','gb.pilot.avatar.v1'];
  const prefs={'gb.effects':['auto','full','lite'],'gb.mute':['0','1'],'msb.tab':['suits','ships','ground'],'gb.clashSeen':['0','1']};
  const obj=x=>!!x&&typeof x==='object'&&!Array.isArray(x),fail=m=>{throw Error(m);};
- const number=(v,where)=>{if(typeof v!=='number'||!Number.isFinite(v)||Math.abs(v)>1e9)fail('Invalid number: '+where);};
+ const number=(v,where,max=1e9)=>{if(typeof v!=='number'||!Number.isFinite(v)||Math.abs(v)>max)fail('Invalid number: '+where);};
  function tree(v,depth=0,count={n:0}){
   if(depth>50||++count.n>250000)fail('Save data is too complex.');
   if(v===null||typeof v==='boolean')return;
-  if(typeof v==='number'){number(v,'save data');return;}
+  // Stored event times use milliseconds since 1970; retain tighter bounds for HP/AP below.
+  if(typeof v==='number'){number(v,'save data',Number.MAX_SAFE_INTEGER);return;}
   if(typeof v==='string'){if(v.length>100000)fail('A save field is too long.');return;}
   if(typeof v!=='object')fail('Invalid save data.');
   for(const [k,x] of Object.entries(v)){if(['__proto__','prototype','constructor'].includes(k))fail('Unsafe save field.');tree(x,depth+1,count);}
