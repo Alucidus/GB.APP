@@ -2,7 +2,7 @@
 from pathlib import Path
 import sys,json,re
 import numpy as np
-from PIL import Image,ImageDraw,ImageFilter
+from PIL import Image,ImageDraw,ImageFilter,ImageOps
 APP=Path(__file__).resolve().parents[1];ROOT=APP.parents[1]
 sys.path.insert(0,str(ROOT/'.asset-tools'))
 from psd_tools import PSDImage
@@ -26,7 +26,17 @@ for key,file in files.items():
     psd=PSDImage.open(SRC/file);layers=[l for l in psd if l.kind!='group'];assert psd.size==(1254,1500)
     exported=[];images=[]
     for i,l in enumerate(layers):
-        im=l.topil().convert('RGBA');name=f'{key}-{i}.png';im.save(OUT/name)
+        im=l.topil().convert('RGBA')
+        if l.name.startswith(('F2-','M8-')):
+            # Remove residual pale matte in the outer two pixels without moving
+            # or eroding the fitted alpha silhouette. Interior highlights stay intact.
+            a=np.array(im);alpha=a[:,:,3].copy()
+            near=np.array(Image.fromarray(alpha).filter(ImageFilter.MinFilter(5)))<24
+            rim=(alpha>0)&near
+            a[:,:,:3][rim]=np.minimum(a[:,:,:3][rim],55)
+            assert np.array_equal(a[:,:,3],alpha)
+            im=Image.fromarray(a)
+        name=f'{key}-{i}.png';im.save(OUT/name)
         exported.append({'name':l.name,'src':'img/pilots/'+name,'box':list(l.bbox),'preserveDetails':bool(re.match(r'^[MFB]\d-',l.name) or l.name=='male-ponytail')})
         images.append(im if exported[-1]['preserveDetails'] else despeckle(im))
     manifest[key]=exported
@@ -45,7 +55,8 @@ for key,file in files.items():
         c=Image.new('RGBA',psd.size)
         for i in [face,*eyes,uniforms[0],*([beard] if beard is not None else []),*([hair] if hair is not None else [])]:c.alpha_composite(images[i],tuple(layers[i].bbox[:2]))
         bg=Image.new('RGBA',psd.size,'#25394a');bg.alpha_composite(c)
-        return bg.crop((280,720,980,1450) if beard_view else (190,120,1070,1250)).resize((176,226),Image.Resampling.LANCZOS).convert('RGB')
+        crop=bg.crop((280,720,980,1450) if beard_view else (190,120,1070,1250)).convert('RGB')
+        return ImageOps.pad(crop,(176,226),method=Image.Resampling.LANCZOS,color='#25394a')
     face_thumbs=[];hair_thumbs=[];beard_thumbs=[]
     for n,i in enumerate(faces):
         name=f'{key}-face-{n}.jpg';portrait(i,hairs[0]).save(THUMB/name,quality=85);face_thumbs.append('img/pilots/thumbs/'+name)

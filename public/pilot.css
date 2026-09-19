@@ -1,8 +1,19 @@
 #pilotScreen{position:fixed;inset:0;min-height:0;height:100dvh;overflow:hidden;padding:0;color:#edf4fa;--pilot-accent:#81c9ed;background:#030b12;isolation:isolate}
 #pilotScreen[data-faction=spacenoid]{--pilot-accent:#e7b465}
+#pilotScreen[data-faction=neutral]{--pilot-accent:#c6ced6}
 #pilotScreen .m-bg{z-index:-4;position:absolute;inset:0;pointer-events:none;transform-origin:0 0;overflow:hidden}
 #pilotScreen .m-bg.capped{right:auto;bottom:auto;will-change:scale}
 .pilot-hangar{position:absolute;inset:0;z-index:-3;background:url(img/pilots/hangar.png) center/cover no-repeat;pointer-events:none}
+#pilotScreen #pilotBattle{z-index:-5}
+.pilot-flyby{position:absolute;inset:0;z-index:-4;overflow:hidden;pointer-events:none}
+.pilot-flyby img{position:absolute;top:100%;height:auto;opacity:0;max-width:none;animation:pilot-window-flyby 16s linear infinite;animation-play-state:paused;will-change:transform,opacity}
+.pilot-flyby-gundam{left:44%;width:clamp(100px,15vw,230px);--fly-drift:1vw}
+.pilot-flyby-zakus{left:43%;width:clamp(130px,20vw,300px);--fly-drift:2vw;animation-delay:1.9s!important}
+#pilotScreen.on .pilot-flyby img{animation-play-state:running}
+@keyframes pilot-window-flyby{0%,4%{transform:translate3d(0,0,0);opacity:0}5%{opacity:1}29%{transform:translate3d(var(--fly-drift),calc(-100dvh - 100%),0);opacity:1}30%,100%{transform:translate3d(var(--fly-drift),calc(-100dvh - 100%),0);opacity:0}}
+html.fx-lite .pilot-flyby{display:none}
+@media(prefers-reduced-motion:reduce){.pilot-flyby{display:none}}
+@media(orientation:portrait){.pilot-flyby-gundam{left:68%;width:100px;--fly-drift:-3vw}.pilot-flyby-zakus{left:63%;width:130px;--fly-drift:-2vw}}
 .pilot-shade{position:absolute;inset:0;z-index:-2;background:linear-gradient(90deg,rgba(2,9,15,.83),rgba(2,9,15,.08) 76%),linear-gradient(0deg,rgba(2,9,15,.7),transparent 45%);pointer-events:none}
 .pilot-header{height:76px;box-sizing:border-box;padding:12px max(20px,env(safe-area-inset-right)) 12px max(20px,env(safe-area-inset-left));display:flex;gap:20px;align-items:center;border-bottom:1px solid #93b1c644;background:#08111acc}
 .pilot-header>div{flex:1}.pilot-header h1{font-size:24px;margin:0;letter-spacing:.18em}.pilot-header small{font-size:10px;letter-spacing:.16em;color:var(--pilot-accent)}
@@ -40,6 +51,7 @@ html.fx-lite #pilotScreen .m3-l{animation:none!important}
 .pilot-tile-field .pilot-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
 #pilotScreen .pilot-tile{display:flex;flex-direction:column;padding:0;overflow:hidden;background:#112331;min-width:0;text-align:left;border-radius:10px;box-shadow:0 3px 10px #0003}
 .pilot-tile img{width:100%;height:125px;object-fit:cover;object-position:center 27%;display:block;background:#25394a}
+.pilot-tile-field[data-control=beard] .pilot-tile img{object-fit:contain;object-position:center}
 .pilot-tile span{padding:9px 8px;font-size:11px;line-height:1.3;min-height:32px;box-sizing:border-box}
 #pilotScreen .pilot-tile.selected{border:2px solid var(--pilot-accent);box-shadow:0 0 0 1px #0005;background:#294452}
 .pilot-tile.selected:after{position:absolute;top:6px;right:6px;display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:var(--pilot-accent);color:#10212b;font-weight:bold;margin:0}

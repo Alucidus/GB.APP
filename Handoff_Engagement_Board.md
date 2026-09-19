@@ -1,4 +1,16 @@
-# Gunpla Battles - cf131 current handoff
+# Gunpla Battles - cf133 current handoff
+
+Pilot Studio window now has an upward Gundam fly-by followed 1.9 seconds later by the Zaku pair. Original transparent sprites sit behind the hangar and pilot. Repeats every 16 seconds; respects reduced motion and effects-lite. Browser checks passed desktop, landscape and portrait. See Release_Notes_cf133.md. No deployment. Next major milestone: full digital character sheet and unit records before GP.
+
+---
+
+# Gunpla Battles - cf132 previous handoff
+
+Neutral faction added to pilot records. Beard thumbnails retain natural proportions. Asymmetrical hair perimeter cleanup preserves exact fitment and alpha. See Release_Notes_cf132.md. No deployment.
+
+---
+
+# Gunpla Battles - cf131 previous handoff
 
 Pilot Studio imports the cleaned hand-fitted PSDs with exact coordinates on a 1254 x 1500 canvas. Illustrated selection tiles, all 15 new hairstyles, and five facial-hair overlays are implemented. Facial hair draws below hairstyles. See Release_Notes_cf131.md and Test_Checklist_cf131.md. Next: user review, then full digital character sheet and unit records before GP. No deployment.
 
