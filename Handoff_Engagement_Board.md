@@ -1,4 +1,16 @@
-# Gunpla Battles - cf129 current handoff
+# Gunpla Battles - cf131 current handoff
+
+Pilot Studio imports the cleaned hand-fitted PSDs with exact coordinates on a 1254 x 1500 canvas. Illustrated selection tiles, all 15 new hairstyles, and five facial-hair overlays are implemented. Facial hair draws below hairstyles. See Release_Notes_cf131.md and Test_Checklist_cf131.md. Next: user review, then full digital character sheet and unit records before GP. No deployment.
+
+---
+
+# Gunpla Battles - cf130 previous handoff
+
+Fixed iris recolouring so dark brown upper shading changes hue too. Female faces 3/4 have fitted masks; male face 1 has an interior rim mask to avoid overflow. Other face geometry remains unchanged. See Release_Notes_cf130.md. Next milestone remains user review, then the full digital character sheet and unit records before GP. No deployment.
+
+---
+
+# Gunpla Battles - cf129 previous handoff
 
 Pilot creator is built from the supplied female and four male PSDs. Main menu Pilot uses the clash transition into the supplied hangar, with the existing battle scene behind its window and no m3-fg. Offline play/continue is in the bottom menu. Identity and appearance save locally, separately from battles. Read Release_Notes_cf129.md and Test_Checklist_cf129.md.
 

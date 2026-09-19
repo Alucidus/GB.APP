@@ -1,388 +1,202 @@
 {
-  "male-east": [
-    {
-      "name": "male-face-east-asian",
-      "src": "img/pilots/male-east-0.png",
-      "box": [
-        0,
-        43,
-        1239,
-        1254
-      ]
-    },
-    {
-      "name": "left eye",
-      "src": "img/pilots/male-east-1.png",
-      "box": [
-        723,
-        519,
-        773,
-        558
-      ]
-    },
-    {
-      "name": "left brow",
-      "src": "img/pilots/male-east-2.png",
-      "box": [
-        666,
-        458,
-        843,
-        509
-      ]
-    },
-    {
-      "name": "right eye",
-      "src": "img/pilots/male-east-3.png",
-      "box": [
-        482,
-        519,
-        532,
-        558
-      ]
-    },
-    {
-      "name": "right brow",
-      "src": "img/pilots/male-east-4.png",
-      "box": [
-        412,
-        458,
-        591,
-        510
-      ]
-    },
-    {
-      "name": "male-uniform-neutral-black",
-      "src": "img/pilots/male-east-5.png",
-      "box": [
-        13,
-        21,
-        1238,
-        1241
-      ]
-    },
-    {
-      "name": "Spacenoid uniform",
-      "src": "img/pilots/male-east-6.png",
-      "box": [
-        -139,
-        -181,
-        1393,
-        1363
-      ]
-    },
-    {
-      "name": "male-uniform-space-green",
-      "src": "img/pilots/male-east-7.png",
-      "box": [
-        -177,
-        -57,
-        1430,
-        1373
-      ]
-    },
-    {
-      "name": "male-uniform-space-light",
-      "src": "img/pilots/male-east-8.png",
-      "box": [
-        -143,
-        110,
-        1393,
-        1311
-      ]
-    },
-    {
-      "name": "male-hair-spiky",
-      "src": "img/pilots/male-east-9.png",
-      "box": [
-        128,
-        25,
-        991,
-        1141
-      ]
-    },
-    {
-      "name": "male-hair-sidepart",
-      "src": "img/pilots/male-east-10.png",
-      "box": [
-        176,
-        19,
-        985,
-        793
-      ]
-    },
-    {
-      "name": "male-hair-curls",
-      "src": "img/pilots/male-east-11.png",
-      "box": [
-        279,
-        -12,
-        972,
-        669
-      ]
-    },
-    {
-      "name": "male-uniform-tan-red-yellow",
-      "src": "img/pilots/male-east-12.png",
-      "box": [
-        -128,
-        77,
-        1384,
-        1279
-      ]
-    }
-  ],
-  "male-dark": [
-    {
-      "name": "male-face-dark",
-      "src": "img/pilots/male-dark-0.png",
-      "box": [
-        47,
-        121,
-        1200,
-        1247
-      ]
-    },
-    {
-      "name": "left eye",
-      "src": "img/pilots/male-dark-1.png",
-      "box": [
-        724,
-        526,
-        772,
-        568
-      ]
-    },
-    {
-      "name": "left brow",
-      "src": "img/pilots/male-dark-2.png",
-      "box": [
-        663,
-        470,
-        847,
-        523
-      ]
-    },
-    {
-      "name": "rightbrow",
-      "src": "img/pilots/male-dark-3.png",
-      "box": [
-        409,
-        470,
-        593,
-        523
-      ]
-    },
-    {
-      "name": "right eye",
-      "src": "img/pilots/male-dark-4.png",
-      "box": [
-        485,
-        525,
-        534,
-        568
-      ]
-    },
-    {
-      "name": "male-uniform-tan-red-yellow",
-      "src": "img/pilots/male-dark-5.png",
-      "box": [
-        -128,
-        77,
-        1384,
-        1279
-      ]
-    },
-    {
-      "name": "male-uniform-neutral-black",
-      "src": "img/pilots/male-dark-6.png",
-      "box": [
-        13,
-        21,
-        1238,
-        1241
-      ]
-    },
-    {
-      "name": "Spacenoid uniform",
-      "src": "img/pilots/male-dark-7.png",
-      "box": [
-        -139,
-        -181,
-        1393,
-        1363
-      ]
-    },
-    {
-      "name": "male-uniform-space-green",
-      "src": "img/pilots/male-dark-8.png",
-      "box": [
-        -177,
-        -57,
-        1430,
-        1373
-      ]
-    },
-    {
-      "name": "male-uniform-space-light",
-      "src": "img/pilots/male-dark-9.png",
-      "box": [
-        -143,
-        110,
-        1393,
-        1311
-      ]
-    },
-    {
-      "name": "male-hair-spiky",
-      "src": "img/pilots/male-dark-10.png",
-      "box": [
-        130,
-        9,
-        993,
-        1125
-      ]
-    },
-    {
-      "name": "male-hair-sidepart",
-      "src": "img/pilots/male-dark-11.png",
-      "box": [
-        176,
-        19,
-        985,
-        793
-      ]
-    },
-    {
-      "name": "male-hair-curls",
-      "src": "img/pilots/male-dark-12.png",
-      "box": [
-        296,
-        53,
-        954,
-        552
-      ]
-    }
-  ],
   "female": [
     {
       "name": "Background",
       "src": "img/pilots/female-0.png",
       "box": [
         0,
-        21,
+        265,
         1254,
-        1254
-      ]
+        1498
+      ],
+      "preserveDetails": false
     },
     {
       "name": "female-face-dark",
       "src": "img/pilots/female-1.png",
       "box": [
         18,
-        96,
+        340,
         1239,
-        1269
-      ]
+        1513
+      ],
+      "preserveDetails": false
     },
     {
       "name": "female-face-east-asian",
       "src": "img/pilots/female-2.png",
       "box": [
         17,
-        62,
+        306,
         1236,
-        1261
-      ]
+        1505
+      ],
+      "preserveDetails": false
     },
     {
       "name": "female-face-south-asian",
       "src": "img/pilots/female-3.png",
       "box": [
         0,
-        17,
+        261,
         1254,
-        1254
-      ]
+        1498
+      ],
+      "preserveDetails": false
     },
     {
       "name": "female-uniform-green-gold-red",
       "src": "img/pilots/female-4.png",
       "box": [
         -58,
-        -25,
+        219,
         1305,
-        1331
-      ]
+        1575
+      ],
+      "preserveDetails": false
     },
     {
       "name": "female-uniform-space-green",
       "src": "img/pilots/female-5.png",
       "box": [
         -6,
-        21,
+        265,
         1261,
-        1254
-      ]
+        1498
+      ],
+      "preserveDetails": false
     },
     {
       "name": "female-uniform-space-light",
       "src": "img/pilots/female-6.png",
       "box": [
         -29,
-        89,
+        333,
         1282,
-        1290
-      ]
+        1534
+      ],
+      "preserveDetails": false
     },
     {
       "name": "female-uniform-tan-red-yellow",
       "src": "img/pilots/female-7.png",
       "box": [
         -10,
-        21,
+        265,
         1260,
-        1254
-      ]
+        1498
+      ],
+      "preserveDetails": false
     },
     {
       "name": "female-uniform-neutral-black",
       "src": "img/pilots/female-8.png",
       "box": [
         0,
-        52,
+        296,
         1254,
-        1254
-      ]
+        1498
+      ],
+      "preserveDetails": false
     },
     {
       "name": "female-hair-bob",
       "src": "img/pilots/female-9.png",
       "box": [
         -20,
-        52,
+        296,
         1240,
-        1204
-      ]
+        1448
+      ],
+      "preserveDetails": false
     },
     {
       "name": "female-hair-curls",
       "src": "img/pilots/female-10.png",
       "box": [
         0,
-        19,
+        263,
         1201,
-        1226
-      ]
+        1470
+      ],
+      "preserveDetails": false
     },
     {
       "name": "female-hair-pixie",
       "src": "img/pilots/female-11.png",
       "box": [
         26,
-        35,
+        279,
         1127,
-        1214
-      ]
+        1458
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "F1-female-buzz-final",
+      "src": "img/pilots/female-12.png",
+      "box": [
+        336,
+        335,
+        914,
+        807
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "F2-female-undercut-v2",
+      "src": "img/pilots/female-13.png",
+      "box": [
+        169,
+        211,
+        984,
+        1126
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "F3-female-wavy-v2",
+      "src": "img/pilots/female-14.png",
+      "box": [
+        123,
+        287,
+        1134,
+        1395
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "F4-female-long-v2",
+      "src": "img/pilots/female-15.png",
+      "box": [
+        103,
+        289,
+        1152,
+        1825
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "F5-female-ponytail-v2",
+      "src": "img/pilots/female-16.png",
+      "box": [
+        284,
+        94,
+        1177,
+        1342
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "F6-female-dreads",
+      "src": "img/pilots/female-17.png",
+      "box": [
+        33,
+        182,
+        1131,
+        1784
+      ],
+      "preserveDetails": true
     }
   ],
   "male-light": [
@@ -391,140 +205,607 @@
       "src": "img/pilots/male-light-0.png",
       "box": [
         0,
-        21,
+        291,
         1240,
-        1254
-      ]
+        1524
+      ],
+      "preserveDetails": false
     },
     {
       "name": "Left eye",
       "src": "img/pilots/male-light-1.png",
       "box": [
         724,
-        527,
+        797,
         772,
-        568
-      ]
+        838
+      ],
+      "preserveDetails": false
     },
     {
       "name": "Right eye",
       "src": "img/pilots/male-light-2.png",
       "box": [
         482,
-        529,
+        799,
         532,
-        569
-      ]
+        839
+      ],
+      "preserveDetails": false
     },
     {
       "name": "Left Brow",
       "src": "img/pilots/male-light-3.png",
       "box": [
         409,
-        475,
+        745,
         589,
-        523
-      ]
+        793
+      ],
+      "preserveDetails": false
     },
     {
       "name": "Right Brow",
       "src": "img/pilots/male-light-4.png",
       "box": [
         665,
-        475,
+        745,
         847,
-        523
-      ]
+        793
+      ],
+      "preserveDetails": false
     },
     {
       "name": "male-uniform-neutral-black",
       "src": "img/pilots/male-light-5.png",
       "box": [
         13,
-        21,
+        291,
         1238,
-        1241
-      ]
+        1511
+      ],
+      "preserveDetails": false
     },
     {
       "name": "Spacenoid uniform",
       "src": "img/pilots/male-light-6.png",
       "box": [
         -139,
-        -181,
+        89,
         1393,
-        1363
-      ]
+        1633
+      ],
+      "preserveDetails": false
     },
     {
       "name": "male-uniform-space-green",
       "src": "img/pilots/male-light-7.png",
       "box": [
         -177,
-        -57,
+        213,
         1430,
-        1373
-      ]
+        1643
+      ],
+      "preserveDetails": false
     },
     {
       "name": "male-uniform-space-light",
       "src": "img/pilots/male-light-8.png",
       "box": [
         -143,
-        110,
+        380,
         1393,
-        1311
-      ]
+        1581
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "B1-beard-stubble",
+      "src": "img/pilots/male-light-9.png",
+      "box": [
+        299,
+        820,
+        955,
+        1288
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "B2-beard-moustache",
+      "src": "img/pilots/male-light-10.png",
+      "box": [
+        504,
+        993,
+        752,
+        1067
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "B3-beard-goatee",
+      "src": "img/pilots/male-light-11.png",
+      "box": [
+        496,
+        990,
+        762,
+        1246
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "B4-beard-short",
+      "src": "img/pilots/male-light-12.png",
+      "box": [
+        383,
+        845,
+        872,
+        1258
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "B5-beard-full",
+      "src": "img/pilots/male-light-13.png",
+      "box": [
+        353,
+        837,
+        905,
+        1371
+      ],
+      "preserveDetails": true
     },
     {
       "name": "male-hair-spiky",
-      "src": "img/pilots/male-light-9.png",
+      "src": "img/pilots/male-light-14.png",
       "box": [
         128,
-        41,
+        311,
         991,
-        1157
-      ]
+        1427
+      ],
+      "preserveDetails": false
     },
     {
       "name": "male-hair-sidepart",
-      "src": "img/pilots/male-light-10.png",
+      "src": "img/pilots/male-light-15.png",
       "box": [
         210,
-        23,
+        293,
         969,
-        765
-      ]
+        1035
+      ],
+      "preserveDetails": false
     },
     {
       "name": "male-hair-curls",
-      "src": "img/pilots/male-light-11.png",
+      "src": "img/pilots/male-light-16.png",
       "box": [
         279,
-        6,
+        276,
         972,
-        687
-      ]
+        957
+      ],
+      "preserveDetails": false
     },
     {
       "name": "Spacenoid uniform",
-      "src": "img/pilots/male-light-12.png",
+      "src": "img/pilots/male-light-17.png",
       "box": [
         -139,
-        -181,
+        89,
         1393,
-        1363
-      ]
+        1633
+      ],
+      "preserveDetails": false
     },
     {
       "name": "male-uniform-tan-red-yellow",
-      "src": "img/pilots/male-light-13.png",
+      "src": "img/pilots/male-light-18.png",
       "box": [
         -128,
-        77,
+        347,
         1384,
-        1279
-      ]
+        1549
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "male-ponytail",
+      "src": "img/pilots/male-light-19.png",
+      "box": [
+        50,
+        276,
+        1109,
+        1530
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M1-male-crew-fixed",
+      "src": "img/pilots/male-light-20.png",
+      "box": [
+        323,
+        347,
+        927,
+        860
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M2-male-undercut",
+      "src": "img/pilots/male-light-21.png",
+      "box": [
+        324,
+        346,
+        929,
+        844
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M3-male-curtains",
+      "src": "img/pilots/male-light-22.png",
+      "box": [
+        196,
+        345,
+        1056,
+        1044
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M6-male-dreads",
+      "src": "img/pilots/male-light-23.png",
+      "box": [
+        147,
+        234,
+        1041,
+        1278
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M4-male-wavy",
+      "src": "img/pilots/male-light-24.png",
+      "box": [
+        199,
+        306,
+        1055,
+        1225
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M7-male-afro-fade",
+      "src": "img/pilots/male-light-25.png",
+      "box": [
+        338,
+        382,
+        908,
+        831
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M8-male-asymmetric",
+      "src": "img/pilots/male-light-26.png",
+      "box": [
+        170,
+        254,
+        1004,
+        1135
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M9-male-dread-undercut",
+      "src": "img/pilots/male-light-27.png",
+      "box": [
+        170,
+        207,
+        940,
+        859
+      ],
+      "preserveDetails": true
+    }
+  ],
+  "male-east": [
+    {
+      "name": "male-face-east-asian",
+      "src": "img/pilots/male-east-0.png",
+      "box": [
+        0,
+        283,
+        1239,
+        1494
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "left eye",
+      "src": "img/pilots/male-east-1.png",
+      "box": [
+        723,
+        760,
+        773,
+        799
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "left brow",
+      "src": "img/pilots/male-east-2.png",
+      "box": [
+        666,
+        699,
+        843,
+        750
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "right eye",
+      "src": "img/pilots/male-east-3.png",
+      "box": [
+        482,
+        760,
+        532,
+        799
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "right brow",
+      "src": "img/pilots/male-east-4.png",
+      "box": [
+        412,
+        699,
+        591,
+        751
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "male-uniform-neutral-black",
+      "src": "img/pilots/male-east-5.png",
+      "box": [
+        13,
+        262,
+        1238,
+        1482
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "Spacenoid uniform",
+      "src": "img/pilots/male-east-6.png",
+      "box": [
+        -139,
+        60,
+        1393,
+        1604
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "male-uniform-space-green",
+      "src": "img/pilots/male-east-7.png",
+      "box": [
+        -177,
+        184,
+        1430,
+        1614
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "male-uniform-space-light",
+      "src": "img/pilots/male-east-8.png",
+      "box": [
+        -143,
+        351,
+        1393,
+        1552
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "male-uniform-tan-red-yellow",
+      "src": "img/pilots/male-east-9.png",
+      "box": [
+        -128,
+        318,
+        1384,
+        1520
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "B1-beard-stubble",
+      "src": "img/pilots/male-east-10.png",
+      "box": [
+        394,
+        851,
+        858,
+        1241
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "B2-beard-moustache",
+      "src": "img/pilots/male-east-11.png",
+      "box": [
+        503,
+        962,
+        751,
+        1036
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "B3-beard-goatee",
+      "src": "img/pilots/male-east-12.png",
+      "box": [
+        495,
+        956,
+        761,
+        1212
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "B4-beard-short",
+      "src": "img/pilots/male-east-13.png",
+      "box": [
+        382,
+        810,
+        871,
+        1223
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "B5-beard-full",
+      "src": "img/pilots/male-east-14.png",
+      "box": [
+        354,
+        802,
+        906,
+        1336
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "male-hair-spiky",
+      "src": "img/pilots/male-east-15.png",
+      "box": [
+        128,
+        266,
+        991,
+        1382
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "male-hair-sidepart",
+      "src": "img/pilots/male-east-16.png",
+      "box": [
+        176,
+        260,
+        985,
+        1034
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "male-hair-curls",
+      "src": "img/pilots/male-east-17.png",
+      "box": [
+        279,
+        229,
+        972,
+        910
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "male-ponytail",
+      "src": "img/pilots/male-east-18.png",
+      "box": [
+        49,
+        241,
+        1108,
+        1495
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M1-male-crew-fixed",
+      "src": "img/pilots/male-east-19.png",
+      "box": [
+        322,
+        312,
+        926,
+        825
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M2-male-undercut",
+      "src": "img/pilots/male-east-20.png",
+      "box": [
+        323,
+        316,
+        928,
+        814
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M3-male-curtains",
+      "src": "img/pilots/male-east-21.png",
+      "box": [
+        195,
+        310,
+        1055,
+        1009
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M6-male-dreads",
+      "src": "img/pilots/male-east-22.png",
+      "box": [
+        146,
+        199,
+        1040,
+        1243
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M4-male-wavy",
+      "src": "img/pilots/male-east-23.png",
+      "box": [
+        196,
+        268,
+        1061,
+        1193
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M7-male-afro-fade",
+      "src": "img/pilots/male-east-24.png",
+      "box": [
+        335,
+        353,
+        910,
+        802
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M8-male-asymmetric",
+      "src": "img/pilots/male-east-25.png",
+      "box": [
+        169,
+        219,
+        1003,
+        1100
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M9-male-dread-undercut",
+      "src": "img/pilots/male-east-26.png",
+      "box": [
+        169,
+        172,
+        939,
+        824
+      ],
+      "preserveDetails": true
     }
   ],
   "male-south": [
@@ -533,130 +814,923 @@
       "src": "img/pilots/male-south-0.png",
       "box": [
         0,
-        47,
+        288,
         1238,
-        1254
-      ]
+        1495
+      ],
+      "preserveDetails": false
     },
     {
       "name": "right eye",
       "src": "img/pilots/male-south-1.png",
       "box": [
         482,
-        524,
+        765,
         532,
-        566
-      ]
+        807
+      ],
+      "preserveDetails": false
     },
     {
       "name": "right brow",
       "src": "img/pilots/male-south-2.png",
       "box": [
         409,
-        468,
+        709,
         596,
-        519
-      ]
+        760
+      ],
+      "preserveDetails": false
     },
     {
       "name": "left eye",
       "src": "img/pilots/male-south-3.png",
       "box": [
         724,
-        524,
+        765,
         773,
-        565
-      ]
+        806
+      ],
+      "preserveDetails": false
     },
     {
       "name": "left brow",
       "src": "img/pilots/male-south-4.png",
       "box": [
         658,
-        468,
+        709,
         847,
-        519
-      ]
+        760
+      ],
+      "preserveDetails": false
     },
     {
       "name": "male-uniform-tan-red-yellow",
       "src": "img/pilots/male-south-5.png",
       "box": [
         -128,
-        77,
+        318,
         1384,
-        1279
-      ]
+        1520
+      ],
+      "preserveDetails": false
     },
     {
       "name": "male-uniform-neutral-black",
       "src": "img/pilots/male-south-6.png",
       "box": [
         13,
-        21,
+        262,
         1238,
-        1241
-      ]
+        1482
+      ],
+      "preserveDetails": false
     },
     {
       "name": "Spacenoid uniform",
       "src": "img/pilots/male-south-7.png",
       "box": [
         -139,
-        -181,
+        60,
         1393,
-        1363
-      ]
+        1604
+      ],
+      "preserveDetails": false
     },
     {
       "name": "male-uniform-space-green",
       "src": "img/pilots/male-south-8.png",
       "box": [
         -177,
-        -57,
+        184,
         1430,
-        1373
-      ]
+        1614
+      ],
+      "preserveDetails": false
     },
     {
       "name": "male-uniform-space-light",
       "src": "img/pilots/male-south-9.png",
       "box": [
         -143,
-        110,
+        351,
         1393,
-        1311
-      ]
+        1552
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "B1-beard-stubble",
+      "src": "img/pilots/male-south-10.png",
+      "box": [
+        396,
+        851,
+        860,
+        1241
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "B2-beard-moustache",
+      "src": "img/pilots/male-south-11.png",
+      "box": [
+        505,
+        962,
+        753,
+        1036
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "B3-beard-goatee",
+      "src": "img/pilots/male-south-12.png",
+      "box": [
+        497,
+        956,
+        763,
+        1212
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "B4-beard-short",
+      "src": "img/pilots/male-south-13.png",
+      "box": [
+        384,
+        810,
+        873,
+        1223
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "B5-beard-full",
+      "src": "img/pilots/male-south-14.png",
+      "box": [
+        356,
+        802,
+        908,
+        1336
+      ],
+      "preserveDetails": true
     },
     {
       "name": "male-hair-spiky",
-      "src": "img/pilots/male-south-10.png",
+      "src": "img/pilots/male-south-15.png",
       "box": [
         128,
-        25,
+        266,
         991,
-        1141
-      ]
+        1382
+      ],
+      "preserveDetails": false
     },
     {
       "name": "male-hair-sidepart",
-      "src": "img/pilots/male-south-11.png",
+      "src": "img/pilots/male-south-16.png",
       "box": [
         176,
-        19,
+        260,
         985,
-        793
-      ]
+        1034
+      ],
+      "preserveDetails": false
     },
     {
       "name": "male-hair-curls",
-      "src": "img/pilots/male-south-12.png",
+      "src": "img/pilots/male-south-17.png",
       "box": [
         279,
-        -12,
+        229,
         972,
-        669
-      ]
+        910
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "male-ponytail",
+      "src": "img/pilots/male-south-18.png",
+      "box": [
+        51,
+        241,
+        1110,
+        1495
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M1-male-crew-fixed",
+      "src": "img/pilots/male-south-19.png",
+      "box": [
+        324,
+        312,
+        928,
+        825
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M2-male-undercut",
+      "src": "img/pilots/male-south-20.png",
+      "box": [
+        325,
+        316,
+        930,
+        814
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M3-male-curtains",
+      "src": "img/pilots/male-south-21.png",
+      "box": [
+        197,
+        310,
+        1057,
+        1009
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M6-male-dreads",
+      "src": "img/pilots/male-south-22.png",
+      "box": [
+        148,
+        199,
+        1042,
+        1243
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M4-male-wavy",
+      "src": "img/pilots/male-south-23.png",
+      "box": [
+        198,
+        268,
+        1063,
+        1193
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M7-male-afro-fade",
+      "src": "img/pilots/male-south-24.png",
+      "box": [
+        339,
+        347,
+        909,
+        796
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M8-male-asymmetric",
+      "src": "img/pilots/male-south-25.png",
+      "box": [
+        171,
+        219,
+        1005,
+        1100
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M9-male-dread-undercut",
+      "src": "img/pilots/male-south-26.png",
+      "box": [
+        171,
+        172,
+        941,
+        824
+      ],
+      "preserveDetails": true
     }
-  ]
+  ],
+  "male-dark": [
+    {
+      "name": "male-face-dark",
+      "src": "img/pilots/male-dark-0.png",
+      "box": [
+        47,
+        362,
+        1200,
+        1488
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "left eye",
+      "src": "img/pilots/male-dark-1.png",
+      "box": [
+        724,
+        767,
+        772,
+        809
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "left brow",
+      "src": "img/pilots/male-dark-2.png",
+      "box": [
+        663,
+        711,
+        847,
+        764
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "rightbrow",
+      "src": "img/pilots/male-dark-3.png",
+      "box": [
+        409,
+        711,
+        593,
+        764
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "right eye",
+      "src": "img/pilots/male-dark-4.png",
+      "box": [
+        485,
+        766,
+        534,
+        809
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "male-uniform-tan-red-yellow",
+      "src": "img/pilots/male-dark-5.png",
+      "box": [
+        -128,
+        318,
+        1384,
+        1520
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "male-uniform-neutral-black",
+      "src": "img/pilots/male-dark-6.png",
+      "box": [
+        13,
+        262,
+        1238,
+        1482
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "Spacenoid uniform",
+      "src": "img/pilots/male-dark-7.png",
+      "box": [
+        -139,
+        60,
+        1393,
+        1604
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "male-uniform-space-green",
+      "src": "img/pilots/male-dark-8.png",
+      "box": [
+        -177,
+        184,
+        1430,
+        1614
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "male-uniform-space-light",
+      "src": "img/pilots/male-dark-9.png",
+      "box": [
+        -143,
+        351,
+        1393,
+        1552
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "B1-beard-stubble",
+      "src": "img/pilots/male-dark-10.png",
+      "box": [
+        396,
+        851,
+        860,
+        1241
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "B2-beard-moustache",
+      "src": "img/pilots/male-dark-11.png",
+      "box": [
+        505,
+        962,
+        753,
+        1036
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "B3-beard-goatee",
+      "src": "img/pilots/male-dark-12.png",
+      "box": [
+        497,
+        956,
+        763,
+        1212
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "B4-beard-short",
+      "src": "img/pilots/male-dark-13.png",
+      "box": [
+        384,
+        810,
+        873,
+        1223
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "B5-beard-full",
+      "src": "img/pilots/male-dark-14.png",
+      "box": [
+        356,
+        802,
+        908,
+        1336
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "male-hair-spiky",
+      "src": "img/pilots/male-dark-15.png",
+      "box": [
+        130,
+        250,
+        993,
+        1366
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "male-hair-sidepart",
+      "src": "img/pilots/male-dark-16.png",
+      "box": [
+        176,
+        260,
+        985,
+        1034
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "male-hair-curls",
+      "src": "img/pilots/male-dark-17.png",
+      "box": [
+        296,
+        294,
+        954,
+        793
+      ],
+      "preserveDetails": false
+    },
+    {
+      "name": "male-ponytail",
+      "src": "img/pilots/male-dark-18.png",
+      "box": [
+        51,
+        241,
+        1110,
+        1495
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M1-male-crew-fixed",
+      "src": "img/pilots/male-dark-19.png",
+      "box": [
+        324,
+        312,
+        928,
+        825
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M2-male-undercut",
+      "src": "img/pilots/male-dark-20.png",
+      "box": [
+        325,
+        316,
+        930,
+        814
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M3-male-curtains",
+      "src": "img/pilots/male-dark-21.png",
+      "box": [
+        197,
+        310,
+        1057,
+        1009
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M6-male-dreads",
+      "src": "img/pilots/male-dark-22.png",
+      "box": [
+        148,
+        199,
+        1042,
+        1243
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M4-male-wavy",
+      "src": "img/pilots/male-dark-23.png",
+      "box": [
+        198,
+        268,
+        1063,
+        1193
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M7-male-afro-fade",
+      "src": "img/pilots/male-dark-24.png",
+      "box": [
+        339,
+        347,
+        909,
+        796
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M8-male-asymmetric",
+      "src": "img/pilots/male-dark-25.png",
+      "box": [
+        171,
+        219,
+        1005,
+        1100
+      ],
+      "preserveDetails": true
+    },
+    {
+      "name": "M9-male-dread-undercut",
+      "src": "img/pilots/male-dark-26.png",
+      "box": [
+        171,
+        172,
+        941,
+        824
+      ],
+      "preserveDetails": true
+    }
+  ],
+  "_creator": {
+    "width": 1254,
+    "height": 1500,
+    "groups": {
+      "female": {
+        "faces": [
+          0,
+          2,
+          3,
+          1
+        ],
+        "uniforms": [
+          8,
+          4,
+          5,
+          6,
+          7
+        ],
+        "hairs": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "beards": [],
+        "faceThumbs": [
+          "img/pilots/thumbs/female-face-0.jpg",
+          "img/pilots/thumbs/female-face-1.jpg",
+          "img/pilots/thumbs/female-face-2.jpg",
+          "img/pilots/thumbs/female-face-3.jpg"
+        ],
+        "hairThumbs": [
+          "img/pilots/thumbs/female-hair-0.jpg",
+          "img/pilots/thumbs/female-hair-1.jpg",
+          "img/pilots/thumbs/female-hair-2.jpg",
+          "img/pilots/thumbs/female-hair-3.jpg",
+          "img/pilots/thumbs/female-hair-4.jpg",
+          "img/pilots/thumbs/female-hair-5.jpg",
+          "img/pilots/thumbs/female-hair-6.jpg",
+          "img/pilots/thumbs/female-hair-7.jpg",
+          "img/pilots/thumbs/female-hair-8.jpg"
+        ],
+        "beardThumbs": [
+          "img/pilots/thumbs/female-beard-0.jpg"
+        ]
+      },
+      "male-light": {
+        "faces": [
+          0
+        ],
+        "uniforms": [
+          5,
+          17,
+          7,
+          8,
+          18
+        ],
+        "hairs": [
+          14,
+          15,
+          16,
+          20,
+          21,
+          22,
+          24,
+          19,
+          23,
+          25,
+          26,
+          27
+        ],
+        "beards": [
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "faceThumbs": [
+          "img/pilots/thumbs/male-light-face-0.jpg"
+        ],
+        "hairThumbs": [
+          "img/pilots/thumbs/male-light-hair-0.jpg",
+          "img/pilots/thumbs/male-light-hair-1.jpg",
+          "img/pilots/thumbs/male-light-hair-2.jpg",
+          "img/pilots/thumbs/male-light-hair-3.jpg",
+          "img/pilots/thumbs/male-light-hair-4.jpg",
+          "img/pilots/thumbs/male-light-hair-5.jpg",
+          "img/pilots/thumbs/male-light-hair-6.jpg",
+          "img/pilots/thumbs/male-light-hair-7.jpg",
+          "img/pilots/thumbs/male-light-hair-8.jpg",
+          "img/pilots/thumbs/male-light-hair-9.jpg",
+          "img/pilots/thumbs/male-light-hair-10.jpg",
+          "img/pilots/thumbs/male-light-hair-11.jpg"
+        ],
+        "beardThumbs": [
+          "img/pilots/thumbs/male-light-beard-0.jpg",
+          "img/pilots/thumbs/male-light-beard-1.jpg",
+          "img/pilots/thumbs/male-light-beard-2.jpg",
+          "img/pilots/thumbs/male-light-beard-3.jpg",
+          "img/pilots/thumbs/male-light-beard-4.jpg",
+          "img/pilots/thumbs/male-light-beard-5.jpg"
+        ]
+      },
+      "male-east": {
+        "faces": [
+          0
+        ],
+        "uniforms": [
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "hairs": [
+          15,
+          16,
+          17,
+          19,
+          20,
+          21,
+          23,
+          18,
+          22,
+          24,
+          25,
+          26
+        ],
+        "beards": [
+          10,
+          11,
+          12,
+          13,
+          14
+        ],
+        "faceThumbs": [
+          "img/pilots/thumbs/male-east-face-0.jpg"
+        ],
+        "hairThumbs": [
+          "img/pilots/thumbs/male-east-hair-0.jpg",
+          "img/pilots/thumbs/male-east-hair-1.jpg",
+          "img/pilots/thumbs/male-east-hair-2.jpg",
+          "img/pilots/thumbs/male-east-hair-3.jpg",
+          "img/pilots/thumbs/male-east-hair-4.jpg",
+          "img/pilots/thumbs/male-east-hair-5.jpg",
+          "img/pilots/thumbs/male-east-hair-6.jpg",
+          "img/pilots/thumbs/male-east-hair-7.jpg",
+          "img/pilots/thumbs/male-east-hair-8.jpg",
+          "img/pilots/thumbs/male-east-hair-9.jpg",
+          "img/pilots/thumbs/male-east-hair-10.jpg",
+          "img/pilots/thumbs/male-east-hair-11.jpg"
+        ],
+        "beardThumbs": [
+          "img/pilots/thumbs/male-east-beard-0.jpg",
+          "img/pilots/thumbs/male-east-beard-1.jpg",
+          "img/pilots/thumbs/male-east-beard-2.jpg",
+          "img/pilots/thumbs/male-east-beard-3.jpg",
+          "img/pilots/thumbs/male-east-beard-4.jpg",
+          "img/pilots/thumbs/male-east-beard-5.jpg"
+        ]
+      },
+      "male-south": {
+        "faces": [
+          0
+        ],
+        "uniforms": [
+          6,
+          7,
+          8,
+          9,
+          5
+        ],
+        "hairs": [
+          15,
+          16,
+          17,
+          19,
+          20,
+          21,
+          23,
+          18,
+          22,
+          24,
+          25,
+          26
+        ],
+        "beards": [
+          10,
+          11,
+          12,
+          13,
+          14
+        ],
+        "faceThumbs": [
+          "img/pilots/thumbs/male-south-face-0.jpg"
+        ],
+        "hairThumbs": [
+          "img/pilots/thumbs/male-south-hair-0.jpg",
+          "img/pilots/thumbs/male-south-hair-1.jpg",
+          "img/pilots/thumbs/male-south-hair-2.jpg",
+          "img/pilots/thumbs/male-south-hair-3.jpg",
+          "img/pilots/thumbs/male-south-hair-4.jpg",
+          "img/pilots/thumbs/male-south-hair-5.jpg",
+          "img/pilots/thumbs/male-south-hair-6.jpg",
+          "img/pilots/thumbs/male-south-hair-7.jpg",
+          "img/pilots/thumbs/male-south-hair-8.jpg",
+          "img/pilots/thumbs/male-south-hair-9.jpg",
+          "img/pilots/thumbs/male-south-hair-10.jpg",
+          "img/pilots/thumbs/male-south-hair-11.jpg"
+        ],
+        "beardThumbs": [
+          "img/pilots/thumbs/male-south-beard-0.jpg",
+          "img/pilots/thumbs/male-south-beard-1.jpg",
+          "img/pilots/thumbs/male-south-beard-2.jpg",
+          "img/pilots/thumbs/male-south-beard-3.jpg",
+          "img/pilots/thumbs/male-south-beard-4.jpg",
+          "img/pilots/thumbs/male-south-beard-5.jpg"
+        ]
+      },
+      "male-dark": {
+        "faces": [
+          0
+        ],
+        "uniforms": [
+          6,
+          7,
+          8,
+          9,
+          5
+        ],
+        "hairs": [
+          15,
+          16,
+          17,
+          19,
+          20,
+          21,
+          23,
+          18,
+          22,
+          24,
+          25,
+          26
+        ],
+        "beards": [
+          10,
+          11,
+          12,
+          13,
+          14
+        ],
+        "faceThumbs": [
+          "img/pilots/thumbs/male-dark-face-0.jpg"
+        ],
+        "hairThumbs": [
+          "img/pilots/thumbs/male-dark-hair-0.jpg",
+          "img/pilots/thumbs/male-dark-hair-1.jpg",
+          "img/pilots/thumbs/male-dark-hair-2.jpg",
+          "img/pilots/thumbs/male-dark-hair-3.jpg",
+          "img/pilots/thumbs/male-dark-hair-4.jpg",
+          "img/pilots/thumbs/male-dark-hair-5.jpg",
+          "img/pilots/thumbs/male-dark-hair-6.jpg",
+          "img/pilots/thumbs/male-dark-hair-7.jpg",
+          "img/pilots/thumbs/male-dark-hair-8.jpg",
+          "img/pilots/thumbs/male-dark-hair-9.jpg",
+          "img/pilots/thumbs/male-dark-hair-10.jpg",
+          "img/pilots/thumbs/male-dark-hair-11.jpg"
+        ],
+        "beardThumbs": [
+          "img/pilots/thumbs/male-dark-beard-0.jpg",
+          "img/pilots/thumbs/male-dark-beard-1.jpg",
+          "img/pilots/thumbs/male-dark-beard-2.jpg",
+          "img/pilots/thumbs/male-dark-beard-3.jpg",
+          "img/pilots/thumbs/male-dark-beard-4.jpg",
+          "img/pilots/thumbs/male-dark-beard-5.jpg"
+        ]
+      }
+    },
+    "hairNames": {
+      "female": [
+        "Bob",
+        "Curls",
+        "Pixie",
+        "Buzz cut",
+        "Undercut",
+        "Waves",
+        "Long fringe",
+        "Ponytail",
+        "Dreadlocks"
+      ],
+      "male": [
+        "Spiky",
+        "Side part",
+        "Curls",
+        "Crew cut",
+        "Swept back",
+        "Curtains",
+        "Long waves",
+        "Ponytail",
+        "Dreadlocks",
+        "Afro fade",
+        "Undercut",
+        "Dread undercut"
+      ]
+    },
+    "beardNames": [
+      "Clean shaven",
+      "Stubble",
+      "Moustache",
+      "Goatee",
+      "Short beard",
+      "Full beard"
+    ],
+    "drawOrder": [
+      "face",
+      "eyes/brows",
+      "uniform",
+      "facial hair",
+      "hairstyle"
+    ]
+  }
 }

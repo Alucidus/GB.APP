@@ -20,7 +20,8 @@
     "test:base:browser": "node tests/base-rosters-browser.mjs",
     "test:repairs:browser": "node tests/repair-bay-browser.mjs",
     "test:toolbar:browser": "node tests/toolbar-browser.mjs",
-    "test:pilot:browser": "node tests/pilot-browser.mjs && node tests/pilot-assets-browser.mjs && node tests/pilot-offline-browser.mjs"
+    "test:pilot:browser": "node tests/pilot-browser.mjs && node tests/pilot-assets-browser.mjs && node tests/pilot-offline-browser.mjs",
+    "test:pilot:eyes": "node tests/pilot-eyes-browser.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.132.0"

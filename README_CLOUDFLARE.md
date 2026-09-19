@@ -1,4 +1,4 @@
-# Gunpla Battle — Cloudflare version (build cf129)
+# Gunpla Battle — Cloudflare version (build cf131)
 
 This is the full app (solo tracker + team multiplayer). It runs on **Cloudflare Workers**, with a **Durable Object "room" per battle session**.
 
@@ -15,7 +15,11 @@ public/            the app (index.html, images, service worker)
 .gitignore
 ```
 
-## Current build: cf129
+## Current build: cf130
+
+[Release_Notes_cf130.md](Release_Notes_cf130.md) covers complete iris recolouring and the individually fitted female 3/4 and male 1 masks.
+
+## Previous build: cf129
 
 [Release_Notes_cf129.md](Release_Notes_cf129.md) covers the Pilot creator, saved identity record and revised menu. Start with [Test_Checklist_cf129.md](Test_Checklist_cf129.md).
 
