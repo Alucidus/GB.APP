@@ -14,9 +14,10 @@ window.PilotShop=(()=>{
   const label=el('div',null,'pilot-bay-label');label.append(el('small',mode==='hangar'?'PERSONAL MOBILE SUIT BAY':'MOBILE SUIT PREVIEW'),el('h2',u?(u.short||u.name):'Choose a mobile suit'),el('p',u?(build?(build.destroyed?'Awaiting restoration':'Ready · '+build.traits.length+' installed traits'):B.price(u)+' GP · '+u.tier):'Select a unit on the left to view it in the hangar.'));bay.append(label);
   if(!art){bay.append(el('div','BAY AVAILABLE','pilot-bay-empty'));return;}
   const stand=el('div',null,'pilot-bay-stand'),canvas=el('canvas');canvas.setAttribute('role','img');canvas.setAttribute('aria-label',u.name);stand.append(canvas);bay.append(stand);
-  // One pixels-per-metre scale for the entire catalogue. Oversized backpacks can
-  // extend behind the UI without shrinking the suit's head-to-foot height.
-  const size=art.bay||{heightM:18,headY:0,footY:1},ratio=size.heightM/28/(size.footY-size.headY);
+  // Enlarge the catalogue together, preserving relative head-to-foot heights.
+  // Nightingale keeps its approved size; wide equipment may extend behind the UI.
+  const framingScale=u.id==='nightingale-msn-04ii'?1:1.2;
+  const size=art.bay||{heightM:18,headY:0,footY:1},ratio=size.heightM/28/(size.footY-size.headY)*framingScale;
   canvas.style.height=(ratio*100)+'%';canvas.style.bottom=((size.footY-1)*ratio*100)+'%';
   canvas.style.aspectRatio=art.crop[2]+' / '+art.crop[3];
   if(build?.destroyed)bay.classList.add('is-destroyed');else bay.classList.remove('is-destroyed');
