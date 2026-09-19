@@ -18,6 +18,7 @@ import {protectSupply,serviceSupplies,spendSupply} from './resupply.js';
 import {protectRepairs,serviceRepairs} from './repairs.js';
 import {protectPickup,servicePickups} from './pickups.js';
 import {serviceObjectives} from './objectives.js';
+import {accessGate,accessCookie,validAccess} from './access.js';
 const TTL_MS = 24 * 60 * 60 * 1000;
 const CODE_LEN = 5;
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -81,6 +82,7 @@ function finishDisengage(g) {
 // ---------------- Worker ----------------
 export default {
   async fetch(request, env) {
+    const blocked=await accessGate(request,env);if(blocked)return blocked;
     const url = new URL(request.url);
     if (url.pathname === "/api/ws") {
       const code = cleanCode(url.searchParams.get("code"));
@@ -106,7 +108,8 @@ export default {
       if (!validCode(code)) return json(400, { ok: false, error: "Session codes are 5 letters." });
       return roomFor(env, code).fetch(roomRequest(request, { ...body, code }));
     }
-    return new Response("Not found", { status: 404 });          // everything else is served from ./public
+    const asset=await env.ASSETS.fetch(request);
+    const response=new Response(asset.body,asset);response.headers.set('Cache-Control','private, no-store');response.headers.set('X-GB-Authorized','1');response.headers.set('X-Content-Type-Options','nosniff');return response;
   },
 };
 const roomFor = (env, code) => env.ROOMS.get(env.ROOMS.idFromName(code));
@@ -158,6 +161,7 @@ export class BattleRoom {
       if (!this.tokenOk(pid, token)) return new Response("Not in this session", { status: 403 });
       const pair = new WebSocketPair();
       this.ctx.acceptWebSocket(pair[1], [pid]);
+      pair[1].serializeAttachment({access:accessCookie(request)});
       return new Response(null, { status: 101, webSocket: pair[0] });
     }
     if (url.pathname === "/api/sync") {
@@ -172,6 +176,7 @@ export class BattleRoom {
   }
 
   async webSocketMessage(ws, message) {
+    if((this.env.SITE_PASSWORD||this.env.SESSION_SECRET)&&!await validAccess(ws.deserializeAttachment()?.access,this.env)){ws.close(4001,"Site access expired");return;}
     await this.mem.load();
     let msg;
     try { msg = JSON.parse(typeof message === "string" ? message : new TextDecoder().decode(message)); } catch (e) { return; }

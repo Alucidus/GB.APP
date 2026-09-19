@@ -3,9 +3,11 @@ name = "gunpla-battle"
 main = "src/index.js"
 compatibility_date = "2025-09-01"
 
-# the app itself (index.html, images, service worker) is served straight from this folder
+# Authentication runs before every static file and API request.
 [assets]
 directory = "./public"
+binding = "ASSETS"
+run_worker_first = true
 
 # one live "room" per battle session
 [[durable_objects.bindings]]
@@ -18,3 +20,9 @@ new_sqlite_classes = ["BattleRoom"]
 
 [observability]
 enabled = true
+
+# Password and signing key are configured as Cloudflare secrets, never committed.
+[[ratelimits]]
+name = "LOGIN_RATE_LIMIT"
+namespace_id = "1001"
+simple = { limit = 5, period = 60 }
