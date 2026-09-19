@@ -240,7 +240,7 @@ html.fx-lite #pilotScreen .m3-l{animation:none!important}
 .pilot-bay-label h2{font-size:clamp(22px,2.3vw,36px);margin:7px 0}
 .pilot-bay-label p{margin:0;font-size:13px}
 .pilot-bay-stand{position:absolute;inset:108px 4% 9%;display:flex;align-items:flex-end;justify-content:center;filter:drop-shadow(0 15px 9px #0009)}
-.pilot-bay-stand canvas{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom}
+.pilot-bay-stand canvas{display:block;position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:auto;max-width:none;max-height:none;object-fit:fill}
 #pilotUnitBay.is-destroyed .pilot-bay-stand{filter:grayscale(.85) brightness(.65) drop-shadow(0 15px 9px #0009)}
 .pilot-bay-empty{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);border:1px solid #ffffff50;border-radius:50%;width:180px;height:180px;display:grid;place-items:center;font-size:12px;letter-spacing:.2em;color:#ffffffb0;background:#07101b33}
 @media(max-height:500px) and (orientation:landscape){
@@ -285,3 +285,80 @@ html.fx-lite #pilotScreen .m3-l{animation:none!important}
 #pilotScreen .pilot-editor nav button{min-height:40px;border-color:#7594a64d;background:#10212d}
 #pilotScreen .pilot-editor nav button.selected,#pilotScreen .pilot-editor nav button[aria-selected=true]{border-color:var(--pilot-accent);background:#1c3645}
 @media(max-height:500px) and (orientation:landscape){#pilotScreen{--pilot-cut:8px}#pilotScreen .pilot-editor nav button{min-height:36px}}
+/* Two direct pilot destinations share the existing menu row. */
+#s0 .m-pilot-entries{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(8px,1.5vw,16px)}
+#s0 .m-pilot-entries .mo-in{gap:clamp(8px,1.4vw,20px);padding:0 clamp(12px,2vw,24px)}
+#s0 .m-pilot-entries .mo-ic{width:clamp(26px,3.5vw,46px);height:clamp(26px,3.5vw,46px)}
+#s0 .m-pilot-entries .mo-txt b{letter-spacing:.16em}
+#s0 .m-pilot-entries .mo-txt small,#s0 .m-pilot-entries .mo-txt em{white-space:normal;letter-spacing:.06em}
+@media(max-width:560px){#s0 .m-pilot-entries .mo-in{padding:0 12px;gap:8px}#s0 .m-pilot-entries .mo-ic{width:24px;height:28px}#s0 .m-pilot-entries .mo-go{display:none}#s0 .m-pilot-entries .mo-txt b{font-size:14px;letter-spacing:.1em}#s0 .m-pilot-entries .mo-txt small{display:none}#s0 .m-pilot-entries .mo-txt em{font-size:8px}}
+/* Pilot identity sets the complete console palette, including selection states. */
+#pilotScreen{--pilot-accent:#80c9f2;--pilot-panel:#071722;--pilot-raised:#102b3d;--pilot-selected:#204861;--pilot-edge:#557d95;--bay-accent:var(--pilot-accent);--bay-tint:var(--pilot-raised)}
+#pilotScreen[data-faction=spacenoid],#pilotScreen.pilot-unit-bay[data-faction=spacenoid]{--pilot-accent:#ff9995;--pilot-panel:#1a0b0e;--pilot-raised:#36191e;--pilot-selected:#58272c;--pilot-edge:#9e6063;--bay-accent:var(--pilot-accent);--bay-tint:var(--pilot-raised)}
+#pilotScreen[data-faction=neutral],#pilotScreen.pilot-unit-bay[data-faction=neutral]{--pilot-accent:#f0f0f0;--pilot-panel:#111214;--pilot-raised:#26282b;--pilot-selected:#414449;--pilot-edge:#777d83;--bay-accent:var(--pilot-accent);--bay-tint:var(--pilot-raised)}
+#pilotScreen.pilot-unit-bay[data-faction=federation]{--bay-accent:var(--pilot-accent);--bay-tint:var(--pilot-raised)}
+#pilotScreen .pilot-editor,#pilotScreen #pilotHome,#pilotScreen.pilot-unit-bay #pilotHome{background:color-mix(in srgb,var(--pilot-panel) 94%,transparent);border-color:var(--pilot-edge);border-top-color:var(--pilot-accent);border-bottom-color:var(--pilot-accent)}
+#pilotScreen .pilot-header{background:color-mix(in srgb,var(--pilot-panel) 80%,transparent);border-color:var(--pilot-edge)}
+#pilotScreen .pilot-header h1{color:#fff}
+#pilotScreen .pilot-home-tabs,#pilotScreen .pilot-editor nav{border-color:var(--pilot-edge)}
+#pilotScreen .pilot-home-tabs button,#pilotScreen .pilot-editor nav button,#pilotScreen .pilot-option,#pilotScreen .pilot-tile,#pilotScreen .pilot-face,#pilotScreen .pilot-shop-unit{color:#f4f4f4;background:var(--pilot-raised);border-color:var(--pilot-edge)}
+#pilotScreen .pilot-home-tabs button[aria-pressed=true],#pilotScreen .pilot-option.selected,#pilotScreen .pilot-editor nav button[aria-selected=true],#pilotScreen .pilot-shop-panel [aria-pressed=true],#pilotScreen.pilot-unit-bay .pilot-shop-unit[aria-pressed=true]{color:#fff;background:var(--pilot-selected);border-color:var(--pilot-accent)}
+#pilotScreen .pilot-field input,#pilotScreen .pilot-field textarea,#pilotScreen .pilot-shop-panel input,#pilotScreen .pilot-shop-panel select{background:var(--pilot-panel);border-color:var(--pilot-edge);color:#fff}
+#pilotScreen .pilot-tile img,#pilotScreen .pilot-face img{background:color-mix(in srgb,var(--pilot-panel) 75%,#fff)}
+#pilotScreen .pilot-caption{border-color:var(--pilot-accent);background:linear-gradient(90deg,var(--pilot-panel),transparent)}
+#pilotScreen .pilot-preview{border-color:var(--pilot-edge);background:radial-gradient(ellipse at 50% 80%,color-mix(in srgb,var(--pilot-accent) 9%,transparent),transparent 70%);box-shadow:inset 0 0 70px color-mix(in srgb,var(--pilot-panel) 30%,transparent)}
+#pilotScreen .pilot-preview-label,#pilotScreen .pilot-shop-status,#pilotScreen .pilot-trait-card small,#pilotScreen #pilotStatus{color:#d1d3d6}
+#pilotScreen #pilotStatus{background:var(--pilot-panel)}
+#pilotScreen .pilot-shop-list .tierhdr,#pilotScreen .pilot-hangar-condition,#pilotScreen .pilot-trait-card{background:var(--pilot-raised);border-color:var(--pilot-edge);color:#f4f4f4}
+#pilotScreen .pilot-hangar-condition{border-left-color:var(--pilot-accent)}
+#pilotScreen .pilot-shop-toolbar,#pilotScreen .pilot-shop-detail{border-color:var(--pilot-edge)}
+#pilotScreen .pilot-shop-panel header{background:var(--pilot-raised)}
+#pilotScreen .pilot-shop-panel .btn,#pilotScreen .pilot-record .btn,#pilotScreen .pilot-header .btn{--acc:var(--pilot-accent);--glow:transparent;color:#fff;border-color:var(--pilot-accent)}
+#pilotScreen.pilot-home:not(.pilot-unit-bay) .pilot-hangar{background-image:url(img/hangars/federation.png)}
+#pilotScreen.pilot-home:not(.pilot-unit-bay)[data-faction=spacenoid] .pilot-hangar{background-image:url(img/hangars/spacenoid.png)}
+#pilotScreen.pilot-home:not(.pilot-unit-bay)[data-faction=neutral] .pilot-hangar{background-image:url(img/hangars/neutral.png)}
+#pilotScreen.pilot-home #pilotBattle,#pilotScreen.pilot-home .pilot-flyby{display:none}
+/* Record hierarchy: portrait, current rank and progress, then spending and unit access. */
+#pilotHome .pilot-record{padding:22px;scrollbar-color:var(--pilot-edge) var(--pilot-panel)}
+.pilot-record-hero{display:flex;align-items:center;gap:20px;padding-bottom:18px;border-bottom:1px solid var(--pilot-edge)}
+.pilot-record-hero .pilot-rank-emblem{width:112px;height:112px;object-fit:contain;filter:drop-shadow(0 4px 8px #0008)}
+.pilot-record-hero h2{font-size:clamp(24px,3vw,38px);margin:5px 0;overflow-wrap:anywhere}
+.pilot-record-hero small{color:var(--pilot-accent);font-size:10px;letter-spacing:.2em}
+.pilot-record-callsign{margin:0 0 10px;text-transform:uppercase;letter-spacing:.12em;font-size:12px;color:#d6d6d6}
+.pilot-record-faction{display:inline-block;padding:5px 12px;border-left:3px solid var(--pilot-accent);background:var(--pilot-raised);font-size:12px}
+.pilot-record-rank{padding:18px 0}.pilot-rank-heading{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}.pilot-rank-heading h3{margin:0;font-size:21px;color:var(--pilot-accent)}.pilot-rank-heading span{font-size:12px;color:#c6c8ca}
+.pilot-record-rank progress{display:block;appearance:none;width:100%;height:8px;border:0;background:var(--pilot-raised);margin:14px 0 8px;accent-color:var(--pilot-accent)}.pilot-record-rank progress::-webkit-progress-bar{background:var(--pilot-raised)}.pilot-record-rank progress::-webkit-progress-value{background:var(--pilot-accent)}.pilot-record-rank progress::-moz-progress-bar{background:var(--pilot-accent)}
+.pilot-record-rank p{font-size:12px;line-height:1.5;margin:8px 0}.pilot-rank-benefits{padding:10px 12px;background:var(--pilot-raised);border-left:2px solid var(--pilot-accent);color:#eef0f2}
+.pilot-record-ledger{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px}
+.pilot-gp-card{display:flex;align-items:center;gap:12px;padding:16px;background:var(--pilot-raised);border:1px solid var(--pilot-edge);clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
+.pilot-gp-card img{width:64px;height:64px;object-fit:contain}.pilot-gp-card div{display:flex;flex-direction:column}.pilot-gp-card small{font-size:12px}.pilot-gp-card strong{font-size:36px;line-height:1.2;font-variant-numeric:tabular-nums}.pilot-gp-card span{font-size:10px;color:#c5c7c9;margin-top:4px}
+.pilot-record-stat{display:flex;flex-direction:column;justify-content:center;gap:8px;padding:16px;background:color-mix(in srgb,var(--pilot-raised) 65%,transparent);border:1px solid var(--pilot-edge);min-width:0}.pilot-record-stat small{font-size:11px;color:#cbced1}.pilot-record-stat strong{font-size:24px;color:#fff;overflow-wrap:anywhere}
+.pilot-record-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}.pilot-record-actions{display:flex;gap:10px;margin-top:20px}.pilot-record-actions button{flex:1;min-height:46px}
+.pilot-record-readiness{font-size:12px;color:#c6c8ca;margin:10px 0 20px}.pilot-record-background{padding-top:16px;border-top:1px solid var(--pilot-edge)}.pilot-record-background h3{font-size:14px;text-transform:uppercase;letter-spacing:.1em}.pilot-record-background p{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;line-height:1.6;color:#cfd1d3}.pilot-record-note{font-size:11px;line-height:1.5;color:#abadb1;margin:18px 0 0}
+#pilotScreen[data-faction=neutral] .pilot-record img{filter:grayscale(1)}
+@media(max-width:900px){#pilotHome .pilot-record{padding:14px}.pilot-record-ledger{grid-template-columns:1fr 1fr}.pilot-gp-card{grid-column:1/-1}.pilot-record-hero{gap:10px}.pilot-record-hero .pilot-rank-emblem{width:80px;height:80px}.pilot-record-stat{padding:10px}.pilot-record-stat strong{font-size:20px}.pilot-record-stats{gap:6px}}
+@media(max-width:600px){#pilotScreen.pilot-home:not(.pilot-unit-bay) .pilot-layout{grid-template-columns:95px minmax(0,1fr);gap:6px}#pilotHome .pilot-record{padding:10px}.pilot-record-hero{flex-direction:column;align-items:flex-start;gap:4px}.pilot-record-hero .pilot-rank-emblem{width:70px;height:70px;align-self:center}.pilot-record-hero h2{font-size:20px}.pilot-rank-heading h3{font-size:17px}.pilot-gp-card{padding:10px;gap:8px}.pilot-gp-card img{width:42px;height:42px}.pilot-gp-card strong{font-size:28px}.pilot-record-stats{grid-template-columns:1fr}.pilot-record-stat{gap:5px;padding:9px}.pilot-record-stat small{font-size:10px}.pilot-record-actions{flex-direction:column;gap:8px}.pilot-record-ledger{gap:6px}}
+@media(max-height:500px) and (orientation:landscape){.pilot-record-hero .pilot-rank-emblem{width:70px;height:70px}.pilot-record-hero{padding-bottom:10px}.pilot-record-hero h2{font-size:24px}.pilot-record-rank{padding:12px 0}.pilot-record-ledger{grid-template-columns:2fr 1fr 1fr}.pilot-gp-card{grid-column:auto;padding:10px}.pilot-gp-card img{width:44px;height:44px}.pilot-gp-card strong{font-size:28px}}
+/* Bring the bay platform forward so standing units sit inside its front edge. */
+#pilotScreen.pilot-unit-bay .pilot-hangar{transform:scale(1.16);transform-origin:72% 40%}
+/* Avoid inherited blue/gold button treatments in the red and neutral consoles. */
+#pilotScreen .btn,#pilotScreen .btn.pri,#pilotScreen .pilot-editor nav button.selected{background:linear-gradient(110deg,var(--pilot-selected),var(--pilot-panel));border-color:var(--pilot-accent);color:#fff;--acc:var(--pilot-accent);--acc-glow:transparent;--acc-soft:transparent;--acc-btn:var(--pilot-raised);box-shadow:none}
+#pilotScreen #pilotHome .pilot-home-tabs button[aria-pressed=true]{background:var(--pilot-selected);border-color:var(--pilot-accent);color:#fff}
+#pilotScreen.pilot-unit-bay #pilotHome{position:relative;z-index:2}
+#pilotUnitBay{z-index:0}
+.pilot-rank-progress-label{display:block;font-size:10px;letter-spacing:.12em;color:var(--pilot-accent);margin:0 0 8px}
+@media(max-width:600px) and (orientation:portrait){
+ #pilotScreen.pilot-home:not(.pilot-unit-bay) .pilot-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:120px minmax(0,1fr);gap:8px}
+ #pilotScreen.pilot-home:not(.pilot-unit-bay) .pilot-preview{grid-column:1;grid-row:1;align-self:stretch;flex-direction:row;justify-content:flex-start}
+ #pilotScreen.pilot-home:not(.pilot-unit-bay) #pilotCanvas{width:96px;height:100%;padding-top:0;object-fit:contain;flex:none}
+ #pilotScreen.pilot-home:not(.pilot-unit-bay) .pilot-caption{width:auto;flex:1;text-align:left;padding:12px}
+ #pilotScreen.pilot-home:not(.pilot-unit-bay) .pilot-caption h2{font-size:21px;margin:6px 0}
+ #pilotScreen.pilot-home:not(.pilot-unit-bay) #pilotEditPortrait{align-items:flex-end;justify-content:flex-end;padding:8px;font-size:10px}
+ #pilotScreen.pilot-home:not(.pilot-unit-bay) #pilotHome{grid-column:1;grid-row:2}
+ .pilot-record-hero{flex-direction:row;align-items:center;gap:12px;padding-bottom:12px}
+ .pilot-record-hero .pilot-rank-emblem{align-self:center;width:68px;height:68px;flex:none}
+ .pilot-record-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .pilot-record-stat strong{font-size:18px}
+ #pilotScreen.pilot-unit-bay .pilot-hangar{height:calc(98px + (100dvh - 88px)*.36);bottom:auto}
+}
+#pilotScreen .pilot-option:hover{background:var(--pilot-selected);border-color:var(--pilot-accent)}

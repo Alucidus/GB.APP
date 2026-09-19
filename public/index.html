@@ -11,8 +11,8 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <meta name="apple-mobile-web-app-title" content="MSB">
 <title>Mobile Suit Battles</title>
-<link rel="stylesheet" href="app.css?v=cf158">
-<link rel="stylesheet" href="pilot.css?v=cf158">
+<link rel="stylesheet" href="app.css?v=cf159">
+<link rel="stylesheet" href="pilot.css?v=cf159">
 </head>
 <body>
 
@@ -65,12 +65,21 @@
           <span class="mo-go" aria-hidden="true">&raquo;</span>
         </div>
       </div>
-      <div class="mode offline" id="moPilot" role="button" tabindex="0" onclick="playClash(() => Pilot.open())" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
+      <div class="m-pilot-entries">
+      <div class="mode offline" id="moPilot" role="button" tabindex="0" onclick="playClash(() => Pilot.open('sheet'))" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
         <div class="mo-in">
           <svg class="mo-ic" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="10" r="6" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M5 28v-4c0-5 5-7 11-7s11 2 11 7v4M12 19l4 5 4-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
-          <div class="mo-txt"><b>PILOT</b><small>YOUR CHARACTER <i>/</i> YOUR STORY</small><em>ENTER THE HANGAR</em></div>
+          <div class="mo-txt"><b>PILOT</b><small>CHARACTER &amp; RECORD</small><em>OPEN PILOT SHEET</em></div>
           <span class="mo-go" aria-hidden="true">&raquo;</span>
         </div>
+      </div>
+      <div class="mode offline" id="moHangar" role="button" tabindex="0" onclick="playClash(() => Pilot.open('hangar'))" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
+        <div class="mo-in">
+          <svg class="mo-ic" viewBox="0 0 32 32" aria-hidden="true"><path d="M3 28V10L16 3l13 7v18H3Zm6 0V14h14v14M9 19h14M9 24h14M16 3v7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="miter"/></svg>
+          <div class="mo-txt"><b>HANGAR</b><small>YOUR MOBILE SUITS</small><em>REPAIR &amp; UPGRADE</em></div>
+          <span class="mo-go" aria-hidden="true">&raquo;</span>
+        </div>
+      </div>
       </div>
     </div>
   </div>
@@ -247,27 +256,28 @@ window.addEventListener("unhandledrejection",function(ev){
   e.style.display="block"; e.textContent += "PROMISE: "+ev.reason+"\n";
 });
 </script>
-<script src="save-format.js?v=cf158"></script>
-<script src="supplies.js?v=cf158"></script>
-<script src="resupply-ui.js?v=cf158"></script>
-<script src="data.js?v=cf158"></script>
-<script src="equipment.js?v=cf158"></script>
-<script src="equipment-ui.js?v=cf158"></script>
-<script src="repairs.js?v=cf158"></script>
-<script src="repair-ui.js?v=cf158"></script>
-<script src="landscape.js?v=cf158"></script>
-<script src="pickups.js?v=cf158"></script>
-<script src="pickup-ui.js?v=cf158"></script>
-<script src="objectives.js?v=cf158"></script>
-<script src="objective-ui.js?v=cf158"></script>
-<script src="access-ui.js?v=cf158"></script>
-<script src="unit-art.js?v=cf158"></script>
-<script src="app.js?v=cf158"></script>
-<script src="pilot-build.js?v=cf158"></script>
-<script src="pilot.js?v=cf158"></script>
-<script src="pilot-shop.js?v=cf158"></script>
-<script src="pilot-social.js?v=cf158"></script>
-<script src="save-ui.js?v=cf158"></script>
+<script src="save-format.js?v=cf159"></script>
+<script src="supplies.js?v=cf159"></script>
+<script src="resupply-ui.js?v=cf159"></script>
+<script src="data.js?v=cf159"></script>
+<script src="equipment.js?v=cf159"></script>
+<script src="equipment-ui.js?v=cf159"></script>
+<script src="repairs.js?v=cf159"></script>
+<script src="repair-ui.js?v=cf159"></script>
+<script src="landscape.js?v=cf159"></script>
+<script src="pickups.js?v=cf159"></script>
+<script src="pickup-ui.js?v=cf159"></script>
+<script src="objectives.js?v=cf159"></script>
+<script src="objective-ui.js?v=cf159"></script>
+<script src="access-ui.js?v=cf159"></script>
+<script src="unit-art.js?v=cf159"></script>
+<script src="app.js?v=cf159"></script>
+<script src="pilot-build.js?v=cf159"></script>
+<script src="pilot-record.js?v=cf159"></script>
+<script src="pilot.js?v=cf159"></script>
+<script src="pilot-shop.js?v=cf159"></script>
+<script src="pilot-social.js?v=cf159"></script>
+<script src="save-ui.js?v=cf159"></script>
 <div id="tbanner" aria-hidden="true"><div class="tb-band"><b id="tbannerT"></b><span id="tbannerS"></span></div></div>
 <div id="hangar" aria-hidden="true">
   <div class="hd l"><div class="hd-light"></div><div class="hd-emb"></div></div>

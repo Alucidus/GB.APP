@@ -26,7 +26,7 @@ window.Pilot = (() => {
     updateCaption();$('pilotScreen').dataset.faction=draft.faction;
     const home=!!saved&&!editing,unitBay=home&&(homeTab==='shop'||homeTab==='hangar');$('pilotScreen').classList.toggle('pilot-home',home);$('pilotScreen').classList.toggle('pilot-unit-bay',unitBay);
     let bay=$('pilotUnitBay');if(!bay){bay=document.createElement('section');bay.id='pilotUnitBay';bay.setAttribute('aria-label','Selected mobile suit');document.querySelector('#pilotScreen .pilot-layout').append(bay);}bay.hidden=!unitBay;
-    document.querySelector('.pilot-header h1').textContent=unitBay?(homeTab==='hangar'?'YOUR HANGAR':'UNIT SHOP'):'PILOT STUDIO';$('pilotSave').hidden=home;$('pilotHome').hidden=!home;$('pilotEditPortrait').hidden=!home;
+    document.querySelector('.pilot-header h1').textContent=unitBay?(homeTab==='hangar'?'YOUR HANGAR':'UNIT SHOP'):home?'PILOT SHEET':'PILOT STUDIO';$('pilotSave').hidden=home;$('pilotHome').hidden=!home;$('pilotEditPortrait').hidden=!home;
     $('pilotBack').textContent=editing&&saved?'← Pilot home':'← Menu';
     if(home){renderHome();status('Pilot saved on this device');paint();return;}
 
@@ -131,7 +131,7 @@ window.Pilot = (() => {
       return {name:profile.name,portrait,campaign:profile.campaign||GBPilotBuild.fresh()};
     })();avatarJob={signature,promise};try{return await promise;}finally{if(avatarJob?.promise===promise)avatarJob=null;}
   }
-  async function open(){saved=read();draft=saved?{...saved}:defaults();editing=!saved;homeTab='shop';tab='appearance';part='body';show('pilotScreen');try{manifest=manifest||await fetch('img/pilots/layers.json').then(r=>{if(!r.ok)throw Error('Pilot assets unavailable');return r.json();});render();m3Init();m3Start();Effects.menuShown();}catch{status('Could not load pilot options. Reopen Pilot to retry.');}}
+  async function open(destination='shop'){saved=read();draft=saved?{...saved}:defaults();editing=!saved;homeTab=['shop','hangar','sheet'].includes(destination)?destination:'shop';tab='appearance';part='body';show('pilotScreen');try{manifest=manifest||await fetch('img/pilots/layers.json').then(r=>{if(!r.ok)throw Error('Pilot assets unavailable');return r.json();});render();m3Init();m3Start();Effects.menuShown();}catch{status('Could not load pilot options. Reopen Pilot to retry.');}}
   function save(){if(!ready)return;if(!draft.name.trim()){tab='identity';render();status('Enter a pilot name before saving.');$('pilot-name').focus();return;}draft.name=draft.name.trim();draft.callsign=draft.callsign.trim();try{localStorage.setItem(KEY,JSON.stringify(draft));saved={...draft};editing=false;homeTab='shop';render();status('Pilot saved on this device');notify('Pilot saved');window.PilotSocial?.refresh();}catch{status('Storage is full or unavailable. Your changes have not been saved.');}}
   function notify(text){document.getElementById('pilotSavedToast')?.remove();const e=document.createElement('div');e.id='pilotSavedToast';e.setAttribute('role','status');e.textContent='✓ '+text;document.body.append(e);setTimeout(()=>e.remove(),4000);}
   function setCampaign(c){const p=read();if(!p)throw Error('Save your pilot first.');if(!GBPilotBuild.valid(c))throw Error('Invalid campaign data.');p.campaign=c;localStorage.setItem(KEY,JSON.stringify(p));saved=p;draft.campaign=structuredClone(c);render();window.PilotSocial?.refresh();}
@@ -142,9 +142,7 @@ window.Pilot = (() => {
     for(const [id,label] of [['shop','Unit shop'],['hangar','Your hangar'],['sheet','Pilot sheet']]){const b=button(label,homeTab===id,()=>{homeTab=id;render();});b.dataset.homeTab=id;nav.append(b);}box.append(nav);
     const content=document.createElement('div');content.className='pilot-home-content';box.append(content);
     if(homeTab==='shop'||homeTab==='hangar'){PilotShop.mount(content,homeTab);return;}
-    const c=draft.campaign||GBPilotBuild.fresh(),rank=GBPilotBuild.rank(c),h=document.createElement('h2');h.textContent=draft.name;content.append(h);
-    const dl=document.createElement('dl');for(const [key,value] of [['Callsign',draft.callsign||'Not set'],['Faction',draft.faction],['Rank',rank[0]],['Available GP',GBPilotBuild.balance(c)],['Lifetime GP',c.earned],['Owned units',Object.keys(c.units).length],['Trait slots per unit',rank[2]],['Tier ceiling',rank[3]],['Rank benefits',GBPilotBuild.benefits(c)],['Background',draft.background||'No background recorded']]){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=key;dd.textContent=value;dl.append(dt,dd);}content.append(dl);
-    const note=document.createElement('p');note.textContent='Tap your portrait to edit your character. Trait effects remain reference-only in this prototype.';content.append(note);
+    PilotRecord.render(content,draft,()=>{homeTab='shop';render();},showHangar);
   }
   function leaveEditor(){saved=read();draft=saved?{...saved}:defaults();if(saved){editing=false;homeTab='shop';render();}else show('s0');}
   function back(){if(JSON.stringify(draft)!==JSON.stringify(saved)&& (saved||draft.name||JSON.stringify(draft)!==JSON.stringify(defaults()))){$('pilotDiscard').hidden=false;$('pilotKeep').focus();return;}if(editing&&saved)leaveEditor();else show('s0');}
