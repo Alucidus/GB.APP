@@ -1,0 +1,662 @@
+{
+  "male-east": [
+    {
+      "name": "male-face-east-asian",
+      "src": "img/pilots/male-east-0.png",
+      "box": [
+        0,
+        43,
+        1239,
+        1254
+      ]
+    },
+    {
+      "name": "left eye",
+      "src": "img/pilots/male-east-1.png",
+      "box": [
+        723,
+        519,
+        773,
+        558
+      ]
+    },
+    {
+      "name": "left brow",
+      "src": "img/pilots/male-east-2.png",
+      "box": [
+        666,
+        458,
+        843,
+        509
+      ]
+    },
+    {
+      "name": "right eye",
+      "src": "img/pilots/male-east-3.png",
+      "box": [
+        482,
+        519,
+        532,
+        558
+      ]
+    },
+    {
+      "name": "right brow",
+      "src": "img/pilots/male-east-4.png",
+      "box": [
+        412,
+        458,
+        591,
+        510
+      ]
+    },
+    {
+      "name": "male-uniform-neutral-black",
+      "src": "img/pilots/male-east-5.png",
+      "box": [
+        13,
+        21,
+        1238,
+        1241
+      ]
+    },
+    {
+      "name": "Spacenoid uniform",
+      "src": "img/pilots/male-east-6.png",
+      "box": [
+        -139,
+        -181,
+        1393,
+        1363
+      ]
+    },
+    {
+      "name": "male-uniform-space-green",
+      "src": "img/pilots/male-east-7.png",
+      "box": [
+        -177,
+        -57,
+        1430,
+        1373
+      ]
+    },
+    {
+      "name": "male-uniform-space-light",
+      "src": "img/pilots/male-east-8.png",
+      "box": [
+        -143,
+        110,
+        1393,
+        1311
+      ]
+    },
+    {
+      "name": "male-hair-spiky",
+      "src": "img/pilots/male-east-9.png",
+      "box": [
+        128,
+        25,
+        991,
+        1141
+      ]
+    },
+    {
+      "name": "male-hair-sidepart",
+      "src": "img/pilots/male-east-10.png",
+      "box": [
+        176,
+        19,
+        985,
+        793
+      ]
+    },
+    {
+      "name": "male-hair-curls",
+      "src": "img/pilots/male-east-11.png",
+      "box": [
+        279,
+        -12,
+        972,
+        669
+      ]
+    },
+    {
+      "name": "male-uniform-tan-red-yellow",
+      "src": "img/pilots/male-east-12.png",
+      "box": [
+        -128,
+        77,
+        1384,
+        1279
+      ]
+    }
+  ],
+  "male-dark": [
+    {
+      "name": "male-face-dark",
+      "src": "img/pilots/male-dark-0.png",
+      "box": [
+        47,
+        121,
+        1200,
+        1247
+      ]
+    },
+    {
+      "name": "left eye",
+      "src": "img/pilots/male-dark-1.png",
+      "box": [
+        724,
+        526,
+        772,
+        568
+      ]
+    },
+    {
+      "name": "left brow",
+      "src": "img/pilots/male-dark-2.png",
+      "box": [
+        663,
+        470,
+        847,
+        523
+      ]
+    },
+    {
+      "name": "rightbrow",
+      "src": "img/pilots/male-dark-3.png",
+      "box": [
+        409,
+        470,
+        593,
+        523
+      ]
+    },
+    {
+      "name": "right eye",
+      "src": "img/pilots/male-dark-4.png",
+      "box": [
+        485,
+        525,
+        534,
+        568
+      ]
+    },
+    {
+      "name": "male-uniform-tan-red-yellow",
+      "src": "img/pilots/male-dark-5.png",
+      "box": [
+        -128,
+        77,
+        1384,
+        1279
+      ]
+    },
+    {
+      "name": "male-uniform-neutral-black",
+      "src": "img/pilots/male-dark-6.png",
+      "box": [
+        13,
+        21,
+        1238,
+        1241
+      ]
+    },
+    {
+      "name": "Spacenoid uniform",
+      "src": "img/pilots/male-dark-7.png",
+      "box": [
+        -139,
+        -181,
+        1393,
+        1363
+      ]
+    },
+    {
+      "name": "male-uniform-space-green",
+      "src": "img/pilots/male-dark-8.png",
+      "box": [
+        -177,
+        -57,
+        1430,
+        1373
+      ]
+    },
+    {
+      "name": "male-uniform-space-light",
+      "src": "img/pilots/male-dark-9.png",
+      "box": [
+        -143,
+        110,
+        1393,
+        1311
+      ]
+    },
+    {
+      "name": "male-hair-spiky",
+      "src": "img/pilots/male-dark-10.png",
+      "box": [
+        130,
+        9,
+        993,
+        1125
+      ]
+    },
+    {
+      "name": "male-hair-sidepart",
+      "src": "img/pilots/male-dark-11.png",
+      "box": [
+        176,
+        19,
+        985,
+        793
+      ]
+    },
+    {
+      "name": "male-hair-curls",
+      "src": "img/pilots/male-dark-12.png",
+      "box": [
+        296,
+        53,
+        954,
+        552
+      ]
+    }
+  ],
+  "female": [
+    {
+      "name": "Background",
+      "src": "img/pilots/female-0.png",
+      "box": [
+        0,
+        21,
+        1254,
+        1254
+      ]
+    },
+    {
+      "name": "female-face-dark",
+      "src": "img/pilots/female-1.png",
+      "box": [
+        18,
+        96,
+        1239,
+        1269
+      ]
+    },
+    {
+      "name": "female-face-east-asian",
+      "src": "img/pilots/female-2.png",
+      "box": [
+        17,
+        62,
+        1236,
+        1261
+      ]
+    },
+    {
+      "name": "female-face-south-asian",
+      "src": "img/pilots/female-3.png",
+      "box": [
+        0,
+        17,
+        1254,
+        1254
+      ]
+    },
+    {
+      "name": "female-uniform-green-gold-red",
+      "src": "img/pilots/female-4.png",
+      "box": [
+        -58,
+        -25,
+        1305,
+        1331
+      ]
+    },
+    {
+      "name": "female-uniform-space-green",
+      "src": "img/pilots/female-5.png",
+      "box": [
+        -6,
+        21,
+        1261,
+        1254
+      ]
+    },
+    {
+      "name": "female-uniform-space-light",
+      "src": "img/pilots/female-6.png",
+      "box": [
+        -29,
+        89,
+        1282,
+        1290
+      ]
+    },
+    {
+      "name": "female-uniform-tan-red-yellow",
+      "src": "img/pilots/female-7.png",
+      "box": [
+        -10,
+        21,
+        1260,
+        1254
+      ]
+    },
+    {
+      "name": "female-uniform-neutral-black",
+      "src": "img/pilots/female-8.png",
+      "box": [
+        0,
+        52,
+        1254,
+        1254
+      ]
+    },
+    {
+      "name": "female-hair-bob",
+      "src": "img/pilots/female-9.png",
+      "box": [
+        -20,
+        52,
+        1240,
+        1204
+      ]
+    },
+    {
+      "name": "female-hair-curls",
+      "src": "img/pilots/female-10.png",
+      "box": [
+        0,
+        19,
+        1201,
+        1226
+      ]
+    },
+    {
+      "name": "female-hair-pixie",
+      "src": "img/pilots/female-11.png",
+      "box": [
+        26,
+        35,
+        1127,
+        1214
+      ]
+    }
+  ],
+  "male-light": [
+    {
+      "name": "b82cb2f5-8a4a-415b-8b7d-15f2d0be44f0",
+      "src": "img/pilots/male-light-0.png",
+      "box": [
+        0,
+        21,
+        1240,
+        1254
+      ]
+    },
+    {
+      "name": "Left eye",
+      "src": "img/pilots/male-light-1.png",
+      "box": [
+        724,
+        527,
+        772,
+        568
+      ]
+    },
+    {
+      "name": "Right eye",
+      "src": "img/pilots/male-light-2.png",
+      "box": [
+        482,
+        529,
+        532,
+        569
+      ]
+    },
+    {
+      "name": "Left Brow",
+      "src": "img/pilots/male-light-3.png",
+      "box": [
+        409,
+        475,
+        589,
+        523
+      ]
+    },
+    {
+      "name": "Right Brow",
+      "src": "img/pilots/male-light-4.png",
+      "box": [
+        665,
+        475,
+        847,
+        523
+      ]
+    },
+    {
+      "name": "male-uniform-neutral-black",
+      "src": "img/pilots/male-light-5.png",
+      "box": [
+        13,
+        21,
+        1238,
+        1241
+      ]
+    },
+    {
+      "name": "Spacenoid uniform",
+      "src": "img/pilots/male-light-6.png",
+      "box": [
+        -139,
+        -181,
+        1393,
+        1363
+      ]
+    },
+    {
+      "name": "male-uniform-space-green",
+      "src": "img/pilots/male-light-7.png",
+      "box": [
+        -177,
+        -57,
+        1430,
+        1373
+      ]
+    },
+    {
+      "name": "male-uniform-space-light",
+      "src": "img/pilots/male-light-8.png",
+      "box": [
+        -143,
+        110,
+        1393,
+        1311
+      ]
+    },
+    {
+      "name": "male-hair-spiky",
+      "src": "img/pilots/male-light-9.png",
+      "box": [
+        128,
+        41,
+        991,
+        1157
+      ]
+    },
+    {
+      "name": "male-hair-sidepart",
+      "src": "img/pilots/male-light-10.png",
+      "box": [
+        210,
+        23,
+        969,
+        765
+      ]
+    },
+    {
+      "name": "male-hair-curls",
+      "src": "img/pilots/male-light-11.png",
+      "box": [
+        279,
+        6,
+        972,
+        687
+      ]
+    },
+    {
+      "name": "Spacenoid uniform",
+      "src": "img/pilots/male-light-12.png",
+      "box": [
+        -139,
+        -181,
+        1393,
+        1363
+      ]
+    },
+    {
+      "name": "male-uniform-tan-red-yellow",
+      "src": "img/pilots/male-light-13.png",
+      "box": [
+        -128,
+        77,
+        1384,
+        1279
+      ]
+    }
+  ],
+  "male-south": [
+    {
+      "name": "male-face-south-asian",
+      "src": "img/pilots/male-south-0.png",
+      "box": [
+        0,
+        47,
+        1238,
+        1254
+      ]
+    },
+    {
+      "name": "right eye",
+      "src": "img/pilots/male-south-1.png",
+      "box": [
+        482,
+        524,
+        532,
+        566
+      ]
+    },
+    {
+      "name": "right brow",
+      "src": "img/pilots/male-south-2.png",
+      "box": [
+        409,
+        468,
+        596,
+        519
+      ]
+    },
+    {
+      "name": "left eye",
+      "src": "img/pilots/male-south-3.png",
+      "box": [
+        724,
+        524,
+        773,
+        565
+      ]
+    },
+    {
+      "name": "left brow",
+      "src": "img/pilots/male-south-4.png",
+      "box": [
+        658,
+        468,
+        847,
+        519
+      ]
+    },
+    {
+      "name": "male-uniform-tan-red-yellow",
+      "src": "img/pilots/male-south-5.png",
+      "box": [
+        -128,
+        77,
+        1384,
+        1279
+      ]
+    },
+    {
+      "name": "male-uniform-neutral-black",
+      "src": "img/pilots/male-south-6.png",
+      "box": [
+        13,
+        21,
+        1238,
+        1241
+      ]
+    },
+    {
+      "name": "Spacenoid uniform",
+      "src": "img/pilots/male-south-7.png",
+      "box": [
+        -139,
+        -181,
+        1393,
+        1363
+      ]
+    },
+    {
+      "name": "male-uniform-space-green",
+      "src": "img/pilots/male-south-8.png",
+      "box": [
+        -177,
+        -57,
+        1430,
+        1373
+      ]
+    },
+    {
+      "name": "male-uniform-space-light",
+      "src": "img/pilots/male-south-9.png",
+      "box": [
+        -143,
+        110,
+        1393,
+        1311
+      ]
+    },
+    {
+      "name": "male-hair-spiky",
+      "src": "img/pilots/male-south-10.png",
+      "box": [
+        128,
+        25,
+        991,
+        1141
+      ]
+    },
+    {
+      "name": "male-hair-sidepart",
+      "src": "img/pilots/male-south-11.png",
+      "box": [
+        176,
+        19,
+        985,
+        793
+      ]
+    },
+    {
+      "name": "male-hair-curls",
+      "src": "img/pilots/male-south-12.png",
+      "box": [
+        279,
+        -12,
+        972,
+        669
+      ]
+    }
+  ]
+}

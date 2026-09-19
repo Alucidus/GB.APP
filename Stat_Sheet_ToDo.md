@@ -1,3 +1,7 @@
+# Current status - cf129
+
+The Pilot appearance creator and basic saved identity record are implemented. Next major milestone: full digital character sheet and unit records, then backup/export/import, then GP and campaign progression. This is the user-approved order. See Pilot_Sheet_Review.md and Release_Notes_cf129.md. Historical statuses below may be superseded.
+
 # Current status — cf120
 
 Completed: equipment quantity decisions, infantry Quick Resolve 2/2/2 and transport resupply. See Release_Notes_cf120.md for timing, migration and validation. Next milestone: personal-base and carrier repair services after user review. Historical entries below may describe older states.

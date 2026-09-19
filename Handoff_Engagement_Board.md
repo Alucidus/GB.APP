@@ -1,4 +1,14 @@
-# Gunpla Battles - cf128 current handoff
+# Gunpla Battles - cf129 current handoff
+
+Pilot creator is built from the supplied female and four male PSDs. Main menu Pilot uses the clash transition into the supplied hangar, with the existing battle scene behind its window and no m3-fg. Offline play/continue is in the bottom menu. Identity and appearance save locally, separately from battles. Read Release_Notes_cf129.md and Test_Checklist_cf129.md.
+
+## Up next
+
+User review of the creator, then the full digital character sheet and unit records based on Custom_Pilot_Sheet (7).pptx. After that: save/load backup, then GP and campaign progression. This replaces the earlier suggestion to implement GP first. See Pilot_Sheet_Review.md for the physical-sheet fields and future rule questions. No GP spending or unit trait assignment was added in cf129. No deployment.
+
+---
+
+# Gunpla Battles - cf128 previous handoff
 
 Small-device damage toolbar now shows 1-4, custom # and nuclear blast in one row. Larger screens retain all presets. Selected custom amounts survive resizing. 252 toolbar checks and four infantry layout viewports passed. See Release_Notes_cf128.md and Test_Checklist_cf128.md. All cf127 fixes are included. No deployment.
 

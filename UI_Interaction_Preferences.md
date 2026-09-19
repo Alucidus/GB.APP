@@ -16,3 +16,5 @@ These preferences were explicitly requested during cf125 development. Use them w
 Implemented in cf125: ship repair assignment and pre-deployment infantry vehicle loading both select the unit first and then its destination. Infantry loading remains a draft until Confirm & deploy; Back discards draft choices. Repair timing is unchanged by the interaction pattern.
 
 - On small devices only, keep the damage toolbar to 1-4, custom # and nuclear blast; preserve the full presets on larger screens.
+
+- Pilot creator: options left, portrait right on desktop/landscape; portrait phones keep a readable preview above options. Use the existing clash transition and supplied hangar over the menu battle scene, omitting m3-fg. Keep hair, eyebrow and eye colour independent.

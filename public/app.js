@@ -3398,9 +3398,9 @@ function renderLanding() {
   const has = !!(t && ((t.roster && t.roster.length) || t.budget));
   const txt = has ? (side === "federation" ? "FEDERATION" : "SPACENOIDS") + " \u00b7 " + ((t.roster || []).length) + " MODEL" + (((t.roster || []).length === 1) ? "" : "S")
       + (t.locked ? " \u00b7 TURN " + ((t.turn && t.turn.round) || 1) : "") : "NO SAVED BATTLE";
-  $("lbCont").classList.toggle("off", !has);
-  $("lbContSub").textContent = txt;
-  $("moOffSub").textContent = has ? "SAVED: " + txt : "PICK A FACTION AND BUILD YOUR FORCE";
+  $("lbCont").classList.remove("off");
+  $("lbOfflineLabel").textContent = has ? "CONTINUE OFFLINE" : "PLAY OFFLINE";
+  $("lbContSub").textContent = has ? txt : "NEW BATTLE / ONE DEVICE";
 }
 function updateLandingOnline() {
   const sub = $("moOnSub"); if (!sub) return;
@@ -3514,7 +3514,7 @@ const M3_DEPTH = { base: 0.7, stars: 0.9, emb: 1.3, far: 2.0, fx: 2.6, near: 3.4
 const M3 = { x: 0, y: 0, tx: 0, ty: 0, raf: 0, drag: null, gyro: null, gyroBase: null, asked: false, boomT: 0 };
 function m3Root() {                                     // the scene on the menu screen that is showing (landing or offline menu)
   if (document.hidden) return null;
-  for (const id of ["s0", "s1"]) { const sc = $(id); if (sc && sc.classList.contains("on")) return sc.querySelector(".m-bg.m3"); }
+  for (const id of ["s0", "s1", "pilotScreen"]) { const sc = $(id); if (sc && sc.classList.contains("on")) return sc.querySelector(".m-bg.m3"); }
   return null;
 }
 function m3On() { return !!m3Root(); }
@@ -3786,7 +3786,7 @@ const Effects = {
   measure() {
     if (this.busy) return;
     this.busy = true;
-    const onMenu = () => ["s0", "s1"].some(id => { const e = $(id); return e && e.classList.contains("on"); }) && !document.hidden && !$("clashFx");
+    const onMenu = () => ["s0", "s1", "pilotScreen"].some(id => { const e = $(id); return e && e.classList.contains("on"); }) && !document.hidden && !$("clashFx");
     let last = 0, sum = 0, n = 0, slow = 0, windows = 0;
     const frame = now => {
       if (!onMenu() || this.mode() !== "auto") { this.busy = false; return; }   // left the menu: stop, try again next time
@@ -7821,7 +7821,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(()=>{renderAmounts();fitSheet();}));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf128";
+const APP_BUILD = "cf129";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

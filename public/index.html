@@ -11,7 +11,8 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <meta name="apple-mobile-web-app-title" content="MSB">
 <title>Mobile Suit Battles</title>
-<link rel="stylesheet" href="app.css?v=cf128">
+<link rel="stylesheet" href="app.css?v=cf129">
+<link rel="stylesheet" href="pilot.css?v=cf129">
 </head>
 <body>
 
@@ -54,7 +55,7 @@
   <h1 class="m-sr">Gunpla Battle</h1>
   <img class="m-logo" id="mLogo" src="img/menu2-logo.webp" alt="Gunpla Battle" decoding="async">
   <div class="m-body">
-    <div class="m-head"><i></i><span>CHOOSE HOW TO PLAY</span><i></i></div>
+    <div class="m-head"><i></i><span>MAIN MENU</span><i></i></div>
     <div class="modes">
       <div class="mode online" id="moOn" onclick="landOnline()">
         <div class="mo-in">
@@ -64,19 +65,19 @@
           <span class="mo-go" aria-hidden="true">&raquo;</span>
         </div>
       </div>
-      <div class="mode offline" id="moOff" onclick="landOffline()">
+      <div class="mode offline" id="moPilot" role="button" tabindex="0" onclick="playClash(() => Pilot.open())" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
         <div class="mo-in">
-          <svg class="mo-ic" viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="6" width="24" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="24.5" cy="16" r="1.2" fill="currentColor"/><path d="M8 11 H19 M8 16 H19 M8 21 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <div class="mo-txt"><b>PLAY OFFLINE</b><small>ONE DEVICE <i>/</i> NO CONNECTION NEEDED</small><em id="moOffSub">NO SAVED BATTLE</em></div>
+          <svg class="mo-ic" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="10" r="6" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M5 28v-4c0-5 5-7 11-7s11 2 11 7v4M12 19l4 5 4-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
+          <div class="mo-txt"><b>PILOT</b><small>YOUR CHARACTER <i>/</i> YOUR STORY</small><em>ENTER THE HANGAR</em></div>
           <span class="mo-go" aria-hidden="true">&raquo;</span>
         </div>
       </div>
     </div>
   </div>
   <div class="m-bar">
-    <div class="mb-item" id="lbCont" onclick="menuContinue()">
+    <div class="mb-item" id="lbCont" role="button" tabindex="0" onclick="landOffline()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
       <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M9 6 L25 16 L9 26 Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
-      <div><b>CONTINUE OFFLINE</b><small id="lbContSub">NO SAVED BATTLE</small></div>
+      <div><b id="lbOfflineLabel">PLAY OFFLINE</b><small id="lbContSub">NEW BATTLE / ONE DEVICE</small></div>
     </div>
     <div class="mb-item" onclick="openTables()">
       <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 7 C9 5 13 5 16 8 C19 5 23 5 28 7 L28 26 C23 24 19 24 16 27 C13 24 9 24 4 26 Z M16 8 L16 27" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
@@ -240,17 +241,18 @@ window.addEventListener("unhandledrejection",function(ev){
   e.style.display="block"; e.textContent += "PROMISE: "+ev.reason+"\n";
 });
 </script>
-<script src="supplies.js?v=cf128"></script>
-<script src="resupply-ui.js?v=cf128"></script>
-<script src="data.js?v=cf128"></script>
-<script src="equipment.js?v=cf128"></script>
-<script src="equipment-ui.js?v=cf128"></script>
-<script src="repairs.js?v=cf128"></script>
-<script src="repair-ui.js?v=cf128"></script>
-<script src="landscape.js?v=cf128"></script>
-<script src="pickups.js?v=cf128"></script>
-<script src="pickup-ui.js?v=cf128"></script>
-<script src="app.js?v=cf128"></script>
+<script src="supplies.js?v=cf129"></script>
+<script src="resupply-ui.js?v=cf129"></script>
+<script src="data.js?v=cf129"></script>
+<script src="equipment.js?v=cf129"></script>
+<script src="equipment-ui.js?v=cf129"></script>
+<script src="repairs.js?v=cf129"></script>
+<script src="repair-ui.js?v=cf129"></script>
+<script src="landscape.js?v=cf129"></script>
+<script src="pickups.js?v=cf129"></script>
+<script src="pickup-ui.js?v=cf129"></script>
+<script src="app.js?v=cf129"></script>
+<script src="pilot.js?v=cf129"></script>
 <div id="tbanner" aria-hidden="true"><div class="tb-band"><b id="tbannerT"></b><span id="tbannerS"></span></div></div>
 <div id="hangar" aria-hidden="true">
   <div class="hd l"><div class="hd-light"></div><div class="hd-emb"></div></div>

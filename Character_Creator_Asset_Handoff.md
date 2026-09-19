@@ -1,3 +1,11 @@
+# Character creator - cf129 implementation
+
+The deferred work below was activated by the user for cf129. All five PSDs from Desktop/New folder (2) were read and their layers exported to public/img/pilots. The original fitment coordinates are in layers.json. tests/extract-pilot-layers.py documents reproducible extraction with psd-tools. The original PSDs remain unchanged and outside the deployable ZIP.
+
+public/pilot.js provides runtime female iris/brow masks, male cutout recolouring, hair shading and whole-uniform tint. Separate user palettes preserve skin and eye whites. The supplied Hangar.png is included with its existing transparency; the menu battle scene runs behind it without m3-fg. See Release_Notes_cf129.md and Pilot_Sheet_Review.md.
+
+## Original asset handoff (historical)
+
 # Character creator — assets and deferred work
 
 User supplied these files on 2026-09-19 and explicitly asked to record them for later work. Character creator implementation is outside cf125.
