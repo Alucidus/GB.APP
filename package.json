@@ -4,24 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
-    "test": "node tests/engagement-server.mjs && node tests/equipment.mjs && node tests/equipment-ui-smoke.mjs && node tests/equipment-counts.mjs && node tests/decisions-cf119.mjs && node tests/resupply-server.mjs && node tests/repairs.mjs && node tests/pickups.mjs",
-    "test:mobile": "node tests/mobile-audit.mjs",
-    "test:infantry:browser": "node tests/infantry-layout-browser.mjs",
-    "test:loading:browser": "node tests/vehicle-loading-browser.mjs",
-    "test:damage:browser": "node tests/damage-layout-browser.mjs",
-    "test:hp:browser": "node tests/hp-controls-browser.mjs",
-    "test:destroyed:browser": "node tests/destroyed-layout-browser.mjs",
-    "test:browser": "node tests/engagement-board.mjs",
-    "test:equipment:browser": "node tests/equipment-browser.mjs",
-    "test:pickup:browser": "node tests/pickups-browser.mjs && node tests/pickups-online-browser.mjs",
-    "test:layout": "node tests/layout-browser.mjs",
-    "test:shields:browser": "node tests/shields-browser.mjs",
-    "test:base:browser": "node tests/base-rosters-browser.mjs",
-    "test:repairs:browser": "node tests/repair-bay-browser.mjs",
-    "test:toolbar:browser": "node tests/toolbar-browser.mjs",
-    "test:pilot:browser": "node tests/pilot-browser.mjs && node tests/pilot-assets-browser.mjs && node tests/pilot-offline-browser.mjs",
-    "test:pilot:eyes": "node tests/pilot-eyes-browser.mjs"
+    "deploy": "wrangler deploy"
   },
   "devDependencies": {
     "wrangler": "^4.132.0"

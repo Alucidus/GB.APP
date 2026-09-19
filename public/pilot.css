@@ -6,28 +6,36 @@
 .pilot-hangar{position:absolute;inset:0;z-index:-3;background:url(img/pilots/hangar.png) center/cover no-repeat;pointer-events:none}
 #pilotScreen #pilotBattle{z-index:-5}
 .pilot-flyby{position:absolute;inset:0;z-index:-4;overflow:hidden;pointer-events:none}
-/* Fixed attitude matches the painted exhaust: a thrust kick, then fast coast. */
-.pilot-flyby img{position:absolute;top:100%;height:auto;opacity:0;max-width:none;transform-origin:50% 35%;animation:pilot-gundam-flyby 16s linear infinite;animation-play-state:paused;will-change:transform,opacity;--fly-exit:6dvh}
-.pilot-flyby-gundam{left:44%;width:clamp(72px,10vw,150px)}
-.pilot-flyby .pilot-flyby-zakus{left:42%;width:clamp(165px,24vw,360px);animation-name:pilot-zaku-flyby;animation-delay:1.3s;--fly-exit:4dvh}
-#pilotScreen.on .pilot-flyby img{animation-play-state:running}
-@keyframes pilot-gundam-flyby{
- 0%,4%{transform:translate3d(0,0,0) scale(1);opacity:0}
- 4.1%{transform:translate3d(0,0,0) scale(1);opacity:1;animation-timing-function:cubic-bezier(.42,0,.8,.55)}
- 8%{transform:translate3d(calc(var(--fly-exit) * .2),calc(-22dvh - 22%),0) scale(.98);opacity:1}
- 14%{transform:translate3d(var(--fly-exit),calc(-110dvh - 110%),0) scale(.9);opacity:1}
- 14.1%,100%{transform:translate3d(var(--fly-exit),calc(-110dvh - 110%),0) scale(.9);opacity:0}
+/* Match the cover-sized hangar so the diagonal follows its window at every aspect ratio. */
+.pilot-flight-space{position:absolute;width:max(100vw,177.6833dvh);height:max(100dvh,56.2800vw);left:50%;top:50%;transform:translate(-50%,-50%)}
+.pilot-flight{position:absolute;left:12%;top:57%;opacity:0;animation:pilot-window-dash 16s linear infinite;animation-play-state:paused;will-change:left,top,opacity}
+.pilot-flyby-gundam{width:clamp(72px,10vw,150px)}
+.pilot-flight.pilot-flyby-zakus{width:clamp(165px,24vw,360px);animation-name:pilot-window-pursuit;animation-delay:.95s}
+.pilot-craft{position:relative;transform:translate(-50%,-50%) rotate(70deg)}
+.pilot-craft img{display:block;width:100%;height:auto;position:relative;z-index:1}
+/* Light tapered exhaust extensions, underneath the original painted flames. */
+.pilot-craft:before,.pilot-craft:after{content:'';position:absolute;top:81%;left:34%;width:5%;height:72%;background:linear-gradient(#c4faff99,#34b8ff55 25%,#2395ff00);clip-path:polygon(0 0,100% 0,53% 100%);filter:blur(1px);pointer-events:none}
+.pilot-craft:after{left:53%;height:66%}
+.pilot-flyby-zakus .pilot-craft:before{left:12%;top:87%;height:48%}
+.pilot-flyby-zakus .pilot-craft:after{left:45%;top:91%;height:43%}
+#pilotScreen.on .pilot-flight{animation-play-state:running}
+@keyframes pilot-window-dash{
+ 0%,4%{left:12%;top:57%;opacity:0}
+ 4.01%{left:12%;top:57%;opacity:1;animation-timing-function:cubic-bezier(.3,0,.65,.5)}
+ 5%{left:24%;top:49.5%;opacity:1}
+ 8.5%{left:95%;top:5%;opacity:1}
+ 8.51%,100%{left:95%;top:5%;opacity:0}
 }
-@keyframes pilot-zaku-flyby{
- 0%,4%{transform:translate3d(0,0,0) scale(1);opacity:0}
- 4.1%{transform:translate3d(0,0,0) scale(1);opacity:1;animation-timing-function:cubic-bezier(.42,0,.8,.55)}
- 7%{transform:translate3d(calc(var(--fly-exit) * .2),calc(-22dvh - 22%),0) scale(.99);opacity:1}
- 12%{transform:translate3d(var(--fly-exit),calc(-110dvh - 110%),0) scale(.95);opacity:1}
- 12.1%,100%{transform:translate3d(var(--fly-exit),calc(-110dvh - 110%),0) scale(.95);opacity:0}
+@keyframes pilot-window-pursuit{
+ 0%,4%{left:12%;top:57%;opacity:0}
+ 4.01%{left:12%;top:57%;opacity:1;animation-timing-function:cubic-bezier(.3,0,.65,.5)}
+ 4.8%{left:24%;top:49.5%;opacity:1}
+ 7.6%{left:95%;top:5%;opacity:1}
+ 7.61%,100%{left:95%;top:5%;opacity:0}
 }
 html.fx-lite .pilot-flyby{display:none}
 @media(prefers-reduced-motion:reduce){.pilot-flyby{display:none}}
-@media(orientation:portrait){.pilot-flyby-gundam{left:65%;width:72px;--fly-exit:3dvh}.pilot-flyby .pilot-flyby-zakus{left:58%;width:155px;--fly-exit:2dvh}}
+@media(orientation:portrait){.pilot-flight-space{left:60%;transform:translate(-60%,-50%)}.pilot-flyby-gundam{width:72px}.pilot-flight.pilot-flyby-zakus{width:155px}}
 .pilot-shade{position:absolute;inset:0;z-index:-2;background:linear-gradient(90deg,rgba(2,9,15,.83),rgba(2,9,15,.08) 76%),linear-gradient(0deg,rgba(2,9,15,.7),transparent 45%);pointer-events:none}
 .pilot-header{height:76px;box-sizing:border-box;padding:12px max(20px,env(safe-area-inset-right)) 12px max(20px,env(safe-area-inset-left));display:flex;gap:20px;align-items:center;border-bottom:1px solid #93b1c644;background:#08111acc}
 .pilot-header>div{flex:1}.pilot-header h1{font-size:24px;margin:0;letter-spacing:.18em}.pilot-header small{font-size:10px;letter-spacing:.16em;color:var(--pilot-accent)}
