@@ -212,3 +212,76 @@ html.fx-lite #pilotScreen .m3-l{animation:none!important}
 @media(max-height:500px) and (orientation:landscape){#pilotHome .pilot-home-tabs{height:46px;box-sizing:border-box;padding:3px;flex-shrink:0}#pilotHome .pilot-home-tabs button{min-height:38px;padding:3px}#pilotHome .pilot-shop-panel header{padding:5px 10px}#pilotHome .pilot-shop-filters .btn{min-height:38px;padding:5px 9px}#pilotHome .pilot-shop-search .btn{min-height:38px;padding:5px 9px}#pilotHome .pilot-shop-search input{min-height:38px;padding:5px 8px}#pilotHome .pilot-shop-content{padding:6px}#pilotHome .pilot-shop-unit{min-height:74px;padding:7px}}
 .pilot-trait-pages{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:16px 0}.pilot-trait-pages .btn{font-size:11px;min-height:44px;padding:8px;white-space:normal}.pilot-trait-heading{margin:18px 0 8px!important;font-size:17px!important}.pilot-hangar-condition{padding:12px;background:#182b37;border-left:3px solid #c5a166;margin:12px 0}.pilot-hangar-condition p{font-size:12px}.pilot-hangar-condition .btn{margin:5px 5px 0 0;font-size:11px}.pilot-home-tabs button{min-width:0}
 @media(max-width:600px){.pilot-home-tabs button{font-size:11px;padding:5px}.pilot-trait-pages{grid-template-columns:1fr}.pilot-hangar-condition{padding:8px}}
+/* Faction unit bays: the left console stays separate from the full-height artwork. */
+#pilotScreen.pilot-unit-bay{--bay-accent:#80c9f2;--bay-tint:#12384d}
+#pilotScreen.pilot-unit-bay[data-faction=spacenoid]{--bay-accent:#ff8b88;--bay-tint:#482225}
+#pilotScreen.pilot-unit-bay[data-faction=neutral]{--bay-accent:#d5dce2;--bay-tint:#30383e}
+#pilotScreen.pilot-unit-bay .pilot-hangar{background-image:url(img/hangars/federation.png);background-position:center}
+#pilotScreen.pilot-unit-bay[data-faction=spacenoid] .pilot-hangar{background-image:url(img/hangars/spacenoid.png)}
+#pilotScreen.pilot-unit-bay[data-faction=neutral] .pilot-hangar{background-image:url(img/hangars/neutral.png)}
+#pilotScreen.pilot-unit-bay #pilotBattle,#pilotScreen.pilot-unit-bay .pilot-flyby,#pilotScreen.pilot-unit-bay .pilot-preview{display:none}
+#pilotScreen.pilot-unit-bay .pilot-shade{background:linear-gradient(90deg,#02080dcc,transparent 65%)}
+#pilotScreen.pilot-unit-bay .pilot-header{background:linear-gradient(#040b13d9,#040b1377);border-bottom:1px solid #ffffff26}
+#pilotScreen.pilot-unit-bay .pilot-layout{grid-template-columns:minmax(330px,42%) minmax(0,1fr);grid-template-rows:minmax(0,1fr);padding:16px 24px;gap:24px;max-width:none}
+#pilotScreen.pilot-unit-bay #pilotHome{grid-column:1;grid-row:1;background:#06101cdd;border-color:color-mix(in srgb,var(--bay-accent) 45%,transparent);border-radius:4px 18px 4px 4px;box-shadow:0 14px 44px #0008;backdrop-filter:blur(8px)}
+#pilotScreen.pilot-unit-bay .pilot-home-tabs{border-color:#ffffff26;flex-shrink:0}
+#pilotScreen.pilot-unit-bay .pilot-home-tabs button[aria-pressed=true]{color:#fff;background:var(--bay-tint);border-color:var(--bay-accent)}
+#pilotScreen.pilot-unit-bay .pilot-shop-panel header{background:linear-gradient(90deg,var(--bay-tint),#10203033)}
+#pilotScreen.pilot-unit-bay .pilot-shop-layout{grid-template-columns:minmax(0,1fr);gap:18px}
+#pilotScreen.pilot-unit-bay .pilot-shop-list{grid-template-columns:1fr 1fr;max-height:260px;scrollbar-width:thin;scrollbar-color:var(--bay-accent) #09111b}
+#pilotScreen.pilot-unit-bay .pilot-shop-unit[aria-pressed=true]{border-color:var(--bay-accent);background:var(--bay-tint);box-shadow:inset 3px 0 var(--bay-accent)}
+#pilotScreen.pilot-unit-bay .pilot-shop-unit{background:#101f2bda}
+#pilotScreen.pilot-unit-bay .pilot-shop-detail{border-top:1px solid #ffffff38;padding-top:18px}
+#pilotScreen.pilot-unit-bay .pilot-shop-toolbar{border-top:1px solid #ffffff26;margin-top:20px;padding-top:8px}
+#pilotScreen.pilot-unit-bay .pilot-shop-status{font-size:13px;color:#c2d1dc}
+#pilotUnitBay{grid-column:2;grid-row:1;position:relative;min-width:0;min-height:0;pointer-events:none}
+.pilot-bay-label{position:absolute;left:0;right:0;top:0;text-align:center;padding:12px;color:#f3f7fb;text-shadow:0 2px 6px #000;z-index:2}
+.pilot-bay-label small{color:var(--bay-accent);letter-spacing:.2em;font:700 11px system-ui}
+.pilot-bay-label h2{font-size:clamp(22px,2.3vw,36px);margin:7px 0}
+.pilot-bay-label p{margin:0;font-size:13px}
+.pilot-bay-stand{position:absolute;inset:108px 4% 9%;display:flex;align-items:flex-end;justify-content:center;filter:drop-shadow(0 15px 9px #0009)}
+.pilot-bay-stand canvas{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom}
+#pilotUnitBay.is-destroyed .pilot-bay-stand{filter:grayscale(.85) brightness(.65) drop-shadow(0 15px 9px #0009)}
+.pilot-bay-empty{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);border:1px solid #ffffff50;border-radius:50%;width:180px;height:180px;display:grid;place-items:center;font-size:12px;letter-spacing:.2em;color:#ffffffb0;background:#07101b33}
+@media(max-height:500px) and (orientation:landscape){
+ #pilotScreen.pilot-unit-bay .pilot-layout{grid-template-columns:minmax(300px,44%) minmax(0,1fr);padding:6px 10px;gap:12px}
+ #pilotScreen.pilot-unit-bay .pilot-shop-list{max-height:180px}
+ #pilotScreen.pilot-unit-bay .pilot-shop-unit{grid-template-columns:40px 1fr;min-height:64px;padding:6px;gap:3px 6px}
+ #pilotScreen.pilot-unit-bay .pilot-shop-unit .pt{width:38px;height:44px}
+ #pilotScreen.pilot-unit-bay .pilot-shop-unit b{font-size:11px}
+ #pilotScreen.pilot-unit-bay .pilot-shop-unit small{font-size:10px}
+ .pilot-bay-label{padding:3px}.pilot-bay-label h2{font-size:20px;margin:3px}.pilot-bay-label small{font-size:9px}.pilot-bay-label p{font-size:11px}
+ .pilot-bay-stand{inset:67px 3% 5%}
+}
+@media(orientation:portrait){
+ #pilotScreen.pilot-unit-bay .pilot-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(180px,36%) minmax(0,1fr);gap:8px;padding:8px}
+ #pilotScreen.pilot-unit-bay #pilotHome{grid-column:1;grid-row:2}
+ #pilotUnitBay{grid-column:1;grid-row:1}
+ #pilotScreen.pilot-unit-bay .pilot-hangar{background-position:72% center}
+ #pilotScreen.pilot-unit-bay .pilot-shade{background:linear-gradient(0deg,#02080dbb,transparent 75%)}
+ .pilot-bay-label{text-align:left;left:6px;right:42%;padding:6px}.pilot-bay-label small{font-size:9px;letter-spacing:.1em}.pilot-bay-label h2{font-size:20px}.pilot-bay-label p{font-size:11px}
+ .pilot-bay-stand{inset:0 0 0 35%}.pilot-bay-empty{width:120px;height:120px;left:70%;font-size:9px}
+ #pilotScreen.pilot-unit-bay .pilot-shop-list{max-height:200px;grid-template-columns:1fr 1fr}
+ #pilotScreen.pilot-unit-bay .pilot-shop-unit{grid-template-columns:36px 1fr;gap:3px 6px;padding:6px}
+ #pilotScreen.pilot-unit-bay .pilot-shop-unit .pt{width:34px;height:42px}
+ #pilotScreen.pilot-unit-bay .pilot-shop-unit b{font-size:11px}
+ #pilotScreen.pilot-unit-bay .pilot-shop-unit small{font-size:10px}
+}
+/* Match the game's chamfered panels and controls throughout the pilot screens. */
+#pilotScreen{--pilot-cut:12px}
+#pilotScreen .pilot-editor,#pilotScreen .pilot-preview,#pilotScreen #pilotHome,
+#pilotScreen.pilot-unit-bay #pilotHome{border-radius:0;clip-path:polygon(var(--pilot-cut) 0,100% 0,100% calc(100% - var(--pilot-cut)),calc(100% - var(--pilot-cut)) 100%,0 100%,0 var(--pilot-cut))}
+#pilotScreen .pilot-editor,#pilotScreen #pilotHome{border-top:2px solid var(--bay-accent,var(--pilot-accent));border-bottom:2px solid var(--bay-accent,var(--pilot-accent))}
+#pilotScreen .pilot-preview:after{border-radius:0;border-top:2px solid #bddfeb70;border-bottom:2px solid #bddfeb70;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+#pilotScreen .pilot-caption,#pilotScreen .pilot-field input,#pilotScreen .pilot-field textarea,
+#pilotScreen .pilot-shop-search input,#pilotScreen .pilot-shop-panel select{border-radius:0}
+#pilotScreen .pilot-option,#pilotScreen .pilot-home-tabs button,#pilotScreen .pilot-editor nav button{border-radius:0;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+#pilotScreen .pilot-option:focus-visible,#pilotScreen .pilot-home-tabs button:focus-visible,#pilotScreen .pilot-editor nav button:focus-visible{outline:0;box-shadow:inset 0 0 0 2px #fff}
+#pilotScreen .pilot-option.selected,#pilotScreen .pilot-home-tabs button[aria-pressed=true]{box-shadow:inset 3px 0 var(--bay-accent,var(--pilot-accent))}
+#pilotScreen .pilot-tile.selected:after{border-radius:0;clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)}
+#pilotScreen .pilot-tile,#pilotScreen .pilot-face,#pilotScreen .pilot-hangar-condition,#pilotScreen .pilot-trait-card{border-radius:0}
+#pilotScreen .pilot-hangar-condition,#pilotScreen .pilot-trait-card{clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px))}
+#pilotScreen #pilotEditPortrait{border-radius:0}
+#pilotScreen .pilot-editor nav button{min-height:40px;border-color:#7594a64d;background:#10212d}
+#pilotScreen .pilot-editor nav button.selected,#pilotScreen .pilot-editor nav button[aria-selected=true]{border-color:var(--pilot-accent);background:#1c3645}
+@media(max-height:500px) and (orientation:landscape){#pilotScreen{--pilot-cut:8px}#pilotScreen .pilot-editor nav button{min-height:36px}}

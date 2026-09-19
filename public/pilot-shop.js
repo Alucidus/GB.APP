@@ -7,13 +7,23 @@ window.PilotShop=(()=>{
  function purchase(u,action,id,choices){try{const c=B.act(campaign(),u,action,id,choices);Pilot.setCampaign(c);if(action==='unit'){search='';filter='all';mode='hangar';Pilot.showHangar();}notice=c.history.at(-1).text;Pilot.notify(notice);render();overlay.querySelector(action==='trait'?'[data-trait="'+id+'"]':'.pilot-shop-detail')?.scrollIntoView({block:'nearest'});}catch(e){notice=e.message;render();}}
  function mount(host,page='shop'){if(mode!==page){search='';filter='all';confirmAction=null;}mode=page;overlay=host;embedded=true;render();}
  function open(){if(!profile()){Pilot.notify('Save your pilot first');return;}close();embedded=false;opener=document.activeElement;overlay=el('div',null,'pilot-shop-overlay');document.body.append(overlay);render();overlay.querySelector('button').focus();overlay.onkeydown=e=>{if(e.key==='Escape')close();if(e.key==='Tab'){const f=[...overlay.querySelectorAll('button:not(:disabled),input,select')];if(e.shiftKey&&document.activeElement===f[0]){e.preventDefault();f.at(-1).focus();}else if(!e.shiftKey&&document.activeElement===f.at(-1)){e.preventDefault();f[0].focus();}}};}
+ function renderBay(u,c){
+  const bay=document.getElementById('pilotUnitBay');if(!bay||!embedded)return;
+  const art=u&&UNIT_ART[u.id],build=u&&c.units[u.id],stamp=[u?.id||'',!!build,!!build?.destroyed,build?.traits.length||0,mode].join('|');
+  if(bay.dataset.stamp===stamp)return;bay.dataset.stamp=stamp;bay.replaceChildren();bay.dataset.unit=u?.id||'';bay.classList.toggle('is-destroyed',!!build?.destroyed);
+  const label=el('div',null,'pilot-bay-label');label.append(el('small',mode==='hangar'?'PERSONAL MOBILE SUIT BAY':'MOBILE SUIT PREVIEW'),el('h2',u?(u.short||u.name):'Choose a mobile suit'),el('p',u?(build?(build.destroyed?'Awaiting restoration':'Ready · '+build.traits.length+' installed traits'):B.price(u)+' GP · '+u.tier):'Select a unit on the left to view it in the hangar.'));bay.append(label);
+  if(!art){bay.append(el('div','BAY AVAILABLE','pilot-bay-empty'));return;}
+  const stand=el('div',null,'pilot-bay-stand'),canvas=el('canvas');canvas.setAttribute('role','img');canvas.setAttribute('aria-label',u.name);stand.append(canvas);bay.append(stand);
+  if(build?.destroyed)bay.classList.add('is-destroyed');else bay.classList.remove('is-destroyed');
+  const image=new Image();image.onload=()=>{const [x,y,w,h]=art.crop;canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(image,x,y,w,h,0,0,w,h);canvas.dataset.loaded='true';};image.src=art.src;
+ }
  function render(){
   if(!overlay)return;overlay.replaceChildren();const c=campaign(),r=B.rank(c),panel=el('section',null,'pilot-shop-panel');if(!embedded){panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');}panel.setAttribute('aria-label','Pilot collection and trait shop');
-  const head=el('header'),title=el('div');title.append(el('h2','Collection & traits'),el('p',r[0]+' · '+B.balance(c)+' GP available · '+c.earned+' lifetime GP'));head.append(title);if(!embedded)head.append(button('Close',close));panel.append(head);
-  const content=el('div',null,'pilot-shop-content'),toolbar=el('div',null,'pilot-shop-toolbar'),intro=el('details');intro.append(el('summary','About this prototype'),el('p','Purchases are saved. Assigned builds show their rules; combat values are not modified yet.','pilot-shop-note'));toolbar.append(intro);content.append(toolbar);
+  const head=el('header'),title=el('div');title.append(el('h2',mode==='hangar'?'Your collection':'Find your next unit'),el('p',r[0]+' · '+B.balance(c)+' GP available · '+c.earned+' lifetime GP'));head.append(title);if(!embedded)head.append(button('Close',close));panel.append(head);
+  const content=el('div',null,'pilot-shop-content'),toolbar=el('div',null,'pilot-shop-toolbar'),intro=el('details');intro.append(el('summary','About this prototype'),el('p','Purchases are saved. Assigned builds show their rules; combat values are not modified yet.','pilot-shop-note'));toolbar.append(intro);
   const tools=el('details'),summary=el('summary','Prototype GP entry');tools.append(summary,el('p','Add GP manually to test progression. This raises lifetime GP and cannot be undone here; export a backup before testing.'));
   const amount=el('input');amount.type='number';amount.min=1;amount.max=1000000;amount.step=1;amount.value=30;amount.id='pilotAwardAmount';amount.setAttribute('aria-label','GP to add');tools.append(amount,button('Add GP',()=>purchase(null,'award',Number(amount.value))));toolbar.append(tools);
-  const status=el('p',notice||'Select a unit card, then review its purchase or traits.','pilot-shop-status');status.setAttribute('role','status');content.append(status);
+  const status=el('p',notice||(mode==='hangar'?'Select an owned unit to repair or upgrade.':'Select a unit to preview it and review its price.'),'pilot-shop-status');status.setAttribute('role','status');content.append(status);
   const layout=el('div',null,'pilot-shop-layout'),catalogue=el('div'),tabs=el('div',null,'pilot-shop-filters');
   for(const [id,label] of [['all',mode==='hangar'?'Owned units':'All units'],['federation','Federation'],['spacenoid','Spacenoids']]){const b=button(label,()=>{filter=id;render();});b.setAttribute('aria-pressed',String(filter===id));tabs.append(b);}catalogue.append(tabs);
   const searchBox=el('div',null,'pilot-shop-search'),input=el('input');input.type='search';input.placeholder='Search name, class or DP';input.value=search;input.id='pilotUnitSearch';input.setAttribute('aria-label','Search units');input.oninput=()=>{const pos=input.selectionStart;search=input.value;render();const next=document.getElementById('pilotUnitSearch');next.focus();try{next.setSelectionRange(pos,pos);}catch{}};searchBox.append(input,button('Clear',()=>{search='';render();document.getElementById('pilotUnitSearch').focus();},!search));catalogue.append(searchBox);
@@ -22,7 +32,7 @@ window.PilotShop=(()=>{
   const list=el('div',null,'pilot-shop-list');for(const tier of [...new Set(units.map(u=>u.tier))]){const group=units.filter(u=>u.tier===tier),heading=el('div',tier,'tierhdr');heading.append(el('span',String(group.length)));list.append(heading);
    for(const u of group){const b=button('',()=>{selected=u.id;confirmAction=null;render();overlay.querySelector('.pilot-shop-detail')?.scrollIntoView({block:'nearest'});});b.className='row pilot-shop-unit';b.dataset.shopUnit=u.id;b.setAttribute('aria-pressed',String(selected===u.id));const img=el('span');img.innerHTML=portraitHTML(u,null);b.append(img,el('b',u.short||u.name),el('small',c.units[u.id]?(c.units[u.id].destroyed?'Destroyed':'Ready')+' · '+c.units[u.id].traits.length+' traits':B.price(u)+' GP · '+u.dp+' DP'));list.append(b);}
   }if(!units.length)list.append(el('p','No units match. Clear the search or choose All units.'));catalogue.append(list);layout.append(catalogue);
-  const detail=el('div',null,'pilot-shop-detail'),u=mode==='hangar'&&!c.units[selected]?null:unitById(selected);if(!u)detail.append(el('h3','Choose your unit'),el('p','Purchases belong to this pilot’s build for the selected unit type. Stock copies remain unchanged.'));
+  const detail=el('div',null,'pilot-shop-detail'),u=mode==='hangar'&&!c.units[selected]?null:unitById(selected);renderBay(u,c);if(!u)detail.append(el('h3','Choose your unit'),el('p','Purchases belong to this pilot’s build for the selected unit type. Stock copies remain unchanged.'));
   else{
    detail.append(el('h3',u.name),el('p','Deploys for '+u.dp+' DP each battle. Only the copy carrying your pilot uses this build.'));
    const build=c.units[u.id];if(!build){detail.append(el('p','Permanent unlock · '+B.price(u)+' GP'),button('Purchase unit · '+B.price(u)+' GP',()=>purchase(u,'unit'),B.balance(c)<B.price(u)));if(B.balance(c)<B.price(u))detail.append(el('p','Not enough GP.'));}
@@ -51,7 +61,7 @@ window.PilotShop=(()=>{
     }
    }
   }
-  layout.append(detail);content.append(layout);const history=el('details');history.append(el('summary','Purchase & GP history'));for(const h of [...c.history].reverse())history.append(el('p',new Date(h.at).toLocaleDateString()+' · '+h.text));content.append(history);panel.append(content);overlay.append(panel);
+  layout.append(detail);content.append(layout);const history=el('details');history.append(el('summary','Purchase & GP history'));for(const h of [...c.history].reverse())history.append(el('p',new Date(h.at).toLocaleDateString()+' · '+h.text));content.append(history,toolbar);panel.append(content);overlay.append(panel);
  }
  return {open,mount};
 })();

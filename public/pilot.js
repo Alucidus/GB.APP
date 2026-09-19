@@ -24,7 +24,9 @@ window.Pilot = (() => {
   function updateCaption(){$('pilotName').textContent=draft.name.trim()||'Your pilot';$('pilotCallsign').textContent=draft.callsign.trim()||'PILOT REGISTRATION';}
   function render(){
     updateCaption();$('pilotScreen').dataset.faction=draft.faction;
-    const home=!!saved&&!editing;$('pilotScreen').classList.toggle('pilot-home',home);$('pilotSave').hidden=home;$('pilotHome').hidden=!home;$('pilotEditPortrait').hidden=!home;
+    const home=!!saved&&!editing,unitBay=home&&(homeTab==='shop'||homeTab==='hangar');$('pilotScreen').classList.toggle('pilot-home',home);$('pilotScreen').classList.toggle('pilot-unit-bay',unitBay);
+    let bay=$('pilotUnitBay');if(!bay){bay=document.createElement('section');bay.id='pilotUnitBay';bay.setAttribute('aria-label','Selected mobile suit');document.querySelector('#pilotScreen .pilot-layout').append(bay);}bay.hidden=!unitBay;
+    document.querySelector('.pilot-header h1').textContent=unitBay?(homeTab==='hangar'?'YOUR HANGAR':'UNIT SHOP'):'PILOT STUDIO';$('pilotSave').hidden=home;$('pilotHome').hidden=!home;$('pilotEditPortrait').hidden=!home;
     $('pilotBack').textContent=editing&&saved?'← Pilot home':'← Menu';
     if(home){renderHome();status('Pilot saved on this device');paint();return;}
 

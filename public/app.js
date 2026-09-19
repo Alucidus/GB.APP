@@ -5657,6 +5657,12 @@ const LIMB_POS_RED = {
   rightLeg: { x: 48.72, y: 69.84 }, leftLeg:  { x: 70.19, y: 69.84 },
 };
 const limbPos = bg => (bg === "red" || bg === "red360") ? LIMB_POS_RED : LIMB_POS_DEFAULT;
+// Oversized suits keep their full body height; their binders may extend behind the UI.
+const LARGE_UNIT_HEAD = {
+  'kshatriya-nz-666': { x: 56.3, y: 27.5 },
+  'nightingale-msn-04ii': { x: 58, y: 17.31 }
+};
+const sheetLimbPositions = u => LARGE_UNIT_HEAD[u?.id] ? { ...LIMB_POS_DEFAULT, head: LARGE_UNIT_HEAD[u.id] } : LIMB_POS_DEFAULT;
 const LIMB_ORDER = ["head", "chest", "rightArm", "leftArm", "rightLeg", "leftLeg"];
 const LIMB_LABEL = { head: "Head", chest: "Chest", rightArm: "Right Arm", leftArm: "Left Arm", rightLeg: "Right Leg", leftLeg: "Left Leg", hull: "Hull", hp: "HP" };
 const SKILL_Y = [19.7, 25.9, 32.1, 38.3, 44.5];
@@ -5776,9 +5782,10 @@ function buildFrame() {
   add("fdock l"); add("fdock r");                                        // plates the bottom buttons sit on
   // blueprint model behind everything else
   const art = UNIT_ART[U.id];
-  const mh = (art ? 67 : 76) * 0.5625;
-  const artWidth = art ? Math.min(33, art.crop[2] / art.crop[3] * mh) : MECH_ASPECT[model] * mh;
-  const mw = add("fmech" + (art ? " unit-art" : ""), { width: artWidth + "cqw" });
+  const artLayout = U.id === 'nightingale-msn-04ii' ? { height: 100, top: -15 } : { height: 67, top: 17 };
+  const mh = (art ? artLayout.height : 76) * 0.5625;
+  const artWidth = art ? (LARGE_UNIT_HEAD[U.id] ? art.crop[2] / art.crop[3] * mh : Math.min(33, art.crop[2] / art.crop[3] * mh)) : MECH_ASPECT[model] * mh;
+  const mw = add("fmech" + (art ? " unit-art" : ""), { width: artWidth + "cqw", ...(art ? { height: pc(artLayout.height), top: pc(artLayout.top) } : {}) });
   const mi = document.createElement("canvas"); mi.className = "fmech-in " + model; mw.appendChild(mi);
   if (art) {
     const image = new Image();
@@ -5822,7 +5829,7 @@ function buildFrame() {
     add("fhex", { left: "80.5%", top: pc(y) }); add("fstat", { left: "85.9%", top: pc(y) }, t);
   });
   // limb reticles and labels
-  const L = LIMB_POS_DEFAULT;
+  const L = sheetLimbPositions(U);
   Object.keys(L).forEach(k => add("fret", { left: pc(L[k].x), top: pc(L[k].y) }));
   const lab = (t, x, y) => add("flbl flimb", { left: pc(x), top: pc(y) }, t);
   const hpl = (x, y) => add("flbl fhp", { left: pc(x), top: pc(y) }, "HP");
@@ -7230,7 +7237,7 @@ function drawSheetContents() {
     const v = hp[k], mx = U.limb[k], p = v / mx, id = "l_" + k, sh = active === id;
     const ring = v === 0 ? "#991b1b" : p <= .34 ? "#ef4444" : p <= .67 ? "#f59e0b" : "#22c55e";
 
-    const pos = LIMB_POS_DEFAULT[k];
+    const pos = sheetLimbPositions(U)[k];
     const b = el("div", "hp", { left: pos.x + "%", top: pos.y + "%", borderColor: ring,
       background: v === 0 ? "rgba(153,27,27,.95)" : "rgba(255,255,255,.97)",
       color: v === 0 ? "#fff" : "#0f172a",
@@ -7854,7 +7861,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(()=>{renderAmounts();fitSheet();}));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf155";
+const APP_BUILD = "cf158";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 
