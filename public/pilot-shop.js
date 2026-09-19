@@ -1,5 +1,5 @@
 window.PilotShop=(()=>{
- let overlay,selected=null,filter='all',category='Offensive / Defensive',notice='',opener,embedded=false,search='',mode='shop',confirmAction=null;
+ let overlay,selected=null,filter='all',category='Offensive / Defensive',notice='',opener,embedded=false,search='',mode='shop',confirmAction=null,bayObserver;
  const B=GBPilotBuild,el=(tag,text,cls)=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;};
  const profile=()=>Pilot.read(),campaign=()=>profile()?.campaign||B.fresh();
  function button(text,fn,disabled=false){const b=el('button',text,'btn');b.type='button';b.disabled=disabled;b.onclick=fn;return b;}
@@ -10,16 +10,30 @@ window.PilotShop=(()=>{
  function renderBay(u,c){
   const bay=document.getElementById('pilotUnitBay');if(!bay||!embedded)return;
   const art=u&&UNIT_ART[u.id],build=u&&c.units[u.id],stamp=[u?.id||'',!!build,!!build?.destroyed,build?.traits.length||0,mode].join('|');
-  if(bay.dataset.stamp===stamp)return;bay.dataset.stamp=stamp;bay.replaceChildren();bay.dataset.unit=u?.id||'';bay.classList.toggle('is-destroyed',!!build?.destroyed);
+  if(bay.dataset.stamp===stamp)return;bayObserver?.disconnect();bay.dataset.stamp=stamp;bay.replaceChildren();bay.dataset.unit=u?.id||'';bay.classList.toggle('is-destroyed',!!build?.destroyed);
   const label=el('div',null,'pilot-bay-label');label.append(el('small',mode==='hangar'?'PERSONAL MOBILE SUIT BAY':'MOBILE SUIT PREVIEW'),el('h2',u?(u.short||u.name):'Choose a mobile suit'),el('p',u?(build?(build.destroyed?'Awaiting restoration':'Ready · '+build.traits.length+' installed traits'):B.price(u)+' GP · '+u.tier):'Select a unit on the left to view it in the hangar.'));bay.append(label);
   if(!art){bay.append(el('div','BAY AVAILABLE','pilot-bay-empty'));return;}
   const stand=el('div',null,'pilot-bay-stand'),canvas=el('canvas');canvas.setAttribute('role','img');canvas.setAttribute('aria-label',u.name);stand.append(canvas);bay.append(stand);
   // Enlarge the catalogue together, preserving relative head-to-foot heights.
-  // Nightingale keeps its approved size; wide equipment may extend behind the UI.
-  const framingScale=u.id==='nightingale-msn-04ii'?1:1.2;
-  const size=art.bay||{heightM:18,headY:0,footY:1},ratio=size.heightM/28/(size.footY-size.headY)*framingScale;
-  canvas.style.height=(ratio*100)+'%';canvas.style.bottom=((size.footY-1)*ratio*100)+'%';
+  // Nightingale keeps its approved size; Kshatriya has a smaller display framing.
+  const size=art.bay||{heightM:18,headY:0,footY:1},framingScale=size.displayScale??1.2;
+  const ratio=size.heightM/28/(size.footY-size.headY)*framingScale;
+  canvas.style.height=(ratio*100)+'%';
   canvas.style.aspectRatio=art.crop[2]+' / '+art.crop[3];
+  const hangar=document.querySelector('#pilotScreen .pilot-hangar');
+  const place=()=>{
+   if(!canvas.isConnected||!stand.clientHeight||!hangar.clientHeight)return;
+   // The three faction backgrounds share this floor box. Map its centre through
+   // background-cover and the CSS zoom, then place the midpoint of the two soles.
+   const bg=hangar.getBoundingClientRect(),s=stand.getBoundingClientRect(),w=hangar.clientWidth,h=hangar.clientHeight;
+   const cover=Math.max(w/1672,h/941),zoom=bg.width/w,pos=getComputedStyle(hangar).backgroundPosition.split(' ').map(v=>parseFloat(v)/100);
+   const x=bg.left+((w-1672*cover)*pos[0]+1180*cover)*zoom;
+   const y=bg.top+((h-941*cover)*pos[1]+727*cover)*zoom;
+   const soles=size.soles||[[.3,size.footY],[.7,size.footY]],ax=(soles[0][0]+soles[1][0])/2,ay=(soles[0][1]+soles[1][1])/2;
+   const ch=stand.clientHeight*ratio,cw=ch*art.crop[2]/art.crop[3];
+   canvas.style.left=(x-s.left-cw*ax)+'px';canvas.style.top=(y-s.top-ch*ay)+'px';
+  };
+  bayObserver=new ResizeObserver(place);bayObserver.observe(stand);bayObserver.observe(hangar);place();
   if(build?.destroyed)bay.classList.add('is-destroyed');else bay.classList.remove('is-destroyed');
   const image=new Image();image.onload=()=>{const [x,y,w,h]=art.crop;canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(image,x,y,w,h,0,0,w,h);canvas.dataset.loaded='true';};image.src=art.src;
  }
@@ -27,8 +41,7 @@ window.PilotShop=(()=>{
   if(!overlay)return;overlay.replaceChildren();const c=campaign(),r=B.rank(c),panel=el('section',null,'pilot-shop-panel');if(!embedded){panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');}panel.setAttribute('aria-label','Pilot collection and trait shop');
   const head=el('header'),title=el('div');title.append(el('h2',mode==='hangar'?'Your collection':'Find your next unit'),el('p',r[0]+' · '+B.balance(c)+' GP available · '+c.earned+' lifetime GP'));head.append(title);if(!embedded)head.append(button('Close',close));panel.append(head);
   const content=el('div',null,'pilot-shop-content'),toolbar=el('div',null,'pilot-shop-toolbar'),intro=el('details');intro.append(el('summary','About this prototype'),el('p','Purchases are saved. Assigned builds show their rules; combat values are not modified yet.','pilot-shop-note'));toolbar.append(intro);
-  const tools=el('details'),summary=el('summary','Prototype GP entry');tools.append(summary,el('p','Add GP manually to test progression. This raises lifetime GP and cannot be undone here; export a backup before testing.'));
-  const amount=el('input');amount.type='number';amount.min=1;amount.max=1000000;amount.step=1;amount.value=30;amount.id='pilotAwardAmount';amount.setAttribute('aria-label','GP to add');tools.append(amount,button('Add GP',()=>purchase(null,'award',Number(amount.value))));toolbar.append(tools);
+  head.append(PilotGP.button());
   const status=el('p',notice||(mode==='hangar'?'Select an owned unit to repair or upgrade.':'Select a unit to preview it and review its price.'),'pilot-shop-status');status.setAttribute('role','status');content.append(status);
   const layout=el('div',null,'pilot-shop-layout'),catalogue=el('div'),tabs=el('div',null,'pilot-shop-filters');
   for(const [id,label] of [['all',mode==='hangar'?'Owned units':'All units'],['federation','Federation'],['spacenoid','Spacenoids']]){const b=button(label,()=>{filter=id;render();});b.setAttribute('aria-pressed',String(filter===id));tabs.append(b);}catalogue.append(tabs);
@@ -55,7 +68,7 @@ window.PilotShop=(()=>{
     const groups={'Offensive / Defensive':['Offensive','Defensive'],'Mobility / Crowd Control':['Mobility','Crowd Control'],'Anti-CC':['Anti-CC'],'Recon / Stealth':['Recon','Stealth']};
     const pages=el('nav',null,'pilot-trait-pages');pages.setAttribute('aria-label','Trait pages');for(const name of Object.keys(groups)){const b=button(name,()=>{category=name;render();overlay.querySelector('.pilot-trait-pages')?.scrollIntoView({block:'nearest'});});b.setAttribute('aria-pressed',String(category===name));pages.append(b);}detail.append(pages);
     let lastCategory='';for(const t of B.traits.filter(t=>groups[category].includes(t.category))){if(t.category!==lastCategory){lastCategory=t.category;detail.append(el('h3',t.category,'pilot-trait-heading'));}
-     const owned=build.traits.find(x=>x.id===t.id),tier=(owned?.tier||0)+1,card=el('article',null,'pilot-trait-card');card.dataset.trait=t.id;card.append(el('h4',t.name+(owned?' · T'+owned.tier:'')),el('small',t.category));if(owned)card.append(el('p','Owned: '+t.tiers[owned.tier-1]));
+     const owned=build.traits.find(x=>x.id===t.id),tier=(owned?.tier||0)+1,card=el('article',null,'pilot-trait-card');card.dataset.trait=t.id;card.classList.toggle('is-owned',!!owned);const heading=el('div',null,'pilot-trait-title'),labels=el('div');labels.append(el('small',t.category),el('h4',t.name),el('small',owned?'INSTALLED · TIER '+owned.tier:'AVAILABLE UPGRADE'));heading.append(PilotEmblems.make(t.id,owned?.tier||0),labels);card.append(heading);if(owned)card.append(el('p','Owned: '+t.tiers[owned.tier-1]));
      if(tier<=4){card.append(el('p','Tier '+tier+': '+t.tiers[tier-1]));const picks=[];
       if(t.id==='weapon-mastery'&&tier===1||t.id==='quick-hands'){
        const entries=t.id==='weapon-mastery'?u.weapons.map((w,i)=>[i,w.name]):(u.abilities||[]).map((a,i)=>[i,a.name]).filter(([i])=>B.cooldown(u.abilities[i]));

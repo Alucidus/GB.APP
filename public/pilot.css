@@ -240,9 +240,7 @@ html.fx-lite #pilotScreen .m3-l{animation:none!important}
 .pilot-bay-label h2{font-size:clamp(22px,2.3vw,36px);margin:7px 0}
 .pilot-bay-label p{margin:0;font-size:13px}
 .pilot-bay-stand{position:absolute;inset:108px 4% 9%;display:flex;align-items:flex-end;justify-content:center;filter:drop-shadow(0 15px 9px #0009)}
-.pilot-bay-stand canvas{display:block;position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:auto;max-width:none;max-height:none;object-fit:fill}
-/* Centre Nightingale's body and feet, allowing its long rifle to extend left. */
-#pilotUnitBay[data-unit="nightingale-msn-04ii"] .pilot-bay-stand canvas{transform:translateX(-60%)}
+.pilot-bay-stand canvas{display:block;position:absolute;left:0;top:0;width:auto;max-width:none;max-height:none;object-fit:fill}
 #pilotUnitBay.is-destroyed .pilot-bay-stand{filter:grayscale(.85) brightness(.65) drop-shadow(0 15px 9px #0009)}
 .pilot-bay-empty{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);border:1px solid #ffffff50;border-radius:50%;width:180px;height:180px;display:grid;place-items:center;font-size:12px;letter-spacing:.2em;color:#ffffffb0;background:#07101b33}
 @media(max-height:500px) and (orientation:landscape){
@@ -316,10 +314,6 @@ html.fx-lite #pilotScreen .m3-l{animation:none!important}
 #pilotScreen .pilot-shop-toolbar,#pilotScreen .pilot-shop-detail{border-color:var(--pilot-edge)}
 #pilotScreen .pilot-shop-panel header{background:var(--pilot-raised)}
 #pilotScreen .pilot-shop-panel .btn,#pilotScreen .pilot-record .btn,#pilotScreen .pilot-header .btn{--acc:var(--pilot-accent);--glow:transparent;color:#fff;border-color:var(--pilot-accent)}
-#pilotScreen.pilot-home:not(.pilot-unit-bay) .pilot-hangar{background-image:url(img/hangars/federation.png)}
-#pilotScreen.pilot-home:not(.pilot-unit-bay)[data-faction=spacenoid] .pilot-hangar{background-image:url(img/hangars/spacenoid.png)}
-#pilotScreen.pilot-home:not(.pilot-unit-bay)[data-faction=neutral] .pilot-hangar{background-image:url(img/hangars/neutral.png)}
-#pilotScreen.pilot-home #pilotBattle,#pilotScreen.pilot-home .pilot-flyby{display:none}
 /* Record hierarchy: portrait, current rank and progress, then spending and unit access. */
 #pilotHome .pilot-record{padding:22px;scrollbar-color:var(--pilot-edge) var(--pilot-panel)}
 .pilot-record-hero{display:flex;align-items:center;gap:20px;padding-bottom:18px;border-bottom:1px solid var(--pilot-edge)}
@@ -364,3 +358,36 @@ html.fx-lite #pilotScreen .m3-l{animation:none!important}
  #pilotScreen.pilot-unit-bay .pilot-hangar{height:calc(98px + (100dvh - 88px)*.36);bottom:auto}
 }
 #pilotScreen .pilot-option:hover{background:var(--pilot-selected);border-color:var(--pilot-accent)}
+/* The sheet shares the studio's window and live space scenes. */
+#pilotScreen.pilot-home.pilot-sheet-scene .pilot-layout{grid-template-columns:minmax(0,46%) minmax(0,1fr);gap:20px}
+#pilotScreen.pilot-home.pilot-sheet-scene .pilot-preview{align-self:stretch;justify-content:flex-end;background:none;border:0;box-shadow:none}
+#pilotScreen.pilot-home.pilot-sheet-scene #pilotCanvas{width:100%;height:calc(100% - 84px);max-height:none;padding-top:0;object-fit:contain;object-position:center bottom}
+#pilotScreen.pilot-home.pilot-sheet-scene .pilot-caption{background:linear-gradient(90deg,var(--pilot-panel),transparent);border-left:3px solid var(--pilot-accent);padding:12px 16px;text-align:left}
+#pilotScreen.pilot-home.pilot-sheet-scene #pilotEditPortrait{justify-content:flex-end;align-items:flex-end;padding:10px}
+#pilotScreen.pilot-home.pilot-sheet-scene #pilotHome{background:color-mix(in srgb,var(--pilot-panel) 88%,transparent)}
+.pilot-record-rank progress{height:18px;border:1px solid var(--pilot-edge);padding:3px;box-sizing:border-box}
+.pilot-record-rank progress::-webkit-progress-value{background:linear-gradient(90deg,color-mix(in srgb,var(--pilot-accent) 60%,#111),var(--pilot-accent));box-shadow:0 0 10px var(--pilot-accent)}
+.pilot-record-rank progress::-moz-progress-bar{background:var(--pilot-accent)}
+.pilot-rank-progress-label{display:block;margin-top:14px;color:#e4e7ea;letter-spacing:.1em;font-size:11px}
+.pilot-record-rank progress+p{color:#fff;font-weight:700;font-size:14px}
+.pilot-gp-actions{display:flex;align-items:center;gap:12px;margin:12px 0 18px}.pilot-gp-actions small{font-size:12px;line-height:1.5;color:#cdd0d4}
+.pilot-manage-gp{flex:none!important;min-height:44px;white-space:nowrap}
+.pilot-shop-panel>header{flex-wrap:wrap;gap:10px}
+.pilot-trait-title{display:flex;gap:14px;align-items:center;margin-bottom:12px}.pilot-trait-title>div{min-width:0}.pilot-trait-title h4{margin:5px 0;font-size:17px;line-height:1.2}.pilot-trait-title small{font-size:10px;letter-spacing:.06em}
+.pilot-trait-emblem{width:76px;height:86px;box-sizing:border-box;flex:none;display:grid;align-content:center;padding:7px;color:var(--pilot-accent,#91cdeb);background:linear-gradient(140deg,color-mix(in srgb,var(--pilot-accent,#91cdeb) 16%,#08111a),#08111a);border:1px solid var(--pilot-edge,#567889);clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)}
+.pilot-trait-emblem svg{width:60px;height:60px;filter:drop-shadow(0 0 6px color-mix(in srgb,var(--pilot-accent,#91cdeb) 30%,transparent))}
+.pilot-emblem-tiers{display:flex;gap:3px;margin:3px 5px 0}.pilot-emblem-tiers i{height:3px;flex:1;background:#58616d}.pilot-emblem-tiers i.filled{background:var(--pilot-accent,#91cdeb)}
+#pilotScreen .pilot-trait-card.is-owned{border-left:3px solid var(--pilot-accent)}
+#pilotGPDialog{--pilot-accent:#86cfff;--pilot-panel:#0b1925;--acc:var(--pilot-accent);background:var(--pilot-panel);color:#f5f6f8;border:1px solid var(--pilot-accent);width:min(460px,calc(100vw - 36px));max-height:calc(100dvh - 36px);padding:24px;box-sizing:border-box;overflow:auto;box-shadow:0 16px 80px #000c}
+#pilotGPDialog[data-faction=spacenoid]{--pilot-accent:#ff8b88;--pilot-panel:#211215}#pilotGPDialog[data-faction=neutral]{--pilot-accent:#e0e0e0;--pilot-panel:#191919}
+#pilotGPDialog::backdrop{background:#03080ddd;backdrop-filter:blur(5px)}#pilotGPDialog h2{margin:0 0 10px}#pilotGPDialog p{font-size:13px;line-height:1.5}#pilotGPDialog label{display:block;margin-top:20px;font-size:14px;font-weight:700}#pilotGPDialog input{display:block;margin:8px 0;width:100%;min-height:46px;font-size:20px;background:#ffffff09;color:white;border:1px solid var(--pilot-accent);padding:8px 12px;box-sizing:border-box}#pilotGPDialog small{display:block;font-size:12px;color:#ccc;line-height:1.5}#pilotGPDialog footer{display:flex;justify-content:flex-end;gap:12px;margin-top:20px}#pilotGPPreview{color:var(--pilot-accent);padding:10px 0;border-block:1px solid #ffffff30}#pilotGPError{color:#ffaaaa}
+@media(orientation:portrait){
+ #pilotScreen.pilot-home.pilot-sheet-scene .pilot-layout{grid-template-columns:1fr;grid-template-rows:clamp(190px,29dvh,280px) minmax(0,1fr);gap:8px}
+ #pilotScreen.pilot-home.pilot-sheet-scene .pilot-preview{flex-direction:row;justify-content:flex-start;align-items:flex-end}
+ #pilotScreen.pilot-home.pilot-sheet-scene #pilotCanvas{width:52%;height:100%;max-height:none;order:0;object-position:center bottom}
+ #pilotScreen.pilot-home.pilot-sheet-scene .pilot-caption{width:48%;flex:none;padding:10px;margin-bottom:24px;box-sizing:border-box}
+ #pilotScreen.pilot-home.pilot-sheet-scene .pilot-caption h2{font-size:20px;max-width:100%;margin:5px 0}
+ #pilotScreen.pilot-home.pilot-sheet-scene #pilotHome{grid-column:1;grid-row:2}
+ .pilot-gp-actions{align-items:flex-start;flex-wrap:wrap}.pilot-trait-title{gap:10px}.pilot-trait-emblem{width:66px;height:76px;padding:6px}.pilot-trait-emblem svg{width:52px;height:52px}
+}
+@media(max-height:500px) and (orientation:landscape){#pilotScreen.pilot-home.pilot-sheet-scene .pilot-layout{grid-template-columns:36% minmax(0,1fr)}#pilotScreen.pilot-home.pilot-sheet-scene #pilotCanvas{height:calc(100% - 58px)}#pilotScreen.pilot-home.pilot-sheet-scene .pilot-caption{padding:5px 10px}}

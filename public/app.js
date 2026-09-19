@@ -3341,6 +3341,7 @@ function save() {
   repairRefresh();
   qrStampTransportChanges();
   qrReconcileRoster();
+  window.PilotSocial?.recordLosses();
   try {
     stashTeam();                       // fold the live team back into teams[side]
     localStorage.setItem(SAVE, JSON.stringify({ side: side, teams: teams, battlefield:pickupField, objectives:objectiveField }));
@@ -4767,6 +4768,7 @@ function mpShowRequest(pid, q) {
 function mpApply() {
   const s = mpSettings(), me = mpMe();
   if (!me) return;
+  window.PilotSocial?.recordLosses();
   mpBudgetFlow();
   const t = me.team;
   // lobby <-> battle
@@ -5765,7 +5767,8 @@ function buildFrame() {
   $("sheet").classList.remove("shipsheet");
   const cov = ["blue360", "red360", "phenex"].indexOf(U.bg) >= 0 ? "360" : "180";
   const ring = !!U.ring, model = mechModel(U), rolled = isGruntTier(U);
-  const key = [sideKey(), cov, ring, model, U.id, rolled, U.portrait || "", (CUR && CUR.mark) || ""].join("|");
+  const art=unitSheetArt(U,CUR?.st);
+  const key = [sideKey(), cov, ring, model, U.id, rolled, U.portrait || "", (CUR && CUR.mark) || "",art?.src||''].join("|");
   const F = $("frame");
   $("sheet").dataset.side = sideKey();
   if (key === frameKey && F.childElementCount) return;
@@ -5781,7 +5784,6 @@ function buildFrame() {
   add("fstripe", { left: "27%", bottom: "1.6cqw" }); add("fstripe", { right: "2.9cqw", top: "1cqw" });
   add("fdock l"); add("fdock r");                                        // plates the bottom buttons sit on
   // blueprint model behind everything else
-  const art = UNIT_ART[U.id];
   const artLayout = U.id === 'nightingale-msn-04ii' ? { height: 100, top: -15 } : { height: 67, top: 17 };
   const mh = (art ? artLayout.height : 76) * 0.5625;
   const artWidth = art ? (LARGE_UNIT_HEAD[U.id] ? art.crop[2] / art.crop[3] * mh : Math.min(33, art.crop[2] / art.crop[3] * mh)) : MECH_ASPECT[model] * mh;
@@ -5796,7 +5798,7 @@ function buildFrame() {
       mi.getContext("2d").drawImage(image, x, y, w, h, 0, 0, w, h);
       mi.dataset.loaded = "true";
     };
-    image.src = art.src;
+    mi.dataset.art=art.src;image.src = art.src;
   } else paintMech(mi, model, sideKey());
   // section titles
   add("fsec", { left: "22.6%", top: "4.3%" }, "<i></i>ABILITIES<i></i>");
@@ -6362,6 +6364,7 @@ function drawSheetContents() {
   MSE.init(U, eqLive());
   eqSummary();
   persist();
+  buildFrame();
   trackChanges();
   const LIVE = { sh: sh, shDown: shDown };   // this unit's shields, safe from the local names below
   const shMx = j => (Array.isArray(shMax) && shMax[j]) || ((U.shields || [])[j] || {}).hp || 0;
@@ -6592,7 +6595,11 @@ function drawSheetContents() {
       };
       ae.title = ap >= cost ? "Tap to use \u2014 spends " + cost + " AP" : "Not enough AP";
     }
-    if (a.kind === "none") shrinkToFit(T(COL.skillCD, SKILL_Y[i], a.cdText || "\u2014", [5, a.cdText ? 1.55 : 1.9, 26], "", 12), 0.7);
+    if(U.id==='unicorn-gundam-03-phenex-rx-0-n'&&a.name==='Permanent NT-D'){
+      const on=CUR.st.cosmeticNTD!==false,b=el('button','grp ntd-cosmetic',{left:COL.skillCD+'%',top:SKILL_Y[i]+'%',fontSize:'clamp(5px,1.45cqw,21px)',padding:'.3cqw .65cqw',border:'1px solid #7dd3fc',background:'#092638',color:'#dff6ff'});
+      b.type='button';b.textContent=on?'NTD ON · ↔':'NTD OFF · ↔';b.setAttribute('aria-pressed',String(on));b.setAttribute('aria-label',on?'Untransform Phenex (appearance only)':'Transform Phenex (appearance only)');b.title='Appearance only · permanent NT-D stats stay active. No AP, charges or cooldown.';
+      b.onclick=()=>{if(!mpSheetCanEdit())return;CUR.st.cosmeticNTD=!on;draw();};sheet.appendChild(b);
+    }else if (a.kind === "none") shrinkToFit(T(COL.skillCD, SKILL_Y[i], a.cdText || "\u2014", [5, a.cdText ? 1.55 : 1.9, 26], "", 12), 0.7);
   });
 
   U.weapons.forEach((w, wi) => {
@@ -7861,7 +7868,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(()=>{renderAmounts();fitSheet();}));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf160";
+const APP_BUILD = "cf162";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

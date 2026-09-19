@@ -15,6 +15,7 @@
 // leader while nobody else holds it) · lock (claim if free or stale) · inbox (any teammate, once; cleared by holder).
 
 import '../public/pilot-build.js';
+import '../public/pilot-service.js';
 import {protectSupply,serviceSupplies,spendSupply} from './resupply.js';
 import {protectRepairs,serviceRepairs} from './repairs.js';
 import {protectPickup,servicePickups} from './pickups.js';
@@ -279,6 +280,14 @@ export class BattleRoom {
     return R(200, { ok: true, code: meta.code, pid: me.pid, token: me.token, host: false, expires: meta.expires }, { push: true });
   }
 
+  async pilotService(){
+    const M=this.mem,settings=M.get('settings');if(settings?.phase!=='battle')return false;
+    const rows=['federation','spacenoid'].flatMap(team=>(M.get('team/'+team)?.roster||[]).map(r=>({...r,key:team+'/'+r.uid,st:M.get('unit/'+team+'/'+r.uid)?.st})));
+    const seats=M.keys('player/').map(k=>M.get(k)).filter(p=>p.pilot&&p.team&&p.pilotUnit).map(p=>({pilot:p.pilot,key:p.team+'/'+p.pilotUnit}));
+    const previous=M.get('pilot-service'),state=GBPilotService.observe(previous,settings.startedAt,rows,seats,id=>globalThis.GBRepairUnits?.find(u=>u.id===id));
+    if(JSON.stringify(previous)===JSON.stringify(state))return false;
+    await M.set('pilot-service',state);return true;
+  }
   async sync(body, R) {
     const T0 = Date.now();
     if (!this.live()) return R(410, { ok: false, error: "This session has ended or expired.", ended: true });
@@ -310,7 +319,7 @@ export class BattleRoom {
       if (Object.hasOwn(w.player,'pilot')) {
         const profile=w.player.pilot;
         if(profile===null){np.pilot=null;np.pilotUnit=null;}
-        else if(profile&&cleanName(profile.name)&&typeof profile.portrait==='string'&&profile.portrait.length<24000&&/^data:image\/webp;base64,[A-Za-z0-9+/=]+$/.test(profile.portrait)){if(profile.campaign!==undefined&&!GBPilotBuild.valid(profile.campaign))denied.push('pilot:Invalid pilot build.');else np.pilot={name:cleanName(profile.name),portrait:profile.portrait,...(profile.campaign?{campaign:profile.campaign}:{})};}
+        else if(profile&&cleanName(profile.name)&&typeof profile.portrait==='string'&&profile.portrait.length<24000&&/^data:image\/webp;base64,[A-Za-z0-9+/=]+$/.test(profile.portrait)){if(profile.campaign!==undefined&&!GBPilotBuild.valid(profile.campaign))denied.push('pilot:Invalid pilot build.');else np.pilot={...(GBPilotService.validId(profile.id)?{id:profile.id}:{}),name:cleanName(profile.name),portrait:profile.portrait,...(profile.campaign?{campaign:profile.campaign}:{})};}
         else denied.push('pilot:Invalid pilot portrait. Save your pilot again.');
       }
       if(np.team!==me.team)np.pilotUnit=null;
@@ -398,6 +407,7 @@ export class BattleRoom {
     for (const k of M.keys("lock/")) locks[k.slice(5)] = M.get(k);
     const alive = p => players[p] && now - (players[p].seen || 0) < LOCK_STALE_MS;
 
+    if(await this.pilotService())push=true;
     // 3. team state (leader)
     if (w.team && typeof w.team === "object") {
       if (!amLeader) denied.push("team-state");
@@ -430,6 +440,7 @@ export class BattleRoom {
         if(uid===null)np.pilotUnit=null;
         else if(!np.pilot||!validUid(uid)||!suit)denied.push('pilot:Choose a mobile suit on your team.');
         else if(np.pilot.campaign?.units?.[unit.id]?.destroyed)denied.push('pilot:Restore this unit in your hangar first.');
+        else if(M.get('unit/'+np.team+'/'+uid)?.st?.hp?.[globalThis.GBRepairUnits.find(u=>u.id===unit.id)?.kill||'chest']===0)denied.push('pilot:Choose a surviving mobile suit.');
         else if(occupied)denied.push('pilot:That mobile suit already has a pilot.');
         else np.pilotUnit=uid;
         if(!denied.some(d=>d.startsWith('pilot:'))){await M.set('player/'+pid,np);players[pid]=np;push=true;}
@@ -499,6 +510,8 @@ export class BattleRoom {
     }
 
     if(await serviceObjectives(M,w.objective,pid,myTeam,uid=>{const holder=locks[myTeam+'/'+uid]?.pid;return holder===pid||(amLeader&&(!holder||!alive(holder)));},denied))push=true;
+
+    if(await this.pilotService())push=true;
 
     // 8. reply with everything that changed since the caller's last view (never seat tokens or secret picks)
     const known = body.known && typeof body.known === "object" ? body.known : {};

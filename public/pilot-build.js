@@ -7,6 +7,7 @@ const fresh=()=>({version:1,earned:0,spent:0,units:{},history:[]});
 const rank=c=>ranks.filter(r=>c.earned>=r[1]).at(-1),balance=c=>c.earned-c.spent,price=u=>Math.ceil(u.dp/100);
 const revival=u=>['Flagship','Super Flagship','Superweapon','Myth','Unknown Class'].includes(u.tier)?Math.ceil(u.dp/250):0;
 function valid(c){
+ if(c?.lossReceipts!==undefined&&(!Array.isArray(c.lossReceipts)||c.lossReceipts.length>512||c.lossReceipts.some(id=>typeof id!=='string'||!/^[a-zA-Z0-9-]{8,80}$/.test(id))))return false;
  if(!c||c.version!==1||!Number.isSafeInteger(c.earned)||c.earned<0||c.earned>1000000||!Number.isSafeInteger(c.spent)||c.spent<0||c.spent>c.earned||!c.units||Array.isArray(c.units)||typeof c.units!=='object'||Object.keys(c.units).length>100||!Array.isArray(c.history)||c.history.length>200)return false;
  for(const [id,b] of Object.entries(c.units)){
   if(b?.destroyed!==undefined&&typeof b.destroyed!=='boolean')return false;
@@ -27,7 +28,14 @@ function reason(c,u,id){
 const cooldown=a=>!!a&&/cooldown|cool.down/i.test(JSON.stringify(a));
 function act(current,u,action,id,choices=[]){
  const c=structuredClone(current),b=u&&c.units[u.id];let text='';
- if(action==='award'){if(!Number.isInteger(id)||id<=0||c.earned+id>1000000)throw Error('Enter a positive whole number of GP.');c.earned+=id;text='Manual prototype award: +'+id+' GP';}
+ if(action==='set-gp'){
+  if(!id||![id.available,id.earned].every(n=>Number.isSafeInteger(n)&&n>=0&&n<=1000000))throw Error('Enter whole GP amounts between 0 and 1,000,000.');
+  if(id.available>id.earned)throw Error('Lifetime GP must be at least your available GP.');
+  c.earned=id.earned;c.spent=id.earned-id.available;
+  if(!valid(c))throw Error('That lifetime GP is too low for your existing trait slots or upgrades. Keep the rank needed by your owned builds.');
+  text='GP updated: '+id.available+' available · '+id.earned+' lifetime';
+ }
+ else if(action==='award'){if(!Number.isInteger(id)||id<=0||c.earned+id>1000000)throw Error('Enter a positive whole number of GP.');c.earned+=id;text='GP earned: +'+id+' GP';}
  else if(action==='unit'){if(!u||u.type||!u.limb||!Number.isFinite(u.dp)||u.dp<=0)throw Error('Choose a mobile suit.');if(b)throw Error('Already owned.');const cost=price(u);if(balance(c)<cost)throw Error('Not enough GP.');c.spent+=cost;c.units[u.id]={extra:0,traits:[]};text='Purchased '+u.name+' · '+cost+' GP';}
  else if(action==='destroyed'){if(!b||b.destroyed)throw Error('Choose a ready owned unit.');b.destroyed=true;text='Recorded destroyed: '+u.name;}
  else if(action==='correct'){if(!b?.destroyed)throw Error('Unit is already ready.');b.destroyed=false;text='Corrected mistaken loss: '+u.name;}

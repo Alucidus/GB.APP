@@ -38,6 +38,7 @@ globalThis.GBSave=(()=>{
     const ids=new Set();for(const r of t.roster){if(!obj(r)||!Number.isInteger(r.uid)||r.uid<1||ids.has(r.uid)||r.uid>=t.nextUid)fail('Invalid or duplicate roster unit.');ids.add(r.uid);
      const u=unitLookup(r.id);if(!u)fail('Unknown unit '+r.id+'. Update the app before importing.');
      if(!obj(r.st)||!obj(r.st.hp))fail('Missing health state for '+r.id);number(r.st.ap,'unit AP');
+     if(r.st.cosmeticNTD!==undefined&&typeof r.st.cosmeticNTD!=='boolean')fail('Invalid appearance state.');
      for(const k of Object.keys(u.limb||{})){number(r.st.hp[k],'unit HP');if(r.st.hp[k]<0)fail('HP cannot be negative.');}
      for(const k of ['sh','shMax','shDown','wpn'])if(r.st[k]!=null&&(!Array.isArray(r.st[k])||r.st[k].some(n=>typeof n!=='number'||!Number.isFinite(n))))fail('Invalid equipment counters.');
      if(u.gtype==='squad'&&(!obj(r.st.sq)||!Array.isArray(r.st.sq.soldiers)||r.st.sq.soldiers.length!==8||r.st.sq.soldiers.some(s=>!obj(s)||!['rifleman','mg','sniper','shield','armor','recon'].includes(s.r)||typeof s.hp!=='number')))fail('Invalid infantry squad.');
