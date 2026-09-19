@@ -1,6 +1,6 @@
 /* Portable device saves. No cookies, multiplayer seats, or arbitrary storage keys. */
 globalThis.GBSave=(()=>{
- const FORMAT='gunpla-battle-save',VERSION=1,MAX=8*1024*1024,JOURNAL='gb.save.import-journal.v1';
+ const FORMAT='gunpla-battle-save',VERSION=2,MAX=8*1024*1024,JOURNAL='gb.save.import-journal.v1';
  const KEYS=['msb.state.v4','gb.pilot.v1','gb.effects','gb.mute','msb.tab','gb.clashSeen','gb.pilot.avatar.v1'];
  const prefs={'gb.effects':['auto','full','lite'],'gb.mute':['0','1'],'msb.tab':['suits','ships','ground'],'gb.clashSeen':['0','1']};
  const obj=x=>!!x&&typeof x==='object'&&!Array.isArray(x),fail=m=>{throw Error(m);};
@@ -20,7 +20,7 @@ globalThis.GBSave=(()=>{
  }
  function validate(data,unitLookup,pilotValid){
   if(!obj(data)||data.format!==FORMAT)fail('This is not a Gunpla Battle save file.');
-  if(data.version!==VERSION)fail('Unsupported save version. Update the app before importing this file.');
+  if(![1,VERSION].includes(data.version))fail('Unsupported save version. Update the app before importing this file.');
   tree(data);
   if(typeof data.createdAt!=='string'||!Number.isFinite(Date.parse(data.createdAt)))fail('The save date is invalid.');
   if(typeof data.build!=='string'||!/^cf\d+$/.test(data.build))fail('The build identifier is invalid.');

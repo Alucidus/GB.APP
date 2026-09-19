@@ -14,6 +14,7 @@
 // Write rules are unchanged: player (that player) · settings (host) · team (leader) · unit (lock holder, or the
 // leader while nobody else holds it) · lock (claim if free or stale) · inbox (any teammate, once; cleared by holder).
 
+import '../public/pilot-build.js';
 import {protectSupply,serviceSupplies,spendSupply} from './resupply.js';
 import {protectRepairs,serviceRepairs} from './repairs.js';
 import {protectPickup,servicePickups} from './pickups.js';
@@ -309,7 +310,7 @@ export class BattleRoom {
       if (Object.hasOwn(w.player,'pilot')) {
         const profile=w.player.pilot;
         if(profile===null){np.pilot=null;np.pilotUnit=null;}
-        else if(profile&&cleanName(profile.name)&&typeof profile.portrait==='string'&&profile.portrait.length<24000&&/^data:image\/webp;base64,[A-Za-z0-9+/=]+$/.test(profile.portrait))np.pilot={name:cleanName(profile.name),portrait:profile.portrait};
+        else if(profile&&cleanName(profile.name)&&typeof profile.portrait==='string'&&profile.portrait.length<24000&&/^data:image\/webp;base64,[A-Za-z0-9+/=]+$/.test(profile.portrait)){if(profile.campaign!==undefined&&!GBPilotBuild.valid(profile.campaign))denied.push('pilot:Invalid pilot build.');else np.pilot={name:cleanName(profile.name),portrait:profile.portrait,...(profile.campaign?{campaign:profile.campaign}:{})};}
         else denied.push('pilot:Invalid pilot portrait. Save your pilot again.');
       }
       if(np.team!==me.team)np.pilotUnit=null;

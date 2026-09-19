@@ -20,7 +20,7 @@ window.SaveFiles=(()=>{
  function close(){if(busy)return;readVersion++;pending=null;overlay?.remove();overlay=null;opener?.focus();}
  function preview(data){
   const box=$('savePreview');box.replaceChildren();box.append(node('h3','Review this save'));
-  const dl=node('dl');const row=(a,b)=>dl.append(node('dt',a),node('dd',b));row('Pilot',data.pilot?data.pilot.name||'Unnamed pilot':'No saved pilot');row('Saved',new Date(data.createdAt).toLocaleString());row('Build',data.build+' · save format 1');
+  const dl=node('dl');const row=(a,b)=>dl.append(node('dt',a),node('dd',b));row('Pilot',data.pilot?data.pilot.name||'Unnamed pilot':'No saved pilot');if(data.pilot?.campaign){row('GP',String(data.pilot.campaign.earned-data.pilot.campaign.spent)+' available');row('Owned units',String(Object.keys(data.pilot.campaign.units).length));}row('Saved',new Date(data.createdAt).toLocaleString());row('Build',data.build+' · save format '+data.version);
   for(const t of ['federation','spacenoid']){const team=data.battle?.teams[t];row(t==='federation'?'Federation':'Spacenoids',team?team.roster.length+' units · '+team.budget+' DP · turn '+team.turn.round:'No roster');}
   row('Objectives',String(Object.keys(data.battle?.objectives?.items||{}).length));row('Dropped equipment records',String(Object.keys(data.battle?.battlefield?.items||{}).length));box.append(dl,node('p','Import replaces the saved pilot, both offline rosters, battle progress, and preferences on this device. Missing sections in this file will clear those sections here.','save-warning'));
   const backup=node('button','Export current save first','btn');backup.type='button';backup.onclick=download;box.append(backup);$('saveConfirm').disabled=false;

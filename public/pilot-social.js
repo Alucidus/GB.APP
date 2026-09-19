@@ -9,20 +9,31 @@ window.PilotSocial = (() => {
   async function refresh(){
     const version=++refreshVersion;
     try{const result=await Pilot.identity();if(version!==refreshVersion)return;profile=result;
+      if(profile&&!mpActive()&&side){let changed=false;const rows=[...roster,...Object.values(teams).flatMap(t=>t?.roster||[])];for(const r of rows)if(r.st?.assignedPilot&&JSON.stringify(r.st.assignedPilot)!==JSON.stringify(profile)){r.st.assignedPilot={...profile};changed=true;}if(changed){save();renderRoster();}}
+
       if(mpActive()&&profile&&JSON.stringify(mpMe()?.pilot)!==JSON.stringify(profile)){
         mp.wantPlayer={...mp.wantPlayer,pilot:profile,name:profile.name};mpKick();
       }
       if(document.getElementById('s5')?.classList.contains('on'))renderLobby();
       update();
-    }catch{if(dialog)document.getElementById('pilotAssignHint').textContent='Could not load your pilot portrait. Reopen Pilot to retry.';}
+    }catch{if(document.getElementById('pilotAssignHint'))document.getElementById('pilotAssignHint').textContent='Could not load your pilot portrait. Reopen Pilot to retry.';}
   }
   function owner(uid,team=mpMyTeam()){
     if(!mpTeamMode())return null;
     return Object.entries(mpPlayers()).find(([,p])=>p.team===team&&p.pilotUnit===uid&&p.pilot);
   }
   function badge(r,team=mpMyTeam()){
+    if(!mpTeamMode())team=side;
     const p=mpTeamMode()?owner(r.uid,team)?.[1]?.pilot:r.st?.assignedPilot;
-    return p?'<span class="pilot-roster-badge">'+icon(p)+'<span>'+esc(p.name)+'</span></span>':'';
+    return p?'<button class="pilot-roster-badge pilot-build-badge" onclick="event.stopPropagation();PilotSocial.showBuild('+r.uid+',\''+team+'\')">'+icon(p)+'<span>'+esc(p.name)+' · '+(p.campaign?.units?.[r.id]?.traits?.length||0)+' traits</span></button>':'';
+  }
+  function showBuild(uid,team){
+    const r=(team===side?roster:teams[team]?.roster||[]).find(r=>r.uid===uid);if(!r)return;
+    const p=mpTeamMode()?owner(uid,team)?.[1]?.pilot:r.st?.assignedPilot;if(!p)return;
+    close();opener=document.activeElement;dialog=document.createElement('div');dialog.className='pilot-assign-overlay';
+    const c=p.campaign||GBPilotBuild.fresh(),b=c.units[r.id],rank=GBPilotBuild.rank(c);
+    dialog.innerHTML='<section class="pilot-assign-panel" role="dialog" aria-modal="true" aria-label="Assigned pilot build"><header><h2>'+esc(p.name)+' · '+esc(rank[0])+'</h2><button class="btn" id="pilotBuildClose">Close</button></header><p>'+esc(GBPilotBuild.benefits(c))+'</p><p>Assigned build · prototype reference only. Combat values are not modified yet.</p><p>'+(b?'Purchased build for '+esc(unitById(r.id).name):'No purchased build for this unit.')+'</p>'+((b?.traits||[]).map(t=>{const def=GBPilotBuild.traits.find(x=>x.id===t.id);return '<article class="pilot-trait-card"><b>'+esc(def.name)+' · Tier '+t.tier+'</b><p>'+esc(def.tiers[t.tier-1])+'</p>'+t.choices.map(i=>'<small>'+esc((t.id==='weapon-mastery'?unitById(r.id).weapons:unitById(r.id).abilities)?.[i]?.name)+'</small>').join('')+'</article>';}).join(''))+'</section>';
+    document.body.append(dialog);const bclose=document.getElementById('pilotBuildClose');bclose.onclick=close;bclose.focus();dialog.onkeydown=e=>{if(e.key==='Escape')close();if(e.key==='Tab'){e.preventDefault();bclose.focus();}};
   }
   function close(){if(dialog){dialog.remove();dialog=null;opener?.focus();}}
   function open(){
@@ -34,7 +45,7 @@ window.PilotSocial = (() => {
     document.getElementById('pilotAssignClose').focus();update();refresh();
   }
   function update(){
-    if(!dialog)return;
+    if(!dialog||!document.getElementById('pilotAssignHint'))return;
     const hint=document.getElementById('pilotAssignHint'),choice=document.getElementById('pilotAssignChoice'),units=document.getElementById('pilotAssignUnits');
     if(!profile){hint.textContent=Pilot.read()?.name?'Loading your saved pilot…':'Save a character in Pilot Studio first.';choice.innerHTML='';units.innerHTML='';return;}
     const current=mpTeamMode()?mpMe()?.pilotUnit:roster.find(r=>r.st?.assignedPilot)?.uid;
@@ -62,5 +73,5 @@ window.PilotSocial = (() => {
     close();
   }
   refresh();
-  return {refresh,open,update,icon,lobbyIdentity,badge};
+  return {refresh,showBuild,open,update,icon,lobbyIdentity,badge};
 })();
