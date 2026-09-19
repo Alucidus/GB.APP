@@ -1,4 +1,10 @@
-# Gunpla Battles - cf133 current handoff
+# Gunpla Battles - cf134 current handoff
+
+Revised hangar chase: smaller distant Gundam, larger pursuing Zakus, banking paths and perspective shrink. Active flights take 1.6 and 1.28 seconds, with the pursuers starting 1.3 seconds later. Desktop and phone browser checks passed. No deployment.
+
+---
+
+# Gunpla Battles - cf133 previous handoff
 
 Pilot Studio window now has an upward Gundam fly-by followed 1.9 seconds later by the Zaku pair. Original transparent sprites sit behind the hangar and pilot. Repeats every 16 seconds; respects reduced motion and effects-lite. Browser checks passed desktop, landscape and portrait. See Release_Notes_cf133.md. No deployment. Next major milestone: full digital character sheet and unit records before GP.
 

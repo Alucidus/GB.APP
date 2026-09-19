@@ -9,10 +9,10 @@ try{
  const seek=async t=>p.locator('.pilot-flyby img').evaluateAll((imgs,t)=>imgs.forEach(i=>{const a=i.getAnimations()[0];a.pause();a.currentTime=t;}),t);
  for(const viewport of [{width:1440,height:900},{width:844,height:390},{width:390,height:844}]){
   await p.setViewportSize(viewport);
-  await seek(2700);const before=await p.locator('.pilot-flyby-gundam').boundingBox();
-  await p.screenshot({path:`tests/screenshots/pilot-cf133-gundam-${viewport.width}.png`});
-  await seek(4600);const after=await p.locator('.pilot-flyby-gundam').boundingBox();assert.ok(after.y<before.y);assert.equal(await p.locator('.pilot-flyby-zakus').evaluate(i=>getComputedStyle(i).opacity),'1');
-  await p.screenshot({path:`tests/screenshots/pilot-cf133-zakus-${viewport.width}.png`});
+  await seek(1500);const before=await p.locator('.pilot-flyby-gundam').boundingBox();
+  await p.screenshot({path:`tests/screenshots/pilot-cf134-gundam-${viewport.width}.png`});
+  await seek(2700);const after=await p.locator('.pilot-flyby-gundam').boundingBox();assert.ok(after.y<before.y);assert.equal(await p.locator('.pilot-flyby-zakus').evaluate(i=>getComputedStyle(i).opacity),'1');
+  await p.screenshot({path:`tests/screenshots/pilot-cf134-zakus-${viewport.width}.png`});
  }
  assert.deepEqual(await p.locator('.pilot-flyby img').evaluateAll(imgs=>imgs.map(i=>i.complete&&i.naturalWidth===1024)),[true,true]);
  assert.equal(await p.locator('.pilot-flyby').evaluate(i=>getComputedStyle(i).pointerEvents),'none');
