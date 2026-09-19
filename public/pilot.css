@@ -39,7 +39,7 @@ html.fx-lite .pilot-flyby{display:none}
 .pilot-shade{position:absolute;inset:0;z-index:-2;background:linear-gradient(90deg,rgba(2,9,15,.83),rgba(2,9,15,.08) 76%),linear-gradient(0deg,rgba(2,9,15,.7),transparent 45%);pointer-events:none}
 .pilot-flight-space[data-scene=duel]>.pilot-flight{visibility:hidden}
 .pilot-flight-space[data-scene=chase]>.pilot-duel{visibility:hidden}
-.pilot-duel{position:absolute;inset:0;--duel-x:53%;--duel-y:26%}
+.pilot-duel{position:absolute;inset:0;--duel-x:53%;--duel-y:26%;--nu-exit-angle:-148.57deg}
 .pilot-sazabi{position:absolute;width:clamp(160px,19vw,275px);left:var(--duel-x);top:var(--duel-y);opacity:0;animation:pilot-sazabi-scene 16s linear infinite paused;transform:translate(-50%,-50%)}
 .pilot-sazabi-art{display:block;width:100%;height:auto}
 .pilot-shield-impact{position:absolute;left:31%;top:35%;width:0;height:0}
@@ -47,7 +47,7 @@ html.fx-lite .pilot-flyby{display:none}
 .pilot-duel-blast,.pilot-duel-ring{position:absolute;width:90px;height:90px;max-width:none;left:-45px;top:-45px;opacity:0;animation:pilot-shield-blast 16s linear infinite paused}
 .pilot-duel-ring{animation-name:pilot-shield-ring}
 .pilot-nu{position:absolute;width:clamp(180px,23vw,330px);left:95%;top:40%;opacity:0;animation:pilot-nu-ramp 16s linear infinite paused}
-.pilot-nu img{display:block;width:100%;height:auto;transform:scaleX(-1)}
+.pilot-nu img{display:block;width:100%;height:auto}
 #pilotScreen.on .pilot-duel *{animation-play-state:running}
 @keyframes pilot-sazabi-scene{
  0%,4%{left:96%;top:44%;transform:translate(-50%,-50%) rotate(0deg);opacity:0}
@@ -64,19 +64,20 @@ html.fx-lite .pilot-flyby{display:none}
 @keyframes pilot-shield-beam{0%,13%{opacity:0;transform:scaleX(0)}13.01%{opacity:1;transform:scaleX(0)}14%{opacity:1;transform:scaleX(1)}14.5%{opacity:1;transform:scaleX(1)}15%,100%{opacity:0;transform:scaleX(1)}}
 @keyframes pilot-shield-blast{0%,14%{opacity:0;transform:scale(.1)}14.1%{opacity:1;transform:scale(.35)}15%{opacity:1;transform:scale(.85)}17%,100%{opacity:0;transform:scale(1.1)}}
 @keyframes pilot-shield-ring{0%,14%{opacity:0;transform:scale(.1)}14.2%{opacity:.9;transform:scale(.3)}17.5%,100%{opacity:0;transform:scale(1.2)}}
-/* Sampled quarter-circle: horizontal entry bends continuously into vertical pursuit. */
+/* Nu enters from the beam's left side, curls upward, then joins Sazabi's escape line. */
 @keyframes pilot-nu-ramp{
- 0%,23%{left:96%;top:42%;transform:translate(-50%,-50%) rotate(0deg);opacity:0}
+ 0%,23%{left:8%;top:calc(var(--duel-y) - 2.5%);transform:translate(-50%,-50%) rotate(0deg);opacity:0}
  23.01%{opacity:1}
- 25%{left:calc(var(--duel-x) + 12%);top:42%;transform:translate(-50%,-50%) rotate(0deg);opacity:1}
- 26%{left:calc(var(--duel-x) + 6%);top:40.5%;transform:translate(-50%,-50%) rotate(22.5deg);opacity:1}
- 27%{left:calc(var(--duel-x) + 1%);top:36%;transform:translate(-50%,-50%) rotate(45deg);opacity:1}
- 28%{left:calc(var(--duel-x) - 2.5%);top:29%;transform:translate(-50%,-50%) rotate(67.5deg);opacity:1}
- 29%{left:calc(var(--duel-x) - 4%);top:21%;transform:translate(-50%,-50%) rotate(90deg);opacity:1}
- 32%{left:calc(var(--duel-x) - 4%);top:-15%;transform:translate(-50%,-50%) rotate(90deg);opacity:1}
- 32.01%,100%{left:calc(var(--duel-x) - 4%);top:-15%;opacity:0}
+ 25%{left:calc(var(--duel-x) - 4%);top:calc(var(--duel-y) - 2.5%);transform:translate(-50%,-50%) rotate(0deg);opacity:1}
+ 26%{left:calc(var(--duel-x) + 3%);top:calc(var(--duel-y) - 3%);transform:translate(-50%,-50%) rotate(-15deg);opacity:1}
+ 27%{left:calc(var(--duel-x) + 6%);top:calc(var(--duel-y) - 5%);transform:translate(-50%,-50%) rotate(-55deg);opacity:1}
+ 28%{left:calc(var(--duel-x) + 4%);top:calc(var(--duel-y) - 7%);transform:translate(-50%,-50%) rotate(-110deg);opacity:1}
+ 29%{left:calc(var(--duel-x) - 1%);top:calc(var(--duel-y) - 8%);transform:translate(-50%,-50%) rotate(var(--nu-exit-angle));opacity:1}
+ 30%{left:calc(var(--duel-x) - 8.75%);top:calc(var(--duel-y) * .75 - 3%);transform:translate(-50%,-50%) rotate(var(--nu-exit-angle));opacity:1}
+ 33%{left:calc(var(--duel-x) - 35%);top:-12%;transform:translate(-50%,-50%) rotate(var(--nu-exit-angle));opacity:1}
+ 33.01%,100%{left:calc(var(--duel-x) - 35%);top:-12%;transform:translate(-50%,-50%) rotate(var(--nu-exit-angle));opacity:0}
 }
-@media(orientation:portrait){.pilot-duel{--duel-x:65%;--duel-y:22%}.pilot-sazabi{width:160px}.pilot-nu{width:190px}.pilot-duel-beam{width:100vw}}
+@media(orientation:portrait){.pilot-duel{--duel-x:65%;--duel-y:22%;--nu-exit-angle:-151.33deg}.pilot-sazabi{width:160px}.pilot-nu{width:190px}.pilot-duel-beam{width:100vw}}
 .pilot-header{height:76px;box-sizing:border-box;padding:12px max(20px,env(safe-area-inset-right)) 12px max(20px,env(safe-area-inset-left));display:flex;gap:20px;align-items:center;border-bottom:1px solid #93b1c644;background:#08111acc}
 .pilot-header>div{flex:1}.pilot-header h1{font-size:24px;margin:0;letter-spacing:.18em}.pilot-header small{font-size:10px;letter-spacing:.16em;color:var(--pilot-accent)}
 .pilot-layout{display:grid;grid-template-columns:minmax(290px,42%) minmax(0,1fr);gap:3vw;height:calc(100% - 76px);padding:22px max(22px,env(safe-area-inset-right)) 18px max(22px,env(safe-area-inset-left));box-sizing:border-box;max-width:1600px;margin:auto}
