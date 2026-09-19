@@ -3335,6 +3335,7 @@ function show(id) {
 }
 
 function save() {
+  if(globalThis.GBSaveRecoveryError)return;
   pickupRefresh();
   objectiveRefresh();
   repairRefresh();
@@ -3347,6 +3348,7 @@ function save() {
   try { mpDirty(); } catch (e) {}
 }
 function load() {
+  if(globalThis.GBSaveRecoveryError)return false;
   try {
     const d = JSON.parse(localStorage.getItem(SAVE) || "null");
     if (d && d.side) {
@@ -7840,7 +7842,7 @@ function fitSheet() {
 }
 window.addEventListener("resize", () => requestAnimationFrame(()=>{renderAmounts();fitSheet();}));
 window.addEventListener("orientationchange", () => setTimeout(fitSheet, 150));
-const APP_BUILD = "cf149";
+const APP_BUILD = "cf150";
 if ($("buildTag")) $("buildTag").textContent = APP_BUILD;
 if ($("buildTag0")) $("buildTag0").textContent = APP_BUILD;
 

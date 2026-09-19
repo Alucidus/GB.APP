@@ -3552,3 +3552,17 @@ button.mb-item.fxtog{font:inherit;color:#dfe9f4;background:none;border-top:0;bor
 .objective-create input{flex:1;min-width:160px;min-height:44px;font:16px system-ui;padding:8px;box-sizing:border-box}
 .objective-units{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px}
 .objective-history{font-size:12px;color:#b9c8d5}
+/* Portable saves: roomy touch controls and a scrollable preview. */
+#s0 .mb-item{padding-inline:clamp(10px,2vw,28px)}
+.save-overlay{position:fixed;inset:0;z-index:10000;background:#02070de8;display:flex;align-items:center;justify-content:center;padding:12px;color:#e7f2ff}
+.save-panel{width:min(620px,100%);max-height:100%;display:flex;flex-direction:column;background:#0c1925;border:1px solid #72bdda;box-shadow:0 0 30px #163b52;overflow:hidden}
+.save-panel header,.save-panel footer{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 18px;background:#102737;flex-shrink:0}
+.save-panel h2{margin:0;font-size:19px}.save-panel h3{font-size:16px}.save-body{padding:4px 18px 18px;overflow:auto;overscroll-behavior:contain;font-size:14px;line-height:1.5;min-height:0}
+.save-actions{display:flex;gap:12px}.save-panel .btn{min-height:44px;white-space:normal;cursor:pointer}.save-actions>*{flex:1}.save-actions label{position:relative;display:flex;align-items:center;justify-content:center}
+.save-actions input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}.save-actions label:focus-within{outline:2px solid #ffe0a0;outline-offset:3px}
+.save-panel button:disabled{opacity:.45;cursor:default}.save-panel dl{display:grid;grid-template-columns:100px 1fr;gap:8px 16px}.save-panel dd{margin:0;overflow-wrap:anywhere}.save-panel dt{color:#9eb6c7}
+.save-message{color:#b4d9e8}.save-warning{border-left:3px solid #e7b965;padding:10px 12px;background:#302b20}.save-panel footer{justify-content:flex-end;border-top:1px solid #365063}.save-panel footer .btn{width:100%}
+@media(max-width:560px){#s0 .save-menu{grid-column:1/-1;justify-content:center;border-right:0}.save-overlay{padding:8px}.save-panel header,.save-panel footer{padding:10px 12px}.save-body{padding-inline:12px}}
+#s0 .save-menu{background:transparent;color:inherit;border:0;border-left:1px solid #ffffff18;font:inherit;text-align:left}
+#s0 .save-menu:hover,#s0 .save-menu:focus-visible{background:#16394d;color:#fff}
+@media(max-width:560px){#s0 .save-menu{border-top:1px solid #ffffff18;border-left:0}}

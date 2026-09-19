@@ -7,6 +7,12 @@ window.Pilot = (() => {
   const $=id=>document.getElementById(id);
   const palettes={hairColor:[['Original','original'],['Black','#272932'],['Brown','#79503a'],['Blond','#e0be77'],['Silver','#ccd3db'],['Auburn','#ab513a'],['Blue','#567baa'],['Pink','#c97b9f']],browColor:[['Original','original'],['Black','#272932'],['Brown','#79503a'],['Blond','#b49760'],['Silver','#aeb8c7'],['Auburn','#ab513a'],['Blue','#567baa'],['Pink','#c97b9f']],eyeColor:[['Original','original'],['Brown','#91613e'],['Blue','#4c91cd'],['Green','#58985b'],['Hazel','#b19b57'],['Grey','#95a8b8'],['Violet','#9a75c5']],uniformColor:[['Original','original'],['Navy','#405e90'],['Crimson','#a8444e'],['Forest','#4e795c'],['Sand','#b5a47b'],['White','#d4dce5'],['Charcoal','#515565']]};
   palettes.facialHairColor=palettes.hairColor;
+  function validateSave(p){
+    if(!p||p.version!==1||!['male','female'].includes(p.body)||!['federation','spacenoid','neutral'].includes(p.faction))return false;
+    for(const k of ['name','callsign','background'])if(typeof p[k]!=='string'||p[k].length>(k==='background'?1200:48))return false;
+    for(const [k,max] of [['face',3],['hair',p.body==='female'?8:11],['beard',5],['uniform',4]])if(!Number.isInteger(p[k])||p[k]<0||p[k]>max)return false;
+    return Object.keys(palettes).every(k=>palettes[k].some(x=>x[1]===p[k]));
+  }
   function read(){try{const p=JSON.parse(localStorage.getItem(KEY)||'null');if(p&&p.version===1){const d=defaults();for(const k of ['name','callsign','background'])d[k]=typeof p[k]==='string'?p[k].slice(0,k==='background'?1200:48):'';for(const k of ['body','faction'])if((k==='body'?['male','female']:['federation','spacenoid','neutral']).includes(p[k]))d[k]=p[k];for(const [k,max] of [['face',3],['hair',d.body==='female'?8:11],['beard',5],['uniform',4]])if(Number.isInteger(p[k])&&p[k]>=0&&p[k]<=max)d[k]=p[k];for(const k of Object.keys(palettes))if(palettes[k].some(x=>x[1]===p[k]))d[k]=p[k];return d;}}catch{}return null;}
   function status(text){$('pilotStatus').textContent=text;}
   function button(text,selected,fn){const b=document.createElement('button');b.type='button';b.className='pilot-option'+(selected?' selected':'');b.textContent=text;b.setAttribute('aria-pressed',String(selected));b.onclick=fn;return b;}
@@ -144,5 +150,5 @@ window.Pilot = (() => {
     chooseFlight();screen.querySelector('.pilot-flyby-gundam').addEventListener('animationiteration',chooseFlight);const scene=$('m3').cloneNode(true);scene.querySelectorAll('.fg').forEach(n=>n.remove());$('pilotBattle').replaceChildren(...scene.children);$('pilotBack').onclick=back;$('pilotSave').onclick=save;$('pilotKeep').onclick=()=>{$('pilotDiscard').hidden=true;};$('pilotLeave').onclick=()=>{$('pilotDiscard').hidden=true;show('s0');};screen.querySelectorAll('[data-pilot-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.pilotTab;render();});
     screen.addEventListener('keydown',e=>{if($('pilotDiscard').hidden)return;if(e.key==='Escape'){e.preventDefault();$('pilotDiscard').hidden=true;$('pilotBack').focus();}if(e.key==='Tab'){e.preventDefault();(document.activeElement===$('pilotKeep')?$('pilotLeave'):$('pilotKeep')).focus();}});
   }
-  init();return {open,save,identity,read,get ready(){return ready;}};
+  init();return {open,save,identity,read,validateSave,get ready(){return ready;}};
 })();
